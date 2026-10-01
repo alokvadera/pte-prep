@@ -19,7 +19,7 @@ export interface ItemWeightage {
   suggestedTime: string
 }
 
-export const WEIGHTAGE_DATA: ItemWeightage[] = [
+const WEIGHTAGE_DATA: ItemWeightage[] = [
   // --- TIER 1: CRITICAL (~70% OF TOTAL SCORE) ---
   {
     type: 'write-from-dictation',

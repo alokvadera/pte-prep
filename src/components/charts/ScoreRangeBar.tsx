@@ -30,7 +30,7 @@ const BAND_COLOR: Record<string, string> = {
  * CEFR_BANDS is ordered from the top band down, so each band ends one point
  * below the band above it — the *previous* entry, not the next.
  */
-export const BAND_EDGES: Array<{ band: string; from: number; to: number; color: string }> =
+const BAND_EDGES: Array<{ band: string; from: number; to: number; color: string }> =
   CEFR_BANDS.map((b, i) => {
     const above = CEFR_BANDS[i - 1]
     return {

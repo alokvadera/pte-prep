@@ -192,10 +192,6 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
     return () => window.clearInterval(id)
   }, [status, sectionEndsAt])
 
-  useEffect(() => {
-    if (sectionEndsAt) setNow(Date.now())
-  }, [sectionEndsAt])
-
   const remaining = sectionEndsAt ? Math.max(0, Math.ceil((sectionEndsAt - now) / 1000)) : 0
 
   useEffect(() => {

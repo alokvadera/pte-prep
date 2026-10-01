@@ -415,14 +415,19 @@ export function Toggle({
         <span className="text-ink-800 dark:text-ink-100 block text-sm font-medium">{label}</span>
         {description ? <span className="text-ink-500 dark:text-ink-400 block text-xs">{description}</span> : null}
       </span>
-      <button
-        type="button"
+      <input
+        type="checkbox"
         role="switch"
+        checked={checked}
         aria-checked={checked}
         aria-label={label}
-        onClick={() => onChange(!checked)}
+        onChange={(e) => onChange(e.target.checked)}
+        className="sr-only"
+      />
+      <span
+        aria-hidden="true"
         className={cn(
-          'relative mt-0.5 h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-colors',
+          'relative mt-0.5 h-6 w-11 shrink-0 rounded-full border transition-colors',
           checked ? 'border-brand-500 bg-brand-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
         )}
       >
@@ -432,7 +437,7 @@ export function Toggle({
             checked ? 'translate-x-5.5' : 'translate-x-0.5',
           )}
         />
-      </button>
+      </span>
     </label>
   )
 }

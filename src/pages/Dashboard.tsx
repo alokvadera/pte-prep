@@ -403,7 +403,7 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
         />
       ) : null}
       {points.map((p, i) => (
-        <circle key={i} cx={px(i)} cy={py(p.value)} r={3.5} className="fill-brand-500" />
+        <circle key={i} cx={px(i)} cy={py(p.value)} r={3.5} className="fill-brand-500 dark:fill-brand-300" />
       ))}
     </svg>
   )

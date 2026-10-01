@@ -96,6 +96,3 @@ export function Seo() {
   // prerendered markup and the hydrated tree identical.
   return null
 }
-
-export { getPageMeta } from './meta'
-export { pageHeadTags, renderHeadTags } from './structured'

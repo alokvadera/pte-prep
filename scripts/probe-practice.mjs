@@ -33,7 +33,12 @@ let nextId = 1
 const pending = new Map()
 ws.addEventListener('message', (e) => {
   const m = JSON.parse(e.data)
-  if (m.id && pending.has(m.id)) { const p = pending.get(m.id); pending.delete(m.id); m.error ? p.reject(new Error(m.error.message)) : p.resolve(m.result) }
+  if (m.id && pending.has(m.id)) {
+    const p = pending.get(m.id)
+    pending.delete(m.id)
+    if (m.error) p.reject(new Error(m.error.message))
+    else p.resolve(m.result)
+  }
 })
 const send = (method, params = {}, sessionId) => new Promise((resolve, reject) => {
   const id = nextId++

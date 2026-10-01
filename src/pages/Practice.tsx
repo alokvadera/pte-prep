@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, MOCK_BLUEPRINT, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { buildDrillMock } from '../domain/assemble'
@@ -32,19 +32,20 @@ export default function Practice() {
   const start = useTest((s) => s.start)
   const rawType = params.get('type')
   const deepLinkType = rawType && (ALL_QUESTION_TYPES as string[]).includes(rawType) ? (rawType as QuestionType) : null
-  const [skill, setSkill] = useState<Skill | null>(null)
-  const [selected, setSelected] = useState<Set<QuestionType>>(() => new Set(ALL_QUESTION_TYPES))
+  const [prevDeepLink, setPrevDeepLink] = useState(deepLinkType)
+  const [skill, setSkill] = useState<Skill | null>(() => (deepLinkType ? QUESTION_META[deepLinkType].skills[0] ?? null : null))
+  const [selected, setSelected] = useState<Set<QuestionType>>(() => (deepLinkType ? new Set([deepLinkType]) : new Set(ALL_QUESTION_TYPES)))
   const [perType, setPerType] = useState(3)
 
-  const capacity = useMemo(() => capacityByType(), [])
+  if (deepLinkType !== prevDeepLink) {
+    setPrevDeepLink(deepLinkType)
+    if (deepLinkType) {
+      setSelected(new Set([deepLinkType]))
+      setSkill(QUESTION_META[deepLinkType].skills[0] ?? null)
+    }
+  }
 
-  useEffect(() => {
-    if (!deepLinkType) return
-    const [primary] = QUESTION_META[deepLinkType].skills
-    if (!primary) return
-    setSelected(new Set([deepLinkType]))
-    setSkill(primary)
-  }, [deepLinkType])
+  const capacity = useMemo(() => capacityByType(), [])
 
   const types = useMemo(
     () => (skill ? ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].skills.includes(skill)) : ALL_QUESTION_TYPES),

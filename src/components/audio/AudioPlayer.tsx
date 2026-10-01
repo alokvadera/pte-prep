@@ -59,14 +59,17 @@ export function AudioPlayer({
     onPlayedRef.current = onPlayed
   }, [onPlayed])
 
-  // Reset whenever the stimulus changes.
-  useEffect(() => {
+  const stimulusKey = `${audioId ?? ''}:${utterance ?? ''}:${fromTurn ?? ''}:${toTurn ?? ''}:${beepWord ?? ''}:${replays}`
+  const [prevStimulusKey, setPrevStimulusKey] = useState(stimulusKey)
+
+  if (stimulusKey !== prevStimulusKey) {
+    setPrevStimulusKey(stimulusKey)
     setPlaysLeft(replays + 1)
     setState('idle')
     setShowText(false)
     setTurnIndex(0)
     setUnsupported(false)
-  }, [audioId, utterance, fromTurn, toTurn, beepWord, replays])
+  }
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== null) {
@@ -96,7 +99,6 @@ export function AudioPlayer({
     if (state !== 'countdown') return
     if (!script && !utterance) return
     let n = leadIn
-    setCountdown(n)
 
     const step = () => {
       if (n >= 0) playCountdownBeep(n)
@@ -235,6 +237,7 @@ export function AudioPlayer({
                   return
                 }
                 setTurnIndex(0)
+                setCountdown(leadIn)
                 setState('countdown')
               }}
             >

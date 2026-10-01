@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { cn } from '../../lib/cn'
 import { formatClock } from '../../lib/format'
 
@@ -47,15 +47,20 @@ export function TestHeader({
   const ratio = totalSeconds > 0 ? secondsRemaining / totalSeconds : 0
   const critical = secondsRemaining <= 60
   const warning = secondsRemaining <= 300 && !critical
+  const [prevSection, setPrevSection] = useState(sectionTitle)
   const [canExtend, setCanExtend] = useState(false)
   const [extended, setExtended] = useState(0)
 
   // The extension control appears at each threshold and stays for the rest of
   // the section, so the candidate is never asked to find it under pressure.
-  const atThreshold = !untimed && WARN_AT.some((t) => secondsRemaining <= t)
-  useEffect(() => {
-    if (atThreshold) setCanExtend(true)
-  }, [atThreshold])
+  if (sectionTitle !== prevSection) {
+    setPrevSection(sectionTitle)
+    setCanExtend(false)
+  } else if (!canExtend && !untimed && WARN_AT.some((t) => secondsRemaining <= t)) {
+    setCanExtend(true)
+  }
+
+  const atThreshold = canExtend || (!untimed && WARN_AT.some((t) => secondsRemaining <= t))
 
   const remainingLabel = `${formatClock(secondsRemaining)} remaining in this section`
 

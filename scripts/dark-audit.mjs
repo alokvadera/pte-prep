@@ -150,8 +150,8 @@ ws.addEventListener('message', (event) => {
   const m = JSON.parse(event.data)
   if (m.id && pending.has(m.id)) {
     const p = pending.get(m.id)
-    pending.delete(m.id)
-    m.error ? p.reject(new Error(m.error.message)) : p.resolve(m.result)
+    if (m.error) p.reject(new Error(m.error.message))
+    else p.resolve(m.result)
   }
 })
 
@@ -393,7 +393,7 @@ console.log('\n  Dark-mode visual audit (WCAG 1.4.3 / 1.4.11, rendered)\n')
 console.log(routeSummary.join('\n'))
 
 if (SHOTS) {
-  console.log(`\n  Screenshots written to ${path.relative(process.cwd(), OUT_DIR)}${path.sep}*\{desktop,mobile\}.png`)
+  console.log(`\n  Screenshots written to ${path.relative(process.cwd(), OUT_DIR)}${path.sep}*{desktop,mobile}.png`)
 }
 console.log('')
 process.exit(failures === 0 ? 0 : 1)
