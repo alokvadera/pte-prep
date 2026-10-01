@@ -300,9 +300,10 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         itemCount={section.itemIds.length}
         answered={answered}
         flagged={flagged}
+        onExit={onExit}
       />
 
-      <main className="page-shell-wide py-7">
+      <main className="page-shell-wide pt-7 pb-24">
         {group?.stimulus.passageParagraphs && group.type !== 'summarize-written-text' ? (
           <article className="card mb-6">
             {group.stimulus.passageTitle ? (

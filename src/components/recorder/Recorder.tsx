@@ -231,7 +231,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
 
           {transcript ? (
             <div className="border-ink-200 dark:border-white/10 mt-3 border-t pt-3">
-              <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">
+              <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
                 What the browser heard
               </p>
               <p className="passage mt-1.5">{transcript}</p>

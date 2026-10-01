@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
+import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
 import { Accordion, Button, ButtonLink, CtaBand, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
@@ -309,6 +310,20 @@ export default function Guide() {
                       </span>
                     </div>
                     <p className="text-ink-600 dark:text-ink-300 mt-2 text-sm leading-relaxed">{qm.tip}</p>
+                    <div className="border-ink-100 dark:border-white/6 mt-3 flex items-center justify-between border-t pt-2.5 text-xs">
+                      <Link
+                        to={`/question-types/${typeSlug(t)}/`}
+                        className="text-ink-600 hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-400 font-medium hover:underline"
+                      >
+                        Deep dive & rubric →
+                      </Link>
+                      <Link
+                        to={`/practice?type=${t}`}
+                        className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-semibold hover:underline"
+                      >
+                        Practice drill →
+                      </Link>
+                    </div>
                   </article>
                 )
               })}

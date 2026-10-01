@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { TestRunner } from '../components/test/TestRunner'
 import { Seo } from '../seo/Seo'
 import { useTest } from '../store/useTest'
-import { useSettings } from '../store/useSettings'
 
 export default function TestPage() {
   const navigate = useNavigate()
   const status = useTest((s) => s.status)
   const restore = useTest((s) => s.restore)
   const tick = useTest((s) => s.tick)
-  const { settings, set } = useSettings()
   const [confirmExit, setConfirmExit] = useState(false)
 
   // A reload mid-test resumes the same item with the same clock. A test that was
@@ -37,29 +35,9 @@ export default function TestPage() {
     <>
       <Seo />
 
-      <div className="fixed top-3 left-3 z-50 flex gap-1">
-        <button
-          type="button"
-          className="btn-ghost bg-white/80 px-2 text-xs backdrop-blur-sm dark:bg-ink-850/80"
-          onClick={() => setConfirmExit(true)}
-        >
-          Exit
-        </button>
-        {settings.speakPrompts ? (
-          <button
-            type="button"
-            className="btn-ghost bg-white/80 px-2 text-xs backdrop-blur-sm dark:bg-ink-850/80"
-            onClick={() => set('speakPrompts', false)}
-          >
-            Mute prompts
-          </button>
-        ) : null}
-      </div>
-
       <TestRunner
         onExit={() => {
-          setConfirmExit(false)
-          navigate('/mock')
+          setConfirmExit(true)
         }}
       />
 

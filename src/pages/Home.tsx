@@ -130,7 +130,7 @@ export default function Home() {
                 className="card-exam flex h-full flex-col"
               >
                 <p className="flex items-center justify-between font-mono text-micro tabular-nums">
-                  <span className="text-brand-600 dark:text-brand-300 font-bold">0{idx + 1}</span>
+                  <span className="text-brand-600 dark:text-brand-300 font-bold">Part {idx + 1}</span>
                   <span className="text-ink-500 dark:text-ink-400">{meta.weightNote}</span>
                 </p>
                 <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{meta.longTitle}</h3>
@@ -198,12 +198,9 @@ export default function Home() {
                 title: 'Progress over time',
                 body: 'Every attempt is stored on your own device with a trend line, so you can see whether the last three weeks of practice actually moved anything.',
               },
-            ].map((f, i) => (
+            ].map((f) => (
               <article key={f.title} className="card">
-                <p className="font-mono text-micro tabular-nums text-brand-600 dark:text-brand-300">
-                  R0{i + 1}
-                </p>
-                <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{f.title}</h3>
+                <h3 className="text-ink-900 dark:text-white text-lg font-bold leading-tight text-balance">{f.title}</h3>
                 <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{f.body}</p>
               </article>
             ))}

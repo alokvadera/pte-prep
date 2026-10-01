@@ -29,6 +29,7 @@ interface Props {
   onExtend?: (seconds: number) => void
   /** An untimed run shows a counter instead of a clock. */
   untimed?: boolean
+  onExit?: () => void
 }
 
 export function TestHeader({
@@ -41,6 +42,7 @@ export function TestHeader({
   flagged,
   onExtend,
   untimed = false,
+  onExit,
 }: Props) {
   const ratio = totalSeconds > 0 ? secondsRemaining / totalSeconds : 0
   const critical = secondsRemaining <= 60
@@ -74,7 +76,17 @@ export function TestHeader({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-3">
+        <div className="flex flex-wrap items-center justify-end gap-2.5 sm:gap-3">
+          {onExit ? (
+            <button
+              type="button"
+              className="btn-ghost px-2.5 py-1 text-xs text-ink-500 hover:text-rose-600 dark:hover:text-rose-400"
+              onClick={onExit}
+              title="Exit test and save progress"
+            >
+              Exit
+            </button>
+          ) : null}
           <span className="text-ink-500 dark:text-ink-400 hidden text-xs tabular-nums sm:inline">
             {answered} answered
           </span>

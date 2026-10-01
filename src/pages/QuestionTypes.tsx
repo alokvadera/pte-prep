@@ -114,10 +114,25 @@ export default function QuestionTypes() {
                           <dd>{q.perTest}</dd>
                         </div>
                         <div className="flex gap-1.5">
-                          <dt className="text-ink-400">Scoring</dt>
+                          <dt className="text-ink-500 dark:text-ink-400">Scoring</dt>
                           <dd>{SCORING_LABEL[q.scoring]}</dd>
                         </div>
                       </dl>
+
+                      <div className="border-ink-100 dark:border-white/6 mt-4 flex items-center justify-between border-t pt-2.5 text-xs">
+                        <Link
+                          to={`/question-types/${slug}/`}
+                          className="text-ink-600 hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-400 font-medium hover:underline"
+                        >
+                          Guide & rubric →
+                        </Link>
+                        <Link
+                          to={`/practice?type=${type}`}
+                          className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-semibold hover:underline"
+                        >
+                          Drill →
+                        </Link>
+                      </div>
                     </li>
                   )
                 })}

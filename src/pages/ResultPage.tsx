@@ -453,7 +453,7 @@ function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
 
   return (
     <div>
-      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">
+      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
         Estimated traits · {meta.traits.join(', ')}
       </p>
       <ul className="mt-2 space-y-2">
@@ -567,7 +567,7 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
 
           {detail.reference ? (
             <div>
-              <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">
+              <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
                 {isEstimated(detail) ? 'Model answer' : 'Answer key'}
               </p>
               <p className="passage bg-ink-100 dark:bg-white/5 border border-ink-200/60 dark:border-white/10 mt-1.5 rounded-lg p-3 text-sm">{detail.reference}</p>
@@ -624,7 +624,7 @@ function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response:
 
   return (
     <div>
-      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">What you gave</p>
+      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">What you gave</p>
       <ul className="mt-1.5 space-y-1.5">
         {lines.map((l, i) => (
           <li key={i} className="text-ink-600 dark:text-ink-300 min-w-0 text-sm leading-relaxed break-words">
