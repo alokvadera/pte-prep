@@ -239,10 +239,10 @@ const assetExists = (rel) => fs.existsSync(path.join(DIST, rel.replace(/^\//, ''
 for (const r of records) {
   for (const href of new Set(r.links)) {
     if (/^(https?:|mailto:|tel:|#)/.test(href)) continue
-    // Query routes (/practice/?type=x) resolve like their base path — the same
-    // way scripts/serve.mjs and every static host treat them — so validate the
-    // file behind the query instead of skipping the link blind.
-    const bare = href.split('?')[0]
+    // Query routes (/practice/?type=x) and anchors (/guide/#templates) resolve
+    // like their base path — the same way browsers and static hosts treat them —
+    // so validate the file behind the query/hash instead of skipping or failing.
+    const bare = href.split(/[?#]/)[0]
     if (!bare || !bare.startsWith('/')) continue
     const hrefForCheck = bare
     if (!assetExists(hrefForCheck)) { add('Internal Links', `${r.route} links to ${href} which has no file`, 'High', href, 'Fix the route or remove the link'); continue }

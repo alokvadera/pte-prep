@@ -57,7 +57,7 @@ const FORMAT_FAQ: Array<{ question: string; answer: string }> = [
       'The exact number varies slightly between versions because each version is balanced for total length. A full-length test typically contains around 70 to 90 scored items spread across 22 question types, plus an unscored personal introduction at the start.',
   },
   {
-    question: 'What changed in the PTE Academic in 2025?',
+    question: 'What are the recent changes to the PTE Academic?',
     answer:
       'Pearson added two new item types in August 2025: Summarize Group Discussion, which asks you to listen to a multi-speaker exchange and give an oral summary, and Respond to a Situation, which asks for a spoken response to a described context. The format is now nine Speaking and Writing types, five Reading types and eight Listening types.',
   },
@@ -128,7 +128,7 @@ const GUIDE_FAQ: Array<{ question: string; answer: string }> = [
       'Spending the whole twenty minutes planning, or writing fewer than 200 words. The essay is scored on content, development and structure, coherence, and general linguistic range. A clear four-paragraph structure with linked sentences protects two of those four traits even when the argument is not especially original.',
   },
   {
-    question: 'Do I need to practise the two new 2025 question types?',
+    question: 'Do I need to practise the two newest question types?',
     answer:
       'Yes. Summarize Group Discussion and Respond to a Situation are part of the current format and appear in the Speaking and Writing section. Summarize Group Discussion is scored on oral fluency, pronunciation and content, so the technique is the same as Re-tell Lecture at a larger scale: capture the skeleton, not the details.',
   },
@@ -168,7 +168,7 @@ const ABOUT_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'Why are the scores only estimates?',
     answer:
-      'Objective items are scored exactly. Speaking and writing are scored by Pearson using a proprietary model that cannot be reproduced outside their scoring system, so this site applies a documented rubric over the same four PTE constructs. Every result is labelled as an estimate, and each item is marked as auto-scored or estimated.',
+      'Objective items are scored exactly. Speaking and writing are scored by Pearson using a proprietary automated model, with human reviewers used to quality-monitor it, which cannot be reproduced outside their scoring system — so this site applies a documented rubric over the same four PTE constructs. Every result is labelled as an estimate, and each item is marked as auto-scored or estimated.',
   },
 ]
 
@@ -237,7 +237,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/practice': {
     title: 'PTE Practice by Skill — Every Question Type',
     description:
-      'Practise individual PTE Academic skills and question types. Choose a skill, pick the exact types you struggle with, and get instant per-item feedback.',
+      'Practice individual PTE Academic skills and question types. Choose a skill, pick the exact types you struggle with, and get instant per-item feedback.',
     path: '/practice/',
     keywords: ['PTE speaking practice', 'PTE writing practice', 'PTE reading practice', 'PTE listening practice'],
     structuredData: [
@@ -334,7 +334,7 @@ export const PAGE_META: Record<string, PageMeta> = {
           'A practical sequence of improvements that move a PTE score the most for the least study time.',
         steps: [
           { name: 'Fix the objective items', text: 'Fill in the Blanks and Re-order Paragraphs have deterministic answers and no partial credit, so improvement here is immediate and measurable.' },
-          { name: 'Practise Repeat Sentence daily', text: 'Ten items a day trains listening accuracy, speaking fluency and pronunciation at the same time.' },
+          { name: 'Practice Repeat Sentence daily', text: 'Ten items a day trains listening accuracy, speaking fluency and pronunciation at the same time.' },
           { name: 'Learn a fixed structure for the essay', text: 'Four paragraphs with explicit linking words protect the development and coherence traits under time pressure.' },
           { name: 'Use a skeleton for Re-tell Lecture and Summarize Group Discussion', text: 'Note three or four keywords during playback and re-tell from the skeleton rather than trying to remember sentences.' },
           { name: 'Sit full mocks under real time pressure', text: 'At least every third attempt should be in exam mode, because timing is part of what the test measures.' },

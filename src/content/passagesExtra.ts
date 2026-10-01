@@ -46,7 +46,7 @@ export const EXTRA_PASSAGES: Passage[] = [
         'It would be convenient to conclude that sleep directly strengthens memory, and this is broadly defensible, but the harder finding is about what sleep declines to do. Slow-wave sleep is associated with a reduced responsiveness to external sound, and the brain appears to select what it will keep: experiences that were flagged as important, or that fit an existing schema, are preferentially stabilised, and others are left to fade. This solves a problem the waking brain faces constantly and cannot solve, because during learning there is no opportunity to discard anything without discarding everything.',
         'The clinical consequences follow from the selection account rather than the rest account. An hour of lost sleep does not subtract a fixed quantity of memory; it removes the opportunity to sort, so that the material which survives is more likely to be the material that was already familiar. This predicts, correctly, that sleep deprivation hurts unfamiliar material most.',
       ],
-      keyTerms: ['slow-wave sleep', 'schema', 'stabilised', 'deprived', 'familiar', 'sort'],
+      keyTerms: ['slow-wave sleep', 'schema', 'stabilised', 'deprivation', 'familiar', 'sort'],
       minWords: 20,
     },
     dropdown: {

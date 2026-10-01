@@ -4,6 +4,7 @@ import { ASQ_RECORDINGS, CONVERSATIONS, DICTATION, HIGHLIGHT_INCORRECT, HIGHLIGH
 import { GROUP_DISCUSSIONS, GROUP_DISCUSSION_ITEMS, LECTURES, RETELL_ITEMS, SPOKEN_SUMMARY_ITEMS } from './audio'
 import { CHARTS } from './charts'
 import { PASSAGES } from './passages'
+import { EXTRA_ESSAY_PROMPTS } from './essayExtra'
 import type { AudioScript, ContentBank, Passage } from './schema'
 
 // ---------------------------------------------------------------------------
@@ -223,7 +224,7 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     source: 'passage',
     stimulus: 'page-machine-translation',
     question:
-      'Read the graph below and summarise the information by selecting and reporting the main features, and make comparisons where relevant. Write at least 200 words.',
+      'Machine translation has improved rapidly, yet professional translators are still widely employed. Do the advantages of machine translation outweigh the need for human translators? Support your argument with relevant examples.',
     keyTerms: ['translation', 'systems', 'domain', 'review', 'fluency', 'accuracy', 'data', 'language'],
     minWords: 200,
     maxWords: 300,
@@ -288,6 +289,7 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     minWords: 200,
     maxWords: 300,
   },
+  ...EXTRA_ESSAY_PROMPTS,
 ]
 
 /** Deterministic helper used by the test assembler to vary distractor order. */

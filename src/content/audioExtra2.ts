@@ -98,7 +98,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_2: GroupDiscussionItem[] = [
       'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
     reference:
       'The panel accepts that the economics of congestion charging are not the difficulty and that revenue could fund alternatives. They split on who bears the cost and on timing. The disabled resident argues the charge falls hardest on people who cannot change when they travel, and would accept it only if the bus came first. The economist rejects the commodity framing, noting roads were always priced badly through fuel duty. The councillor can offer a cap and a permit exemption but will not accept the framing objection. They disagree on whether a price is acceptable without alternatives in place.',
-    keyTerms: ['economics', 'revenue', 'exempt', 'not be consulted', 'charge', 'timing'],
+    keyTerms: ['economics', 'revenue', 'exempt', 'change when', 'charge', 'timing'],
     minWords: 40,
   },
   {
@@ -155,7 +155,7 @@ export const EXTRA_RETELL_ITEMS: RetellItem[] = [
     ],
     reference:
       'The panel separates a diagnosis from a remedy and agrees on the diagnosis. The academic proposes making attendance optional on weak evidence of a link to attainment, but the student representative argues attendance is not random so the comparison tells you about motivation, and the postgraduate warns that optional contact lowers the standard for everyone while raising the barrier for the least confident. The remedy is disputed: small groups a student must justify not joining, funded instead of recordings, with the figures published.',
-    keyTerms: ['mandatory', 'optional', 'regressive', 'correlation', 'small group', 'diagnosis'],
+    keyTerms: ['optional', 'mandating', 'regressive', 'correlation', 'small group', 'diagnosis'],
     minWords: 30,
   },
 ]

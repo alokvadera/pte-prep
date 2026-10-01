@@ -2,7 +2,6 @@ import type {
   AudioScript,
   DictationItem,
   HighlightIncorrectItem,
-  HighlightSummaryItem,
   ListeningFibItem,
   ListeningMcqItem,
   MissingWordItem,
@@ -354,7 +353,7 @@ export const EXTRA_SITUATIONS: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. You may ask for an extension, explain why the approval is late, and propose an alternative.',
     reference:
       'A researcher in this position should acknowledge the deadline, explain briefly why the approval is outstanding without blaming the supervisor, and ask directly for a short extension or a provisional hold. A strong response proposes a concrete alternative, such as booking the following week or splitting the run into two sessions, and confirms in writing so the request is on record.',
-    keyTerms: ['deadline', 'approval', 'extension', 'provisional', 'alternative', 'confirm'],
+    keyTerms: ['deadline', 'approval', 'extension', 'provisional', 'alternative', 'in writing'],
     minWords: 40,
   },
   {
@@ -365,7 +364,7 @@ export const EXTRA_SITUATIONS: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. You may ask about alternative rooms, explain your circumstances, and ask what happens if the works overrun.',
     reference:
       'A student in this position should explain the circumstances plainly, ask whether any alternative room is available without being demanding, and ask specifically what happens if the works overrun rather than assuming. A strong response acknowledges that not mentioning it earlier limits what the office can offer, and asks to be told when the works finish so the request can be reviewed.',
-    keyTerms: ['refurbishment', 'noise', 'alternative room', 'circumstances', 'overrun', 'review'],
+    keyTerms: ['refurbishment', 'noisy', 'alternative room', 'circumstances', 'overrun', 'earlier'],
     minWords: 40,
   },
   {

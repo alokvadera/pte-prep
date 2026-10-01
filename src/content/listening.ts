@@ -24,6 +24,38 @@ import {
   EXTRA_HIGHLIGHT_INCORRECT_2,
 } from './listeningExtra2'
 import { REBALANCED_HIGHLIGHT_SUMMARY } from './highlightSummaryRebalanced'
+import {
+  EXTRA_CONVERSATIONS_3,
+  EXTRA_LISTENING_MCQ_SINGLE_3,
+  EXTRA_LISTENING_MCQ_MULTI_3,
+  EXTRA_HIGHLIGHT_SUMMARY_3,
+  EXTRA_HIGHLIGHT_INCORRECT_3,
+  EXTRA_DICTATION_3,
+  EXTRA_MISSING_WORD_3,
+  EXTRA_SITUATIONS_3,
+} from './listeningExtra3'
+import {
+  EXTRA_CONVERSATIONS_4,
+  EXTRA_LISTENING_FIB_4,
+  EXTRA_HIGHLIGHT_SUMMARY_4,
+  EXTRA_LISTENING_MCQ_SINGLE_4,
+  EXTRA_LISTENING_MCQ_MULTI_4,
+  EXTRA_HIGHLIGHT_INCORRECT_4,
+  EXTRA_DICTATION_4,
+  EXTRA_MISSING_WORD_4,
+  EXTRA_SITUATIONS_4,
+} from './listeningExtra4'
+import {
+  EXTRA_CONVERSATIONS_5,
+  EXTRA_LISTENING_FIB_5,
+  EXTRA_HIGHLIGHT_SUMMARY_5,
+  EXTRA_LISTENING_MCQ_SINGLE_5,
+  EXTRA_LISTENING_MCQ_MULTI_5,
+  EXTRA_HIGHLIGHT_INCORRECT_5,
+  EXTRA_DICTATION_5,
+  EXTRA_MISSING_WORD_5,
+  EXTRA_SITUATIONS_5,
+} from './listeningExtra5'
 
 // ---------------------------------------------------------------------------
 // Listening stimuli. Each conversation supports several item types, exactly as
@@ -234,6 +266,9 @@ export const CONVERSATIONS: AudioScript[] = [
     keyTerms: ['large hall', 'hard limit of eight', 'timetabled lessons', 'enrolled', 'two consecutive bookings'],
   },
   ...EXTRA_CONVERSATIONS,
+  ...EXTRA_CONVERSATIONS_3,
+  ...EXTRA_CONVERSATIONS_4,
+  ...EXTRA_CONVERSATIONS_5,
 ]
 
 // ---------------------------------------------------------------------------
@@ -471,9 +506,11 @@ export const LISTENING_FIB: ListeningFibItem[] = [
     ],
   },
   ...EXTRA_LISTENING_FIB,
+  ...EXTRA_LISTENING_FIB_4,
+  ...EXTRA_LISTENING_FIB_5,
 ]
 
-export const HIGHLIGHT_SUMMARY: HighlightSummaryItem[] = REBALANCED_HIGHLIGHT_SUMMARY
+export const HIGHLIGHT_SUMMARY: HighlightSummaryItem[] = [...REBALANCED_HIGHLIGHT_SUMMARY, ...EXTRA_HIGHLIGHT_SUMMARY_3, ...EXTRA_HIGHLIGHT_SUMMARY_4, ...EXTRA_HIGHLIGHT_SUMMARY_5]
 
 
 export const LISTENING_MCQ_SINGLE: ListeningMcqItem[] = [
@@ -535,6 +572,9 @@ export const LISTENING_MCQ_SINGLE: ListeningMcqItem[] = [
     correct: ['They face the courtyard and are quieter'],
   },
   ...EXTRA_LISTENING_MCQ_SINGLE,
+  ...EXTRA_LISTENING_MCQ_SINGLE_3,
+  ...EXTRA_LISTENING_MCQ_SINGLE_4,
+  ...EXTRA_LISTENING_MCQ_SINGLE_5,
 ]
 
 export const LISTENING_MCQ_MULTI: ListeningMcqItem[] = [
@@ -617,6 +657,9 @@ export const LISTENING_MCQ_MULTI: ListeningMcqItem[] = [
     correct: ['It is about thirty per cent cheaper', 'It has no heating'],
   },
   ...EXTRA_LISTENING_MCQ_MULTI,
+  ...EXTRA_LISTENING_MCQ_MULTI_3,
+  ...EXTRA_LISTENING_MCQ_MULTI_4,
+  ...EXTRA_LISTENING_MCQ_MULTI_5,
 ]
 
 export const MISSING_WORD: MissingWordItem[] = [
@@ -673,6 +716,9 @@ export const MISSING_WORD: MissingWordItem[] = [
     correct: 0,
   },
   ...EXTRA_MISSING_WORD,
+  ...EXTRA_MISSING_WORD_3,
+  ...EXTRA_MISSING_WORD_4,
+  ...EXTRA_MISSING_WORD_5,
 ]
 
 /**
@@ -735,6 +781,9 @@ export const HIGHLIGHT_INCORRECT: HighlightIncorrectItem[] = [
   ),
   ...EXTRA_HIGHLIGHT_INCORRECT,
   ...EXTRA_HIGHLIGHT_INCORRECT_2,
+  ...EXTRA_HIGHLIGHT_INCORRECT_3,
+  ...EXTRA_HIGHLIGHT_INCORRECT_4,
+  ...EXTRA_HIGHLIGHT_INCORRECT_5,
 ]
 
 export const DICTATION: DictationItem[] = [
@@ -775,6 +824,9 @@ export const DICTATION: DictationItem[] = [
     text: 'The walk is about three kilometres return and it is a steady climb, so tell me now if anyone has a knee or respiratory problem. The path is compacted gravel for most of the way and the last section has steps, so it is not suitable for wheelchairs.',
   },
   ...EXTRA_DICTATION,
+  ...EXTRA_DICTATION_3,
+  ...EXTRA_DICTATION_4,
+  ...EXTRA_DICTATION_5,
 ]
 
 // ---------------------------------------------------------------------------
@@ -801,7 +853,7 @@ export const SITUATIONS: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. Address the problem and discuss the options available to you.',
     reference:
       'The customer should stay calm, show the booking confirmation, and ask the staff member to check the reservation list rather than accepting a substitute immediately. They should establish whether a table can be held within a reasonable time, and if not, ask what compensation or alternative arrangements are available given that two other parties have the same problem.',
-    keyTerms: ['booking', 'confirmation', 'check', 'wait', 'table', 'alternative', 'compensation'],
+    keyTerms: ['booking', 'confirmation', 'check', 'reservation', 'alternative', 'compensation'],
     minWords: 40,
   },
   {
@@ -812,7 +864,7 @@ export const SITUATIONS: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. Set out what you will do and say what you will tell your tutor.',
     reference:
       'The student should record the attempts to contact the absent member, redistribute their section so the project can be completed, and notify the tutor in writing before the deadline rather than after. The explanation should be factual, avoid blame, and state clearly which part of the project is at risk and what mitigation has been put in place.',
-    keyTerms: ['section', 'redistribute', 'messages', 'tutor', 'deadline', 'in writing', 'complete'],
+    keyTerms: ['section', 'redistribute', 'notify', 'tutor', 'deadline', 'in writing', 'contact'],
     minWords: 40,
   },
   {
@@ -828,4 +880,7 @@ export const SITUATIONS: SituationItem[] = [
   },
   ...EXTRA_SITUATIONS,
   ...EXTRA_SITUATIONS_2,
+  ...EXTRA_SITUATIONS_3,
+  ...EXTRA_SITUATIONS_4,
+  ...EXTRA_SITUATIONS_5,
 ]

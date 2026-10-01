@@ -153,6 +153,17 @@ export interface Item {
   tokens?: string[]
   /** Audio script id backing this item, if any. */
   stimulusId?: string
+  /**
+   * Literal sentence to speak when no bank script backs the item. Repeat
+   * Sentence has no recorded conversation of its own, and Highlight Incorrect
+   * Words tests a single sentence rather than the conversation it came from.
+   */
+  audioUtterance?: string
+  /** Inclusive turn range of the script to play (WFD/Missing Word scope). */
+  audioFromTurn?: number
+  audioToTurn?: number
+  /** With a single-turn scope, voice a beep at this word index (Missing Word). */
+  audioBeepWord?: number
   /** Chart id backing a Describe Image item. */
   chartId?: string
   /** Points available for a fully correct response. */

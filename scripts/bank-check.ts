@@ -110,7 +110,9 @@ for (const p of PASSAGES) {
   for (const a of p.asq) {
     check(`${at}: ASQ ${a.id} id is unique`, !asqIds.has(a.id))
     asqIds.add(a.id)
-    check(`${at}: ASQ ${a.id} has at least three options`, a.options.length >= 3, `${a.options.length}`)
+    // The format uses three. Accepting "at least three" let nine items ship with
+    // four, so a candidate met a different shape from one ASQ to the next.
+    check(`${at}: ASQ ${a.id} has exactly three options`, a.options.length === 3, `${a.options.length}`)
     check(`${at}: ASQ ${a.id} answer is an option`, a.options.includes(a.correct))
     check(
       `${at}: ASQ ${a.id} question is short enough to answer at a glance`,
@@ -160,6 +162,205 @@ for (const c of CHARTS) {
   for (const item of SPOKEN_SUMMARY_ITEMS) {
     check(`spoken summary item ${item.id}: has a reference answer`, item.reference.trim().length > 0)
     check(`spoken summary item ${item.id}: has key terms`, item.keyTerms.length >= 4, `${item.keyTerms.length}`)
+  }
+}
+
+// --- Key term fairness ------------------------------------------------------
+// Partial credit on a constructed response is awarded against these terms, so a
+// candidate must be able to hit them by writing about the material they were
+// actually shown. A term that appears in neither the model answer nor the
+// stimulus is a term nobody could reasonably have used.
+{
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ')
+  const has = (hay: string, term: string) => {
+    const t = norm(term)
+    if (!t) return true
+    return t.includes(' ') ? hay.includes(t) : hay.split(' ').includes(t)
+  }
+
+  // What the candidate actually receives. For listening items that is the audio
+  // script they hear, not the model answer, so a term the speaker says out loud
+  // is reachable even when the reference happens to phrase it differently.
+  const scriptText = (id: string) =>
+    (AUDIO_INDEX.get(id)?.turns ?? []).map((t) => t.text).join(' ')
+
+  const cited: Array<{ label: string; reference: string; stimulus: string; terms: string[] }> = [
+    ...SPOKEN_SUMMARY_ITEMS.map((i) => ({ label: `spoken summary ${i.id}`, reference: i.reference, stimulus: scriptText(i.audioId), terms: i.keyTerms })),
+    ...GROUP_DISCUSSION_ITEMS.map((i) => ({ label: `group discussion ${i.id}`, reference: i.reference, stimulus: scriptText(i.audioId), terms: i.keyTerms })),
+    ...RETELL_ITEMS.map((i) => ({ label: `re-tell ${i.id}`, reference: i.reference, stimulus: scriptText(i.audioId), terms: i.keyTerms })),
+    // A situation is read, not heard, so its own text is the stimulus.
+    ...SITUATIONS.map((i) => ({ label: `situation ${i.id}`, reference: i.reference, stimulus: `${i.situation} ${i.prompt}`, terms: i.keyTerms })),
+    // A written summary is scored against a model sentence, but the candidate
+    // only sees the excerpt, so a term in either place counts.
+    ...PASSAGES.map((p) => ({
+      label: `written summary ${p.swt.id}`,
+      reference: p.swt.summary,
+      stimulus: p.swt.excerpt.join(' '),
+      terms: p.swt.keyTerms,
+    })),
+  ]
+
+  for (const c of cited) {
+    const ref = norm(c.reference)
+    const stim = norm(c.stimulus)
+    const unreachable = c.terms.filter((t) => !has(ref, t) && !has(stim, t))
+    check(
+      `${c.label}: every key term is reachable from the material shown`,
+      unreachable.length === 0,
+      unreachable.join(', '),
+    )
+  }
+}
+
+// --- Distractor grounding (advisory) ---------------------------------------
+// A strong summary or multiple choice distractor is built from what the
+// recording says, altered in one specific way, so it has to be rejected by
+// listening rather than by noticing it was invented. This measures how much of
+// each distractor's vocabulary actually appears in the audio.
+//
+// It is reported and never fails. The measure is approximate: short words carry
+// no signal, and a distractor may legitimately name something the speaker
+// mentions only in passing. Treat the count as a prompt to look, not a verdict.
+{
+  const norm = (v: string) => v.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ')
+  const scriptText = (id: string) =>
+    norm((AUDIO_INDEX.get(id)?.turns ?? []).map((t) => t.text).join(' '))
+
+  let weak = 0
+  let total = 0
+  const examine = (label: string, opts: string[], correct: string[], audioId: string) => {
+    const sc = scriptText(audioId)
+    for (const o of opts.filter((x) => !correct.includes(x))) {
+      const content = norm(o).split(' ').filter((w) => w.length > 3)
+      if (content.length < 3) continue
+      total++
+      if (content.filter((w) => sc.includes(w)).length / content.length < 0.25) weak++
+    }
+  }
+  for (const q of LISTENING_MCQ_SINGLE) examine(q.id, q.options, q.correct, q.audioId)
+  for (const q of LISTENING_MCQ_MULTI) examine(q.id, q.options, q.correct, q.audioId)
+  for (const h of HIGHLIGHT_SUMMARY) examine(h.id, h.options, [h.options[h.correct]!], h.audioId)
+  if (weak > 0) {
+    console.log(
+      `\n  note: ${weak}/${total} listening distractors share little vocabulary with their recording` +
+        ' — worth reviewing, not necessarily wrong',
+    )
+  }
+}
+
+// --- Item writing quality ---------------------------------------------------
+// These are the flaws that make a question solvable without reading it. None of
+// them throw in the type system and none show up in a build, so they are
+// asserted here.
+//
+// The longest-answer test is deliberately aggregate. A single item whose answer
+// happens to be the longest is unremarkable, and a tie carries no information at
+// all; what matters is whether the rate across a collection is far above the one
+// in four that chance predicts. A per-item rule would force authorship to be
+// contrived rather than merely unbiased.
+{
+  for (const p of PASSAGES) {
+    const uniq = new Set(p.dropdown.bank)
+    check(
+      `passage ${p.id}: dropdown bank has no duplicate words`,
+      uniq.size === p.dropdown.bank.length,
+      `${p.dropdown.bank.length - uniq.size} duplicate(s): ${p.dropdown.bank.filter((w, i) => p.dropdown.bank.indexOf(w) !== i).join(', ')}`,
+    )
+    check(
+      `passage ${p.id}: dropdown bank is over-supplied`,
+      p.dropdown.bank.length >= p.dropdown.answers.length + 2,
+      `${p.dropdown.bank.length} options for ${p.dropdown.answers.length} blanks`,
+    )
+    check(`passage ${p.id}: MCQ options are distinct`, new Set(p.mcqSingle.options).size === p.mcqSingle.options.length)
+  }
+
+  // A strict win of three words or more is what makes length informative.
+  const lengthTells = (opts: string[], correct: string[]): boolean => {
+    const lens = opts.map((o) => o.split(/\s+/).length)
+    const cut = Math.max(...lens)
+    const top = correct.map((c) => opts.indexOf(c)).map((i) => lens[i]!)
+    return top.every((n) => n === cut) && cut - Math.min(...lens.filter((_, i) => !top.includes(i))) >= 3
+  }
+
+  const singleReads = PASSAGES.filter((p) =>
+    lengthTells(p.mcqSingle.options, p.mcqSingle.correct),
+  ).length
+  check(
+    'reading MCQ single: the answer is not reliably the longest option',
+    singleReads <= Math.ceil(PASSAGES.length * 0.4),
+    `${singleReads}/${PASSAGES.length} items leak length, chance is ${Math.ceil(PASSAGES.length / 4)}`,
+  )
+
+  const multiReads = PASSAGES.filter((p) =>
+    lengthTells(p.mcqMultiple.options, p.mcqMultiple.correct),
+  ).length
+  check(
+    'reading MCQ multiple: the answer is not reliably the longest option',
+    multiReads <= Math.ceil(PASSAGES.length * 0.4),
+    `${multiReads}/${PASSAGES.length} items leak length`,
+  )
+
+
+  for (const [label, items] of [
+    ['listening MCQ single', LISTENING_MCQ_SINGLE],
+    ['listening MCQ multiple', LISTENING_MCQ_MULTI],
+  ] as const) {
+    const leaked = items.filter((q) => lengthTells(q.options, q.correct)).length
+    check(
+      `${label}: the answer is not reliably the longest option`,
+      leaked <= Math.ceil(items.length * 0.4),
+      `${leaked}/${items.length} items leak length`,
+    )
+  }
+
+  const summaryLeaked = HIGHLIGHT_SUMMARY.filter((h) =>
+    lengthTells(h.options, [h.options[h.correct]!]),
+  ).length
+  check(
+    'highlight summary: the answer is not reliably the longest option',
+    summaryLeaked <= Math.ceil(HIGHLIGHT_SUMMARY.length * 0.4),
+    `${summaryLeaked}/${HIGHLIGHT_SUMMARY.length} items leak length`,
+  )
+
+  // A wide spread is the underlying tell even when it does not favour the answer.
+  const spreads = HIGHLIGHT_SUMMARY.map((h) => {
+    const lens = h.options.map((o) => o.split(/\s+/).length)
+    return Math.max(...lens) - Math.min(...lens)
+  })
+  const wide = spreads.filter((x) => x > 6).length
+  check(
+    'highlight summary: option lengths are within a few words of each other',
+    wide <= Math.ceil(HIGHLIGHT_SUMMARY.length * 0.25),
+    `${wide}/${HIGHLIGHT_SUMMARY.length} items vary by more than six words: ${spreads.join(', ')}`,
+  )
+}
+
+// --- Passage length ---------------------------------------------------------
+// A real PTE Academic reading passage runs 200 to 300 words. Ours run 365 to
+// 543, which is a genuine authenticity gap: candidates read roughly half as much
+// again per reading item than they would in the exam, and the section timer is
+// modelling a heavier load than the real one.
+//
+// It is reported rather than failed. Shortening the passages is not a mechanical
+// edit here, because the reading multiple choice questions refer to paragraphs by
+// position ("according to the fourth paragraph"), so trimming would silently
+// invalidate answers that are currently supported. That trade is worse than the
+// deviation, so the band below only catches runaway growth and the gap against
+// the real range is printed on every run.
+{
+  const REAL_MIN = 200
+  const REAL_MAX = 320
+  const overReal: string[] = []
+  for (const p of PASSAGES) {
+    const words = p.paragraphs.join(' ').split(/\s+/).length
+    check(`passage ${p.id}: length is within the runaway ceiling`, words >= REAL_MIN && words <= 600, `${words} words`)
+    if (words > REAL_MAX) overReal.push(`${p.id} ${words}w`)
+  }
+  if (overReal.length > 0) {
+    console.log(
+      `\n  note: ${overReal.length}/${PASSAGES.length} passages exceed the real ${REAL_MIN}-${REAL_MAX} word range` +
+        ` (${overReal.join(', ')})`,
+    )
   }
 }
 

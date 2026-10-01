@@ -1,4 +1,4 @@
-import type { HighlightIncorrectItem, HighlightSummaryItem, SituationItem } from './schema'
+import type { HighlightIncorrectItem, SituationItem } from './schema'
 
 /**
  * Final top-up for the listening types still sitting below twice their per-test
@@ -27,7 +27,7 @@ export const EXTRA_SITUATIONS_2: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. You may ask for the time back, explain your circumstances, and propose a compromise.',
     reference:
       'A student in this position should not simply accept or refuse. A strong response states the assessment and the revision already done, asks whether the shift could be swapped with someone else rather than handed on, and offers a partial commitment such as the first three hours. It should acknowledge the colleague directly rather than complaining about the request, and confirm the arrangement in writing.',
-    keyTerms: ['assessment', 'revising', 'swap', 'partial', 'colleague', 'confirm'],
+    keyTerms: ['assessment', 'revision', 'handed', 'partial', 'colleague', 'writing'],
     minWords: 40,
   },
   {
@@ -38,7 +38,7 @@ export const EXTRA_SITUATIONS_2: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. You may ask about deadlines, explain your circumstances, and say what you would prefer to do.',
     reference:
       'A student in this position should give the office the information they need to act, which is the transfer application date and the acceptance deadline for the short course. A strong response asks whether the four weeks can be shortened or whether the short place can be held, explains that paying twice is the obstacle rather than the study itself, and asks for the answer in writing so it can be weighed against the deadline.',
-    keyTerms: ['four weeks', 'deadline', 'pay again', 'shorten', 'in writing', 'application'],
+    keyTerms: ['four weeks', 'deadline', 'paying twice', 'shortened', 'in writing', 'application'],
     minWords: 40,
   },
   {

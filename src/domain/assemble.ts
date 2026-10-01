@@ -167,6 +167,7 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
           responseKind: 'audio',
           prompt: 'You will hear a recording. Repeat what you hear.',
           targetText: s.text,
+          audioUtterance: s.text,
           maxPoints: 1,
           seconds: 25,
           prepSeconds: 2,
@@ -516,18 +517,24 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
     const gid = `g-read-${p.id}`
     const itemIds: string[] = []
 
+    // The dropdown lives in its own group and carries no `passageParagraphs`.
+    // Its `targetText` already is the passage, gapped; attaching the intact
+    // paragraphs printed every answer directly above its own blank. The reading
+    // multiple choice items share this passage and genuinely need to see it, so
+    // the two cannot live in one group.
     if (dropdownMade < (counts['fill-in-blanks-dropdown'] ?? MOCK_BLUEPRINT['fill-in-blanks-dropdown'])) {
       dropdownMade += 1
       const rng = variantRng(p.dropdown.id, ctx.seed)
       const bank = shuffle(p.dropdown.bank, rng)
       const id = itemId('fill-in-blanks-dropdown', p.dropdown.id)
+      const dropdownGid = `g-read-dropdown-${p.id}`
       addItem(
         ctx,
         {
           id,
           type: 'fill-in-blanks-dropdown',
           section: 'reading',
-          groupId: gid,
+          groupId: dropdownGid,
           responseKind: 'blanks',
           prompt: 'Complete the passage below. Select the correct word from each list.',
           maxPoints: p.dropdown.answers.length,
@@ -537,7 +544,16 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
         },
         { blanks: p.dropdown.answers.map((a) => [a]) },
       )
-      itemIds.push(id)
+      groups.push(
+        group({
+          id: dropdownGid,
+          section: 'reading',
+          type: 'fill-in-blanks-dropdown',
+          order: 0,
+          stimulus: { passageId: p.id, passageTitle: p.title },
+          itemIds: [id],
+        }),
+      )
     }
 
     if (tableMade < (counts['fill-in-blanks-table'] ?? MOCK_BLUEPRINT['fill-in-blanks-table'])) {
@@ -618,12 +634,12 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
       itemIds.push(id)
     }
 
-    if (itemIds.length > 0) {
-      groups.push(
+if (itemIds.length > 0) {
+    groups.push(
       group({
         id: gid,
         section: 'reading',
-        type: 'fill-in-blanks-dropdown',
+        type: 'fill-in-blanks-table',
         order: order++,
         stimulus: { passageId: p.id, passageTitle: p.title, passageParagraphs: p.paragraphs },
         itemIds,
@@ -738,10 +754,11 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         section: 'listening',
         groupId: gid,
         responseKind: 'blanks',
-        prompt: 'Listen and fill in the blanks. The recording plays once.',
-        targetText: f.text,
-        stimulusId: f.audioId,
-        maxPoints: f.answers.length,
+          prompt: 'Listen and fill in the blanks. The recording plays once.',
+          targetText: f.text,
+          stimulusId: f.audioId,
+          audioFromTurn: f.startTurn,
+          maxPoints: f.answers.length,
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,
@@ -773,13 +790,14 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         type: 'highlight-correct-summary',
         section: 'listening',
         groupId: gid,
-        responseKind: 'choice',
-        prompt: h.question,
-        options: order2.map((i) => h.options[i] as string),
-        maxPoints: 1,
-        seconds: 0,
-        audioLeadIn: 4,
-        replays: 1,
+          responseKind: 'choice',
+          prompt: h.question,
+          options: order2.map((i) => h.options[i] as string),
+          stimulusId: h.audioId,
+          maxPoints: 1,
+          seconds: 0,
+          audioLeadIn: 4,
+          replays: 1,
       },
       { correctChoice: h.options[h.correct], reference: h.options[h.correct] },
     )
@@ -812,21 +830,22 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         type: 'listening-multiple-choice-single',
         section: 'listening',
         groupId: gid,
-        responseKind: 'choice',
-        prompt: q.question,
-        options: entries.map((e) => e.t),
-        maxPoints: 1,
-        seconds: 0,
-        audioLeadIn: 4,
-        replays: 1,
-      },
-      { correctChoice: correct, reference: correct },
-    )
-    groups.push(
-      group({
-      id: gid,
-      section: 'listening',
-      type: 'listening-multiple-choice-single',
+          responseKind: 'choice',
+          prompt: q.question,
+          options: entries.map((e) => e.t),
+          stimulusId: q.audioId,
+          maxPoints: 1,
+          seconds: 0,
+          audioLeadIn: 4,
+          replays: 1,
+        },
+        { correctChoice: correct, reference: correct },
+      )
+      groups.push(
+        group({
+        id: gid,
+        section: 'listening',
+        type: 'listening-multiple-choice-single',
       order: order++,
       stimulus: audioStimulus(q.audioId, AUDIO_INDEX.get(q.audioId)?.title),
       itemIds: [id],
@@ -851,13 +870,14 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         type: 'listening-multiple-choice-multiple',
         section: 'listening',
         groupId: gid,
-        responseKind: 'multi-choice',
-        prompt: q.question,
-        options: entries.map((e) => e.t),
-        maxPoints: 1,
-        seconds: 0,
-        audioLeadIn: 4,
-        replays: 1,
+          responseKind: 'multi-choice',
+          prompt: q.question,
+          options: entries.map((e) => e.t),
+          stimulusId: q.audioId,
+          maxPoints: 1,
+          seconds: 0,
+          audioLeadIn: 4,
+          replays: 1,
       },
       { correctChoices: entries.filter((e) => e.ok).map((e) => e.t), reference: `Select TWO: ${q.correct.join(' and ')}.` },
     )
@@ -893,13 +913,16 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         groupId: gid,
         responseKind: 'choice',
         prompt: 'Listen and select the missing word. A beep marks the blank.',
-        tokens,
-        options: optOrder.map((i) => m.options[i] as string),
-        stimulusId: m.audioId,
-        maxPoints: 1,
-        seconds: 0,
-        audioLeadIn: 4,
-        replays: 0,
+          tokens,
+          options: optOrder.map((i) => m.options[i] as string),
+          stimulusId: m.audioId,
+          audioFromTurn: m.turnIndex,
+          audioToTurn: m.turnIndex,
+          audioBeepWord: m.wordIndex,
+          maxPoints: 1,
+          seconds: 0,
+          audioLeadIn: 4,
+          replays: 0,
       },
       { correctChoice: m.options[m.correct], reference: m.options[m.correct] },
     )
@@ -928,9 +951,10 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         groupId: gid,
         responseKind: 'highlight',
         prompt: 'The transcript below contains two words that differ from the audio. Highlight the two words that are wrong.',
-        tokens: tokenizeWithPunctuation(h.transcript),
-        stimulusId: h.audioId,
-        maxPoints: 1,
+          tokens: tokenizeWithPunctuation(h.transcript),
+          stimulusId: h.audioId,
+          audioUtterance: h.correctTranscript,
+          maxPoints: 1,
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,
@@ -961,9 +985,11 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         section: 'listening',
         groupId: gid,
         responseKind: 'text',
-        prompt: 'Listen and type exactly what you hear. The recording plays once.',
-        stimulusId: d.audioId,
-        maxPoints: 1,
+          prompt: 'Listen and type exactly what you hear. The recording plays once.',
+          stimulusId: d.audioId,
+          audioFromTurn: d.turnIndex,
+          audioToTurn: d.turnIndex,
+          maxPoints: 1,
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,
@@ -1078,7 +1104,7 @@ export function buildMock(opts: BuildOptions): MockTest {
     }
 
     if (opts.focusTypes) {
-      groups = filterGroups(groups, opts.focusTypes)
+      groups = filterGroups(groups, opts.focusTypes, ctx.items)
       if (section === 'speaking-writing') groups = groups.filter((g) => g.type !== 'respond-to-situation' || g.id !== 'g-intro')
     }
 
@@ -1124,11 +1150,24 @@ function filterCounts(opts: BuildOptions): Partial<Record<QuestionType, number>>
   return out
 }
 
-function filterGroups(groups: ItemGroup[], focus: QuestionType[]): ItemGroup[] {
+/**
+ * Narrows a mock down to the focused types.
+ *
+ * Matching on the group's declared `type` was wrong: one reading group carries
+ * the table and both multiple choice items together, so a drill focused on
+ * Multiple Choice (Single Answer) kept nothing and produced a test with zero
+ * questions. The group's own type says what the group is called, not what its
+ * items are, so the filter looks at the items themselves and drops the rest.
+ */
+function filterGroups(
+  groups: ItemGroup[],
+  focus: QuestionType[],
+  items: Record<string, Item>,
+): ItemGroup[] {
   const set = new Set(focus)
   return groups
-    .filter((g) => set.has(g.type))
-    .map((g) => ({ ...g, itemIds: g.itemIds }))
+    .map((g) => ({ ...g, itemIds: g.itemIds.filter((id) => items[id] && set.has(items[id]!.type)) }))
+    .filter((g) => g.itemIds.length > 0)
 }
 
 export function buildFullMock(seed: number, extra?: Partial<BuildOptions>): MockTest {
@@ -1162,7 +1201,7 @@ export function buildSectionMock(
 export function buildDrillMock(seed: number, types: QuestionType[], perType = 3): MockTest {
   const counts: Partial<Record<QuestionType, number>> = {}
   for (const t of types) counts[t] = perType
-  return buildMock({
+  const mock = buildMock({
     seed,
     kind: 'drill',
     sections: SECTION_ORDER,
@@ -1170,4 +1209,11 @@ export function buildDrillMock(seed: number, types: QuestionType[], perType = 3)
     counts,
     title: types.length === 1 ? 'Single Skill Practice' : 'Focused Practice',
   })
+
+  // A drill focused on Reading or Listening used to keep all three sections, so
+  // the first one was empty. The runner starts at section zero, found no item
+  // and rendered nothing at all, which presented as a blank screen rather than
+  // an error. Only sections that actually contain an item are kept.
+  const populated = mock.sections.filter((s) => s.itemIds.length > 0)
+  return populated.length > 0 ? { ...mock, sections: populated } : mock
 }

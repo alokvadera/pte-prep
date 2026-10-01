@@ -1,6 +1,8 @@
 import type { Passage } from './schema'
 import { EXTRA_PASSAGES } from './passagesExtra'
 import { EXTRA_PASSAGES_2 } from './passagesExtra2'
+import { EXTRA_PASSAGES_3 } from './passagesExtra3'
+import { EXTRA_PASSAGES_4 } from './passagesExtra4'
 
 export const PASSAGES: Passage[] = [
   {
@@ -34,7 +36,7 @@ export const PASSAGES: Passage[] = [
         'For most of human history, the temperature of a city tracked the temperature of the countryside surrounding it. That relationship began to break down during the twentieth century, and the reason is material rather than meteorological. Pavement, brick and roofing absorb short-wave solar radiation during the day and release it slowly as long-wave radiation after sunset. The atmosphere above a dense city therefore receives energy that the rural atmosphere does not, and the effect is now large enough to be measured from orbit.',
         'Humidity matters because evaporative cooling, the main mechanism by which vegetation cools the air, is progressively suppressed as the air approaches saturation. Cities that combine high humidity with heavy surface cover therefore experience the sharpest nocturnal warming, and the effect persists after the sun has gone down.',
       ],
-      keyTerms: ['absorb', 'short-wave radiation', 'release', 'long-wave radiation', 'evaporative cooling', 'humidity'],
+      keyTerms: ['absorb', 'short-wave', 'release', 'long-wave radiation', 'evaporative cooling', 'humidity'],
       minWords: 20,
     },
     dropdown: {
@@ -602,4 +604,6 @@ export const PASSAGES: Passage[] = [
   },
   ...EXTRA_PASSAGES,
   ...EXTRA_PASSAGES_2,
+  ...EXTRA_PASSAGES_3,
+  ...EXTRA_PASSAGES_4,
 ]

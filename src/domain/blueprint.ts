@@ -65,7 +65,7 @@ export const QUESTION_META: Record<QuestionType, QuestionMeta> = {
     perTest: '6–7',
     traits: ['Content', 'Pronunciation', 'Oral Fluency'],
     count: { min: 6, max: 7 },
-    tip: 'Prepare by silently reading the whole text and marking stressed words. Speak from the first word — there is no penalty for a small mistake, only for stopping.',
+    tip: 'Prepare by silently reading the whole text and marking stressed words. Speak from the first word — there is no penalty for a small mistake, but a long silence can end the recording and lose the item.',
   },
   'repeat-sentence': {
     type: 'repeat-sentence',
@@ -114,7 +114,7 @@ export const QUESTION_META: Record<QuestionType, QuestionMeta> = {
     perTest: '5–6',
     traits: ['Vocabulary'],
     count: { min: 5, max: 6 },
-    tip: 'Answer with one to four words. The score guide awards 1 for appropriate word choice and 0 for inappropriate word choice — there is no partial credit.',
+    tip: 'Answer with one to four words, and begin the moment the microphone opens: waiting more than three seconds ends the recording and the item is lost. The score guide awards 1 for appropriate word choice and 0 for inappropriate — there is no partial credit.',
   },
   'summarize-group-discussion': {
     type: 'summarize-group-discussion',

@@ -15,6 +15,9 @@ export interface SpeakOptions {
   /** Words per minute. PTE recordings run a little faster than conversation. */
   rate?: number
   pitch?: number
+  /** Inclusive turn range to speak. Defaults to the whole script. */
+  fromTurn?: number
+  toTurn?: number
   onTurnStart?: (turnIndex: number) => void
   onEnd?: () => void
   onError?: (message: string) => void
@@ -140,15 +143,19 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
   const { rate = 1.0, onTurnStart, onEnd, onError } = options
   const used = new Set<string>()
   let cancelled = false
+  // Turn-scoped playback: WFD and Missing Word test one turn of a long
+  // conversation, and FIB-Listening starts mid-script, so the player must be
+  // able to speak a slice rather than always starting at turn zero.
+  const firstTurn = Math.max(0, options.fromTurn ?? 0)
+  const lastTurn = options.toTurn ?? script.turns.length - 1
 
-  // Long utterances are silently truncated by some engines after ~15s unless
-  // the queue is nudged periodically.
-  keepAlive = typeof window !== 'undefined' ? window.setInterval(() => s.pause(), 0) : null
-  const keepAlivePulse = typeof window !== 'undefined' ? window.setInterval(() => s.resume(), 9000) : null
+  // Chrome silently stops long utterances after ~15s (crbug 679437) unless the
+  // engine is nudged. A periodic resume() is harmless when nothing is paused
+  // and keeps the queue alive when it is.
+  keepAlive = typeof window !== 'undefined' ? window.setInterval(() => s.resume(), 10000) : null
 
   const cleanup = () => {
     stopKeepAlive()
-    if (keepAlivePulse !== null) window.clearInterval(keepAlivePulse)
     controller.speaking = false
   }
 
@@ -160,7 +167,7 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
 
   const run = (index: number) => {
     if (cancelled) return
-    if (index >= script.turns.length) {
+    if (index > lastTurn || index >= script.turns.length) {
       cleanup()
       onEnd?.()
       return
@@ -199,7 +206,7 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
   }
 
   controller.speaking = true
-  run(0)
+  run(firstTurn)
   return controller
 }
 
@@ -217,6 +224,62 @@ export async function speakText(
     turns: [{ speaker: 's', text }],
   }
   return speakScript(script, options)
+}
+
+/**
+ * Select Missing Word playback: speak the lead-in, sound a beep where the
+ * word was removed, then speak the remainder. The missing word itself is
+ * never voiced — previously the full turn was played and the answer was
+ * audible, which made the item solvable without any prediction.
+ */
+export async function speakWithBeep(
+  before: string,
+  after: string,
+  options: SpeakOptions & { voiceHint?: VoiceHint } = {},
+): Promise<SpeakController> {
+  const controller: SpeakController = { stop: () => {}, speaking: true }
+  let inner: SpeakController | null = null
+  let cancelled = false
+  controller.stop = () => {
+    cancelled = true
+    inner?.stop()
+    stopAllSpeech()
+    controller.speaking = false
+  }
+  const speakAfter = () => {
+    if (cancelled) return
+    playTone(990, 320, 0.09)
+    window.setTimeout(() => {
+      if (cancelled) return
+      void speakText(after, {
+        ...options,
+        onEnd: () => {
+          controller.speaking = false
+          options.onEnd?.()
+        },
+        onError: (m) => {
+          controller.speaking = false
+          options.onError?.(m)
+        },
+      }).then((c) => {
+        inner = c
+      })
+    }, 420)
+  }
+  if (!before.trim()) {
+    speakAfter()
+    return controller
+  }
+  const first = await speakText(before, {
+    ...options,
+    onEnd: speakAfter,
+    onError: (m) => {
+      controller.speaking = false
+      options.onError?.(m)
+    },
+  })
+  inner = first
+  return controller
 }
 
 export function stopAllSpeech(): void {

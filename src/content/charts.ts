@@ -1,5 +1,7 @@
 import type { ChartSpec } from './schema'
 import { EXTRA_CHARTS } from './chartsExtra'
+import { EXTRA_CHARTS_2 } from './chartsExtra2'
+import { EXTRA_CHARTS_3 } from './chartsExtra3'
 
 // ---------------------------------------------------------------------------
 // Describe Image stimuli. These are drawn as inline SVG from the data below, so
@@ -172,4 +174,6 @@ export const CHARTS: ChartSpec[] = [
     },
   },
   ...EXTRA_CHARTS,
+  ...EXTRA_CHARTS_2,
+  ...EXTRA_CHARTS_3,
 ]

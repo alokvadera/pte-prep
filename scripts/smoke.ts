@@ -4,8 +4,9 @@ import { buildDrillMock, buildFullMock, buildSectionMock } from '../src/domain/a
 import { ALL_QUESTION_TYPES, MOCK_BLUEPRINT, NEGATIVE_MARKING_TYPES, QUESTION_META } from '../src/domain/blueprint'
 import { buildReport, formBand, rawToPteScale, scoreItem, toCefr } from '../src/domain/scoring'
 import { BANK, bankCapacity, capacityByType } from '../src/content/bank'
+import { weakestTypes } from '../src/domain/weakTypes'
 import { keyTermCoverage } from '../src/lib/text'
-import type { ItemResponse } from '../src/domain/types'
+import type { AttemptRecord, ItemResponse } from '../src/domain/types'
 
 const CONSTRUCTED_TYPES = [
   'write-essay', 'summarize-written-text', 'summarize-spoken-text', 'answer-short-question', 'read-aloud',
@@ -58,8 +59,55 @@ for (const t of ALL_QUESTION_TYPES) {
   console.log(`    ${(QUESTION_META[t]?.label ?? t).padEnd(42)} ${String(typeCounts[t] ?? 0).padStart(3)}`)
 }
 
+console.log('\n== Drill integrity ==')
+// A single-skill drill used to build all three sections and then filter groups by
+// their nominal type. Because one reading group holds the table and both multiple
+// choice items together, a drill focused on either multiple choice type produced
+// a test with no questions at all, and one focused on Reading or Listening left
+// an empty first section that the runner rendered as a blank screen.
+{
+  const drillTypes = [
+    'read-aloud', 'describe-image', 'summarize-written-text', 'write-essay',
+    'fill-in-blanks-dropdown', 'fill-in-blanks-table',
+    'multiple-choice-single', 'multiple-choice-multiple', 'reorder-paragraphs',
+    'select-missing-word', 'fill-in-blanks-listening', 'summarize-spoken-text',
+  ] as const
+  const emptySections: string[] = []
+  const noItems: string[] = []
+  for (const t of drillTypes) {
+    const d = buildDrillMock(20240917, [t])
+    if (d.sections.some((sec) => sec.itemIds.length === 0)) emptySections.push(t)
+    if (d.sections.flatMap((sec) => sec.itemIds).length === 0) noItems.push(t)
+  }
+  check('every drill type produces questions', noItems.length === 0, `empty: ${noItems.join(', ')}`)
+  check('no drill section is left empty', emptySections.length === 0, `empty: ${emptySections.join(', ')}`)
+}
+
 console.log('\n== Stimulus integrity ==')
-check('reading groups carry a passage unless they are reorder items', mock.sections.filter((s) => s.id === 'reading').every((s) => s.groups.every((g) => g.type === 'reorder-paragraphs' || g.stimulus.passageParagraphs?.length)))
+// A dropdown group is the exception: its own gapped text is the passage, so
+  // attaching the intact paragraphs would print every answer beside its blank.
+  // Everything else in reading needs the passage on screen.
+  check(
+    'reading groups carry a passage unless they are reorder or dropdown items',
+    mock.sections
+      .filter((s) => s.id === 'reading')
+      .every((s) =>
+        s.groups.every(
+          (g) =>
+            g.type === 'reorder-paragraphs' ||
+            g.type === 'fill-in-blanks-dropdown' ||
+            g.stimulus.passageParagraphs?.length,
+        ),
+      ),
+  )
+  check(
+    'dropdown groups never expose the intact passage',
+    mock.sections
+      .filter((s) => s.id === 'reading')
+      .flatMap((s) => s.groups)
+      .filter((g) => g.type === 'fill-in-blanks-dropdown')
+      .every((g) => !g.stimulus.passageParagraphs?.length),
+  )
 check('a passage group holds more than one item', mock.sections.find((s) => s.id === 'reading')!.groups.some((g) => g.itemIds.length > 1))
 check('reading item count is at least 20', scored.filter((i) => i.section === 'reading').length >= 20, String(scored.filter((i) => i.section === 'reading').length))
 check('dropdown items have a word bank at least as large as the blanks', scored.filter((i) => i.type === 'fill-in-blanks-dropdown').every((i) => (i.options?.length ?? 0) >= (i.targetText?.split(/______/).length ?? 0) - 1))
@@ -364,6 +412,105 @@ const half = buildReport(scored, mock.answers, halfResponses, metaById)
 check('a half run lands in the middle of the scale', half.overall > 30 && half.overall < 65, String(half.overall))
 check('breakdown covers every type in the report', Object.keys(perfect.breakdown).length === Object.keys(typeCounts).length, `${Object.keys(perfect.breakdown).length} vs ${Object.keys(typeCounts).length}`)
 check('breakdown totals match the available points', Math.abs(Object.values(perfect.breakdown).reduce((a, r) => a + r.maxPoints, 0) - perfect.availablePoints) < 0.01)
+
+
+// ---------------------------------------------------------------------------
+console.log('\n== Next drill recommendation ==')
+{
+  const mk = (id: string, finishedAt: string, perType: Record<string, { e: number; m: number }>): AttemptRecord =>
+    ({
+      id,
+      mockId: id,
+      mockTitle: id,
+      mode: 'full',
+      startedAt: finishedAt,
+      finishedAt,
+      durationMs: 1000,
+      seed: 1,
+      sectionIds: [],
+      responses: {},
+      availablePoints: 10,
+      earnedPoints: 1,
+      skillScores: {},
+      overallIsEstimate: true,
+      overallScore: 50,
+      overallScore60: 70,
+      cefr: 'B2',
+      completedItemIds: [],
+      breakdown: Object.fromEntries(
+        Object.entries(perType).map(([type, v]) => [
+          type,
+          {
+            type: type as never,
+            label: type,
+            skill: 'reading',
+            correct: v.e,
+            partial: 0,
+            incorrect: v.m - v.e,
+            total: v.m,
+            maxPoints: v.m,
+            earnedPoints: v.e,
+            seconds: 60,
+          },
+        ]),
+      ),
+    }) as unknown as AttemptRecord
+
+  const history = [
+    mk('a1', '2026-01-01T10:00:00Z', {
+      'read-aloud': { e: 1, m: 1 },
+      'summarize-written-text': { e: 0, m: 2 },
+      'write-essay': { e: 1, m: 2 },
+    }),
+    mk('a2', '2026-01-08T10:00:00Z', {
+      'read-aloud': { e: 1, m: 1 },
+      'summarize-written-text': { e: 0, m: 2 },
+      'write-essay': { e: 2, m: 2 },
+    }),
+  ]
+
+  // A limit wide enough that never-attempted types are still visible, which is
+  // what the ordering assertion below needs to observe.
+  const all = weakestTypes(history, 8)
+  check('ranks the weakest type first', all[0]?.type === 'summarize-written-text', all[0]?.label)
+  check('measured types come before never-attempted ones', !all[0]?.untested, all[0]?.label)
+  const practised = weakestTypes(history, 8, true)
+  check(
+    'never puts a flawless type at the top',
+    practised[0]?.type !== 'read-aloud',
+    practised.map((r) => r.label).join(', '),
+  )
+  check('reports how many items were seen', (all[0]?.itemsSeen ?? 0) > 0, String(all[0]?.itemsSeen))
+
+  check('can restrict to practised types only', practised.every((r) => r.attemptsSeen > 0), JSON.stringify(practised.map((r) => r.type)))
+
+  check('returns nothing without history', weakestTypes([]).length === 0)
+
+  // Recency: an old failure should stop dominating once the type is fixed.
+  const improved = [
+    ...history,
+    mk('a3', '2026-01-15T10:00:00Z', {
+      'read-aloud': { e: 1, m: 1 },
+      'summarize-written-text': { e: 2, m: 2 },
+      'write-essay': { e: 2, m: 2 },
+    }),
+  ]
+  const after = weakestTypes(improved, 3, true)
+  const beforePriority = all.find((r) => r.type === 'summarize-written-text')?.priority ?? 0
+  const afterPriority = after.find((r) => r.type === 'summarize-written-text')?.priority ?? 0
+  check(
+    'a recent improvement raises a type out of the bottom',
+    afterPriority > beforePriority,
+    `${beforePriority} -> ${afterPriority}`,
+  )
+  check(
+    'untested types rank after anything measured',
+    all.findIndex((r) => r.untested) > all.findIndex((r) => !r.untested),
+    all.slice(0, 3).map((r) => `${r.label}${r.untested ? ' (untried)' : ''}`).join(', '),
+  )
+}
+
+
 
 console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}\n`)
 process.exit(failures === 0 ? 0 : 1)

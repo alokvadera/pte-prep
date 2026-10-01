@@ -830,6 +830,82 @@ for (const route of ROUTES) {
 }
 
 // ---------------------------------------------------------------------------
+// Weak-type recommendation
+//
+// The dashboard offers a "Practise these next" panel and a separate "Drill
+// weakest type" link. They must name the same type: both once read from the
+// latest attempt only, so a candidate could be told to drill one thing by the
+// panel and another by the link.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+    return r.exceptionDetails ? '' : r.result.value
+  }
+  const click = async (re) =>
+    evaluate(`(() => {
+      const b = [...document.querySelectorAll('button, a')].find((x) => new RegExp(${JSON.stringify(re)}, 'i').test(x.textContent.trim()))
+      if (!b) return 'none'
+      b.click()
+      return 'ok'
+    })()`)
+
+  await send('Page.navigate', { url: `${BASE}/practice?type=summarize-written-text` }, sessionId)
+  await sleep(2200)
+  await click('Start this practice')
+  await sleep(2200)
+  await click('^Begin')
+  await sleep(2200)
+  for (let i = 0; i < 12; i++) {
+    await evaluate(
+      "[...document.querySelectorAll('textarea')].forEach((t) => { t.value = 'The passage reports that the mechanism transfers information between brain regions.'; t.dispatchEvent(new Event('input', { bubbles: true })) }); 1",
+    )
+    await click('^(Next|Submit|Finish|See my report|View report|Done)')
+    await sleep(1200)
+    const path = await evaluate('location.pathname')
+    if (path === '/result' || path === '/dashboard') break
+  }
+  await click('View progress|Dashboard|Progress')
+  await sleep(2200)
+
+  const card = await evaluate(
+    "(() => { const a = document.querySelector('section[aria-labelledby=\"focus-heading\"] a[href^=\"/practice?type=\"]'); return a ? a.getAttribute('href') : '' })()",
+  )
+  const link = await evaluate(
+    "(() => { const b = [...document.querySelectorAll('a')].find((x) => /Drill weakest type/i.test(x.textContent)); return b ? b.getAttribute('href') : '' })()",
+  )
+  report(Boolean(card), 'the dashboard recommends a next drill from real attempt history', card)
+  report(card === link, 'the recommendation panel and the weakest-type link agree', `${card} vs ${link}`)
+  // A fresh profile is needed for the zero state: by now the drill above has
+  // written an attempt, which is the whole point of the panel.
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+
+  const { browserContextId: freshId } = await send('Target.createBrowserContext', {})
+  const { targetId: freshTarget } = await send('Target.createTarget', { url: 'about:blank', browserContextId: freshId })
+  const { sessionId: freshSession } = await send('Target.attachToTarget', { targetId: freshTarget, flatten: true })
+  await send('Runtime.enable', {}, freshSession)
+  await send('Page.enable', {}, freshSession)
+  await send('Page.navigate', { url: `${BASE}/dashboard` }, freshSession)
+  await sleep(2200)
+  const zeroState = await send(
+    'Runtime.evaluate',
+    { expression: '!/Practise these next/.test(document.body.innerText) && /No attempts yet/.test(document.body.innerText)', returnByValue: true },
+    freshSession,
+  )
+  report(zeroState.result.value === true, 'the recommendation panel is hidden with no attempts', String(zeroState.result.value))
+  await send('Target.closeTarget', { targetId: freshTarget })
+  await send('Target.disposeBrowserContext', { browserContextId: freshId })
+
+}
+
+// ---------------------------------------------------------------------------
 // Text wrapping
 //
 // B1 asks for balanced headings and pretty body copy. The failure mode here is

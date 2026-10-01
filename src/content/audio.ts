@@ -10,6 +10,13 @@ import {
   EXTRA_GROUP_DISCUSSION_ITEMS_2,
   EXTRA_RETELL_ITEMS,
 } from './audioExtra2'
+import {
+  EXTRA_LECTURES_3,
+  EXTRA_DISCUSSIONS_3,
+  EXTRA_RETELL_ITEMS_3,
+  EXTRA_SPOKEN_SUMMARY_ITEMS_3,
+  EXTRA_GROUP_DISCUSSION_ITEMS_3,
+} from './audioExtra3'
 
 // ---------------------------------------------------------------------------
 // Single-speaker academic lectures. Text is delivered through the browser's
@@ -85,7 +92,7 @@ export const LECTURES: AudioScript[] = [
         text: 'The implications for the field are considerable. Any claim that memory preserves information has to specify what information and by what mechanism. And any intervention intended to help a witness remember more accurately has to be designed around the fact that the most effective intervention — repeated, non-suggestive interview — is also the one most likely to consolidate an error. Thank you.',
       },
     ],
-    keyTerms: ['reconstruction', 'intrusion', 'semantic', 'consistent', 'rewritten'],
+    keyTerms: ['reconstruction', 'intrusion', 'interference', 'consistent', 'rewritten'],
   },
   {
     id: 'lec-antibiotic',
@@ -228,6 +235,7 @@ export const LECTURES: AudioScript[] = [
     keyTerms: ['octopus', 'metabolic cost', 'vulnerability', 'readiness', 'conditions'],
   },
   ...EXTRA_LECTURES,
+  ...EXTRA_LECTURES_3,
 ]
 
 export const RETELL_ITEMS: RetellItem[] = [
@@ -246,7 +254,7 @@ export const RETELL_ITEMS: RetellItem[] = [
     skeleton: ['retrieval reconstructs, never plays back', 'intrusions are semantically related', 'confidence ≠ accuracy', 'consistency rewrites memory'],
     reference:
       'Recall is a constrained reconstruction rather than playback, so errors are semantically related intrusions whose frequency rises with list size. Because confidence is produced by the same unreliable process, a confident eyewitness can be wrong. Repeated, consistent retelling then rewrites the memory, which helps accuracy and also consolidates errors.',
-    keyTerms: ['reconstruction', 'intrusion', 'semantic', 'confidence', 'consistency', 'rewrites'],
+    keyTerms: ['reconstruction', 'intrusion', 'intrusions', 'confidence', 'consistency', 'rewrites'],
     minWords: 30,
   },
   {
@@ -286,6 +294,7 @@ export const RETELL_ITEMS: RetellItem[] = [
     minWords: 30,
   },
   ...EXTRA_RETELL_ITEMS,
+  ...EXTRA_RETELL_ITEMS_3,
 ]
 
 export const SPOKEN_SUMMARY_ITEMS: SpokenSummaryItem[] = [
@@ -300,6 +309,7 @@ export const SPOKEN_SUMMARY_ITEMS: SpokenSummaryItem[] = [
     minWords: 30,
   },
   ...EXTRA_SPOKEN_SUMMARY_ITEMS,
+  ...EXTRA_SPOKEN_SUMMARY_ITEMS_3,
 ]
 
 export const GROUP_DISCUSSIONS: AudioScript[] = [
@@ -385,6 +395,7 @@ export const GROUP_DISCUSSIONS: AudioScript[] = [
   },
   ...EXTRA_GROUP_DISCUSSIONS,
   ...EXTRA_DISCUSSIONS_2,
+  ...EXTRA_DISCUSSIONS_3,
 ]
 
 export const GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
@@ -410,4 +421,5 @@ export const GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
   },
   ...EXTRA_GROUP_DISCUSSION_ITEMS,
   ...EXTRA_GROUP_DISCUSSION_ITEMS_2,
+  ...EXTRA_GROUP_DISCUSSION_ITEMS_3,
 ]

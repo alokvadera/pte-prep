@@ -113,7 +113,7 @@ export const EXTRA_GROUP_DISCUSSIONS: AudioScript[] = [
         text: 'Then let us say: the group agrees that unmandated contact on its own disadvantages the students least able to absorb it. They disagree about the remedy, and they do not disagree about the diagnosis.',
       },
     ],
-    keyTerms: ['mandatory', 'optional', 'regressive', 'correlation', 'small group', 'justify'],
+    keyTerms: ['mandating', 'optional', 'regressive', 'correlation', 'small group', 'justify'],
   },
 
   {
@@ -192,7 +192,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
       'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
     reference:
       'The panel converges on a diagnosis but not a remedy. The academic proposes making attendance optional and notes attendance correlates weakly with attainment, but the student representative argues the correlation is the wrong test because attendance is not random, and the postgraduate warns that in practice optional contact lowers the standard for everyone while raising the barrier for the students already struggling. They agree that unmandated contact alone disadvantages the least able, and disagree over the substitute: the student representative favours keeping large sessions open while making small groups justifiable and funded, and the postgraduate wants the figures published.',
-    keyTerms: ['mandatory', 'optional', 'regressive', 'correlation', 'small group', 'publish'],
+    keyTerms: ['optional', 'mandating', 'regressive', 'correlation', 'small group', 'publish'],
     minWords: 40,
   },
   {
