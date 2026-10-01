@@ -21,31 +21,40 @@ export default function ResultPage() {
   const finish = useTest((s) => s.finish)
   const exit = useTest((s) => s.exit)
   const { settings } = useSettings()
+  const [loading, setLoading] = useState(true)
   const [attempt, setAttempt] = useState<AttemptRecord | null>(null)
   const [tab, setTab] = useState<Tab>('overview')
   const [filter, setFilter] = useState<'all' | 'lost'>('all')
 
-  // Score once, when the runner reports the test is finished.
+  // Score once when runner reports test finished, or load stored attempt by query id.
   useEffect(() => {
-    if (!mock) return
     let cancelled = false
     void (async () => {
       const existing = params.get('attempt')
       if (existing) {
         const stored = await getAttempt(existing)
-        if (stored && !cancelled) {
-          setAttempt(stored)
-          return
+        if (!cancelled) {
+          setAttempt(stored ?? null)
+          setLoading(false)
         }
+        return
       }
-      const record = await finish()
-      if (record && !cancelled) setAttempt(record)
+      if (mock) {
+        const record = await finish()
+        if (!cancelled) {
+          setAttempt(record ?? null)
+          setLoading(false)
+        }
+        return
+      }
+      if (!cancelled) {
+        setLoading(false)
+      }
     })()
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mock])
+  }, [mock, params, finish])
 
   const details = useMemo(() => {
     if (!mock) return []
@@ -64,12 +73,31 @@ export default function ResultPage() {
     return buildReport(items, mock.answers, responses, metaById).details
   }, [mock, responses])
 
-  if (!attempt) {
+  if (loading) {
     return (
       <div className="grid min-h-dvh place-items-center px-4">
         <div className="text-center">
           <span className="border-brand-500/25 border-t-brand-500 mx-auto block size-9 animate-spin rounded-full border-2" />
           <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">Scoring your responses…</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!attempt) {
+    return (
+      <div className="route-inner min-h-dvh">
+        <div className="page-shell-empty">
+          <Card className="text-center">
+            <h1 className="text-ink-900 dark:text-white text-xl font-bold text-balance">No test result found</h1>
+            <p className="text-ink-500 dark:text-ink-400 mt-2 text-sm leading-relaxed">
+              There is no active test session or saved result with this ID on this device.
+            </p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <ButtonLink to="/mock">Start a mock test</ButtonLink>
+              <ButtonLink to="/dashboard" variant="secondary">Go to dashboard</ButtonLink>
+            </div>
+          </Card>
         </div>
       </div>
     )
@@ -394,11 +422,26 @@ export default function ResultPage() {
                 </button>
               </div>
 
-              <ul className="space-y-3">
-                {visibleDetails.map((d) => (
-                  <ReviewRow key={d.itemId} detail={d} response={responses[d.itemId]} />
-                ))}
-              </ul>
+              {visibleDetails.length === 0 ? (
+                <Card>
+                  <p className="text-ink-700 dark:text-ink-200 text-sm font-semibold">
+                    {details.length === 0
+                      ? 'Item-level answer review is available during an active test session'
+                      : 'No questions match the current filter'}
+                  </p>
+                  <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs leading-relaxed">
+                    {details.length === 0
+                      ? 'The full test score, CEFR band, and breakdown by question type are saved and visible in the tabs above.'
+                      : 'Switch back to "All" to inspect all answered questions.'}
+                  </p>
+                </Card>
+              ) : (
+                <ul className="space-y-3">
+                  {visibleDetails.map((d) => (
+                    <ReviewRow key={d.itemId} detail={d} response={responses[d.itemId]} />
+                  ))}
+                </ul>
+              )}
             </div>
           ) : null}
         </div>

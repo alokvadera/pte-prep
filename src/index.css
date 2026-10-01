@@ -260,6 +260,7 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
     /* Keeps native controls, scrollbars, and form widgets on-palette. */
     color-scheme: light;
   }

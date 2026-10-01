@@ -95,14 +95,26 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
   const goTo = useTest((s) => s.goTo)
   const section = mock.sections[sectionIndex]!
 
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [open, onClose])
+
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-label="Question overview">
-      <button type="button" className="bg-ink-950/60 animate-fade-in absolute inset-0 cursor-default" onClick={onClose} aria-label="Close" />
+    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="nav-drawer-title">
+      <button type="button" className="bg-ink-950/60 animate-fade-in absolute inset-0 cursor-pointer" onClick={onClose} aria-label="Close question overview" />
       <div className="scrollbar-thin border-ink-200 dark:border-white/10 animate-drawer-enter relative h-full w-full max-w-sm overflow-y-auto border-l bg-white p-5 dark:bg-ink-850">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-ink-900 dark:text-white font-bold text-balance">{section.title}</h2>
+          <h2 id="nav-drawer-title" className="text-ink-900 dark:text-white font-bold text-balance">{section.title}</h2>
           <button type="button" className="btn-ghost" onClick={onClose}>
             Close
           </button>
@@ -380,8 +392,8 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         </section>
       </main>
 
-      <div className="border-ink-200 dark:border-white/10 fixed inset-x-0 bottom-0 z-30 border-t bg-white/90 backdrop-blur-md dark:bg-ink-900/90">
-        <div className="page-shell-wide flex items-center justify-between gap-3 py-3">
+      <div className="border-ink-200 dark:border-white/10 fixed inset-x-0 bottom-0 z-30 border-t bg-white/90 backdrop-blur-md pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] dark:bg-ink-900/90">
+        <div className="page-shell-wide flex items-center justify-between gap-3 pt-3">
           <button type="button" className="btn-secondary" onClick={prev} disabled={itemIndex === 0 && sectionIndex === 0}>
             ← Back
             <kbd className="hidden sm:inline-block ml-1 rounded bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-[10px] font-mono text-ink-500 dark:text-ink-400">Alt+B</kbd>

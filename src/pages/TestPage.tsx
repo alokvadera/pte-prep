@@ -31,6 +31,18 @@ export default function TestPage() {
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [status])
 
+  useEffect(() => {
+    if (!confirmExit) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setConfirmExit(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [confirmExit])
+
   return (
     <>
       <Seo />
@@ -43,9 +55,9 @@ export default function TestPage() {
 
       {confirmExit ? (
         <div className="fixed inset-0 z-100 grid place-items-center p-4">
-          <button type="button" className="bg-ink-950/70 animate-fade-in absolute inset-0" onClick={() => setConfirmExit(false)} aria-label="Cancel" />
-          <div role="dialog" aria-modal="true" className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl">
-            <h2 className="text-ink-900 dark:text-white text-lg font-bold text-balance">Leave the test?</h2>
+          <button type="button" className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer" onClick={() => setConfirmExit(false)} aria-label="Cancel" />
+          <div role="dialog" aria-modal="true" aria-labelledby="confirm-exit-title" className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl">
+            <h2 id="confirm-exit-title" className="text-ink-900 dark:text-white text-lg font-bold text-balance">Leave the test?</h2>
             <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">
               Your answers are saved, but the section clock will stop and the attempt will not be scored. You can resume
               from the mock test page.
