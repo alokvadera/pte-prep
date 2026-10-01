@@ -66,7 +66,7 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
 
   return (
     <div ref={rootRef} className={cn('group relative', className)}>
-      <p className="font-display text-ink-900 dark:text-ink-50 max-w-[42rem] text-4xl leading-[1.1] tracking-[-0.015em] sm:text-5xl">
+      <p className="font-display text-ink-900 dark:text-ink-50 max-w-[42rem] text-4xl leading-[1.2] tracking-[-0.015em] sm:text-5xl">
         {lines.map((line) => (
           <span key={line} className="block">
             {line.split(' ').map((word) => {

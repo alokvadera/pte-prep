@@ -7,7 +7,7 @@ import { getAttempt } from '../db/db'
 import { formatDuration } from '../lib/format'
 import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
-import { Badge, Card, ProgressBar } from '../components/ui/primitives'
+import { Badge, Button, ButtonLink, Card, ProgressBar } from '../components/ui/primitives'
 import { ScoreRangeBar, SkillBars } from '../components/charts/ScoreRangeBar'
 import { useTest } from '../store/useTest'
 import { useSettings } from '../store/useSettings'
@@ -105,6 +105,17 @@ export default function ResultPage() {
               <Badge tone="mint">Estimated score</Badge>
               <Badge tone="neutral">{attempt.mockTitle}</Badge>
               <Badge tone="neutral">{formatDuration(attempt.durationMs)}</Badge>
+              <button
+                type="button"
+                onClick={() => window.print()}
+                className="btn-ghost no-print inline-flex items-center gap-1.5 py-1 px-2.5 text-xs text-brand-600 dark:text-brand-300 font-semibold cursor-pointer ml-auto"
+                title="Print or Save PDF Diagnostic Score Card"
+              >
+                <svg viewBox="0 0 20 20" fill="currentColor" className="size-3.5" aria-hidden="true">
+                  <path fillRule="evenodd" d="M5 2.75C5 2.06 5.56 1.5 6.25 1.5h7.5c.69 0 1.25.56 1.25 1.25v2.5H5v-2.5zM3.5 6.75A2.25 2.25 0 001.25 9v5.5A2.25 2.25 0 003.5 16.75h1.25v1.5c0 .69.56 1.25 1.25 1.25h8c.69 0 1.25-.56 1.25-1.25v-1.5h1.25A2.25 2.25 0 0018.75 14.5V9A2.25 2.25 0 0016.5 6.75H3.5zm2.75 8v3.25h7.5V14.75H6.25zM16 9.5a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" clipRule="evenodd" />
+                </svg>
+                Print / Save PDF
+              </button>
             </div>
             <h1 className="page-title-compact mt-3">
               CEFR {attempt.cefr} · {cefrLabel(attempt.cefr)}
@@ -151,7 +162,7 @@ export default function ResultPage() {
           </div>
         </div>
 
-        <details className="card mt-6">
+        <details className="card mt-6 no-print">
           <summary className="text-ink-900 dark:text-white cursor-pointer list-none text-sm font-semibold [&::-webkit-details-marker]:hidden">
             How much of this number is exact?
           </summary>
@@ -159,7 +170,7 @@ export default function ResultPage() {
             <div>
               <p className="text-ink-900 dark:text-white font-mono text-3xl font-bold tabular-nums tracking-[-0.02em]">
                 {details.filter((d) => d.maxPoints > 0).length - estimatedCount}
-                <span className="text-ink-400 dark:text-ink-500 text-lg font-bold"> of {details.filter((d) => d.maxPoints > 0).length}</span>
+                <span className="text-ink-500 dark:text-ink-400 text-lg font-bold"> of {details.filter((d) => d.maxPoints > 0).length}</span>
               </p>
               <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
                 items scored exactly against an answer key. Multiple choice, fill in the blanks, re-order paragraphs and
@@ -170,7 +181,7 @@ export default function ResultPage() {
             <div>
               <p className="text-ink-900 dark:text-white font-mono text-3xl font-bold tabular-nums tracking-[-0.02em]">
                 {estimatedCount}
-                <span className="text-ink-400 dark:text-ink-500 text-lg font-bold"> estimated</span>
+                <span className="text-ink-500 dark:text-ink-400 text-lg font-bold"> estimated</span>
               </p>
               <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
                 speaking and writing responses, rated with a rubric over the same four constructs Pearson uses. Read
@@ -226,7 +237,7 @@ export default function ResultPage() {
                   <div className="min-w-0">
                     <p className="text-ink-900 dark:text-white text-sm font-semibold">
                       {t.label}{' '}
-                      <span className="text-ink-400 dark:text-ink-500 font-normal">· target {t.range}</span>
+                      <span className="text-ink-400 font-normal">· target {t.range}</span>
                       {state !== 'notMet' ? (
                         <span className="text-mint-700 dark:text-mint-300 ml-2 text-xs font-semibold">
                           {state === 'met' ? 'met' : 'exceeded'}
@@ -242,7 +253,7 @@ export default function ResultPage() {
         </Card>
 
         {/* Tabs */}
-        <div className="mt-10 border-ink-200 dark:border-white/10 border-b">
+        <div className="no-print mt-10 border-ink-200 dark:border-white/10 border-b">
           <div className="-mb-px flex gap-1 overflow-x-auto" role="tablist">
             {(
               [
@@ -287,9 +298,17 @@ export default function ResultPage() {
                             {row.correct}/{row.total} fully correct
                           </span>
                         </span>
-                        <span className="text-ink-900 dark:text-white text-sm font-bold tabular-nums">
-                          {row.earnedPoints.toFixed(1)} / {row.maxPoints}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <Link
+                            to={`/practice?type=${row.type}`}
+                            className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+                          >
+                            Drill this type →
+                          </Link>
+                          <span className="text-ink-900 dark:text-white text-sm font-bold tabular-nums">
+                            {row.earnedPoints.toFixed(1)} / {row.maxPoints}
+                          </span>
+                        </div>
                       </div>
                       <ProgressBar
                         value={row.earnedPoints}
@@ -324,7 +343,15 @@ export default function ResultPage() {
                         return (
                           <li key={row.type} className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
-                              <p className="text-ink-800 dark:text-ink-100 text-sm">{row.label}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-ink-800 dark:text-ink-100 text-sm font-medium">{row.label}</p>
+                                <Link
+                                  to={`/practice?type=${row.type}`}
+                                  className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+                                >
+                                  Drill →
+                                </Link>
+                              </div>
                               <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs leading-relaxed">{qm?.tip}</p>
                             </div>
                             <span
@@ -354,8 +381,7 @@ export default function ResultPage() {
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  className={cn('btn-secondary text-sm', filter === 'all' && 'border-brand-500 text-brand-600 dark:text-brand-300')}
-                  onClick={() => setFilter('all')}
+                  className={cn('btn-secondary text-sm', filter === 'all' && 'border-brand-500 text-brand-600 dark:text-brand-300')}                  onClick={() => setFilter('all')}
                 >
                   All {details.length}
                 </button>
@@ -377,26 +403,28 @@ export default function ResultPage() {
           ) : null}
         </div>
 
-        <div className="mt-10 flex flex-wrap gap-3">
-          <Link to="/mock" className="btn-primary" onClick={() => exit()}>
+        <div className="no-print mt-10 flex flex-wrap gap-3">
+          <ButtonLink to="/mock" onClick={() => exit()}>
             Take another mock
-          </Link>
-          <Link to="/dashboard" className="btn-secondary">
+          </ButtonLink>
+          <ButtonLink to="/dashboard" variant="secondary">
             See progress
-          </Link>
-          <Link to="/practice" className="btn-secondary">
-            Practise your weakest type
-          </Link>
-          <button
-            type="button"
-            className="btn-ghost"
+          </ButtonLink>
+          <ButtonLink
+            to={typeRows[0] ? `/practice?type=${typeRows[0].type}` : '/practice'}
+            variant="secondary"
+          >
+            Practice weakest type{typeRows[0] ? ` (${typeRows[0].label})` : ''} →
+          </ButtonLink>
+          <Button
+            variant="ghost"
             onClick={() => {
               if (settings.autoOpenReview) setTab('review')
               else setTab('overview')
             }}
           >
             {settings.autoOpenReview ? 'Show full review' : 'Show breakdown'}
-          </button>
+          </Button>
         </div>
         </div>
       </div>
@@ -542,7 +570,7 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
               <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">
                 {isEstimated(detail) ? 'Model answer' : 'Answer key'}
               </p>
-              <p className="passage bg-ink-50 dark:bg-white/4 mt-1.5 rounded-lg p-3 text-sm">{detail.reference}</p>
+              <p className="passage bg-ink-100 dark:bg-white/5 border border-ink-200/60 dark:border-white/10 mt-1.5 rounded-lg p-3 text-sm">{detail.reference}</p>
             </div>
           ) : null}
 
@@ -556,9 +584,17 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
           ) : null}
 
           {ratio >= 0.999 ? null : (
-            <p className="text-ink-500 dark:text-ink-400 text-xs">
-              Estimated traits: content {Math.round(Math.min(1, ratio * 1.1) * 100)}% of the available credit.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-100 pt-3 dark:border-white/10">
+              <p className="text-ink-500 dark:text-ink-400 text-xs">
+                Estimated traits: content {Math.round(Math.min(1, ratio * 1.1) * 100)}% of the available credit.
+              </p>
+              <Link
+                to={`/practice?type=${detail.type}`}
+                className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+              >
+                Drill {detail.label} →
+              </Link>
+            </div>
           )}
         </div>
       ) : null}

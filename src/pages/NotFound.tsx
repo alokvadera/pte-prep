@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom'
 import { Seo } from '../seo/Seo'
+import { ButtonLink } from '../components/ui/primitives'
 
 export default function NotFound() {
   return (
@@ -13,12 +13,12 @@ export default function NotFound() {
           The link may be out of date, or the address may have a typo. Nothing is broken on your side.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
-          <Link to="/" className="btn-primary">
+          <ButtonLink to="/" variant="primary">
             Back to home
-          </Link>
-          <Link to="/mock" className="btn-secondary">
+          </ButtonLink>
+          <ButtonLink to="/mock" variant="secondary">
             Start a mock test
-          </Link>
+          </ButtonLink>
         </div>
       </div>
     </>

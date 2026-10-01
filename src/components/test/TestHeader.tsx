@@ -121,7 +121,7 @@ export function TestHeader({
           extend with a single action, and allow repeated extensions. */}
       {atThreshold ? (
         <div className="border-t border-amber-500/30 bg-amber-500/10">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-2">
+          <div className="page-shell-wide flex flex-wrap items-center gap-3 py-2">
             <p role="status" className="text-amber-700 dark:text-amber-200 text-sm font-semibold">
               {formatClock(secondsRemaining)} left in this section.
             </p>
@@ -135,7 +135,7 @@ export function TestHeader({
                 }}
               >
                 Add 5 minutes
-                {extended > 0 ? <span className="text-ink-400 dark:text-ink-500"> ({extended} added)</span> : null}
+                {extended > 0 ? <span className="text-ink-500 dark:text-ink-400"> ({extended} added)</span> : null}
               </button>
             ) : null}
             {canExtend ? null : <span className="sr-only">Time is about to expire.</span>}

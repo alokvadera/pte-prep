@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { clearAttempts, deleteAttempt, listAttempts } from '../db/db'
-import type { AttemptRecord, Skill } from '../domain/types'
+import { QUESTION_META } from '../domain/blueprint'
+import type { AttemptRecord, QuestionType, Skill } from '../domain/types'
 import { formatDateTime, formatDuration } from '../lib/format'
 import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
-import { Badge, Card, EmptyState, PageHeading, ProgressBar, Stat } from '../components/ui/primitives'
+import { Badge, Button, ButtonLink, Card, CardTitle, Disclosure, EmptyState, PageWrapper, ProgressBar, Stat, Toggle } from '../components/ui/primitives'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useSettings } from '../store/useSettings'
+import { weakestTypes } from '../domain/weakTypes'
 
 const SKILL_ORDER: Skill[] = ['reading', 'listening', 'speaking', 'writing']
 
@@ -20,6 +23,9 @@ export default function Dashboard() {
       setAttempts(await listAttempts(100))
     })()
   }, [settings.textScale])
+
+  // Only types with evidence behind them, so the panel recommends rather than surveys.
+  const focus = useMemo(() => weakestTypes(attempts ?? [], 3, true), [attempts])
 
   const stats = useMemo(() => {
     if (!attempts || attempts.length === 0) return null
@@ -64,33 +70,98 @@ export default function Dashboard() {
     <>
       <Seo />
 
-      <div className="page-shell-app">
-        <PageHeading
-          eyebrow="Progress"
-          title="See what is getting stronger."
-          description="Your attempts, skill trends and next steps stay on this device. Nothing is uploaded."
-          actions={<Link to="/mock" className="btn-primary px-5 py-3">Take another mock</Link>}
-        />
-
+      <PageWrapper
+        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Progress' }]} />}
+        eyebrow="Progress"
+        title="See what is getting stronger."
+        description="Your attempts, skill trends and next steps stay on this device. Nothing is uploaded."
+        actions={attempts && attempts.length > 0 ? <ButtonLink to="/mock" size="lg">Take another mock</ButtonLink> : undefined}
+      >
         {attempts === null ? (
-          <div className="mt-10 grid place-items-center py-20">
+          <div className="mt-12 grid place-items-center py-20">
             <span className="border-brand-500/25 border-t-brand-500 size-8 animate-spin rounded-full border-2" />
           </div>
         ) : attempts.length === 0 ? (
-          <div className="mt-10">
+          <div className="mt-12 space-y-8">
             <EmptyState
               title="No attempts yet"
               description="Take a full mock test and your score history, skill trends and question-type breakdown will appear here."
               action={
-                <Link to="/mock" className="btn-primary">
+                <ButtonLink to="/mock">
                   Start your first mock
-                </Link>
+                </ButtonLink>
               }
             />
+
+            <div className="grid gap-6 sm:grid-cols-3">
+              <Link to="/mock" className="card group transition-colors hover:border-brand-500/50">
+                <span className="text-brand-600 dark:text-brand-400 font-mono text-xs font-semibold">01 · FULL MOCK</span>
+                <CardTitle className="mt-1.5 text-base group-hover:text-brand-600 dark:group-hover:text-brand-400">Timed exam simulation</CardTitle>
+                <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-sm leading-relaxed">
+                  Run through all 22 question types under official test timings with machine scoring.
+                </p>
+              </Link>
+              <Link to="/practice" className="card group transition-colors hover:border-brand-500/50">
+                <span className="text-brand-600 dark:text-brand-400 font-mono text-xs font-semibold">02 · TARGETED DRILL</span>
+                <CardTitle className="mt-1.5 text-base group-hover:text-brand-600 dark:group-hover:text-brand-400">Practice by skill</CardTitle>
+                <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-sm leading-relaxed">
+                  Select speaking, writing, reading, or listening and drill only the types you need.
+                </p>
+              </Link>
+              <Link to="/format" className="card group transition-colors hover:border-brand-500/50">
+                <span className="text-brand-600 dark:text-brand-400 font-mono text-xs font-semibold">03 · EXAM FORMAT</span>
+                <CardTitle className="mt-1.5 text-base group-hover:text-brand-600 dark:group-hover:text-brand-400">Understand the test</CardTitle>
+                <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-sm leading-relaxed">
+                  Review the 3 sections, 2025 question updates, time limits, and scoring rubrics.
+                </p>
+              </Link>
+            </div>
           </div>
         ) : stats ? (
           <>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {focus.length > 0 ? (
+              <section className="mt-10" aria-labelledby="focus-heading">
+                <div className="flex flex-wrap items-baseline justify-between gap-3">
+                  <h2 id="focus-heading" className="text-ink-900 dark:text-white text-lg font-bold text-balance">
+                    Practise these next
+                  </h2>
+                  <p className="text-ink-500 dark:text-ink-400 text-sm">
+                    Weighted toward your last {Math.min(attempts.length, 5)} attempts
+                  </p>
+                </div>
+                <p className="text-ink-500 dark:text-ink-300 mt-2 max-w-2xl text-sm leading-relaxed">
+                  Ranked by what you are getting wrong rather than what you have practised least. Re-testing material you
+                  already know carries much less value than re-testing the items you keep missing.
+                </p>
+                <ul className="mt-4 grid gap-3 sm:grid-cols-3">
+                  {focus.map((f) => (
+                    <li key={f.type}>
+                      <Link
+                        to={`/practice?type=${f.type}`}
+                        className="card group flex h-full flex-col justify-between gap-3 transition-colors hover:border-brand-500/50"
+                      >
+                        <div>
+                          <p className="text-ink-500 dark:text-ink-400 font-mono text-xs">
+                            {f.untested ? 'Not yet attempted' : `${f.priority}% accuracy`}
+                          </p>
+                          <p className="text-ink-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 mt-1.5 text-base font-bold text-balance">
+                            {f.label}
+                          </p>
+                          <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs">
+                            {f.untested
+                              ? 'No evidence yet'
+                              : `${f.itemsSeen} item${f.itemsSeen === 1 ? '' : 's'} across ${f.attemptsSeen} attempt${f.attemptsSeen === 1 ? '' : 's'}`}
+                          </p>
+                        </div>
+                        <span className="text-brand-600 dark:text-brand-400 text-sm font-semibold">Drill this type →</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
               <Stat label="Latest score" value={stats.latest.overallScore} sub={`CEFR ${stats.latest.cefr}`} tone="brand" />
               <Stat label="Best score" value={stats.best} sub={`across ${attempts.length} attempts`} tone="mint" />
               <Stat
@@ -103,20 +174,20 @@ export default function Dashboard() {
             </div>
 
             {stats.sorted.length > 1 ? (
-              <Card className="mt-6">
-                <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Overall score over time</h2>
+              <Card className="mt-8">
+                <CardTitle>Overall score over time</CardTitle>
                 <ScoreTrend points={stats.sorted.map((a) => ({ label: a.finishedAt, value: a.overallScore }))} />
               </Card>
             ) : null}
 
             <Card className="mt-6">
-              <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Average by skill</h2>
-              <div className="mt-4 space-y-3.5">
+              <CardTitle>Average by skill</CardTitle>
+              <div className="mt-6 space-y-4">
                 {SKILL_ORDER.filter((s) => stats.skillAvg[s] !== undefined).map((s) => {
                   const value = stats.skillAvg[s] as number
                   return (
                     <div key={s}>
-                      <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
+                      <div className="mb-2 flex items-baseline justify-between gap-3 text-sm">
                         <span className="text-ink-700 dark:text-ink-200 font-medium capitalize">{s}</span>
                         <span className="text-ink-900 dark:text-white font-bold tabular-nums">{Math.round(value * 10) / 10}</span>
                       </div>
@@ -133,16 +204,29 @@ export default function Dashboard() {
             </Card>
 
             <Card className="mt-6">
-              <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Question types to work on</h2>
+              <CardTitle>Question types to work on</CardTitle>
               <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">Weakest first, across all attempts.</p>
-              <ul className="mt-4 space-y-3">
+              <ul className="mt-6 space-y-4">
                 {stats.typeRows.slice(0, 8).map((row) => (
                   <li key={row.type}>
-                    <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-2 text-sm">
-                      <span className="text-ink-700 dark:text-ink-200 font-medium capitalize">
-                        {row.type.replace(/-/g, ' ')}
-                      </span>
-                      <span className="text-ink-500 dark:text-ink-400 text-xs tabular-nums">{row.n} items</span>
+                    <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <span className="text-ink-700 dark:text-ink-200 font-medium capitalize">
+                          {QUESTION_META[row.type as QuestionType]?.label ?? row.type.replace(/-/g, ' ')}
+                        </span>
+                        <Link
+                          to={`/practice?type=${row.type}`}
+                          className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+                        >
+                          Drill →
+                        </Link>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <span className="text-ink-900 dark:text-white font-semibold tabular-nums">
+                          {Math.round(row.ratio * 100)}%
+                        </span>
+                        <span className="text-ink-400 tabular-nums">({row.n} items)</span>
+                      </div>
                     </div>
                     <ProgressBar
                       value={row.earned}
@@ -153,14 +237,20 @@ export default function Dashboard() {
                   </li>
                 ))}
               </ul>
-              <Link to="/practice" className="btn-secondary mt-5">
-                Practise the weakest type →
-              </Link>
+              {focus[0] ? (
+                <ButtonLink to={`/practice?type=${focus[0].type}`} variant="secondary" className="mt-6">
+                  Drill weakest type ({QUESTION_META[focus[0].type as QuestionType]?.short ?? focus[0].type.replace(/-/g, ' ')}) →
+                </ButtonLink>
+              ) : (
+                <ButtonLink to="/practice" variant="secondary" className="mt-6">
+                  Practice by question type →
+                </ButtonLink>
+              )}
             </Card>
 
             <Card className="mt-6">
-              <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Attempt history</h2>
-              <div className="scrollbar-thin -mx-5 mt-4 overflow-x-auto px-5">
+              <CardTitle>Attempt history</CardTitle>
+              <div className="scrollbar-thin -mx-5 mt-6 overflow-x-auto px-5 sm:-mx-6 sm:px-6">
                 <table className="w-full min-w-lg border-collapse text-left text-sm">
                   <caption className="sr-only">Your PTE mock test attempts</caption>
                   <thead>
@@ -175,20 +265,20 @@ export default function Dashboard() {
                   <tbody>
                     {[...attempts].reverse().map((a) => (
                       <tr key={a.id} className="border-ink-100 dark:border-white/6 border-b">
-                        <td className="text-ink-500 dark:text-ink-400 px-3 py-2.5 whitespace-nowrap">
+                        <td className="text-ink-500 dark:text-ink-400 px-3 py-3 whitespace-nowrap">
                           {formatDateTime(a.finishedAt)}
                         </td>
-                        <td className="text-ink-700 dark:text-ink-200 max-w-[180px] truncate px-3 py-2.5">{a.mockTitle}</td>
-                        <td className="text-ink-900 dark:text-white px-3 py-2.5 font-bold tabular-nums">{a.overallScore}</td>
-                        <td className="px-3 py-2.5">
+                        <td className="text-ink-700 dark:text-ink-200 max-w-[180px] truncate px-3 py-3">{a.mockTitle}</td>
+                        <td className="text-ink-900 dark:text-white px-3 py-3 font-bold tabular-nums">{a.overallScore}</td>
+                        <td className="px-3 py-3">
                           <Badge tone={a.overallScore >= 71 ? 'mint' : a.overallScore >= 46 ? 'brand' : 'amber'}>
                             {a.cefr}
                           </Badge>
                         </td>
-                        <td className="text-ink-500 dark:text-ink-400 px-3 py-2.5 whitespace-nowrap tabular-nums">
+                        <td className="text-ink-500 dark:text-ink-400 px-3 py-3 whitespace-nowrap tabular-nums">
                           {formatDuration(a.durationMs)}
                         </td>
-                        <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                        <td className="px-3 py-3 text-right whitespace-nowrap">
                           <span className="inline-flex justify-end gap-1">
                           <button
                             type="button"
@@ -214,29 +304,20 @@ export default function Dashboard() {
                   </tbody>
                 </table>
               </div>
-              <button
-                type="button"
-                className="btn-danger mt-5"
-                onClick={() => {
-                  if (window.confirm('Delete all attempt history? This cannot be undone.')) {
-                    void clearAttempts().then(() => setAttempts([]))
-                  }
-                }}
-              >
+              <Button variant="danger" className="mt-6" onClick={() => {
+                if (window.confirm('Delete all attempt history? This cannot be undone.')) {
+                  void clearAttempts().then(() => setAttempts([]))
+                }
+              }}>
                 Clear all history
-              </button>
+              </Button>
             </Card>
           </>
         ) : null}
 
-        <details className="group mt-8">
-          <summary className="card-solid flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold text-ink-900 dark:text-white [&::-webkit-details-marker]:hidden">
-            <span>Practice settings</span>
-            <span className="grid size-7 place-items-center rounded-md bg-ink-100 text-lg leading-none text-ink-500 transition-transform group-open:rotate-45 dark:bg-white/8 dark:text-ink-300" aria-hidden="true">+</span>
-          </summary>
-          <Card className="mt-3">
-          <div className="mt-4 grid gap-x-8 gap-y-2 sm:grid-cols-2">
-            <div className="flex items-center justify-between gap-4 border-b border-ink-100 py-2.5 dark:border-white/6">
+        <Disclosure summary="Practice settings">
+          <div className="grid gap-x-8 gap-y-1 sm:grid-cols-2">
+            <div className="flex items-center justify-between gap-4 border-ink-100 dark:border-white/6 border-b py-3">
               <div>
                 <p className="text-ink-800 dark:text-ink-100 text-sm font-medium">Theme</p>
                 <p className="text-ink-500 dark:text-ink-400 text-xs">Currently {settings.theme}</p>
@@ -248,7 +329,7 @@ export default function Dashboard() {
                     type="button"
                     onClick={() => set('theme', t)}
                     className={cn(
-                      'rounded-lg px-2.5 py-1 text-xs font-semibold capitalize',
+                      'rounded-md px-3 py-1.5 text-xs font-semibold capitalize',
                       settings.theme === t
                         ? 'bg-brand-500 text-white'
                         : 'bg-ink-100 text-ink-600 dark:bg-white/8 dark:text-ink-300',
@@ -261,7 +342,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between gap-4 border-b border-ink-100 py-2.5 dark:border-white/6">
+            <div className="flex items-center justify-between gap-4 border-ink-100 dark:border-white/6 border-b py-3">
               <div>
                 <p className="text-ink-800 dark:text-ink-100 text-sm font-medium">Text size</p>
                 <p className="text-ink-500 dark:text-ink-400 text-xs">{Math.round(settings.textScale * 100)}%</p>
@@ -278,59 +359,16 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="flex items-center justify-between gap-4 border-b border-ink-100 py-2.5 dark:border-white/6">
-              <div>
-                <p className="text-ink-800 dark:text-ink-100 text-sm font-medium">Word counter</p>
-                <p className="text-ink-500 dark:text-ink-400 text-xs">While typing answers</p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={settings.showWordCount}
-                aria-label="Word counter"
-                onClick={() => set('showWordCount', !settings.showWordCount)}
-                className={cn(
-                  'relative h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-colors',
-                  settings.showWordCount ? 'border-brand-500 bg-brand-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
-                )}
-              >
-                <span
-                  className={cn(
-                    'absolute top-0.5 size-4.5 rounded-full bg-white shadow transition-transform',
-                    settings.showWordCount ? 'translate-x-5.5' : 'translate-x-0.5',
-                  )}
-                />
-              </button>
+            <div className="border-ink-100 dark:border-white/6 border-b">
+              <Toggle checked={settings.showWordCount} onChange={(v) => set('showWordCount', v)} label="Word counter" description="While typing answers" />
             </div>
 
-            <div className="flex items-center justify-between gap-4 border-b border-ink-100 py-2.5 dark:border-white/6">
-              <div>
-                <p className="text-ink-800 dark:text-ink-100 text-sm font-medium">Countdown beeps</p>
-                <p className="text-ink-500 dark:text-ink-400 text-xs">Before audio and recording</p>
-              </div>
-              <button
-                type="button"
-                role="switch"
-                aria-checked={settings.countdownBeeps}
-                aria-label="Countdown beeps"
-                onClick={() => set('countdownBeeps', !settings.countdownBeeps)}
-                className={cn(
-                  'relative h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-colors',
-                  settings.countdownBeeps ? 'border-brand-500 bg-brand-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
-                )}
-              >
-                <span
-                  className={cn(
-                    'absolute top-0.5 size-4.5 rounded-full bg-white shadow transition-transform',
-                    settings.countdownBeeps ? 'translate-x-5.5' : 'translate-x-0.5',
-                  )}
-                />
-              </button>
+            <div className="border-ink-100 dark:border-white/6 border-b">
+              <Toggle checked={settings.countdownBeeps} onChange={(v) => set('countdownBeeps', v)} label="Countdown beeps" description="Before audio and recording" />
             </div>
           </div>
-          </Card>
-        </details>
-      </div>
+        </Disclosure>
+      </PageWrapper>
     </>
   )
 }
@@ -345,7 +383,7 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
   const py = (v: number) => h - pad - ((v - min) / (max - min)) * (h - pad * 2)
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-5 w-full" role="img" aria-label={`Overall score across ${points.length} attempts`}>
+    <svg viewBox={`0 0 ${w} ${h}`} className="mt-6 w-full" role="img" aria-label={`Overall score across ${points.length} attempts`}>
       {[20, 40, 60, 80].map((v) => (
         <g key={v}>
           <line x1={pad} x2={w - pad} y1={py(v)} y2={py(v)} stroke="currentColor" strokeOpacity={0.1} />

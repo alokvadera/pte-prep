@@ -4,7 +4,7 @@ import type { QuestionType } from '../domain/types'
 import { QUESTION_TYPE_DETAIL, faqForType, relatedTypes, typeFromSlug, typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
-import { PageHeading } from '../components/ui/primitives'
+import { ButtonLink, PageWrapper } from '../components/ui/primitives'
 import NotFound from './NotFound'
 
 const SKILL_LABEL: Record<string, string> = {
@@ -46,24 +46,23 @@ export default function QuestionTypePage() {
     <>
       <Seo />
 
-      <div className="page-shell-prose">
-        <Breadcrumbs
-          trail={[
-            { name: 'Home', path: '/' },
-            { name: 'PTE question types', path: '/question-types/' },
-            { name: meta.label },
-          ]}
-          className="mb-6"
-        />
-
-        <PageHeading
-          eyebrow={`${section.title} · ${section.longTitle} · ${meta.short}`}
-          title={`${meta.label}: ${section.longTitle} PTE question type`}
-          description={detail.what}
-        />
+      <PageWrapper
+        breadcrumbs={
+          <Breadcrumbs
+            trail={[
+              { name: 'Home', path: '/' },
+              { name: 'PTE question types', path: '/question-types/' },
+              { name: meta.label },
+            ]}
+          />
+        }
+        eyebrow={`${section.title} · ${section.longTitle} · ${meta.short}`}
+        title={`${meta.label}: ${section.longTitle} PTE question type`}
+        description={detail.what}
+      >
         <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">{detail.how}</p>
 
-        <section className="mt-16">
+        <section className="mt-10 sm:mt-12">
           <h2 className="section-title">How {meta.label} is scored</h2>
           <p className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">{detail.scoring}</p>
 
@@ -102,32 +101,28 @@ export default function QuestionTypePage() {
           ) : null}
         </section>
 
-        <section className="mt-16">
+        <section className="mt-12 sm:mt-14">
           <h2 className="section-title">
             Common {meta.label} mistakes
           </h2>
           <ol className="mt-4 space-y-3">
             {detail.mistakes.map((m, i) => (
               <li key={i} className="flex gap-3">
-                <span className="text-ink-300 dark:text-ink-500 mt-0.5 font-mono text-sm tabular-nums">{i + 1}</span>
+                <span className="text-ink-300 dark:text-ink-400 mt-0.5 font-mono text-sm tabular-nums">{i + 1}</span>
                 <span className="text-ink-600 dark:text-ink-200 leading-relaxed">{m}</span>
               </li>
             ))}
           </ol>
 
-          <div className="border-ink-200 dark:border-white/10 mt-6 border-l-2 border-brand-500 py-1 pl-4">
-            <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">Strategy</p>
-            <p className="text-ink-800 dark:text-ink-100 mt-1 leading-relaxed">{meta.tip}</p>
+          <div className="border-ink-200 dark:border-white/10 mt-6 border-l-4 border-l-brand-500 dark:border-l-brand-400 bg-brand-500/5 dark:bg-brand-500/10 rounded-r-lg p-4">
+            <p className="text-brand-700 dark:text-brand-300 font-mono text-micro font-semibold uppercase tracking-wider">Strategy</p>
+            <p className="text-ink-800 dark:text-ink-100 mt-1 text-sm leading-relaxed">{meta.tip}</p>
           </div>
         </section>
 
         <section className="mt-10 flex flex-wrap gap-3">
-          <Link to={`/practice?type=${type}`} className="btn-primary px-5 py-3">
-            Practise {meta.label}
-          </Link>
-          <Link to="/mock" className="btn-secondary px-5 py-3">
-            Sit a full mock
-          </Link>
+          <ButtonLink to={`/practice?type=${type}`} size="lg">Practice {meta.label}</ButtonLink>
+          <ButtonLink to="/mock" variant="secondary" size="lg">Sit a full mock</ButtonLink>
         </section>
 
         <section className="mt-16">
@@ -187,11 +182,11 @@ export default function QuestionTypePage() {
           </p>
         </section>
 
-        <p className="text-ink-400 dark:text-ink-500 mt-10 text-xs">
+        <p className="text-ink-500 dark:text-ink-400 mt-10 text-xs">
           Scoring figures on this page follow the current PTE Academic official guide. This is an independent practice
           site and is not affiliated with Pearson.
         </p>
-      </div>
+      </PageWrapper>
     </>
   )
 }

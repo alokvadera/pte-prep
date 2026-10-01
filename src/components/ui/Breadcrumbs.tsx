@@ -25,7 +25,7 @@ export function Breadcrumbs({ trail, className }: { trail: Crumb[]; className?: 
             <Fragment key={`${c.name}-${i}`}>
               <li>
                 {last || !c.path ? (
-                  <span aria-current={last ? 'page' : undefined}>{c.name}</span>
+                  <span className={cn(last && 'text-ink-900 dark:text-white font-medium')} aria-current={last ? 'page' : undefined}>{c.name}</span>
                 ) : (
                   // Padded to reach a 24px hit area without loosening the
                   // visual rhythm of the trail.
@@ -38,7 +38,7 @@ export function Breadcrumbs({ trail, className }: { trail: Crumb[]; className?: 
                 )}
               </li>
               {last ? null : (
-                <li aria-hidden="true" className="text-ink-300 dark:text-ink-500 select-none">
+                <li aria-hidden="true" className="text-ink-300 dark:text-ink-400 select-none">
                   /
                 </li>
               )}

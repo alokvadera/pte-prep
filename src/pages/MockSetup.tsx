@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { MOCK_BLUEPRINT, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { buildFullMock, buildSectionMock } from '../domain/assemble'
 import type { MockMode, QuestionType, SectionId } from '../domain/types'
 import { capacityByType } from '../content/bank'
 import { Seo } from '../seo/Seo'
-import { Badge, PageHeading } from '../components/ui/primitives'
+import { Badge, Button, PageWrapper } from '../components/ui/primitives'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useTest } from '../store/useTest'
 import { useSettings } from '../store/useSettings'
 import { formatClock } from '../lib/format'
@@ -113,26 +114,24 @@ export default function MockSetup() {
     <>
       <Seo />
 
-      <div className="page-shell-app">
-        <PageHeading
-          eyebrow="Mock test setup"
-          title="Build a test around your day."
-          description="Choose the length, conditions and timing that suit your session. Questions and answer order are shuffled from your seed."
-        />
+      <PageWrapper
+        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Mock test' }]} />}
+        eyebrow="Mock test setup"
+        title="Build a test around your day."
+        description="Choose the length, conditions and timing that suit your session. Questions and answer order are shuffled from your seed."
+      >
 
         {activeMock && activeStatus !== 'finished' ? (
-          <div className="card-solid border-brand-500/40 mt-8 flex flex-wrap items-center justify-between gap-4 border p-5">
+          <div className="card-solid mt-8 flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-ink-900 dark:text-white text-sm font-bold">You have a test in progress</p>
               <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{activeMock.title}</p>
             </div>
-            <button type="button" className="btn-primary" onClick={() => navigate('/test')}>
-              Resume
-            </button>
+            <Button onClick={() => navigate('/test')}>Resume</Button>
           </div>
         ) : null}
 
-        <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_320px]">
+        <div className="mt-6 sm:mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
           <div className="space-y-8">
             <fieldset>
               <legend className="label">Length</legend>
@@ -245,11 +244,13 @@ export default function MockSetup() {
                 practise pacing. You can also add five minutes mid-section.
               </p>
             </fieldset>
+
+            <MicChecker />
           </div>
 
           <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
             <div className="rounded-xl bg-ink-900 p-5 text-white shadow-card">
-              <p className="font-mono text-micro text-[#9bc9ff]">TEST PREVIEW</p>
+              <p className="font-mono text-micro text-brand-300">TEST PREVIEW</p>
               <h2 className="mt-2 text-xl font-bold tracking-tight text-balance">This run</h2>
 
               <dl className="mt-4 space-y-3 text-sm">
@@ -257,7 +258,7 @@ export default function MockSetup() {
                 <Row label="Total points" value={String(preview.mock.totalPoints)} />
                 <Row label="Time allowed" value={formatClock(preview.mock.totalSeconds)} />
                 <div className="flex flex-col gap-1 border-t border-white/10 pt-2.5">
-                  <dt className="text-xs text-[#aeb9c6]">Sections</dt>
+                  <dt className="text-xs text-ink-300">Sections</dt>
                   <dd className="text-xs font-semibold leading-relaxed text-white">
                     {preview.mock.sections.map((s) => SECTION_META[s.id].longTitle).join(' → ')}
                   </dd>
@@ -265,7 +266,7 @@ export default function MockSetup() {
               </dl>
 
               <div className="mt-5 border-t border-white/10 pt-4">
-                <p className="text-xs font-semibold text-[#aeb9c6]">
+                <p className="text-xs font-semibold text-ink-300">
                   Question types included
                 </p>
                 <ul className="mt-2.5 flex flex-wrap gap-1.5">
@@ -276,14 +277,14 @@ export default function MockSetup() {
                     .filter((t, i, arr) => arr.indexOf(t) === i)
                     .map((t) => (
                       <li key={t}>
-                        <Badge tone="neutral" className="bg-white/8 text-[#c3ccd6]">{QUESTION_META[t].short}</Badge>
+                        <Badge tone="neutral" className="bg-white/8 text-ink-200">{QUESTION_META[t].short}</Badge>
                       </li>
                     ))}
                 </ul>
               </div>
 
               <div className="mt-5 border-t border-white/10 pt-4">
-                <label className="mb-1.5 block text-xs font-semibold text-[#aeb9c6]" htmlFor="seed">
+                <label className="mb-1.5 block text-xs font-semibold text-ink-300" htmlFor="seed">
                   Test seed
                 </label>
                 <div className="flex min-w-0 gap-2">
@@ -294,30 +295,26 @@ export default function MockSetup() {
                     value={seed}
                     onChange={(e) => setSeed(Number(e.target.value) || 0)}
                   />
-                  <button
-                    type="button"
-                    className="btn-secondary shrink-0"
-                    onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}
-                  >
+                  <Button variant="secondary" className="shrink-0" onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}>
                     Shuffle
-                  </button>
+                  </Button>
                 </div>
-                <p className="mt-1.5 text-xs leading-relaxed text-[#aeb9c6]">
+                <p className="mt-1.5 text-xs leading-relaxed text-ink-300">
                   Same seed produces the same test. Share it to reproduce a paper.
                 </p>
               </div>
 
-              <button type="button" className="btn-primary mt-6 w-full py-3 text-base" onClick={begin}>
+              <Button size="lg" className="mt-6 w-full" onClick={begin}>
                 Start {LENGTHS[length].label.toLowerCase()}
-              </button>
+              </Button>
 
-              <p className="mt-3 text-center text-xs leading-relaxed text-[#aeb9c6]">
+              <p className="mt-3 text-center text-xs leading-relaxed text-ink-300">
                 Allow playback when prompted so the listening items work.
               </p>
             </div>
           </aside>
         </div>
-      </div>
+      </PageWrapper>
     </>
   )
 }
@@ -325,8 +322,200 @@ export default function MockSetup() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 items-baseline justify-between gap-3">
-      <dt className="shrink-0 text-xs text-[#aeb9c6]">{label}</dt>
+      <dt className="shrink-0 text-xs text-ink-300">{label}</dt>
       <dd className="min-w-0 truncate text-right text-xs font-semibold tabular-nums text-white">{value}</dd>
+    </div>
+  )
+}
+
+function MicChecker() {
+  const [state, setState] = useState<'idle' | 'recording' | 'ready' | 'error'>('idle')
+  const [countdown, setCountdown] = useState(3)
+  const [audioUrl, setAudioUrl] = useState<string | null>(null)
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
+  const [level, setLevel] = useState(0)
+
+  const recorderRef = useRef<MediaRecorder | null>(null)
+  const streamRef = useRef<MediaStream | null>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const animRef = useRef<number | null>(null)
+  const chunksRef = useRef<Blob[]>([])
+
+  useEffect(() => {
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current)
+      if (audioUrl) URL.revokeObjectURL(audioUrl)
+      streamRef.current?.getTracks().forEach((t) => t.stop())
+      void audioCtxRef.current?.close().catch(() => undefined)
+    }
+  }, [audioUrl])
+
+  const startTest = async () => {
+    setErrorMsg(null)
+    if (audioUrl) {
+      URL.revokeObjectURL(audioUrl)
+      setAudioUrl(null)
+    }
+
+    if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      setState('error')
+      setErrorMsg('Microphone recording is not supported in this browser.')
+      return
+    }
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+      })
+      streamRef.current = stream
+
+      const Ctor =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+      if (Ctor) {
+        const ctx = new Ctor()
+        audioCtxRef.current = ctx
+        if (ctx.state === 'suspended') await ctx.resume().catch(() => undefined)
+        const source = ctx.createMediaStreamSource(stream)
+        const analyser = ctx.createAnalyser()
+        analyser.fftSize = 256
+        source.connect(analyser)
+        const data = new Uint8Array(analyser.frequencyBinCount)
+
+        const updateLevel = () => {
+          analyser.getByteFrequencyData(data)
+          let sum = 0
+          for (let i = 0; i < data.length; i++) sum += data[i] ?? 0
+          const avg = sum / data.length
+          setLevel(Math.min(100, Math.round((avg / 128) * 100)))
+          animRef.current = requestAnimationFrame(updateLevel)
+        }
+        updateLevel()
+      }
+
+      chunksRef.current = []
+      const mimeType =
+        typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/webm')
+          ? 'audio/webm'
+          : ''
+      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+      recorderRef.current = recorder
+
+      recorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) chunksRef.current.push(e.data)
+      }
+
+      recorder.onstop = () => {
+        if (animRef.current) cancelAnimationFrame(animRef.current)
+        setLevel(0)
+        stream.getTracks().forEach((t) => t.stop())
+        void audioCtxRef.current?.close().catch(() => undefined)
+
+        const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' })
+        if (blob.size > 0) {
+          const url = URL.createObjectURL(blob)
+          setAudioUrl(url)
+          setState('ready')
+        } else {
+          setState('error')
+          setErrorMsg('No audio was captured. Check your microphone connection.')
+        }
+      }
+
+      recorder.start(100)
+      setState('recording')
+      setCountdown(3)
+
+      let count = 3
+      const timer = setInterval(() => {
+        count -= 1
+        setCountdown(count)
+        if (count <= 0) {
+          clearInterval(timer)
+          if (recorder.state === 'recording') {
+            recorder.stop()
+          }
+        }
+      }, 1000)
+    } catch (err) {
+      const name = err instanceof DOMException ? err.name : 'Error'
+      setState('error')
+      setErrorMsg(
+        name === 'NotAllowedError' || name === 'SecurityError'
+          ? 'Microphone permission was denied. Allow microphone access in your browser to test your mic.'
+          : 'Could not access microphone. Ensure your headset is connected.',
+      )
+    }
+  }
+
+  return (
+    <div className="card-solid">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <p className="text-ink-900 dark:text-white text-sm font-bold">Equipment check · Microphone test</p>
+          <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">
+            Record a 3-second sample to verify your headset microphone and hear playback before launching your test.
+          </p>
+        </div>
+
+        {state === 'idle' && (
+          <Button variant="secondary" onClick={startTest} className="shrink-0 text-xs">
+            Test microphone (3s)
+          </Button>
+        )}
+
+        {state === 'recording' && (
+          <span className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-mono text-xs font-bold animate-pulse">
+            <span className="size-2 rounded-full bg-rose-600" />
+            Recording: {countdown}s
+          </span>
+        )}
+
+        {state === 'ready' && (
+          <Button variant="ghost" onClick={startTest} className="shrink-0 text-xs">
+            Test again
+          </Button>
+        )}
+      </div>
+
+      {state === 'recording' && (
+        <div className="mt-3">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10">
+            <div
+              className="h-full bg-mint-500 transition-all duration-75"
+              style={{ width: `${Math.max(12, level)}%` }}
+            />
+          </div>
+          <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs">
+            Speak a sentence clearly into your microphone: "The quick brown fox jumps over the lazy dog."
+          </p>
+        </div>
+      )}
+
+      {state === 'ready' && audioUrl && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-ink-100 pt-3 dark:border-white/10">
+          <span className="inline-flex items-center gap-1.5 text-mint-700 dark:text-mint-400 text-xs font-semibold">
+            <svg viewBox="0 0 20 20" fill="currentColor" className="size-4 shrink-0" aria-hidden="true">
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Microphone verified
+          </span>
+          <audio controls src={audioUrl} className="h-8 max-w-xs" />
+        </div>
+      )}
+
+      {state === 'error' && (
+        <div className="mt-3 flex items-start gap-2 text-rose-600 dark:text-rose-400 text-xs">
+          <span>⚠️ {errorMsg}</span>
+          <button type="button" onClick={startTest} className="underline font-semibold ml-1 cursor-pointer">
+            Retry
+          </button>
+        </div>
+      )}
     </div>
   )
 }

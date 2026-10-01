@@ -74,7 +74,7 @@ function SectionBriefing({ onStart }: { onStart: () => void }) {
           <p className="mt-5 text-xs leading-relaxed text-[#aeb9c6]">
             {mock.untimed ? 'Take your time. Your answers are saved as you go.' : 'The clock starts when you begin and continues through every question.'}
           </p>
-          <button type="button" className="btn-primary mt-6 w-full px-5 py-3 text-base" onClick={onStart}>
+          <button type="button" className="btn-primary mt-6 w-full px-7 py-3 text-base" onClick={onStart}>
             Begin {meta.longTitle}
           </button>
         </aside>
@@ -99,8 +99,8 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-label="Question overview">
-      <button type="button" className="bg-ink-950/60 absolute inset-0 cursor-default" onClick={onClose} aria-label="Close" />
-      <div className="scrollbar-thin border-ink-200 dark:border-white/10 relative h-full w-full max-w-sm overflow-y-auto border-l bg-white p-5 dark:bg-ink-850">
+      <button type="button" className="bg-ink-950/60 animate-fade-in absolute inset-0 cursor-default" onClick={onClose} aria-label="Close" />
+      <div className="scrollbar-thin border-ink-200 dark:border-white/10 animate-drawer-enter relative h-full w-full max-w-sm overflow-y-auto border-l bg-white p-5 dark:bg-ink-850">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-ink-900 dark:text-white font-bold text-balance">{section.title}</h2>
           <button type="button" className="btn-ghost" onClick={onClose}>
@@ -203,6 +203,31 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
     if (Date.now() >= sectionEndsAt) useTest.getState().expireSection()
   }, [now, sectionEndsAt, timeExpired, status])
 
+  useEffect(() => {
+    if (status !== 'running' || !mock) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const curSection = mock.sections[sectionIndex]
+      if (!curSection) return
+      const curIsLast = itemIndex === curSection.itemIds.length - 1
+      const curIsLastSection = sectionIndex === mock.sections.length - 1
+      if (e.altKey && (e.key === 'n' || e.key === 'N')) {
+        e.preventDefault()
+        const atEnd = curIsLast && curIsLastSection
+        setAnnouncement(
+          atEnd ? 'Test finished, scoring your responses.' : curIsLast ? 'Section finished.' : 'Question advanced.',
+        )
+        next()
+      } else if (e.altKey && (e.key === 'b' || e.key === 'B')) {
+        if (!(itemIndex === 0 && sectionIndex === 0)) {
+          e.preventDefault()
+          prev()
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [status, mock, sectionIndex, itemIndex, next, prev])
+
   if (!mock) return null
   const section = mock.sections[sectionIndex]
   if (!section) return null
@@ -240,7 +265,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         </p>
         <button
           type="button"
-          className="btn-primary mt-8 px-6 py-3"
+          className="btn-primary mt-8 px-7 py-3 text-base"
           onClick={() => {
             useTest.getState().setStatus('running')
             beginSection(sectionIndex)
@@ -277,7 +302,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         flagged={flagged}
       />
 
-      <main className="mx-auto max-w-4xl px-4 py-7">
+      <main className="page-shell-wide py-7">
         {group?.stimulus.passageParagraphs && group.type !== 'summarize-written-text' ? (
           <article className="card mb-6">
             {group.stimulus.passageTitle ? (
@@ -317,7 +342,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
           <p className="text-ink-500 dark:text-ink-400 mb-5 text-sm italic">{group.stimulus.note}</p>
         ) : null}
 
-        <section className="card p-6 sm:p-8">
+        <section key={item.id} className="card animate-question-enter p-6 sm:p-8">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-ink-200 pb-4 dark:border-white/10">
             <span className="pill bg-brand-500/12 text-brand-700 dark:text-brand-300">
               {QUESTION_META[item.type]?.label ?? item.type}
@@ -359,9 +384,10 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
       </main>
 
       <div className="border-ink-200 dark:border-white/10 fixed inset-x-0 bottom-0 z-30 border-t bg-white/90 backdrop-blur-md dark:bg-ink-900/90">
-        <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-4 py-3">
+        <div className="page-shell-wide flex items-center justify-between gap-3 py-3">
           <button type="button" className="btn-secondary" onClick={prev} disabled={itemIndex === 0 && sectionIndex === 0}>
             ← Back
+            <kbd className="hidden sm:inline-block ml-1 rounded bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-[10px] font-mono text-ink-500 dark:text-ink-400">Alt+B</kbd>
           </button>
           <button type="button" className="btn-ghost hidden sm:inline-flex" onClick={() => setNavOpen(true)}>
             {answered} of {section.itemIds.length} answered
@@ -378,6 +404,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
             }}
           >
             {isLast ? (isLastSection ? 'Finish test' : 'End section') : 'Next →'}
+            <kbd className="hidden sm:inline-block ml-1.5 rounded bg-white/25 px-1 py-0.5 text-[10px] font-mono text-white">Alt+N</kbd>
           </button>
         </div>
       </div>

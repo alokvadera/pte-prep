@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { Seo } from '../seo/Seo'
-import { CtaBand, PageHeading } from '../components/ui/primitives'
+import { Accordion, Button, ButtonLink, CtaBand, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 
 const FAQ = [
@@ -26,7 +27,7 @@ const FAQ = [
       'Spending the whole twenty minutes planning, or writing fewer than 200 words. The essay is scored on content, development and structure, coherence, and general linguistic range. A clear four-paragraph structure with linked sentences protects two of those four traits even when the argument is not especially original.',
   },
   {
-    question: 'Do I need to practise the two new 2025 question types?',
+    question: 'Do I need to practise the two newest question types?',
     answer:
       'Yes. Summarize Group Discussion and Respond to a Situation are part of the current format and appear in the Speaking and Writing section. Summarize Group Discussion is scored on oral fluency, pronunciation and content, so the technique is the same as Re-tell Lecture at a larger scale: capture the skeleton, not the details.',
   },
@@ -37,21 +38,177 @@ const FAQ = [
   },
 ]
 
+interface StrategyTemplate {
+  id: string
+  title: string
+  targetType: string
+  drillPath: string
+  timeLimit: string
+  rationale: string
+  templateText: string
+}
+
+const TEMPLATES: StrategyTemplate[] = [
+  {
+    id: 'describe-image',
+    title: 'Describe Image (25s Oral Structure)',
+    targetType: 'Describe Image',
+    drillPath: '/practice?type=describe-image',
+    timeLimit: 'Speak for 25–30 seconds',
+    rationale: 'Pearson algorithms evaluate continuous oral fluency without hesitations and content keywords. This balanced structure guarantees intro, high/low points, and conclusion without risking human penalty.',
+    templateText: `The given [image / bar chart / line graph] provides significant information regarding [Topic / Title of Image].
+Looking at the key details, the highest figure can be observed in [Category A], which reaches approximately [Value / Number].
+In contrast, the lowest figure is seen in [Category B], accounting for around [Value / Number].
+Furthermore, there is a noticeable [increase / decrease / trend] in [Category C] compared to [Category D].
+In conclusion, it is evident that [main overall observation or takeaway].`,
+  },
+  {
+    id: 'retell-lecture',
+    title: 'Re-tell Lecture & Group Discussion Frame',
+    targetType: 'Re-tell Lecture & Summarize Group Discussion',
+    drillPath: '/practice?type=retell-lecture',
+    timeLimit: 'Speak for 30–35 seconds',
+    rationale: 'Focus on oral fluency and capturing 4-6 distinct academic nouns/phrases from the recording. Never pause to search for memory; maintain steady cadence.',
+    templateText: `The speaker in the audio was delivering an academic presentation about [Main Topic / Theme].
+Firstly, the speaker emphasized that [First Key Keyword Phrase or Observation].
+Furthermore, the speaker discussed the importance of [Second Key Keyword Phrase], noting that it has significant implications.
+In addition, the presentation highlighted [Third Key Keyword Phrase] along with [Fourth Key Keyword Phrase].
+Overall, the lecture provides crucial insights into [Main Topic / Final Summary Phrase].`,
+  },
+  {
+    id: 'write-essay',
+    title: 'Academic Essay (4-Paragraph Balanced Framework)',
+    targetType: 'Write Essay',
+    drillPath: '/practice?type=write-essay',
+    timeLimit: '20 minutes · Aim for 220–260 words',
+    rationale: 'Guarantees maximum Form (2/2), Structure & Coherence (6/6), and Grammar (2/2). Four clear paragraphs with formal discourse markers satisfy human and automated grading.',
+    templateText: `[Paragraph 1 - Introduction]
+In contemporary society, the debate surrounding whether [Topic / Question Statement] has garnered considerable attention. While some argue that [Perspective A], others maintain that [Perspective B]. In this essay, I will analyze both viewpoints before presenting my own reasoned perspective.
+
+[Paragraph 2 - Body 1 (Perspective A)]
+To begin with, there are compelling reasons to support the notion that [Main Point A]. The primary factor is that [Explanation 1]. For example, recent empirical studies demonstrate that [Concrete Example / Scenario]. Furthermore, [Supplementary Argument A], which underscores the validity of this position.
+
+[Paragraph 3 - Body 2 (Perspective B & Personal Stance)]
+On the other hand, proponents of the alternative stance emphasize that [Main Point B]. It is widely recognized that [Explanation 2]. A prominent illustration of this can be seen when [Concrete Example 2]. Consequently, taking this dimension into account is essential for a comprehensive understanding of the issue.
+
+[Paragraph 4 - Conclusion]
+In conclusion, although valid arguments can be made for both sides, I firmly believe that [Author's Clear Position]. Moving forward, it is imperative that [Forward-looking constructive recommendation or summary thought].`,
+  },
+  {
+    id: 'summarize-spoken-text',
+    title: 'Summarize Spoken Text (50–70 Words Exact)',
+    targetType: 'Summarize Spoken Text',
+    drillPath: '/practice?type=summarize-spoken-text',
+    timeLimit: '10 minutes · 50–70 words',
+    rationale: 'Form score requires strictly 50 to 70 words. Exceeding 70 words or falling below 50 zeroes Form. This compact compound structure ensures exact length and high content keyword density.',
+    templateText: `The lecture provided insightful information regarding [Main Topic]. The speaker initially highlighted that [Key Point 1]. Subsequently, the discussion focused on the role of [Key Point 2] and demonstrated the significance of [Key Point 3]. Ultimately, the speaker concluded by emphasizing that [Key Point 4].`,
+  },
+  {
+    id: 'respond-situation',
+    title: 'Respond to a Situation (2025 New Type)',
+    targetType: 'Respond to a Situation',
+    drillPath: '/practice?type=respond-to-situation',
+    timeLimit: 'Speak for 20–30 seconds',
+    rationale: 'Evaluates pragmatic spoken English in real-world scenarios (asking for a refund, rescheduling a meeting, polite disagreement).',
+    templateText: `Hello [Name / Sir / Ma'am], I am speaking with you regarding [the specific situation or issue].
+I completely understand that [acknowledge context or difficulty], and I truly appreciate your patience.
+To resolve this matter effectively, I would like to propose that we [offer practical solution or request action].
+Please let me know if this arrangement suits you, and thank you for your assistance.`,
+  },
+]
+
+const COLLOCATIONS: Array<{ col: string; type: string; example: string }> = [
+  { col: 'carry out research', type: 'Verb + Noun', example: 'Scientists carried out extensive research into renewable fuels.' },
+  { col: 'vital / crucial role', type: 'Adj + Noun', example: 'Early education plays a vital role in cognitive development.' },
+  { col: 'widespread consensus', type: 'Adj + Noun', example: 'There is now a widespread consensus among climatologists.' },
+  { col: 'sharp / dramatic decline', type: 'Adj + Noun', example: 'The region experienced a sharp decline in agricultural yield.' },
+  { col: 'shed light on', type: 'Idiomatic Phrase', example: 'Recent archaeological findings shed light on ancient trade routes.' },
+  { col: 'draw a conclusion', type: 'Verb + Noun', example: 'Researchers were hesitant to draw conclusions from preliminary data.' },
+  { col: 'underlying cause', type: 'Adj + Noun', example: 'Poverty remains the underlying cause of nutritional deficiency.' },
+  { col: 'profound impact / effect', type: 'Adj + Noun', example: 'Technological shifts have had a profound impact on labor markets.' },
+  { col: 'pave the way for', type: 'Prepositional', example: 'Innovations in genomics paved the way for personalized medicine.' },
+  { col: 'pose a threat to', type: 'Verb + Noun', example: 'Invasive species pose a serious threat to indigenous wildlife.' },
+  { col: 'empirical evidence', type: 'Adj + Noun', example: 'The theoretical model was supported by strong empirical evidence.' },
+  { col: 'take into account', type: 'Prepositional', example: 'Policy makers must take demographic changes into account.' },
+  { col: 'growing concern', type: 'Adj + Noun', example: 'Antibiotic resistance is an issue of growing concern globally.' },
+  { col: 'establish a relationship', type: 'Verb + Noun', example: 'The study established a direct relationship between diet and health.' },
+  { col: 'stem from', type: 'Phrasal Verb', example: 'Many societal problems stem from economic inequality.' },
+  { col: 'gain insight into', type: 'Verb + Noun', example: 'Brain scans allow researchers to gain insight into cognitive processes.' },
+]
+
+function TemplateCard({ item }: { item: StrategyTemplate }) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(item.templateText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // ignore
+    }
+  }
+
+  return (
+    <div className="card-solid">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro">
+            {item.targetType} · {item.timeLimit}
+          </span>
+          <h3 className="text-ink-900 dark:text-white mt-1.5 text-base font-bold">{item.title}</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="secondary" onClick={copy} className="text-xs">
+            {copied ? 'Copied ✓' : 'Copy template'}
+          </Button>
+          <ButtonLink to={item.drillPath} variant="ghost" className="text-xs">
+            Drill →
+          </ButtonLink>
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-lg bg-ink-900 p-4 text-ink-100 font-mono text-xs leading-relaxed overflow-x-auto selection:bg-brand-500/40">
+        <pre className="whitespace-pre-wrap font-mono">{item.templateText}</pre>
+      </div>
+
+      <p className="mt-3 text-xs text-ink-500 dark:text-ink-400 leading-relaxed">
+        <span className="font-semibold text-mint-600 dark:text-mint-400">Why it works:</span> {item.rationale}
+      </p>
+    </div>
+  )
+}
+
 export default function Guide() {
   return (
     <>
       <Seo />
 
-      <div className="page-shell-content">
-        <Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'PTE tips' }]} className="mb-6" />
+      <PageWrapper
+        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'PTE tips' }]} />}
+        eyebrow="Study guide"
+        title="PTE strategies that move the score."
+        description={<>Most advice is generic. Start with the changes that return the most marks, then explore techniques for all 22 types in the <Link to="/question-types/" className="text-brand-600 underline underline-offset-2 dark:text-brand-300">question type guide</Link>.</>}
+      >
+        <div className="-mt-4 mb-8 flex flex-wrap gap-2">
+          <a href="#high-impact" className="btn-secondary px-3 py-1.5 text-xs">
+            5 Highest-impact changes
+          </a>
+          <a href="#templates" className="btn-secondary px-3 py-1.5 text-xs">
+            Proven 2025/2026 templates
+          </a>
+          <a href="#collocations" className="btn-secondary px-3 py-1.5 text-xs">
+            Academic collocations (FIB)
+          </a>
+          <a href="#by-type" className="btn-secondary px-3 py-1.5 text-xs">
+            Technique by type
+          </a>
+          <a href="#study-plan" className="btn-secondary px-3 py-1.5 text-xs">
+            4-Week study plan
+          </a>
+        </div>
 
-        <PageHeading
-          eyebrow="Study guide"
-          title="PTE strategies that move the score."
-          description={<>Most advice is generic. Start with the changes that return the most marks, then explore techniques for all 22 types in the <Link to="/question-types/" className="text-brand-600 underline underline-offset-2 dark:text-brand-300">question type guide</Link>.</>}
-        />
-
-        <h2 className="section-title mt-16">The five highest-impact changes</h2>
+        <h2 id="high-impact" className="section-title mt-8 scroll-mt-24">The five highest-impact changes</h2>
         <ol className="mt-6 space-y-4">
           {[
             {
@@ -87,7 +244,56 @@ export default function Guide() {
           ))}
         </ol>
 
-        <h2 className="section-title mt-16">Technique by question type</h2>
+        <div id="templates" className="mt-16 scroll-mt-24">
+          <div className="flex flex-wrap items-baseline justify-between gap-4">
+            <div>
+              <span className="pill bg-mint-500/10 text-mint-700 dark:text-mint-300 font-mono text-micro uppercase tracking-wider">
+                Exam-proven frameworks
+              </span>
+              <h2 className="section-title mt-2">Proven 2025/2026 Strategy Templates</h2>
+            </div>
+            <p className="text-ink-500 dark:text-ink-400 max-w-md text-xs leading-relaxed">
+              Safe structures that hit Pearson content keywords and maintain oral fluency without triggering template penalties.
+            </p>
+          </div>
+
+          <div className="mt-6 space-y-4">
+            {TEMPLATES.map((tmpl) => (
+              <TemplateCard key={tmpl.id} item={tmpl} />
+            ))}
+          </div>
+        </div>
+
+        <div id="collocations" className="mt-16 scroll-mt-24">
+          <div className="flex flex-wrap items-baseline justify-between gap-4">
+            <div>
+              <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro uppercase tracking-wider">
+                Vocabulary booster
+              </span>
+              <h2 className="section-title mt-2">Academic Collocations (Fill in the Blanks)</h2>
+            </div>
+            <Link to="/practice?type=fill-in-blanks-dropdown" className="text-brand-600 dark:text-brand-300 text-xs font-semibold hover:underline">
+              Practice FIB dropdowns →
+            </Link>
+          </div>
+          <p className="text-ink-500 dark:text-ink-400 mt-2 text-sm leading-relaxed">
+            Over 70% of blanks in Reading & Writing FIB test collocations from the Pearson Academic Collocation List (ACL). Memorize these common word partnerships:
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {COLLOCATIONS.map((c) => (
+              <div key={c.col} className="card-solid p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-ink-900 dark:text-white font-bold text-sm">{c.col}</span>
+                  <span className="text-ink-500 dark:text-ink-400 text-micro font-mono">{c.type}</span>
+                </div>
+                <p className="text-ink-600 dark:text-ink-300 mt-2 text-xs italic leading-relaxed">"{c.example}"</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <h2 id="by-type" className="section-title mt-16 scroll-mt-24">Technique by question type</h2>
         {(['speaking-writing', 'reading', 'listening'] as const).map((key) => (
           <section key={key} className="mt-10">
             <h3 className="text-ink-900 dark:text-white text-xl font-bold text-balance">{SECTION_META[key].longTitle}</h3>
@@ -110,6 +316,27 @@ export default function Guide() {
           </section>
         ))}
 
+        <h2 className="section-title mt-16">Recording rules that decide items silently</h2>
+        <p className="text-ink-600 dark:text-ink-200 mt-4 max-w-2xl leading-relaxed">
+          The microphone is not forgiving about silence. These are the mechanics of the recording itself, rather than of
+          the language, and they cost marks more often than pronunciation does. Each one is taken from Pearson's own
+          guidance for the question type.
+        </p>
+        <ul className="mt-5 space-y-3">
+          {[
+            'Start the instant the recording status changes. On an Answer Short Question the microphone opens when the box changes and closes on its own — Pearson states that waiting more than three seconds ends the recording, marks the item completed, and the answer is gone. There is no second attempt.',
+            'Once you have started talking, do not stop for more than a second or two before you finish. A long pause mid answer reads as hesitation to fluency scoring, and the microphone can close on the same rule that opened it.',
+            'On Summarize Spoken Text you get three seconds with the image before the audio starts. Use it to predict the topic and the vocabulary you are about to hear, rather than staring at it.',
+            'Read Aloud gives you forty seconds of recording and about forty seconds of preparation beforehand. Preparation is for the first three words; the recording clock does not wait for you.',
+            'The same silence rule governs every speaking item, which is why the habit worth building is answering on the tone rather than composing an answer and then delivering it.',
+          ].map((tip) => (
+            <li key={tip} className="text-ink-600 dark:text-ink-200 flex gap-3 leading-relaxed">
+              <span className="bg-brand-500 dark:bg-brand-300 mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
+              {tip}
+            </li>
+          ))}
+        </ul>
+
         <h2 className="section-title mt-16">Under time pressure</h2>
         <ul className="mt-5 space-y-3">
           {[
@@ -127,7 +354,7 @@ export default function Guide() {
           ))}
         </ul>
 
-        <h2 className="section-title mt-16">A four-week study plan</h2>
+        <h2 id="study-plan" className="section-title mt-16 scroll-mt-24">A four-week study plan</h2>
         <div className="card mt-5 overflow-x-auto p-0">
           <table className="w-full min-w-lg border-collapse text-left text-sm">
             <caption className="sr-only">Four week PTE preparation plan</caption>
@@ -158,36 +385,20 @@ export default function Guide() {
           </table>
         </div>
 
-        <h2 className="section-title mt-16">Frequently asked questions</h2>
-        <div className="mt-6 space-y-3">
-          {FAQ.map((f) => (
-            <details key={f.question} className="card group">
-              <summary className="text-ink-900 dark:text-white flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-                {f.question}
-                <span className="text-ink-500 group-open:rotate-45 grid size-7 shrink-0 place-items-center rounded-md bg-ink-50 dark:bg-white/8 text-lg leading-none" aria-hidden="true">
-                  +
-                </span>
-              </summary>
-              <p className="text-ink-500 dark:text-ink-300 mt-3 border-t pt-3 text-sm leading-relaxed">{f.answer}</p>
-            </details>
-          ))}
-        </div>
+        <h2 id="faqs" className="section-title mt-16 scroll-mt-24">Frequently asked questions</h2>
+        <Accordion className="mt-6" items={FAQ} />
 
         <CtaBand
           title="Apply it to a real paper"
           description="Reading this page is worth less than one scored attempt. Find out what these techniques actually do to your score."
           actions={
             <>
-              <Link to="/mock" className="btn-primary px-6 py-3">
-                Start a full mock
-              </Link>
-              <Link to="/practice" className="btn-secondary px-5 py-3">
-                Drill a weak type
-              </Link>
+              <ButtonLink to="/mock" size="lg">Start a full mock</ButtonLink>
+              <ButtonLink to="/practice" variant="secondary" size="lg">Drill a weak type</ButtonLink>
             </>
           }
         />
-      </div>
+      </PageWrapper>
     </>
   )
 }

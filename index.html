@@ -18,13 +18,43 @@
       type="font/woff2"
       crossorigin
     />
-    <meta name="theme-color" content="#f5f7fa" />
+    <meta name="theme-color" content="#ffffff" />
+    <!--
+      Applies the saved theme before first paint. The React layout applies the
+      class again once the settings store hydrates; this runs earlier so a
+      returning dark visitor never sees a white flash. The store deliberately
+      has no `system` theme, so nothing here reads the OS preference: no saved
+      choice means light, which is what the prerendered markup was built as.
+    -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem('pte-prep-settings')
+          var settings = raw ? JSON.parse(raw)?.state?.settings : null
+          var dark = settings?.theme === 'dark'
+          if (dark) {
+            document.documentElement.classList.add('dark')
+            var meta = document.querySelector('meta[name="theme-color"]')
+            if (meta) meta.setAttribute('content', '#171b20')
+          }
+          // Same store, same pre-paint moment: the text scale is set on the
+          // root font size, so applying it here avoids a visible reflow when
+          // the React effect would otherwise set it after hydration.
+          var scale = Number(settings?.textScale)
+          if (scale >= 0.8 && scale <= 1.5 && scale !== 1) {
+            document.documentElement.style.fontSize = 16 * scale + 'px'
+          }
+        } catch {
+          /* unreadable storage: paint the light default */
+        }
+      })()
+    </script>
     <title>PTE Prep — Free Unlimited PTE Academic Mock Tests</title>
     <meta
       name="description"
       content="Free, unlimited PTE Academic mock tests. Full timed sections, all 22 question types, detailed score reports, CEFR band and question-level review. No signup, no server, runs in your browser."
     />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
     <meta property="og:title" content="PTE Prep — Free Unlimited PTE Academic Mock Tests" />
     <meta
       property="og:description"

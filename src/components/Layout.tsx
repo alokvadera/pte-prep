@@ -16,7 +16,8 @@ function Logo() {
 
 const NAV = [
   { to: '/practice', label: 'Practice' },
-  { to: '/format', label: 'How it works' },
+  { to: '/mock', label: 'Mock test' },
+  { to: '/format', label: 'Test format' },
   { to: '/dashboard', label: 'Progress' },
 ]
 
@@ -51,30 +52,38 @@ export function Layout() {
       <header className="border-ink-200 dark:border-white/10 sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md dark:bg-ink-900/95">
         <div className="site-header-row page-shell-wide flex h-[72px] items-center gap-6">
           <Logo />
-          <nav aria-label="Main navigation" className="site-nav ml-auto flex items-center gap-4 text-xs text-ink-700 dark:text-ink-200 sm:gap-8 sm:text-sm">
-            {NAV.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  cn(
-                    'flex items-center whitespace-nowrap transition-colors hover:text-brand-600 dark:hover:text-brand-300',
-                    item.label === 'How it works' && 'hidden sm:flex',
-                    isActive
-                      ? 'text-brand-600 dark:text-brand-300'
-                      : 'text-ink-700 dark:text-ink-200',
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
+          <nav aria-label="Main navigation" className="site-nav ml-auto flex items-center gap-1 sm:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">
+            {NAV.map((item) => {
+              const isMatch = item.to === '/format'
+                ? location.pathname === '/format' || location.pathname.startsWith('/question-types')
+                : item.to === '/practice'
+                  ? location.pathname.startsWith('/practice')
+                  : location.pathname === item.to
+
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={
+                    cn(
+                      'flex items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-all sm:text-sm',
+                      item.label === 'Test format' && 'hidden sm:flex',
+                      isMatch
+                        ? 'bg-brand-500/10 text-brand-600 font-semibold dark:bg-brand-400/15 dark:text-brand-300'
+                        : 'text-ink-700 hover:bg-ink-100/70 hover:text-brand-600 dark:text-ink-200 dark:hover:bg-white/6 dark:hover:text-brand-300',
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
+            })}
           </nav>
 
           <div className="flex shrink-0 items-center gap-1 sm:gap-2">
             <ThemeToggle theme={settings.theme} onChange={(t) => set('theme', t)} />
-            <NavLink to="/practice" className="btn-primary hidden px-5 sm:inline-flex">
-              Open practice hub
+            <NavLink to="/mock" className="btn-primary px-5 py-2 text-sm hidden sm:inline-flex">
+              Start mock
             </NavLink>
           </div>
         </div>
@@ -97,12 +106,14 @@ function ThemeToggle({ theme, onChange }: { theme: Theme; onChange: (t: Theme) =
   return (
     <button
       type="button"
-      className="btn-ghost px-2.5"
+      className="btn-ghost rounded-full p-2 text-ink-600 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white"
       onClick={() => onChange(next)}
       aria-label={`Theme: ${theme}. Switch to ${next} theme.`}
       title={`Theme: ${theme}. Switch to ${next}.`}
     >
-      {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+      <span className="inline-block transition-transform duration-200 active:scale-90">
+        {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+      </span>
     </button>
   )
 }
@@ -120,7 +131,7 @@ function Footer() {
             </p>
           </div>
           <div>
-            <h2 className="text-ink-900 dark:text-white mb-2.5 text-sm font-semibold text-balance">Practise</h2>
+            <h2 className="text-ink-900 dark:text-white mb-2.5 text-sm font-semibold text-balance">Practice</h2>
             <ul className="flex flex-col gap-0.5">
               <li><FooterLink to="/mock">Full mock tests</FooterLink></li>
               <li><FooterLink to="/practice">Single-skill practice</FooterLink></li>

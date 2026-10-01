@@ -135,6 +135,10 @@
   --animate-route-enter: route-enter 0.28s var(--ease-settle) both;
   --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
   --animate-shimmer: shimmer 2.2s linear infinite;
+  --animate-drawer-enter: drawer-enter 0.26s var(--ease-settle) both;
+  --animate-modal-enter: modal-enter 0.22s var(--ease-settle) both;
+  --animate-fade-in: fade-in 0.2s ease-out both;
+  --animate-question-enter: question-enter 0.2s var(--ease-settle) both;
 }
 
 @keyframes enter-up {
@@ -156,6 +160,66 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes drawer-enter {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes question-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes details-sweep {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes eq-pulse {
+  0%, 100% {
+    transform: scaleY(0.42);
+  }
+  50% {
+    transform: scaleY(1);
   }
 }
 
@@ -190,7 +254,7 @@
   .dark *,
   .dark *::before,
   .dark *::after {
-    border-color: rgb(255 255 255 / 0.08);
+    border-color: rgb(255 255 255 / 0.1);
   }
 
   html {
@@ -208,6 +272,8 @@
     animation: var(--animate-route-enter);
   }
 
+  /* Every route except Home sits on this slightly raised ground, so navigating
+     between the utility pages never flashes between two page colours. */
   .route-inner {
     background-color: var(--color-ink-100);
   }
@@ -271,6 +337,9 @@
   details > summary {
     border-radius: var(--radius-sm);
   }
+  details[open] summary ~ * {
+    animation: details-sweep 0.2s var(--ease-settle) both;
+  }
 
   textarea {
     field-sizing: content;
@@ -296,34 +365,50 @@
    can be applied, so a plain class would fail to resolve.
    --------------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------------
+   Page shells. One gutter scale everywhere — px-4 / sm:px-6 / lg:px-8 — so the
+   content never jumps sideways between routes; only the measure changes.
+   --------------------------------------------------------------------------- */
+
 @utility page-shell-prose {
-  @apply mx-auto w-full max-w-3xl px-4 pt-12 pb-20;
+  @apply mx-auto w-full max-w-5xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
 }
 
 @utility page-shell-content {
-  @apply mx-auto w-full max-w-4xl px-4 pt-12 pb-20;
+  @apply mx-auto w-full max-w-5xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
 }
 
 @utility page-shell-app {
-  @apply mx-auto w-full max-w-5xl px-4 pt-12 pb-20;
+  @apply mx-auto w-full max-w-5xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
 }
 
 @utility page-shell-wide {
-  @apply mx-auto w-full max-w-6xl px-4;
+  @apply mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8;
 }
 
 @utility page-shell-empty {
-  @apply mx-auto w-full max-w-xl px-4 py-24;
+  @apply mx-auto w-full max-w-xl px-4 py-24 sm:px-6 lg:px-8;
 }
 
+/* Typographic scale (v3). Four roles, used everywhere:
+   hero-title   marketing hero only (Home) — the one oversized exception
+   page-title   every route H1              text-4xl bold
+   section-title every route H2             text-2xl bold
+   card-title   H3 inside a card            text-lg bold   (CardTitle component)
+   body         text-base / leading-relaxed · meta  text-sm / text-xs
+   Nothing outside the hero may exceed text-4xl. */
 @utility page-title {
-  @apply font-display text-ink-900 dark:text-white max-w-hero text-4xl font-bold text-balance sm:text-5xl;
-  line-height: 1.03;
-  letter-spacing: -0.05em;
+  @apply font-display text-ink-900 dark:text-white max-w-hero text-4xl font-bold leading-tight text-balance;
+  letter-spacing: -0.02em;
+}
+
+@utility hero-title {
+  @apply font-display text-ink-900 dark:text-white max-w-3xl text-5xl font-bold leading-[1.05] text-balance sm:text-6xl;
+  letter-spacing: -0.03em;
 }
 
 @utility page-title-compact {
-  @apply font-display text-ink-900 dark:text-white text-3xl text-balance;
+  @apply font-display text-ink-900 dark:text-white text-3xl leading-tight text-balance;
   letter-spacing: -0.01em;
 }
 
@@ -340,20 +425,20 @@
 }
 
 @utility section-title {
-  @apply font-display text-ink-900 dark:text-white text-2xl font-bold text-balance sm:text-3xl;
-  letter-spacing: -0.04em;
+  @apply font-display text-ink-900 dark:text-white text-2xl font-bold leading-tight text-balance;
+  letter-spacing: -0.02em;
 }
 
 @utility choice-card {
-  @apply cursor-pointer rounded-lg border border-ink-200 p-5 text-left transition-colors dark:border-white/10;
+  @apply cursor-pointer rounded-lg border border-ink-200 p-5 text-left transition-[color,background-color,border-color,box-shadow,translate] duration-150 active:translate-y-px dark:border-white/10;
 }
 
 @utility choice-row {
-  @apply flex cursor-pointer items-start gap-3 rounded-lg border border-ink-200 p-4 transition-colors dark:border-white/10;
+  @apply flex cursor-pointer items-start gap-3 rounded-lg border border-ink-200 p-4 transition-[color,background-color,border-color,box-shadow,translate] duration-150 active:translate-y-px dark:border-white/10;
 }
 
 @utility choice-active {
-  @apply border-brand-500 bg-brand-500/10;
+  @apply border-brand-500 bg-brand-500/10 dark:border-brand-400 dark:bg-brand-500/20;
 }
 
 @utility choice-idle {
@@ -368,19 +453,40 @@
   /* Elevation is a shift in value, not a blur. Padding lives here so a bare
      `card` can never collapse into a zero-padding strip (FAQ, sidebar, review
      rows all hit that). Override with any padding utility when needed. */
-  @apply bg-white border-ink-200 rounded-lg border p-5;
+  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow] duration-200;
 
   &:where(.dark, .dark *) {
-    @apply border-white/8 bg-white/[0.025];
+    @apply border-white/10 bg-white/[0.035] shadow-xs;
   }
 }
 
 @utility card-solid {
-  @apply bg-white border-ink-200 rounded-lg border p-5;
+  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow] duration-200;
 
   &:where(.dark, .dark *) {
-    @apply bg-ink-850 border-white/10;
+    @apply bg-ink-850 border-white/12 shadow-xs;
   }
+}
+
+@utility animate-drawer-enter {
+  animation: var(--animate-drawer-enter);
+}
+
+@utility animate-modal-enter {
+  animation: var(--animate-modal-enter);
+}
+
+@utility animate-fade-in {
+  animation: var(--animate-fade-in);
+}
+
+@utility animate-question-enter {
+  animation: var(--animate-question-enter);
+}
+
+@utility eq-bar {
+  transform-origin: bottom;
+  animation: eq-pulse 1.2s ease-in-out infinite;
 }
 
 /** A surface a finger actually touches. The only place with real softness. */
@@ -388,8 +494,15 @@
   @apply rounded-md;
 }
 
+/* Buttons carry shape, weight, colour and press feedback only — never size.
+   The size lives in the <Button> component (sm / md / lg) so every control on
+   the site shares one scale instead of ad-hoc padding overrides. */
 @utility btn {
-  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold duration-150 select-none;
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-semibold duration-150 select-none;
+  /* Default size (md). Kept here so a bare `btn-*` class is still a complete
+     button wherever a component import would be awkward; the <Button> component
+     overrides it per size via tailwind-merge. */
+  @apply px-5 py-2.5 text-sm;
   /* `translate` is transitioned explicitly: `transition-colors` would leave the
      press feedback snapping rather than easing. Avoids `transition-all`, which
      animates every property the element happens to gain later. */
@@ -406,7 +519,7 @@
 }
 
 @utility btn-primary {
-  @apply btn rounded-full bg-brand-500 text-white;
+  @apply btn bg-brand-500 text-white;
   @apply hover:bg-brand-400 active:bg-brand-600;
   box-shadow:
     0 1px 0 0 rgb(255 255 255 / 0.18) inset,
@@ -415,149 +528,126 @@
 }
 
 @layer components {
-  .practice-collage { position: relative; margin-inline: auto; padding: 1.25rem 1.5rem 2.5rem; text-align: left; }
-  .practice-window { overflow: hidden; border: 1px solid #303944; border-radius: 18px; background: #171b20; color: #eff4fb; box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
-  .practice-window-header { display: flex; height: 54px; align-items: center; justify-content: space-between; border-bottom: 1px solid #303944; padding: 0 20px; color: #f8fbff; font-size: 13px; font-weight: 600; }
-  .practice-window-mark, .practice-window-avatar { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #1756b0; color: white; font-size: 12px; font-weight: 700; }
-  .practice-window-avatar { background: #304054; }
-  .practice-window-label, .practice-overline, .practice-nav-caption { color: #8291a3; font: 10px 'IBM Plex Mono', monospace; letter-spacing: .12em; }
-  .practice-window-body { display: grid; min-height: 365px; grid-template-columns: 155px 1fr; }
-  .practice-window-nav { display: flex; flex-direction: column; gap: 5px; border-right: 1px solid #303944; padding: 20px 12px; }
-  .practice-window-nav a { display: flex; min-height: 34px; align-items: center; gap: 9px; border-radius: 6px; padding: 0 9px; color: #abb6c4; font-size: 11px; text-decoration: none; transition: background-color .18s, color .18s; }
-  .practice-window-nav a:hover, .practice-window-nav .practice-nav-active { background: #223750; color: #9bc9ff; }
-  .practice-nav-caption { padding: 0 8px 6px; font-size: 9px; }
-  .practice-nav-learn { margin-top: 14px; }
-  .practice-window-main { padding: 26px 28px 28px; }
-  .practice-window-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 21px; }
-  .practice-window-heading h2 { margin: 7px 0 3px; color: #f5f8fc; font-size: clamp(18px, 2vw, 24px); font-weight: 600; letter-spacing: -.04em; }
-  .practice-window-heading h2 span { color: #79b7ff; font-size: 15px; }
-  .practice-window-heading p { margin: 0; color: #8998aa; font-size: 11px; }
-  .practice-mini-cta { flex: 0 0 auto; border-radius: 999px; background: #1756b0; padding: 9px 13px; color: white; font-size: 10px; font-weight: 600; text-decoration: none; transition: background-color .18s, translate .18s; }
-  .practice-mini-cta:hover { background: #2f6fda; translate: 0 -1px; }
-  .practice-window-grid { display: grid; grid-template-columns: 1fr .92fr; gap: 12px; }
-  .practice-window-panel { min-width: 0; border: 1px solid #303944; border-radius: 9px; background: #1d232b; padding: 15px; }
-  .practice-panel-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #dce5ef; font-size: 11px; font-weight: 600; }
-  .practice-period { color: #8291a3; font: 8px 'IBM Plex Mono', monospace; letter-spacing: .1em; }
-  .practice-score-line { display: flex; align-items: baseline; gap: 4px; margin: 7px 0 11px; color: #9aa8b8; font: 10px 'IBM Plex Mono', monospace; }
+  /* ------------------------------------------------------------------------
+     Landing-page mockup (ScorePreview on Home).
+
+     This is the embedded "Practice overview" dashboard. Every value below is
+     written against the same @theme tokens the live app uses — ink for the
+     surfaces, brand for the accent — so the mockup can never drift into its
+     own design language again. Where the old mockup used one-off hexes
+     (#171b20, #1756b0, #79b7ff, #303944...) the token it actually meant is
+     named here instead.
+     ------------------------------------------------------------------------ */
+  .practice-collage { position: relative; margin-inline: auto; height: 550px; padding: 0; text-align: left; }
+  .practice-window { overflow: hidden; width: min(930px, 88%); height: 500px; margin: 10px auto 0; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 12px; background: var(--color-ink-900); color: var(--color-ink-50); box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
+  .practice-window-header { display: flex; height: 46px; align-items: center; justify-content: space-between; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding-inline: 16px; color: var(--color-ink-300); font-size: 11px; font-weight: 600; }
+  .practice-window-mark { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-brand-300); }
+  .practice-window-avatar { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--color-ink-700); color: white; font-size: 10px; font-weight: 700; }
+  .practice-window-label, .practice-overline, .practice-nav-caption { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; }
+  .practice-window-label, .practice-nav-caption { color: var(--color-ink-400); }
+  .practice-window-body { display: grid; height: calc(100% - 46px); grid-template-columns: 166px 1fr; }
+  .practice-window-nav { display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgb(255 255 255 / 0.08); padding: 16px 10px; }
+  .practice-window-nav a { display: flex; min-height: 34px; align-items: center; gap: 9px; border-radius: 5px; padding: 0 9px; color: var(--color-ink-300); font-size: 11px; text-decoration: none; transition: background-color .18s, color .18s; }
+  .practice-window-nav a:hover, .practice-window-nav .practice-nav-active { background: color-mix(in oklab, var(--color-brand-500) 26%, var(--color-ink-900)); color: var(--color-brand-300); }
+  .practice-nav-caption { margin: 0 9px 5px; padding: 0; font-size: 9px; letter-spacing: .02em; }
+  .practice-nav-learn { margin-top: 0; }
+  .practice-streak { margin-top: auto; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 7px; padding: 11px; color: var(--color-ink-300); font-size: 10px; }
+  .practice-streak b { display: block; margin-bottom: 3px; color: var(--color-brand-300); font-size: 13px; }
+  .practice-window-main { padding: 24px 27px; }
+  .practice-window-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+  .practice-overline { color: var(--color-ink-400); letter-spacing: 0; }
+  .practice-window-heading h2 { margin: 2px 0 0; color: var(--color-ink-50); font-size: 23px; font-weight: 600; letter-spacing: -.04em; }
+  .practice-mini-cta { flex: 0 0 auto; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; padding: 8px 11px; color: var(--color-ink-100); font-size: 10px; font-weight: 400; text-decoration: none; transition: background-color .18s, border-color .18s; }
+  .practice-mini-cta:hover { border-color: var(--color-brand-300); background: var(--color-ink-850); }
+  .practice-window-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(195px, .85fr); gap: 14px; }
+  .practice-window-panel { min-width: 0; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 7px; background: color-mix(in oklab, var(--color-ink-850) 70%, var(--color-ink-900)); }
+  .practice-panel-title { display: flex; min-height: 45px; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding: 0 14px; color: var(--color-ink-100); font-size: 11px; font-weight: 550; }
+  .practice-panel-title > span:last-child { color: var(--color-ink-400); font-size: 9px; font-weight: 400; }
+  .practice-period { color: var(--color-ink-400); font-family: var(--font-mono); font-size: 8px; letter-spacing: .1em; }
+  .practice-score-line { display: flex; align-items: baseline; gap: 4px; margin: 7px 0 11px; color: var(--color-ink-400); font-family: var(--font-mono); font-size: 10px; }
   .practice-score-line strong { color: white; font-size: 34px; line-height: 1; letter-spacing: -.06em; }
-  .practice-score-change { margin-left: auto; color: #83c7a5; }
-  .practice-skill-row { display: grid; grid-template-columns: 65px 1fr 20px; align-items: center; gap: 8px; margin-top: 8px; color: #aeb9c6; font-size: 9px; }
-  .practice-skill-row b { color: #dce5ef; text-align: right; font: 9px 'IBM Plex Mono', monospace; }
-  .practice-meter { height: 5px; overflow: hidden; border-radius: 5px; background: #303944; }
-  .practice-meter i { display: block; height: 100%; border-radius: inherit; background: #4b91eb; }
-  .practice-focus-icon { color: #79b7ff; }
-  .practice-task { display: flex; align-items: center; gap: 9px; margin-top: 12px; color: #edf3fa; text-decoration: none; }
-  .practice-task-icon { display: grid; width: 29px; height: 29px; flex: 0 0 auto; place-items: center; border-radius: 7px; background: #223b57; color: #9bc9ff; }
-  .practice-task-blue { background: #2d3148; color: #b8bfff; }
+  .practice-score-change { margin-left: auto; color: var(--color-mint-300); }
+  .practice-skill-list { padding: 3px 14px 7px; }
+  .practice-skill-row { display: grid; grid-template-columns: 78px 1fr 28px; align-items: center; gap: 9px; margin: 12px 0; color: var(--color-ink-300); font-size: 10px; }
+  .practice-skill-row b { color: white; text-align: right; font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
+  .practice-meter { height: 5px; overflow: hidden; border-radius: 5px; background: var(--color-ink-700); }
+  .practice-meter i { display: block; height: 100%; border-radius: inherit; background: var(--color-brand-300); }
+  .practice-focus-icon { color: var(--color-brand-300); }
+  .practice-continue-title { min-height: 42px; margin-top: 0; }
+  .practice-continue-title a { color: var(--color-ink-400); font-size: 9px; text-decoration: none; }
+  .practice-task { display: flex; min-height: 48px; align-items: center; gap: 9px; margin: 0; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding: 8px 13px; color: var(--color-ink-50); font-size: 10px; text-decoration: none; }
+  .practice-task:last-child { border-bottom: 0; }
+  .practice-task-icon { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; color: var(--color-brand-300); font-size: 10px; }
   .practice-task b, .practice-goal-panel b { display: block; font-size: 10px; font-weight: 600; }
-  .practice-task small, .practice-goal-panel small { display: block; margin-top: 3px; color: #8998aa; font-size: 9px; }
-  .practice-task-arrow { margin-left: auto; color: #8291a3; transition: translate .18s; }
+  .practice-task small, .practice-goal-panel small { display: block; margin-top: 2px; color: var(--color-ink-400); font-size: 9px; }
+  .practice-task-arrow { margin-left: auto; color: var(--color-ink-400); font-size: 9px; transition: translate .18s; }
   .practice-task:hover .practice-task-arrow { translate: 3px 0; }
   .practice-week-panel { display: block; color: inherit; text-decoration: none; transition: border-color .18s; }
-  .practice-week-panel:hover { border-color: #4b91eb; }
-  .practice-week-panel .practice-panel-title > span:last-child { color: #9bc9ff; font-size: 9px; }
-  .practice-week-total { margin-top: 9px; color: white; font: 20px 'IBM Plex Mono', monospace; }
-  .practice-week-total small { color: #8998aa; font: 9px 'Instrument Sans', sans-serif; }
-  .practice-bars { display: flex; height: 43px; align-items: end; justify-content: space-between; gap: 7px; margin-top: 5px; }
-  .practice-bars i { flex: 1; border-radius: 4px 4px 1px 1px; background: linear-gradient(#79b7ff, #2868c9); transform-origin: bottom; animation: bar-grow .8s var(--ease-settle) both; }
+  .practice-week-panel:hover { border-color: var(--color-brand-300); }
+  .practice-week-panel .practice-panel-title > span:last-child { color: var(--color-brand-300); font-size: 9px; }
+  .practice-week-total { margin-top: 9px; color: white; font-family: var(--font-mono); font-size: 20px; }
+  .practice-week-total small { color: var(--color-ink-400); font-family: var(--font-sans); font-size: 9px; }
+  .practice-bars { display: flex; width: 100%; height: 56px; align-items: end; gap: 5px; margin-top: 14px; border-bottom: 1px solid var(--color-ink-200); }
+  .practice-bars i { flex: 1; min-height: 5px; border-radius: 3px 3px 0 0; background: var(--color-brand-400); opacity: .78; transform-origin: bottom; animation: bar-grow .65s var(--ease-settle) both; }
   .practice-bars i:nth-child(2) { animation-delay: .05s; } .practice-bars i:nth-child(3) { animation-delay: .1s; } .practice-bars i:nth-child(4) { animation-delay: .15s; } .practice-bars i:nth-child(5) { animation-delay: .2s; } .practice-bars i:nth-child(6) { animation-delay: .25s; } .practice-bars i:nth-child(7) { animation-delay: .3s; }
-  .practice-week-days { display: flex; justify-content: space-between; margin-top: 5px; color: #8291a3; font: 8px 'IBM Plex Mono', monospace; }
+  .practice-week-days { display: flex; justify-content: space-between; margin-top: 5px; color: var(--color-ink-500); font-family: var(--font-mono); font-size: 8px; }
   .practice-goal-panel { display: flex; align-items: center; gap: 9px; }
-  .practice-goal-check, .practice-float-week-icon { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #1e3b31; color: #89d0ac; }
-  .practice-goal-percent { margin-left: auto; color: #83c7a5; font: 10px 'IBM Plex Mono', monospace; }
-  .practice-float { position: absolute; display: flex; align-items: center; gap: 10px; border: 1px solid #e7edf4; border-radius: 12px; background: white; padding: 12px 15px; color: #171b20; box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; }
-  .practice-float-score { top: 12%; left: 0; }
-  .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: #eff6ff; color: #1756b0; }
-  .practice-float small, .practice-float-week small { display: block; color: #738094; font: 8px 'IBM Plex Mono', monospace; letter-spacing: .06em; }
-  .practice-float b { display: block; margin-top: 2px; font: 600 19px 'IBM Plex Mono', monospace; }
-  .practice-float b i { color: #8998aa; font-size: 10px; font-style: normal; }
-  .practice-float-up { border-radius: 20px; background: #edf8f1; padding: 5px 7px; color: #28724e; font: 9px 'IBM Plex Mono', monospace; }
-  .practice-float-week { right: 0; bottom: 17%; animation-delay: .3s; }
-  .practice-float-week-icon { background: #edf8f1; }
-  .practice-float-week b { font: 600 11px 'Instrument Sans', sans-serif; }
-  .practice-preview-note { position: absolute; right: 28px; bottom: 0; margin: 0; color: #738094; font: 9px 'IBM Plex Mono', monospace; }
+  .practice-goal-check, .practice-float-week-icon { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--color-mint-700); color: var(--color-mint-300); }
+  .practice-goal-percent { margin-left: auto; color: var(--color-mint-300); font-family: var(--font-mono); font-size: 10px; }
+  .practice-suggestion { display: flex; min-height: 149px; flex-direction: column; align-items: flex-start; padding: 14px; }
+  .practice-suggest-label { color: var(--color-brand-300); font-size: 9px; }
+  .practice-suggestion strong { margin-top: 9px; color: white; font-size: 15px; font-weight: 580; letter-spacing: -.02em; }
+  .practice-suggestion p { margin: 5px 0 12px; color: var(--color-ink-300); font-size: 10px; line-height: 1.45; text-align: left; }
+  .practice-suggestion a { margin-top: auto; color: var(--color-brand-300); font-size: 10px; text-decoration: none; }
+  /* The floating score/week cards keep the light ground of the real dashboard
+     widgets in light mode and use the app's elevated dark surface in dark mode,
+     exactly like every other card. */
+  .practice-float { position: absolute; z-index: 2; display: flex; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 14px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; }
+  .practice-float-score { top: 74px; left: 0; }
+  .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--color-brand-50); color: var(--color-brand-500); }
+  .practice-float small, .practice-float-week small { display: block; color: var(--color-ink-500); font-family: var(--font-sans); font-size: 10px; letter-spacing: 0; }
+  .practice-float-score strong { display: flex; align-items: baseline; gap: 7px; margin-top: 7px; font-family: var(--font-sans); font-size: 32px; line-height: 1; font-weight: 650; letter-spacing: -.07em; }
+  .practice-float-score strong i { color: var(--color-ink-500); font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0; }
+  .practice-float-score em { margin-top: 8px; color: var(--color-brand-500); font-size: 10px; font-style: normal; }
+  .practice-float-up { border-radius: 20px; background: var(--color-ink-100); padding: 5px 7px; color: var(--color-mint-600); font-family: var(--font-mono); font-size: 9px; }
+  .practice-float-week { right: 0; bottom: 62px; animation-delay: .3s; }
+  .practice-float-week-icon { background: var(--color-ink-100); }
+  .practice-float-week b { font-family: var(--font-sans); font-size: 11px; font-weight: 600; }
+  .practice-preview-note { position: absolute; right: 28px; bottom: 0; margin: 0; color: var(--color-ink-500); font-family: var(--font-mono); font-size: 9px; }
   @keyframes preview-rise { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: none; } }
   @keyframes float-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
   @keyframes bar-grow { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
-  .practice-collage { height: 550px; padding: 0; }
-  .practice-window { width: min(930px, 88%); height: 500px; margin: 10px auto 0; border-radius: 12px; }
-  .practice-window-header { height: 46px; padding-inline: 16px; color: #aab4c2; font-size: 11px; }
-  .practice-window-mark { width: 8px; height: 8px; background: #79b7ff; }
-  .practice-window-avatar { width: 24px; height: 24px; background: #36404c; font-size: 10px; }
-  .practice-window-body { height: calc(100% - 46px); min-height: 0; grid-template-columns: 166px 1fr; }
-  .practice-window-nav { gap: 4px; padding: 16px 10px; }
-  .practice-window-nav a { min-height: 34px; gap: 9px; border-radius: 5px; padding: 0 9px; font-size: 11px; }
-  .practice-nav-caption { margin: 0 9px 5px; padding: 0; font-size: 9px; letter-spacing: .02em; }
-  .practice-nav-learn { margin-top: 0; }
-  .practice-streak { margin-top: auto; border: 1px solid #34404a; border-radius: 7px; padding: 11px; color: #b2bdc9; font-size: 10px; }
-  .practice-streak b { display: block; margin-bottom: 3px; color: #79b7ff; font-size: 13px; }
-  .practice-window-main { padding: 24px 27px; }
-  .practice-window-heading { align-items: flex-start; margin-bottom: 20px; }
-  .practice-overline { color: #a0acb8; font: 10px 'Instrument Sans', sans-serif; letter-spacing: 0; }
-  .practice-window-heading h2 { margin: 2px 0 0; font-size: 23px; font-weight: 620; letter-spacing: -.04em; }
-  .practice-mini-cta { border: 1px solid #4b5a65; border-radius: 5px; background: transparent; padding: 8px 11px; color: #e6ebf1; font-size: 10px; font-weight: 400; }
-  .practice-mini-cta:hover { border-color: #79b7ff; background: #20262d; }
-  .practice-window-grid { grid-template-columns: minmax(0, 1.5fr) minmax(195px, .85fr); gap: 14px; }
-  .practice-window-panel { border-color: #34404a; border-radius: 7px; background: #20262d; padding: 0; }
-  .practice-panel-title { min-height: 45px; border-bottom: 1px solid #34404a; padding: 0 14px; font-size: 11px; font-weight: 550; }
-  .practice-panel-title > span:last-child { color: #a0acb8; font-size: 9px; font-weight: 400; }
-  .practice-skill-list { padding: 3px 14px 7px; }
-  .practice-skill-row { grid-template-columns: 78px 1fr 28px; gap: 9px; margin: 12px 0; color: #bec8d3; font-size: 10px; }
-  .practice-skill-row b { color: white; font-size: 10px; font-weight: 500; }
-  .practice-meter { height: 5px; background: #3a4445; }
-  .practice-meter i { background: #79b7ff; }
-  .practice-continue-title { min-height: 42px; margin-top: 0; }
-  .practice-continue-title a { color: #a0acb8; font-size: 9px; text-decoration: none; }
-  .practice-task { min-height: 48px; margin: 0; border-bottom: 1px solid #333e48; padding: 8px 13px; font-size: 10px; }
-  .practice-task:last-child { border-bottom: 0; }
-  .practice-task-icon { width: 24px; height: 24px; border: 1px solid #586675; border-radius: 5px; background: transparent; font-size: 10px; }
-  .practice-task small { margin-top: 2px; color: #a0acb8; font-size: 9px; }
-  .practice-task-arrow { color: #a8b4c1; font-size: 9px; }
-  .practice-suggestion { display: flex; min-height: 149px; flex-direction: column; align-items: flex-start; padding: 14px; }
-  .practice-suggest-label { color: #79b7ff; font-size: 9px; }
-  .practice-suggestion strong { margin-top: 9px; color: white; font-size: 15px; font-weight: 580; letter-spacing: -.02em; }
-  .practice-suggestion p { margin: 5px 0 12px; color: #b6c0ca; font-size: 10px; line-height: 1.45; text-align: left; }
-  .practice-suggestion a { margin-top: auto; color: #79b7ff; font-size: 10px; text-decoration: none; }
-  .practice-float { z-index: 2; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border-color: #e1e6ed; border-radius: 10px; padding: 14px; text-decoration: none; }
-  .practice-float-score { top: 74px; left: 0; }
-  .practice-float-score small, .practice-float-week > small { color: #606b7a; font: 10px 'Instrument Sans', sans-serif; letter-spacing: 0; }
-  .practice-float-score strong { display: flex; align-items: baseline; gap: 7px; margin-top: 7px; font: 650 32px/1 'Instrument Sans', sans-serif; letter-spacing: -.07em; }
-  .practice-float-score strong i { color: #606b7a; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0; }
-  .practice-float-score em { margin-top: 8px; color: #1756b0; font-size: 10px; font-style: normal; }
-  .practice-float-week { right: 0; bottom: 62px; }
-  .practice-bars { display: flex; width: 100%; height: 56px; align-items: end; gap: 5px; margin-top: 14px; border-bottom: 1px solid #d8e0eb; }
-  .practice-bars i { flex: 1; min-height: 5px; border-radius: 3px 3px 0 0; background: #2f6fda; opacity: .78; animation: bar-grow .65s var(--ease-settle) both; }
-  .practice-week-days { margin-top: 5px; color: #606b7a; font-size: 8px; }
-  @media (max-width: 950px) { .practice-float-score { left: -8px; } .practice-float-week { right: -8px; } }
+  .dark .practice-float { border-color: rgb(255 255 255 / 0.08); background: var(--color-ink-850); color: var(--color-ink-50); box-shadow: 0 20px 40px -15px rgb(0 0 0 / .6); }
+  .dark .practice-float small, .dark .practice-float-week > small { color: var(--color-ink-400); }
+  .dark .practice-float-score strong { color: var(--color-ink-50); }
+  .dark .practice-float-score strong i { color: var(--color-ink-400); }
+  .dark .practice-float-score em { color: var(--color-brand-300); }
+  .dark .practice-float-up { background: var(--color-mint-700); }
+  .dark .practice-bars { border-bottom-color: rgb(255 255 255 / 0.08); }
+  .dark .practice-week-days { color: var(--color-ink-400); }
+
   /* Header on narrow screens.
      The nav is a flex row with the logo and the theme toggle, and as a flex item
-     its default `min-width: auto` meant it refused to shrink: at 390px the row
-     overflowed the viewport by about 26px. `min-width: 0` lets it give way, and
+     its default min-width: auto meant it refused to shrink: at 390px the row
+     overflowed the viewport by about 26px. min-width: 0 lets it give way, and
      items are dropped progressively so the ones that remain are the primary
      destinations rather than an arbitrary cut. Links also gain block padding so
      they stay above the 24px tap-target floor without widening. */
-  /* Nav links carry their own hit area at every width. WCAG 2.5.8 asks for 24px
-     and a text link at desktop sizes lands around 20px, which is close enough to
-     look deliberate and short enough to fail. */
-  .site-nav a { padding-block: 4px; }
-
   @media (max-width: 760px) {
     .site-header-row { gap: 12px; }
-    .site-nav { min-width: 0; overflow: hidden; gap: 14px; }
-    .site-nav a { padding-block: 7px; }
+    .site-nav { min-width: 0; overflow: hidden; gap: 8px; }
   }
   @media (max-width: 620px) {
-    .site-nav { gap: 12px; font-size: 11px; }
-    .site-nav a:nth-child(n + 3):not(:last-child) { display: none; }
+    .site-nav { gap: 6px; font-size: 11px; }
   }
-  @media (max-width: 560px) { .site-nav a:nth-child(2) { display: none; } }
+  @media (max-width: 950px) { .practice-float-score { left: -8px; } .practice-float-week { right: -8px; } }
   @media (max-width: 700px) { .practice-collage { height: 470px; padding: 0 0 2rem; } .practice-window { width: calc(100% - 40px); height: 430px; } .practice-window-body { grid-template-columns: 142px 1fr; } .practice-window-main { padding: 20px 18px; } .practice-window-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; } .practice-suggestion { display: none; } .practice-float { width: 175px; } .practice-float-score { top: auto; bottom: 34px; left: 3px; } .practice-float-week { right: 3px; bottom: 34px; } }
   @media (max-width: 600px) { .practice-collage { height: 385px; margin-top: 45px; } .practice-window { top: 4px; width: calc(100% - 20px); height: 360px; border-radius: 8px; } .practice-window-body { grid-template-columns: 112px 1fr; } .practice-window-nav { gap: 2px; padding: 11px 6px; font-size: 9px; } .practice-window-nav a { gap: 4px; padding: 0 5px; font-size: 9px; } .practice-streak { padding: 7px; font-size: 8px; } .practice-window-main { padding: 15px 11px; } .practice-window-heading h2 { font-size: 17px; } .practice-overline { font-size: 8px; } .practice-mini-cta { display: none; } .practice-panel-title { min-height: 36px; padding-inline: 10px; font-size: 10px; } .practice-skill-list { padding: 1px 9px; } .practice-skill-row { grid-template-columns: 59px 1fr 20px; gap: 6px; margin: 9px 0; font-size: 8px; } .practice-skill-row b { font-size: 8px; } .practice-continue-title { display: none; } .practice-task { min-height: 41px; grid-template-columns: 20px 1fr auto; gap: 6px; padding: 6px 8px; font-size: 8px; } .practice-task small { font-size: 7px; } .practice-task-icon { width: 19px; height: 19px; } .practice-task-arrow { font-size: 8px; } .practice-float { width: 145px; padding: 10px; } .practice-float-score { bottom: 5px; left: 14px; } .practice-float-week { right: 14px; bottom: 5px; } .practice-float-score strong { font-size: 25px; } .practice-bars { height: 35px; margin-top: 8px; } .practice-window-grid { margin-top: 10px; } }
   @media (max-width: 420px) { .practice-window-nav { grid-template-columns: 1fr; } .practice-streak { font-size: 7px; } .practice-float { width: 124px; } .practice-float-score { left: 10px; } .practice-float-week { right: 10px; } }
 }
 
 @utility btn-secondary {
-  @apply btn rounded-lg border border-ink-200 bg-white text-ink-700;
+  @apply btn border border-ink-200 bg-white text-ink-700;
   @apply hover:bg-ink-100 active:scale-[0.98];
 
   &:where(.dark, .dark *) {
@@ -591,11 +681,11 @@
 }
 
 @utility field {
-  @apply w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm;
-  @apply placeholder:text-ink-500 focus:border-brand-400 focus:ring-brand-500/25 focus:ring-3 focus:outline-none;
+  @apply w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 transition-colors duration-150;
+  @apply placeholder:text-ink-400 focus:border-brand-500 focus:ring-brand-500/20 focus:ring-3 focus:outline-none;
 
   &:where(.dark, .dark *) {
-    @apply border-white/12 bg-ink-900/70 placeholder:text-ink-500;
+    @apply border-white/12 bg-ink-900/80 text-ink-100 placeholder:text-ink-500 focus:border-brand-300 focus:ring-brand-300/25;
   }
 }
 
@@ -662,6 +752,10 @@
   @apply card relative overflow-hidden;
   border-top-width: 3px;
   border-top-color: var(--color-brand-500);
+
+  &:where(.dark, .dark *) {
+    border-top-color: var(--color-brand-400);
+  }
 }
 
 @utility scrollbar-thin {
@@ -680,5 +774,47 @@
 
   &::-webkit-scrollbar-track {
     background: transparent;
+  }
+}
+
+/* Print stylesheet: formats mock result into an official PTE Diagnostic Report Card */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111827 !important;
+    font-size: 11pt;
+  }
+
+  nav,
+  header.site-header,
+  footer,
+  .no-print,
+  button:not(.print-show),
+  .btn-primary,
+  .btn-secondary,
+  .btn-ghost {
+    display: none !important;
+  }
+
+  .page-shell-app,
+  .route-inner {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .card,
+  .card-solid {
+    border: 1px solid #d1d5db !important;
+    background: #ffffff !important;
+    color: #111827 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+    margin-top: 1rem !important;
+  }
+
+  @page {
+    margin: 12mm 15mm;
+    size: A4 portrait;
   }
 }

@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { bankCapacity } from '../content/bank'
+import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
-import { CtaBand } from '../components/ui/primitives'
+import { Accordion, CtaBand, ButtonLink } from '../components/ui/primitives'
 import { TaglineReveal } from '../components/ui/TaglineReveal'
 
 const FAQ = [
@@ -45,42 +46,54 @@ export default function Home() {
     <>
       <Seo />
 
+      {/* Hero — the only page allowed the display scale. Centre-aligned here is
+          the exception that proves the rule: every interior page is
+          left-aligned, so the marketing page reads as a distinct register
+          rather than a different product. */}
       <section className="relative overflow-hidden">
-        <div className="page-shell-wide pt-16 sm:pt-[75px]">
+        <div className="page-shell-wide pt-16 sm:pt-20">
           <div className="flex flex-col items-center text-center">
-            <div className="flex max-w-4xl flex-col items-center">
-              <p className="text-brand-600 dark:text-brand-300 mb-4 text-[13px] font-semibold">PTE preparation, in one place</p>
-              <h1 className="font-display text-ink-900 dark:text-white max-w-[790px] text-[clamp(44px,5.2vw,68px)] font-bold leading-[1.02] tracking-[-0.055em] text-balance">
+            <div className="flex max-w-3xl flex-col items-center">
+              <p className="text-brand-600 dark:text-brand-300 mb-4 text-sm font-semibold">PTE preparation, in one place</p>
+              <h1 className="hero-title">
                 Practice the test.<br />Know what to do next.
               </h1>
 
-              <p className="text-ink-600 dark:text-ink-200 mt-[22px] max-w-[680px] text-lg leading-[1.55] text-pretty">
+              <p className="text-ink-600 dark:text-ink-200 mt-6 max-w-2xl text-lg leading-relaxed text-pretty">
                 Choose a focused task, take a timed mock, and use your practice history to decide where to spend your next study session.
               </p>
 
-              <div className="mt-[30px] flex flex-wrap items-center justify-center gap-3">
-                <Link to="/practice" className="btn-primary px-[22px] py-3 text-sm">
-                  Open the practice hub
-                </Link>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <ButtonLink to="/mock" size="lg">
+                  Start full mock test
+                </ButtonLink>
+                <ButtonLink to="/practice" variant="secondary" size="lg">
+                  Practice by skill
+                </ButtonLink>
               </div>
-              <p className="text-ink-500 dark:text-ink-400 mt-3 text-[13px]">Four skills · {ALL_QUESTION_TYPES.length} task types · sample practice data</p>
+              <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">
+                Four skills · {ALL_QUESTION_TYPES.length} task types · free browser-based practice
+              </p>
             </div>
 
-            <div className="relative mt-[74px] w-full max-w-[1160px] px-4 sm:px-0">
+            {/* The embedded practice-overview mockup. Its CSS lives in index.css
+                and is written entirely against the app's own @theme tokens, so
+                it renders in the exact design language of the real product. */}
+            <div className="relative mt-16 w-full max-w-5xl px-4 sm:px-0">
               <ScorePreview />
             </div>
-            <p className="text-ink-500 dark:text-ink-400 -mt-4 mb-14 text-[11px]">Illustrative practice interface. Scores and activity are sample data.</p>
+            <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-12 text-xs">
+              Illustrative practice interface. Scores and activity are sample data.
+            </p>
           </div>
         </div>
       </section>
 
       {/* ---------------------------------------------------------------- */}
       <section className="border-ink-200 dark:border-white/10 border-y bg-white/60 dark:bg-white/3">
-        <div className="page-shell-wide py-10">
-          <p className="eyebrow text-ink-500 dark:text-ink-400 mb-6">
-            THE EXAM, REPRODUCED
-          </p>
-          <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+        <div className="page-shell-wide py-12">
+          <p className="page-heading-kicker mb-6">The exam, reproduced</p>
+          <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
             {[
               { k: SECTION_META['speaking-writing'].weightNote, v: 'Speaking + Writing', d: `Section 1 · ${questionTypesFor('speaking-writing').length} question types` },
               { k: SECTION_META.reading.weightNote, v: 'Reading', d: `Section 2 · ${questionTypesFor('reading').length} question types` },
@@ -98,21 +111,17 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide py-16">
+      <section className="page-shell-wide py-16 sm:py-20">
         <div className="max-w-2xl">
-          <p className="eyebrow text-brand-600 dark:text-brand-300 mb-3">
-            01 — EXAM ORDER · 02 — REAL CLOCK · 03 — REAL PRESSURE
-          </p>
-          <h2 className="font-display text-ink-900 dark:text-white text-4xl tracking-[-0.01em] text-balance">
-            A mock that runs like test day
-          </h2>
+          <p className="page-heading-kicker mb-3">Exam structure & timing</p>
+          <h2 className="section-title">A mock that runs like test day</h2>
           <p className="text-ink-500 dark:text-ink-300 mt-4 leading-relaxed">
             Three sections in order, one running clock, no pauses. The score you get here
             is on the same 10–90 scale with the same CEFR bands, so a 65 here means a 65 there.
           </p>
         </div>
 
-        <div className="mt-10 grid gap-5 md:grid-cols-3">
+        <div className="mt-12 grid gap-6 md:grid-cols-3">
           {(['speaking-writing', 'reading', 'listening'] as const).map((key, idx) => {
             const meta = SECTION_META[key]
             return (
@@ -124,17 +133,22 @@ export default function Home() {
                   <span className="text-brand-600 dark:text-brand-300 font-bold">0{idx + 1}</span>
                   <span className="text-ink-500 dark:text-ink-400">{meta.weightNote}</span>
                 </p>
-                <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold text-balance">{meta.longTitle}</h3>
+                <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{meta.longTitle}</h3>
                 <p className="text-ink-500 dark:text-ink-300 mt-1 font-mono text-xs tabular-nums">{meta.title}</p>
                 <p className="text-ink-500 dark:text-ink-300 mt-2 flex-1 text-sm leading-relaxed">{meta.blurb}</p>
                 <ul className="mt-4 space-y-1.5 border-t pt-4">
                   {questionTypesFor(key).map((t) => (
-                    <li key={t} className="text-ink-600 dark:text-ink-300 flex items-center justify-between gap-2 text-xs">
-                      <span className="flex min-w-0 items-center gap-2">
-                        <span className="bg-brand-500/70 size-1 shrink-0 rounded-full" />
-                        <span className="truncate">{QUESTION_META[t].label}</span>
-                      </span>
-                      <span className="shrink-0 font-mono text-micro text-ink-400 dark:text-ink-500">{QUESTION_META[t].short}</span>
+                    <li key={t}>
+                      <Link
+                        to={`/question-types/${typeSlug(t)}/`}
+                        className="text-ink-600 dark:text-ink-300 hover:text-brand-600 dark:hover:text-brand-400 group -my-1 flex items-center justify-between gap-2 rounded-sm py-1 text-xs transition-colors"
+                      >
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span className="bg-brand-500/70 group-hover:bg-brand-500 size-1 shrink-0 rounded-full transition-colors" />
+                          <span className="truncate group-hover:underline">{QUESTION_META[t].label}</span>
+                        </span>
+                        <span className="shrink-0 font-mono text-micro text-ink-500 dark:text-ink-400">{QUESTION_META[t].short}</span>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -143,24 +157,22 @@ export default function Home() {
           })}
         </div>
 
-        <div className="mt-10 text-center">
-          <Link to="/format" className="btn-secondary">
+        <div className="mt-12 text-center">
+          <ButtonLink to="/format" variant="secondary">
             Read the full PTE test format →
-          </Link>
+          </ButtonLink>
         </div>
       </section>
 
       {/* ---------------------------------------------------------------- */}
       <section className="border-ink-200 dark:border-white/10 border-y bg-white/60 dark:bg-white/3">
-        <div className="page-shell-wide py-16">
-          <p className="eyebrow text-brand-600 dark:text-brand-300 mb-3">
-            SCORE REPORT · 10–90 + CEFR
-          </p>
-          <h2 className="font-display text-ink-900 dark:text-white text-4xl tracking-[-0.01em] text-balance">What the report shows you</h2>
+        <div className="page-shell-wide py-16 sm:py-20">
+          <p className="page-heading-kicker mb-3">Score breakdown & insights</p>
+          <h2 className="section-title">What the report shows you</h2>
           <p className="text-ink-500 dark:text-ink-300 mt-3 max-w-2xl leading-relaxed">
             Not a single number. Four skills, 22 types, every lost point traced to its rule.
           </p>
-          <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 title: 'An overall score on both PTE scales',
@@ -191,7 +203,7 @@ export default function Home() {
                 <p className="font-mono text-micro tabular-nums text-brand-600 dark:text-brand-300">
                   R0{i + 1}
                 </p>
-                <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold text-balance">{f.title}</h3>
+                <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{f.title}</h3>
                 <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{f.body}</p>
               </article>
             ))}
@@ -209,15 +221,13 @@ export default function Home() {
       {/* A2: how it works, three steps. Sits after the benefits and before the FAQ
           so the page answers "what happens when I press start" at the point
           where the reader has just decided they want to. */}
-      <section className="page-shell-wide py-16">
-        <h2 className="font-display text-ink-900 dark:text-white text-4xl tracking-[-0.01em] text-balance">
-          How a mock runs
-        </h2>
+      <section className="page-shell-wide py-16 sm:py-20">
+        <h2 className="section-title">How a mock runs</h2>
         <p className="text-ink-500 dark:text-ink-300 mt-4 max-w-2xl leading-relaxed">
           Three steps, and nothing to set up. The whole thing runs in this browser tab.
         </p>
 
-        <ol className="border-ink-200 dark:border-white/10 mt-10 grid gap-8 border-t pt-8 md:grid-cols-3 md:gap-6">
+        <ol className="border-ink-200 dark:border-white/10 mt-12 grid gap-8 border-t pt-8 md:grid-cols-3 md:gap-6">
           {[
             {
               title: 'Choose a length',
@@ -236,7 +246,7 @@ export default function Home() {
               <p className="text-brand-600 dark:text-brand-300 font-mono text-micro font-bold tabular-nums">
                 Step {i + 1}
               </p>
-              <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold text-balance">{step.title}</h3>
+              <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{step.title}</h3>
               <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{step.body}</p>
             </li>
           ))}
@@ -244,36 +254,24 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-content py-16">
-        <h2 className="font-display text-ink-900 dark:text-white text-4xl tracking-[-0.01em] text-balance">Frequently asked questions</h2>
-        <div className="mt-6 space-y-3">
-          {FAQ.map((f) => (
-            <details key={f.question} className="card group">
-              <summary className="text-ink-900 dark:text-white flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-                {f.question}
-                <span className="text-ink-500 group-open:rotate-45 grid size-7 shrink-0 place-items-center rounded-md bg-ink-50 dark:bg-white/8 text-lg leading-none" aria-hidden="true">
-                  +
-                </span>
-              </summary>
-              <p className="text-ink-500 dark:text-ink-300 mt-3 border-t pt-3 text-sm leading-relaxed">{f.answer}</p>
-            </details>
-          ))}
-        </div>
+      <section className="page-shell-wide pt-16 sm:pt-20 pb-0">
+        <h2 className="section-title">Frequently asked questions</h2>
+        <Accordion className="mt-6" items={FAQ} />
       </section>
 
-      <section className="page-shell-content pt-0 pb-20">
+      <section className="page-shell-wide pt-16 pb-20 sm:pb-24">
         <CtaBand
           className="mt-0"
           title="Know your score before you pay for the test"
           description="Full mock · real clocks · 10–90 + CEFR report. No sign-up, no payment, no upload."
           actions={
             <>
-              <Link to="/mock" className="btn-primary px-7 py-3.5 text-base">
+              <ButtonLink to="/mock" size="lg">
                 Start with target 65
-              </Link>
-              <Link to="/scoring" className="btn-secondary px-5 py-3.5">
+              </ButtonLink>
+              <ButtonLink to="/scoring" variant="secondary" size="lg">
                 How PTE scores work
-              </Link>
+              </ButtonLink>
             </>
           }
         />

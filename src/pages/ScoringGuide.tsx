@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
 import { ADMISSION_TARGETS, rawToPteScale, toCefr } from '../domain/scoring'
 import { Seo } from '../seo/Seo'
-import { CtaBand, PageHeading } from '../components/ui/primitives'
+import { Accordion, CtaBand, ButtonLink, PageWrapper } from '../components/ui/primitives'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 
 const FAQ = [
   {
@@ -58,24 +58,14 @@ export default function ScoringGuide() {
     <>
       <Seo />
 
-      <div className="page-shell-content">
-        <nav aria-label="Breadcrumb" className="text-ink-500 dark:text-ink-400 mb-6 text-sm">
-          <Link to="/" className="hover:text-brand-500 dark:hover:text-brand-300">
-            Home
-          </Link>
-          <span className="mx-2" aria-hidden="true">
-            /
-          </span>
-          <span>PTE scoring</span>
-        </nav>
+      <PageWrapper
+        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'PTE scoring' }]} />}
+        eyebrow="PTE scoring"
+        title="PTE score guide: what your number means"
+        description="The PTE Academic is reported on a scaled score from 10 to 90. See how it maps to CEFR bands, common university requirements, and the estimates shown here."
+      >
 
-        <PageHeading
-          eyebrow="PTE scoring"
-          title="PTE score guide: what your number means"
-          description="The PTE Academic is reported on a scaled score from 10 to 90. See how it maps to CEFR bands, common university requirements, and the estimates shown here."
-        />
-
-        <h2 className="section-title mt-16">The two PTE scales</h2>
+        <h2 className="section-title mt-8 sm:mt-10">The two PTE scales</h2>
         <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
           They are the same number written two ways. Pearson reports 10 to 90; many universities quote 60 to 120. To
           convert, add 50.
@@ -94,7 +84,7 @@ export default function ScoringGuide() {
           ))}
         </div>
 
-        <h2 className="section-title mt-16 scroll-mt-24">Score and CEFR band</h2>
+        <h2 className="section-title mt-12 sm:mt-14 scroll-mt-24">Score and CEFR band</h2>
         <p className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
           These are Pearson's published bands, from the Institution Score Guide and
           pearsonpte.com: 85–90 is C2, 76–84 is C1, 59–75 is B2, 43–58 is B1, 30–42 is A2, and 10–29 is A1 or below.
@@ -128,7 +118,7 @@ export default function ScoringGuide() {
           </table>
         </div>
 
-        <h2 className="section-title mt-16">What universities require</h2>
+        <h2 className="section-title mt-12 sm:mt-14">What universities require</h2>
         <ul className="mt-5 space-y-3">
           {ADMISSION_TARGETS.map((t) => (
             <li key={t.label} className="card">
@@ -144,7 +134,7 @@ export default function ScoringGuide() {
           Requirements change. Always check the specific course page rather than relying on a general threshold.
         </p>
 
-        <h2 className="section-title mt-16">How this site estimates your score</h2>
+        <h2 className="section-title mt-12 sm:mt-14">How this site estimates your score</h2>
         <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
           Being precise about this matters more than the number itself, so here is exactly what happens when you press
           finish.
@@ -212,47 +202,53 @@ export default function ScoringGuide() {
           </div>
         </div>
 
-        <h2 className="section-title mt-16">How to improve your score fastest</h2>
+        <h2 className="section-title mt-12 sm:mt-14">How to improve your score fastest</h2>
         <ul className="mt-5 space-y-3">
           {[
             'Use the accuracy-by-question-type breakdown on your results page. Most candidates lose more points on Fill in the Blanks and Re-order Paragraphs than on the speaking tasks they worry about.',
             'Fix Re-order Paragraphs first. It has no partial credit, so it is the cheapest place to pick up whole marks by learning to follow pronouns and time markers.',
-            'Practise Repeat Sentence daily. It is the largest single block of items in Part 1 and improves listening, speaking and pronunciation at the same time.',
+            'Practice Repeat Sentence daily. It is the largest single block of items in Part 1 and improves listening, speaking and pronunciation at the same time.',
             'Write the essay under time pressure. Structure alone protects the coherence score, and it is the part candidates most often lose by planning too long.',
             'Re-sit a full mock every four to seven days. The format is the thing being trained, not just the language.',
           ].map((tip) => (
             <li key={tip} className="text-ink-600 dark:text-ink-200 flex gap-3 leading-relaxed">
-              <span className="bg-mint-500 mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
+              <span className="bg-mint-500 dark:bg-mint-300 mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
               {tip}
             </li>
           ))}
         </ul>
 
-        <h2 className="section-title mt-16">Frequently asked questions</h2>
-        <div className="mt-6 space-y-3">
-          {FAQ.map((f) => (
-            <details key={f.question} className="card group">
-              <summary className="text-ink-900 dark:text-white flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-                {f.question}
-                <span className="text-ink-500 group-open:rotate-45 grid size-7 shrink-0 place-items-center rounded-md bg-ink-50 dark:bg-white/8 text-lg leading-none" aria-hidden="true">
-                  +
-                </span>
-              </summary>
-              <p className="text-ink-500 dark:text-ink-300 mt-3 border-t pt-3 text-sm leading-relaxed">{f.answer}</p>
-            </details>
-          ))}
+        <div className="card-solid mt-8 border-brand-500/30 bg-brand-500/5 p-6">
+          <h3 className="text-ink-900 dark:text-white text-base font-bold">
+            Essential High-Yield Preparation Tools
+          </h3>
+          <p className="text-ink-600 dark:text-ink-300 mt-2 text-sm leading-relaxed">
+            Maximize your preparation efficiency by focusing on the 6 critical question types that generate 70% of your total score, and adopt proven structures for subjective tasks.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <ButtonLink to="/format/#weightage" variant="primary" size="sm">
+              View Score Weightage Matrix →
+            </ButtonLink>
+            <ButtonLink to="/guide/#templates" variant="secondary" size="sm">
+              2025/2026 Strategy Templates →
+            </ButtonLink>
+            <ButtonLink to="/guide/#collocations" variant="secondary" size="sm">
+              Academic Collocations List →
+            </ButtonLink>
+          </div>
         </div>
+
+        <h2 className="section-title mt-12 sm:mt-14">Frequently asked questions</h2>
+        <Accordion className="mt-6" items={FAQ} />
 
         <CtaBand
           title="Get a scored mock"
           description="See where your current score actually sits on this scale."
           actions={
-            <Link to="/mock" className="btn-primary px-6 py-3">
-              Start a free mock test
-            </Link>
+            <ButtonLink to="/mock" size="lg">Start a free mock test</ButtonLink>
           }
         />
-      </div>
+      </PageWrapper>
     </>
   )
 }

@@ -78,14 +78,14 @@ export function ScoreRangeBar({ score, band, size = 'lg', className, label }: Pr
         ))}
         {/* The score, as a linear fill. */}
         <div
-          className={cn('absolute inset-y-0 left-0 rounded-full', current?.color ?? 'bg-brand-400')}
+          className={cn('absolute inset-y-0 left-0 rounded-full transition-[width] duration-700 ease-out', current?.color ?? 'bg-brand-400')}
           style={{ width: `${pct}%` }}
           aria-hidden="true"
         />
         {/* A single hard marker rather than a segment, so the value is readable
             without relying on the fill colour. */}
         <div
-          className="absolute inset-y-0 w-0.5 bg-white shadow-[0_0_0_1px_rgb(0_0_0/0.35)] dark:bg-white"
+          className="absolute inset-y-0 w-0.5 bg-white shadow-[0_0_0_1px_rgb(0_0_0/0.35)] dark:bg-white transition-[left] duration-700 ease-out"
           style={{ left: `calc(${pct}% - 1px)` }}
           aria-hidden="true"
         />
@@ -147,7 +147,7 @@ export function SkillBars({
             </div>
             <div className="bg-ink-200 dark:bg-white/10 h-2 w-full overflow-hidden rounded-full">
               <div
-                className={cn('h-full rounded-sm', isWeak ? 'bg-rose-brand' : 'bg-brand-500')}
+                className={cn('h-full rounded-sm transition-[width] duration-700 ease-out', isWeak ? 'bg-rose-brand' : 'bg-brand-500')}
                 style={{ width: `${pct}%` }}
               />
             </div>

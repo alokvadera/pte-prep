@@ -3,8 +3,9 @@ import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/bluep
 import type { QuestionType, SectionId } from '../domain/types'
 import { HUB_FAQ, QUESTION_TYPE_DETAIL, typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
-import { CtaBand, PageHeading } from '../components/ui/primitives'
+import { CtaBand, ButtonLink, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
+import { cn } from '../lib/cn'
 
 const SECTION_ORDER: SectionId[] = ['speaking-writing', 'reading', 'listening']
 
@@ -40,19 +41,18 @@ export default function QuestionTypes() {
     <>
       <Seo />
 
-      <div className="page-shell-app">
-        <Breadcrumbs
-          trail={[{ name: 'Home', path: '/' }, { name: 'PTE question types' }]}
-          className="mb-6"
-        />
+      <PageWrapper
+        breadcrumbs={
+          <Breadcrumbs
+            trail={[{ name: 'Home', path: '/' }, { name: 'PTE question types' }]}
+          />
+        }
+        eyebrow="Question type library"
+        title={`All ${ALL_QUESTION_TYPES.length} PTE Academic question types`}
+        description="See what each task asks you to do, how it is scored, and where marks are commonly lost. Each guide links directly to a matching practice drill."
+      >
 
-        <PageHeading
-          eyebrow="Question type library"
-          title={`All ${ALL_QUESTION_TYPES.length} PTE Academic question types`}
-          description="See what each task asks you to do, how it is scored, and where marks are commonly lost. Each guide links directly to a matching practice drill."
-        />
-
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="-mt-4 mb-8 flex flex-wrap gap-2">
           {SECTION_ORDER.map((s) => (
             <a
               key={s}
@@ -64,23 +64,23 @@ export default function QuestionTypes() {
           ))}
         </div>
 
-        {SECTION_ORDER.map((section) => {
+        {SECTION_ORDER.map((section, idx) => {
           const meta = SECTION_META[section]
           const types = typesInSection(section)
 
           return (
-            <section key={section} id={section} className="mt-16 scroll-mt-24">
+            <section key={section} id={section} className={cn('scroll-mt-24', idx === 0 ? 'mt-8' : 'mt-14 sm:mt-16')}>
               <div className="border-ink-200 dark:border-white/10 border-t pt-8">
                 <h2 className="section-title">
                   {meta.title}: {meta.longTitle}
                 </h2>
                 <p className="text-ink-500 dark:text-ink-300 mt-2 max-w-2xl leading-relaxed">{meta.blurb}</p>
-                <p className="text-ink-400 dark:text-ink-500 mt-2 font-mono text-xs">
+                <p className="text-ink-500 dark:text-ink-400 mt-2 font-mono text-xs">
                   {types.length} types · {meta.weightNote}
                 </p>
               </div>
 
-              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              <ul className="mt-8 grid gap-4 sm:grid-cols-2">
                 {types.map((type) => {
                   const q = QUESTION_META[type]
                   const detail = QUESTION_TYPE_DETAIL[type]
@@ -89,7 +89,7 @@ export default function QuestionTypes() {
                   return (
                     <li key={type} className="card-solid">
                       <div className="flex min-w-0 items-start justify-between gap-3">
-                        <h3 className="text-ink-900 dark:text-white min-w-0 text-base font-semibold text-balance">
+                        <h3 className="text-ink-900 dark:text-white min-w-0 text-base font-bold leading-tight text-balance">
                           {/* Padded so the card title is a 24px tap target; the
                               negative margin keeps the card's own spacing. */}
                           <Link
@@ -99,22 +99,22 @@ export default function QuestionTypes() {
                             {q.label}
                           </Link>
                         </h3>
-                        <span className="shrink-0 font-mono text-micro text-ink-400 dark:text-ink-500">{q.short}</span>
+                        <span className="shrink-0 font-mono text-micro text-ink-500 dark:text-ink-400">{q.short}</span>
                       </div>
 
                       <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{detail.what}</p>
 
                       <dl className="text-ink-500 dark:text-ink-400 mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs">
                         <div className="flex gap-1.5">
-                          <dt className="text-ink-400 dark:text-ink-500">Skills</dt>
+                          <dt className="text-ink-500 dark:text-ink-400">Skills</dt>
                           <dd>{q.skills.map((s) => SKILL_LABEL[s]).join(' + ')}</dd>
                         </div>
                         <div className="flex gap-1.5">
-                          <dt className="text-ink-400 dark:text-ink-500">Per test</dt>
+                          <dt className="text-ink-500 dark:text-ink-400">Per test</dt>
                           <dd>{q.perTest}</dd>
                         </div>
                         <div className="flex gap-1.5">
-                          <dt className="text-ink-400 dark:text-ink-500">Scoring</dt>
+                          <dt className="text-ink-400">Scoring</dt>
                           <dd>{SCORING_LABEL[q.scoring]}</dd>
                         </div>
                       </dl>
@@ -178,20 +178,16 @@ export default function QuestionTypes() {
         </section>
 
         <CtaBand
-          title="Practise all 22 question types"
+          title="Practice all 22 question types"
           description="Every type on this page appears in the full mock and in single-skill drills, with the same timings and scoring rules as the real test."
           actions={
             <>
-              <Link to="/mock" className="btn-primary px-6 py-3">
-                Start a full mock
-              </Link>
-              <Link to="/practice" className="btn-secondary px-5 py-3">
-                Practise one type
-              </Link>
+              <ButtonLink to="/mock" size="lg">Start a full mock</ButtonLink>
+              <ButtonLink to="/practice" variant="secondary" size="lg">Practice one type</ButtonLink>
             </>
           }
         />
-      </div>
+      </PageWrapper>
     </>
   )
 }

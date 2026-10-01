@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Seo } from '../seo/Seo'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
-import { PageHeading } from '../components/ui/primitives'
+import { PageWrapper } from '../components/ui/primitives'
 
 const SECTIONS = [
   {
@@ -44,16 +44,14 @@ export default function Privacy() {
     <>
       <Seo />
 
-      <div className="page-shell-prose">
-        <Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Privacy' }]} className="mb-6" />
+      <PageWrapper
+        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Privacy' }]} />}
+        eyebrow="Your data"
+        title="Privacy"
+        description="This site has no server side database, account system or analytics. Everything you do stays in your browser."
+      >
 
-        <PageHeading
-          eyebrow="Your data"
-          title="Privacy"
-          description="This site has no server side database, account system or analytics. Everything you do stays in your browser."
-        />
-
-        <div className="mt-16 space-y-16">
+        <div className="mt-8 space-y-12">
           {SECTIONS.map((s) => (
             <section key={s.heading}>
               <h2 className="section-title">{s.heading}</h2>
@@ -72,9 +70,9 @@ export default function Privacy() {
             about page
           </Link>
           . PTE Academic and the PTE logo are trademarks of Pearson Education Ltd. This is an independent practice tool
-          and is not affiliated with Pearson.
+          and is not affiliated with Pearson          .
         </p>
-      </div>
+      </PageWrapper>
     </>
   )
 }

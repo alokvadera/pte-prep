@@ -53,7 +53,12 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
   const options = item.options ?? []
   return (
     <fieldset>
-      <legend className="passage mb-3 font-semibold">{item.prompt}</legend>
+      <legend className="passage mb-4 font-semibold">{item.prompt}</legend>
+      {item.stimulusId ? (
+        <div className="mb-4">
+          <AudioPlayer audioId={item.stimulusId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} allowSpeedControl={!examMode} compact />
+        </div>
+      ) : null}
       <div className="space-y-2">
         {options.map((opt, i) => {
           const selected = response?.choice === opt
@@ -85,7 +90,11 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
           )
         })}
       </div>
-      {examMode ? null : <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">Select one answer.</p>}
+      {!examMode ? (
+        <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
+          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ No negative marking:</span> Select one best answer. Always guess if you are unsure.
+        </p>
+      ) : null}
     </fieldset>
   )
 }
@@ -101,7 +110,12 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
 
   return (
     <fieldset>
-      <legend className="passage mb-3 font-semibold">{item.prompt}</legend>
+      <legend className="passage mb-4 font-semibold">{item.prompt}</legend>
+      {item.stimulusId ? (
+        <div className="mb-4">
+          <AudioPlayer audioId={item.stimulusId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} allowSpeedControl={!examMode} compact />
+        </div>
+      ) : null}
       <div className="space-y-2">
         {options.map((opt, i) => {
           const isOn = selected.includes(opt)
@@ -129,11 +143,10 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
           )
         })}
       </div>
-      {!examMode ? (
-        <p className="text-amber-600 dark:text-amber-300 mt-3 text-xs">
-          PTE deducts marks for incorrect selections, so choose only the answers you are confident about.
-        </p>
-      ) : null}
+      <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+        <span className="font-bold text-amber-700 dark:text-amber-300">⚠️ Negative marking (-1 per wrong option, min 0):</span>
+        <span>Only select options you are confident in. Leaving an unsure option unselected is better than guessing wrong.</span>
+      </div>
     </fieldset>
   )
 }
@@ -187,7 +200,7 @@ function DropdownBlanks({ item, response, onChange, examMode }: Props) {
       </p>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-400 mt-4 text-xs">
-          Each option can be used once. Read the whole text before choosing — the grammar usually settles it.
+          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ Partial credit:</span> Each correct blank earns 1 point with no penalty for errors. Read the whole text before choosing.
         </p>
       ) : null}
     </div>
@@ -208,7 +221,14 @@ function InlineBlanks({ item, response, onChange, examMode }: Props) {
   return (
     <div>
       <p className="passage mb-4 font-semibold">{item.prompt}</p>
-      <AudioPlayer audioId={item.stimulusId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} compact />
+      <AudioPlayer
+        audioId={item.stimulusId}
+        fromTurn={item.audioFromTurn}
+        replays={item.replays ?? 0}
+        leadIn={item.audioLeadIn ?? 4}
+        allowSpeedControl={!examMode}
+        compact
+      />
       <p className="passage mt-5 leading-[2.4]">
         {parts.map((part, i) => (
           <span key={i}>
@@ -216,7 +236,7 @@ function InlineBlanks({ item, response, onChange, examMode }: Props) {
             {i < parts.length - 1 ? (
               <input
                 type="text"
-                className="field mx-0.5 inline-block w-40 border-0 border-b-2 border-brand-400 bg-transparent px-1 py-0.5 align-baseline focus:ring-0"
+                className="field mx-0.5 inline-block w-40 border-0 border-b-2 border-brand-400 bg-transparent px-1 py-0.5 align-baseline transition-[border-color,background-color] duration-150 focus:border-brand-600 focus:bg-brand-500/5 focus:ring-0 dark:focus:border-brand-300 dark:focus:bg-brand-500/10"
                 value={values[i] ?? ''}
                 onChange={(e) => set(i, e.target.value)}
                 aria-label={`Blank ${i + 1}`}
@@ -227,7 +247,11 @@ function InlineBlanks({ item, response, onChange, examMode }: Props) {
           </span>
         ))}
       </p>
-      {!examMode ? <p className="text-ink-500 dark:text-ink-400 mt-4 text-xs">The recording plays once.</p> : null}
+      {!examMode ? (
+        <p className="text-ink-500 dark:text-ink-400 mt-4 text-xs">
+          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ Partial credit:</span> +1 per correct word. Fill every blank before proceeding.
+        </p>
+      ) : null}
     </div>
   )
 }
@@ -268,7 +292,7 @@ function TableBlanks({ table, response, onChange, examMode, prompt }: Omit<Props
           </thead>
           <tbody>
             {table.rows.map((row, r) => (
-              <tr key={r} className="odd:bg-ink-50 dark:odd:bg-white/3">
+              <tr key={r} className="odd:bg-ink-100/70 dark:odd:bg-white/3">
                 {row.map((cell, c) => {
                   const blankIndex = table.blankCells.findIndex((b) => b.row === r && b.col === c)
                   return (
@@ -296,7 +320,7 @@ function TableBlanks({ table, response, onChange, examMode, prompt }: Omit<Props
       </div>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
-          Each blank is scored separately, so partial credit is possible.
+          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ Partial credit:</span> Each blank is scored separately (+1 each, no penalty).
         </p>
       ) : null}
     </div>
@@ -325,15 +349,15 @@ function OrderQuestion({ item, response, onChange, examMode }: Props) {
           const block = blocks.find((b) => b.id === id)
           if (!block) return null
           return (
-            <li key={id} className="card-solid flex items-start gap-3 p-4">
-              <span className="bg-brand-500 text-white mt-0.5 grid size-6 shrink-0 place-items-center rounded-md text-xs font-bold">
+            <li key={id} className="card-solid flex items-start gap-3 p-4 transition-[transform,border-color,background-color] duration-200">
+              <span className="bg-brand-500 text-white mt-0.5 grid size-6 shrink-0 place-items-center rounded-md text-xs font-bold transition-all duration-150">
                 {i + 1}
               </span>
               <p className="passage flex-1">{block.text}</p>
               <span className="flex shrink-0 flex-col gap-1">
                 <button
                   type="button"
-                  className="btn-ghost px-1.5 py-0.5 text-xs"
+                  className="btn-ghost active:scale-90 px-1.5 py-0.5 text-xs transition-transform"
                   onClick={() => move(i, -1)}
                   disabled={i === 0}
                   aria-label={`Move paragraph ${i + 1} up`}
@@ -342,7 +366,7 @@ function OrderQuestion({ item, response, onChange, examMode }: Props) {
                 </button>
                 <button
                   type="button"
-                  className="btn-ghost px-1.5 py-0.5 text-xs"
+                  className="btn-ghost active:scale-90 px-1.5 py-0.5 text-xs transition-transform"
                   onClick={() => move(i, 1)}
                   disabled={i === order.length - 1}
                   aria-label={`Move paragraph ${i + 1} down`}
@@ -378,7 +402,17 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
   return (
     <div>
       <p className="passage mb-4 font-semibold">{item.prompt}</p>
-      <AudioPlayer audioId={item.stimulusId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} compact />
+      <AudioPlayer
+        audioId={item.stimulusId}
+        utterance={item.audioUtterance}
+        fromTurn={item.audioFromTurn}
+        toTurn={item.audioToTurn}
+        beepWord={item.audioBeepWord}
+        replays={item.replays ?? 0}
+        leadIn={item.audioLeadIn ?? 4}
+        allowSpeedControl={!examMode}
+        compact
+      />
       <p className="passage mt-5 rounded-lg border border-ink-200 bg-white p-4 leading-[2.2] dark:border-white/10 dark:bg-white/3">
         {tokens.map((t, i) => {
           if (t === '___') {
@@ -398,7 +432,9 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
               aria-pressed={selected.has(i)}
               className={cn(
                 'mx-0.5 cursor-pointer rounded px-0.5 transition-colors',
-                selected.has(i) ? 'bg-amber-400/40 ring-2 ring-amber-400' : 'hover:bg-brand-500/12',
+                selected.has(i)
+                  ? 'bg-amber-400/40 ring-2 ring-amber-400 dark:bg-amber-400/30 dark:ring-amber-300'
+                  : 'hover:bg-brand-500/12 dark:hover:bg-brand-400/20',
               )}
             >
               {t}
@@ -406,9 +442,10 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
           )
         })}
       </p>
-      {!examMode ? (
-        <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">Click each word to highlight it. Exactly two are wrong.</p>
-      ) : null}
+      <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+        <span className="font-bold text-amber-700 dark:text-amber-300">⚠️ Negative marking (-1 per wrong word, min 0):</span>
+        <span>Only highlight words you clearly heard were different. Unhighlight any uncertain words.</span>
+      </div>
     </div>
   )
 }
@@ -422,9 +459,18 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
   return (
     <div>
       <p className="passage mb-4 font-semibold">{item.prompt}</p>
-      {isDictation ? (
+      {item.stimulusId || item.audioUtterance ? (
         <div className="mb-4">
-          <AudioPlayer audioId={item.stimulusId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} compact />
+          <AudioPlayer
+            audioId={item.stimulusId}
+            utterance={item.audioUtterance}
+            fromTurn={item.audioFromTurn}
+            toTurn={item.audioToTurn}
+            replays={item.replays ?? 0}
+            leadIn={item.audioLeadIn ?? 4}
+            allowSpeedControl={!examMode}
+            compact
+          />
         </div>
       ) : null}
       <TypedAnswer
@@ -451,15 +497,18 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
   )
 }
 
-function AudioQuestion({ item, response, onChange, showTranscript }: Props) {
+function AudioQuestion({ item, response, onChange, examMode, showTranscript }: Props) {
   const isShort = item.type === 'answer-short-question'
+  // Read Aloud shows its text; Repeat Sentence must not — the sentence is
+  // heard, not read, and showing it would test reading instead of listening.
+  const showTargetText = item.type === 'read-aloud'
   const hasTarget = item.type === 'read-aloud' || item.type === 'repeat-sentence'
 
   return (
     <div>
       <p className="passage mb-4 font-semibold">{item.prompt}</p>
 
-      {hasTarget && item.targetText ? (
+      {showTargetText && item.targetText ? (
         <p className="passage mb-4 rounded-lg border border-ink-200 bg-white p-4 dark:border-white/10 dark:bg-white/3">
           {item.targetText}
         </p>
@@ -471,13 +520,17 @@ function AudioQuestion({ item, response, onChange, showTranscript }: Props) {
         <p className="passage mb-4 font-semibold">{item.tokens.filter((t) => t !== '___').join(' ')}</p>
       ) : null}
 
-      {item.stimulusId ? (
+      {item.stimulusId || item.audioUtterance ? (
         <div className="mb-4">
           <AudioPlayer
             audioId={item.stimulusId}
+            utterance={item.audioUtterance}
+            fromTurn={item.audioFromTurn}
+            toTurn={item.audioToTurn}
             replays={item.replays ?? 0}
             leadIn={item.audioLeadIn ?? 3}
             showTranscript={showTranscript}
+            allowSpeedControl={!examMode}
             compact={!hasTarget}
           />
         </div>
