@@ -1,0 +1,981 @@
+#!/usr/bin/env node
+// ---------------------------------------------------------------------------
+// Browser smoke test.
+//
+// Loads every prerendered route in headless Chrome, records console errors and
+// failed requests, and asserts that React hydrated rather than re-rendering the
+// empty shell. Catches the class of bug that a static HTML dump cannot:
+// hydration mismatches and client-side exceptions.
+//
+// Usage: node scripts/browser-check.mjs [baseUrl]
+// Requires a Chrome/Chromium binary; skips cleanly when none is found.
+// ---------------------------------------------------------------------------
+
+import { spawn } from 'node:child_process'
+import { mkdtemp, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
+import { existsSync } from 'node:fs'
+
+const BASE = (process.argv[2] ?? 'http://localhost:5200').replace(/\/+$/, '')
+
+const CANDIDATES = [
+  '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+  '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+  '/usr/bin/google-chrome',
+  '/usr/bin/chromium',
+  '/usr/bin/chromium-browser',
+  process.env.CHROME_PATH,
+].filter(Boolean)
+
+const binary = CANDIDATES.find((p) => existsSync(p))
+if (!binary) {
+  console.log('\n  No Chrome binary found — skipping browser checks.')
+  console.log('  Set CHROME_PATH to run them.\n')
+  if (process.argv.includes('--strict')) {
+    console.log('  Failing because --strict was passed.\n')
+    process.exit(1)
+  }
+  process.exit(0)
+}
+
+const QUESTION_TYPE_SLUGS = [
+  'read-aloud', 'repeat-sentence', 'describe-image', 'retell-lecture', 'answer-short-question',
+  'summarize-group-discussion', 'respond-to-situation', 'summarize-written-text', 'write-essay',
+  'fill-in-blanks-dropdown', 'fill-in-blanks-table', 'multiple-choice-single', 'multiple-choice-multiple',
+  'reorder-paragraphs', 'summarize-spoken-text', 'fill-in-blanks-listening', 'highlight-correct-summary',
+  'listening-multiple-choice-single', 'listening-multiple-choice-multiple', 'select-missing-word',
+  'highlight-incorrect-words', 'write-from-dictation',
+]
+
+const ROUTES = [
+  '/', '/mock', '/practice', '/format', '/scoring', '/guide', '/about', '/dashboard', '/not-a-page',
+  '/question-types/', '/privacy/',
+  ...QUESTION_TYPE_SLUGS.map((s) => `/question-types/${s}/`),
+]
+
+const profile = await mkdtemp(path.join(tmpdir(), 'pte-chrome-'))
+const PORT = 9333
+
+const chrome = spawn(
+  binary,
+  [
+    '--headless=new',
+    `--remote-debugging-port=${PORT}`,
+    `--user-data-dir=${profile}`,
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-gpu',
+    '--hide-scrollbars',
+    '--window-size=1280,900',
+    'about:blank',
+  ],
+  { stdio: 'ignore' },
+)
+
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms))
+}
+
+async function waitForDevTools() {
+  for (let i = 0; i < 60; i++) {
+    try {
+      const res = await fetch(`http://127.0.0.1:${PORT}/json/version`)
+      if (res.ok) return true
+    } catch {
+      /* not up yet */
+    }
+    await sleep(250)
+  }
+  return false
+}
+
+if (!(await waitForDevTools())) {
+  chrome.kill()
+  await rm(profile, { recursive: true, force: true })
+  console.error('  Chrome did not expose a debugging port.')
+  process.exit(1)
+}
+
+let failures = 0
+function report(ok, label, detail = '') {
+  if (ok) {
+    console.log(`  ok   ${label}`)
+  } else {
+    failures += 1
+    console.log(`  FAIL ${label}${detail ? ` — ${detail}` : ''}`)
+  }
+}
+
+// Minimal CDP client over the browser websocket.
+const version = await (await fetch(`http://127.0.0.1:${PORT}/json/version`)).json()
+const ws = new WebSocket(version.webSocketDebuggerUrl)
+let nextId = 1
+const pending = new Map()
+const events = []
+
+// One listener for the lifetime of the socket; per-route collectors subscribe
+// through `collectors` so the listener count never grows.
+const collectors = new Set()
+
+ws.addEventListener('message', (event) => {
+  const msg = JSON.parse(event.data)
+  if (msg.id && pending.has(msg.id)) {
+    const { resolve, reject } = pending.get(msg.id)
+    pending.delete(msg.id)
+    if (msg.error) reject(new Error(msg.error.message))
+    else resolve(msg.result)
+    return
+  }
+  if (!msg.method) return
+  events.push(msg)
+  for (const collect of collectors) collect(msg)
+})
+
+await new Promise((resolve, reject) => {
+  ws.addEventListener('open', resolve, { once: true })
+  ws.addEventListener('error', reject, { once: true })
+})
+
+/** Polls an expression until it is truthy, or the timeout expires. */
+async function waitUntil(sessionId, expression, timeoutMs = 15000) {
+  const deadline = Date.now() + timeoutMs
+  while (Date.now() < deadline) {
+    const probe = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    if (probe.result.value) return true
+    await sleep(200)
+  }
+  return false
+}
+
+function send(method, params = {}, sessionId) {
+  const id = nextId++
+  return new Promise((resolve, reject) => {
+    pending.set(id, { resolve, reject })
+    ws.send(JSON.stringify({ id, method, params, sessionId }))
+  })
+}
+
+console.log(`\n== Browser check against ${BASE} ==\n`)
+
+// Wait for the server instead of assuming it is listening. Two Chrome suites
+// running back to back used to race the static server's startup and report
+// confident failures against pages that were never rendered.
+{
+  const deadline = Date.now() + 20_000
+  for (;;) {
+    try {
+      const r = await fetch(BASE, { signal: AbortSignal.timeout(2000) })
+      if (r.ok) break
+    } catch {}
+    if (Date.now() > deadline) {
+      console.error(`No server at ${BASE}. Start one with: npm run serve`)
+      process.exit(2)
+    }
+    await sleep(300)
+  }
+}
+
+// Each route gets a fresh browser context so that a service worker installed by
+// an earlier route cannot influence the next one.
+for (const route of ROUTES) {
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+
+  const consoleErrors = []
+  const pageErrors = []
+  const failedRequests = []
+
+  await send('Runtime.enable', {}, sessionId)
+  await send('Log.enable', {}, sessionId)
+  await send('Network.enable', {}, sessionId)
+  // Never let a stale build be tested against a previous one.
+  await send('Network.setCacheDisabled', { cacheDisabled: true }, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const collect = (msg) => {
+    if (msg.sessionId !== sessionId) return
+    if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') {
+      consoleErrors.push(msg.params.args.map((a) => a.value ?? a.description ?? '').join(' '))
+    }
+    if (msg.method === 'Runtime.exceptionThrown') {
+      pageErrors.push(msg.params.exceptionDetails?.exception?.description ?? msg.params.exceptionDetails?.text ?? 'unknown')
+    }
+    if (msg.method === 'Log.entryAdded' && msg.params.entry.level === 'error') {
+      consoleErrors.push(msg.params.entry.text)
+    }
+    if (msg.method === 'Network.loadingFailed') {
+      failedRequests.push(msg.params.errorText)
+    }
+  }
+  collectors.add(collect)
+
+  await send('Page.navigate', { url: `${BASE}${route}` }, sessionId)
+
+  // Wait for the document to finish and the app to actually paint, rather than
+  // guessing with a fixed delay.
+  const deadline = Date.now() + 30000
+  let ready = false
+  while (Date.now() < deadline) {
+    const probe = await send(
+      'Runtime.evaluate',
+      {
+        expression: `(() => { const r = document.getElementById('root'); return JSON.stringify({ s: document.readyState, n: r ? r.querySelectorAll('*').length : 0, hydrated: document.documentElement.dataset.appReady === 'true' }); })()`,
+        returnByValue: true,
+      },
+      sessionId,
+    )
+    try {
+      const { s: state, n, hydrated } = JSON.parse(probe.result.value)
+      if (state === 'complete' && n > 0 && hydrated) {
+        ready = true
+        break
+      }
+    } catch {
+      /* still loading */
+    }
+    await sleep(200)
+  }
+  // Give hydration a moment to finish and surface any error.
+  await sleep(700)
+  if (!ready) console.log(`  (warn) ${route} did not finish loading within 30s`)
+
+  const result = await send(
+    'Runtime.evaluate',
+    {
+      expression: `(() => {
+        const root = document.getElementById('root');
+        return JSON.stringify({
+          nodes: root ? root.querySelectorAll('*').length : 0,
+          title: document.title,
+          h1: document.querySelector('h1')?.textContent?.trim() ?? '',
+          canonical: document.querySelector('link[rel=canonical]')?.getAttribute('href') ?? '',
+          description: document.querySelector('meta[name=description]')?.getAttribute('content') ?? '',
+          jsonLd: document.querySelectorAll('script[type="application/ld+json"]').length,
+          interactive: document.querySelectorAll('a[href], button, input, select, textarea').length,
+        });
+      })()`,
+      returnByValue: true,
+    },
+    sessionId,
+  )
+
+  const data = JSON.parse(result.result.value)
+
+  const hydrationWarning = consoleErrors.find((e) => /hydrat|did not match|Text content does not match/i.test(e))
+  const realErrors = consoleErrors.filter(
+    (e) =>
+      !/favicon|Download the React DevTools/i.test(e) &&
+      // A 404 on the document itself is the correct response for an unknown route.
+      !(route.startsWith('/not-') && /status of 404/i.test(e)),
+  )
+  const label = route === '/' ? '/' : route
+
+  report(data.nodes > 40, `${label.padEnd(14)} rendered (${data.nodes} nodes, ${data.interactive} interactive)`)
+  report(data.h1.length > 0, `${label.padEnd(14)} has an h1`, data.h1 || 'none')
+  report(data.title.length > 10, `${label.padEnd(14)} has a title`, data.title)
+  report(data.description.length > 40, `${label.padEnd(14)} has a meta description`)
+  report(data.canonical.length > 0, `${label.padEnd(14)} has a canonical`, data.canonical)
+  report(!hydrationWarning, `${label.padEnd(14)} hydrates without mismatch`, hydrationWarning ?? '')
+  report(pageErrors.length === 0, `${label.padEnd(14)} has no uncaught exceptions`, pageErrors.join(' | '))
+  report(realErrors.length === 0, `${label.padEnd(14)} has no console errors`, realErrors.join(' | ').slice(0, 160))
+  const expectedStatus = route.startsWith('/not-') ? 404 : 200
+  report(
+    failedRequests.filter((e) => !/ERR_ABORTED|favicon/.test(e) && !(expectedStatus === 404 && /404/.test(e))).length === 0,
+    `${label.padEnd(14)} loads all assets`,
+    failedRequests.join(' | ').slice(0, 160),
+  )
+
+  collectors.delete(collect)
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// Client-side navigation check: the router must work without a full page load.
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: `${BASE}/`, browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Page.enable', {}, sessionId)
+  await send('Runtime.enable', {}, sessionId)
+  await send('Network.enable', {}, sessionId)
+  await send('Network.setCacheDisabled', { cacheDisabled: true }, sessionId)
+
+  // Wait for hydration to complete and the link to exist, rather than guessing
+  // with a fixed delay: the whole site is now one eagerly-imported bundle.
+  const navReady = Date.now() + 15000
+  while (Date.now() < navReady) {
+    const probe = await send(
+      'Runtime.evaluate',
+      {
+        expression: `document.documentElement.dataset.appReady === 'true' && document.querySelectorAll('a[href="/format"]').length > 0`,
+        returnByValue: true,
+      },
+      sessionId,
+    )
+    if (probe.result.value) break
+    await sleep(200)
+  }
+
+  const errors = []
+  const navCollect = (msg) => {
+    if (msg.sessionId !== sessionId) return
+    if (msg.method === 'Runtime.exceptionThrown') {
+      errors.push(msg.params.exceptionDetails?.exception?.description ?? 'unknown')
+    }
+  }
+  collectors.add(navCollect)
+
+  // Click the internal link to the format guide, the way a user would.
+  const clicked = await send(
+    'Runtime.evaluate',
+    {
+      expression: `(() => {
+        const link = [...document.querySelectorAll('a[href="/format"]')][0];
+        if (!link) return 'no-link';
+        link.scrollIntoView();
+        link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window, button: 0 }));
+        return 'clicked';
+      })()`,
+      returnByValue: true,
+    },
+    sessionId,
+  )
+  if (clicked.result.value !== 'clicked') {
+    report(false, 'the format link is present in the page', clicked.result.value)
+  }
+
+  const navDeadline2 = Date.now() + 6000
+  let navigated = false
+  while (Date.now() < navDeadline2) {
+    const probe = await send('Runtime.evaluate', { expression: `location.pathname`, returnByValue: true }, sessionId)
+    if (probe.result.value === '/format') {
+      navigated = true
+      break
+    }
+    await sleep(150)
+  }
+  await sleep(400)
+
+  const nav = await send(
+    'Runtime.evaluate',
+    {
+      expression: `JSON.stringify({ url: location.pathname, h1: document.querySelector('h1')?.textContent?.trim() ?? '', title: document.title })`,
+      returnByValue: true,
+    },
+    sessionId,
+  )
+  const data = JSON.parse(nav.result.value)
+
+  report(navigated, 'client-side routing navigates to /format', data.url)
+  report(data.h1.length > 0, 'routed page has an h1', data.h1)
+  report(/test format/i.test(data.title), 'routed page title is updated', data.title)
+  report(errors.length === 0, 'client-side navigation throws nothing', errors.join(' | '))
+
+  collectors.delete(navCollect)
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// End-to-end flow: start a mock, answer items, and confirm the runner responds.
+// This is the product itself, so it is worth exercising rather than trusting.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: `${BASE}/mock`, browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  const flowErrors = []
+  const collectFlow = (msg) => {
+    if (msg.sessionId !== sessionId) return
+    if (msg.method === 'Runtime.exceptionThrown') {
+      flowErrors.push(msg.params.exceptionDetails?.exception?.description ?? 'unknown')
+    }
+  }
+  collectors.add(collectFlow)
+
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+  await send('Page.navigate', { url: `${BASE}/mock` }, sessionId)
+  await sleep(2500)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    return r.result.value
+  }
+
+  const startClicked = await evaluate(`(() => {
+    const btn = [...document.querySelectorAll('button')].find(b => /^Start full mock$/i.test(b.textContent.trim()));
+    if (!btn) return 'no-button';
+    btn.click();
+    return 'clicked';
+  })()`)
+  report(startClicked === 'clicked', 'the mock setup page has a start button', startClicked)
+
+  await sleep(1500)
+  const onTest = await evaluate(`location.pathname`)
+  report(onTest === '/test', 'starting a mock navigates to the runner', onTest)
+
+  // The runner opens on a section briefing; starting it reveals a timer.
+  const began = await evaluate(`(() => {
+    const btn = [...document.querySelectorAll('button')].find(b => /^Begin /i.test(b.textContent.trim()));
+    if (!btn) return 'no-button';
+    btn.click();
+    return 'clicked';
+  })()`)
+  report(began === 'clicked', 'the section briefing can be started', began)
+
+  await waitUntil(sessionId, `document.querySelector('[role="timer"]') !== null`)
+  const state = JSON.parse(
+    await evaluate(`JSON.stringify({
+      timer: document.querySelector('[role="timer"]')?.getAttribute('aria-label') ?? '',
+      question: document.body.textContent?.replace(/\\s+/g, ' ').match(/Question \\d+ of \\d+/)?.[0] ?? '',
+      inputs: document.querySelectorAll('#root input, #root select, #root textarea, #root button').length,
+    })`),
+  )
+  report(/\d/.test(state.timer), 'the section timer is running', state.timer)
+  report(
+    /Question \d+ of \d+/.test(state.question),
+    'the runner shows question progress',
+    state.question || JSON.stringify(state).slice(0, 200),
+  )
+  report(state.inputs > 3, 'the runner renders an interactive item', String(state.inputs))
+
+  // Walk forward through several items to prove the runner, state and clock
+  // all survive navigation.
+  let advanced = 0
+  for (let i = 0; i < 6; i++) {
+    const moved = await evaluate(`(() => {
+      const btn = [...document.querySelectorAll('button')].find(b => /^(Next|Finish test|End section)/i.test(b.textContent.trim()));
+      if (!btn) return false;
+      btn.click();
+      return true;
+    })()`)
+    if (!moved) break
+    advanced += 1
+    await sleep(700)
+  }
+  report(advanced >= 5, 'the runner advances through items', `${advanced} steps`)
+
+  const stillAlive = JSON.parse(
+    await evaluate(`JSON.stringify({
+      question: document.body.textContent?.replace(/\\s+/g, ' ').match(/Question \\d+ of \\d+/)?.[0] ?? '',
+      timer: document.querySelector('[role="timer"]')?.getAttribute('aria-label') ?? '',
+      head: document.body.textContent?.replace(/\\s+/g, ' ').slice(0, 160),
+    })`),
+  )
+  report(stillAlive.question !== '', 'the runner is still on a question after navigating', stillAlive.question || stillAlive.head)
+  report(stillAlive.timer !== '', 'the timer survives navigation', stillAlive.timer)
+  report(flowErrors.length === 0, 'sitting the test throws nothing', flowErrors.join(' | ').slice(0, 200))
+
+  collectors.delete(collectFlow)
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Full attempt: answer nothing, sit every section to the end, and confirm the
+// results page renders a real scored report. This exercises the scoring
+// pipeline, the section transitions and IndexedDB persistence together.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: `${BASE}/mock`, browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  const resultErrors = []
+  const collectResult = (msg) => {
+    if (msg.sessionId !== sessionId) return
+    if (msg.method === 'Runtime.exceptionThrown') {
+      resultErrors.push(msg.params.exceptionDetails?.exception?.description ?? 'unknown')
+    }
+  }
+  collectors.add(collectResult)
+
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+  await send('Page.navigate', { url: `${BASE}/mock` }, sessionId)
+  await waitUntil(sessionId, `document.documentElement.dataset.appReady === 'true'`)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    return r.result.value
+  }
+
+  await evaluate(`(() => {
+    const btn = [...document.querySelectorAll('button')].find(b => /^Start full mock$/i.test(b.textContent.trim()));
+    if (btn) btn.click();
+    return !!btn;
+  })()`)
+  await waitUntil(sessionId, `location.pathname === '/test'`)
+
+  // Drive the whole test: begin a section when asked, otherwise advance.
+  const deadline = Date.now() + 90000
+  let steps = 0
+  let reachedResult = false
+  while (Date.now() < deadline) {
+    const outcome = await evaluate(`(() => {
+      if (location.pathname === '/result') return 'done';
+      const begin = [...document.querySelectorAll('button')].find(b => /^(Begin |Start )/i.test(b.textContent.trim()));
+      if (begin) { begin.click(); return 'begin'; }
+      const next = [...document.querySelectorAll('button')].find(b => /^(Next|End section|Finish test)/i.test(b.textContent.trim()));
+      if (next) { next.click(); return 'next'; }
+      return 'stuck';
+    })()`)
+    steps += 1
+    if (outcome === 'done') {
+      reachedResult = true
+      break
+    }
+    if (outcome === 'stuck') break
+    await sleep(90)
+  }
+  report(reachedResult, 'a full test can be sat to the end', `${steps} steps`)
+
+  // The report is scored asynchronously on arrival.
+  const reportDeadline = Date.now() + 15000
+  while (Date.now() < reportDeadline) {
+    const raw = await evaluate(`JSON.stringify({
+      h1: document.querySelector('h1')?.textContent?.trim() ?? '',
+      score: document.querySelector('h1')?.parentElement?.textContent?.match(/CEFR [A-C][12]/) ? 'cefr' : '',
+      text: document.body.textContent?.replace(/\\s+/g, ' ') ?? '',
+    })`)
+    const parsed = JSON.parse(raw)
+    if (/CEFR\s[A-C][12]/.test(parsed.text)) break
+    await sleep(300)
+  }
+
+  const summary = JSON.parse(
+    await evaluate(`JSON.stringify({
+      hasScore: /of 90/.test(document.body.textContent ?? ''),
+      hasSixty: /60–120 scale/.test(document.body.textContent ?? ''),
+      hasSkills:
+        ['speaking', 'writing', 'reading', 'listening'].every((s) =>
+          new RegExp(s, 'i').test(document.body.textContent ?? ''),
+        ),
+      hasTabs: /By question type/.test(document.body.textContent ?? ''),
+      hasEstimateNote: /estimated/i.test(document.body.textContent ?? ''),
+      noAttemptsText: /No attempts yet/.test(document.body.textContent ?? ''),
+    })`),
+  )
+
+  report(summary.hasScore, 'the results page shows a score out of 90')
+  report(summary.hasSixty, 'the results page shows the 60-120 scale')
+  report(summary.hasSkills, 'the results page reports the four skills')
+  report(summary.hasTabs, 'the results page offers its breakdown tabs')
+  report(summary.hasEstimateNote, 'the results page labels estimates')
+  report(!summary.noAttemptsText, 'the report is not an empty state', 'rendered the empty state')
+
+  // Opening the answer review must list every attempted item.
+  await evaluate(`(() => {
+    const tab = [...document.querySelectorAll('[role=tab]')].find(t => /Answer review/i.test(t.textContent));
+    if (tab) tab.click();
+    return !!tab;
+  })()`)
+  await sleep(600)
+  const review = JSON.parse(
+    await evaluate(`JSON.stringify({
+      items: document.querySelectorAll('[role=tablist] ~ * li').length,
+      hasTypes: /Read Aloud|Repeat Sentence|Fill in the Blanks/.test(document.body.textContent ?? ''),
+      text: (document.body.textContent ?? '').replace(/\\s+/g, ' ').slice(0, 200),
+    })`),
+  )
+  report(review.hasTypes, 'the answer review lists question types', review.text)
+
+  report(resultErrors.length === 0, 'completing a test throws nothing', resultErrors.join(' | ').slice(0, 200))
+
+  collectors.delete(collectResult)
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Theme
+//
+// The site ships exactly two themes and deliberately has no `system` option, so
+// the two things that can silently break are a stale stored preference from the
+// release that did have one, and a toggle that no longer repaints. Both were
+// real: a v1 store carrying `theme: "system"` survived an unverified migration
+// and rendered the light ground while the toggle still claimed "system".
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+  await send('Network.setCacheDisabled', { cacheDisabled: true }, sessionId)
+  await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+  await sleep(2500)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    if (r.exceptionDetails) return ''
+    return r.result.value
+  }
+
+  const DARK_BG = 'rgb(23, 27, 32)'
+  const LIGHT_BG = 'rgb(255, 255, 255)'
+
+  // A realistic v1 record: the removed `system` theme, at the shape v1 wrote.
+  await evaluate(`localStorage.setItem('pte-prep-settings', JSON.stringify({
+    state: { settings: { theme: 'system', reducedMotion: true, showWordCount: true,
+      speakPrompts: false, countdownBeeps: true, textScale: 1,
+      defaultMode: 'full', autoOpenReview: true }, hydrated: true },
+    version: 1
+  }))`)
+  await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+  await sleep(2500)
+
+  const migrated = JSON.parse((await evaluate("localStorage.getItem('pte-prep-settings')")) ?? '{}')
+  report(
+    migrated?.state?.settings?.theme === 'light',
+    'a stored "system" theme is migrated away',
+    `theme=${JSON.stringify(migrated?.state?.settings?.theme)} version=${JSON.stringify(migrated?.version)}`,
+  )
+  report(migrated?.version === 2, 'the settings store is on version 2', `version=${migrated?.version}`)
+  report(
+    migrated?.state?.settings?.reducedMotion === true,
+    'migration preserves unrelated settings',
+    `reducedMotion=${JSON.stringify(migrated?.state?.settings?.reducedMotion)}`,
+  )
+  report(
+    (await evaluate('getComputedStyle(document.body).backgroundColor')) === LIGHT_BG,
+    'the migrated theme paints the light ground',
+    await evaluate('getComputedStyle(document.body).backgroundColor'),
+  )
+
+  const toggleLabel = () => evaluate("document.querySelector('button[aria-label*=Theme]').getAttribute('aria-label')")
+  report(
+    /^Theme: (light|dark)\./.test((await toggleLabel()) ?? ''),
+    'the toggle reports a real theme',
+    await toggleLabel(),
+  )
+  report(
+    !/\bsystem\b/i.test((await evaluate('document.body.textContent ?? ""')) ?? ''),
+    'no system theme is offered anywhere',
+  )
+
+  // Both directions, and the choice has to survive a reload.
+  await evaluate("document.querySelector('button[aria-label*=Theme]').click()")
+  await sleep(800)
+  report(
+    (await evaluate('getComputedStyle(document.body).backgroundColor')) === DARK_BG,
+    'the toggle switches to the dark ground',
+    await evaluate('getComputedStyle(document.body).backgroundColor'),
+  )
+  report(
+    (await evaluate("document.querySelector('meta[name=theme-color]').content")) === '#171b20',
+    'the browser chrome follows the dark theme',
+    await evaluate("document.querySelector('meta[name=theme-color]').content"),
+  )
+
+  await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+  await sleep(2000)
+  report(
+    (await evaluate('getComputedStyle(document.body).backgroundColor')) === DARK_BG,
+    'the chosen theme survives a reload',
+    await evaluate('getComputedStyle(document.body).backgroundColor'),
+  )
+
+  await evaluate("document.querySelector('button[aria-label*=Theme]').click()")
+  await sleep(800)
+  report(
+    (await evaluate('getComputedStyle(document.body).backgroundColor')) === LIGHT_BG,
+    'the toggle switches back to the light ground',
+    await evaluate('getComputedStyle(document.body).backgroundColor'),
+  )
+
+  // The dashboard control must expose the same two options as the header.
+  await send('Page.navigate', { url: `${BASE}/dashboard` }, sessionId)
+  await sleep(2000)
+  const options = await evaluate(`JSON.stringify([...document.querySelectorAll('button')]
+    .map(b => b.textContent.trim())
+    .filter(t => ['light', 'dark', 'system'].includes(t)))`)
+  report(options === '["light","dark"]', 'the settings panel offers light and dark', options)
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Question-type page metadata
+//
+// Two PTE types share a display name across sections (Multiple Choice Single
+// Answer and Multiple Answer each appear in Reading and Listening) and there are
+// three Fill in the Blanks variants. If titles were built from the label alone
+// those pages would compete with each other. This asserts the disambiguation
+// actually holds, rather than trusting the template.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    return r.exceptionDetails ? '' : r.result.value
+  }
+
+  const titles = new Set()
+  const descriptions = new Set()
+  const canonicals = new Set()
+  let noH1 = 0
+  let noCanonical = 0
+  let noCrumb = 0
+  let noVisibleFaq = 0
+  let thinnest = Infinity
+
+  for (const slug of QUESTION_TYPE_SLUGS) {
+    await send('Page.navigate', { url: `${BASE}/question-types/${slug}/` }, sessionId)
+    await sleep(1100)
+    titles.add((await evaluate('document.title')) ?? '')
+    descriptions.add((await evaluate("document.querySelector('meta[name=description]')?.content ?? ''")) ?? '')
+    canonicals.add((await evaluate("document.querySelector('link[rel=canonical]')?.href ?? ''")) ?? '')
+    if ((await evaluate("document.querySelectorAll('h1').length")) !== 1) noH1++
+    if (!(await evaluate("!!document.querySelector('link[rel=canonical]')"))) noCanonical++
+    if (!(await evaluate("!!document.querySelector('nav[aria-label=Breadcrumb] ol')"))) noCrumb++
+    // Must return a primitive: handing back a DOM node trips CDP's
+    // "object reference chain is too long" limit.
+    if (!(await evaluate("!!Array.from(document.querySelectorAll('main h2')).find(h => /questions, answered/i.test(h.textContent))"))) {
+      noVisibleFaq++
+    }
+    const words = Number(
+      (await evaluate("(document.querySelector('main')?.innerText ?? '').trim().split(/\\s+/).length")) ?? 0,
+    )
+    if (words > 0 && words < thinnest) thinnest = words
+  }
+
+  report(titles.size === QUESTION_TYPE_SLUGS.length, `all ${QUESTION_TYPE_SLUGS.length} question-type titles are unique`, `${titles.size} unique`)
+  report(descriptions.size === QUESTION_TYPE_SLUGS.length, `all ${QUESTION_TYPE_SLUGS.length} question-type descriptions are unique`, `${descriptions.size} unique`)
+  report(canonicals.size === QUESTION_TYPE_SLUGS.length, `all ${QUESTION_TYPE_SLUGS.length} question-type canonicals are unique`, `${canonicals.size} unique`)
+  report(noH1 === 0, 'every question-type page has exactly one h1', `${noH1} bad`)
+  report(noCanonical === 0, 'every question-type page has a canonical', `${noCanonical} missing`)
+  report(noCrumb === 0, 'every question-type page shows breadcrumbs', `${noCrumb} missing`)
+  report(noVisibleFaq === 0, 'every FAQPage block is also visible on its page', `${noVisibleFaq} hidden`)
+  report(thinnest >= 250, 'no question-type page is thin', `thinnest=${thinnest} words`)
+
+  // The shared labels must not collide once rendered.
+  await send('Page.navigate', { url: `${BASE}/question-types/multiple-choice-single/` }, sessionId)
+  await sleep(1100)
+  const readingTitle = await evaluate('document.title')
+  await send('Page.navigate', { url: `${BASE}/question-types/listening-multiple-choice-single/` }, sessionId)
+  await sleep(1100)
+  const listeningTitle = await evaluate('document.title')
+  report(
+    Boolean(readingTitle) && readingTitle !== listeningTitle,
+    'the two Multiple Choice (Single Answer) pages are distinguishable',
+    `${readingTitle} / ${listeningTitle}`,
+  )
+
+  await send('Page.navigate', { url: `${BASE}/question-types/no-such-type/` }, sessionId)
+  await sleep(1200)
+  report(
+    await evaluate("/not found|no such page|404/i.test(document.querySelector('main')?.innerText ?? '')"),
+    'an unknown question-type slug renders the 404 page',
+  )
+  report(
+    await evaluate("document.querySelector('meta[name=robots]')?.content?.includes('noindex') ?? false"),
+    'an unknown question-type slug is noindex',
+  )
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Tagline reveal
+//
+// The B11 section animates per word via IntersectionObserver. Two things about
+// it can break silently, so both are asserted: the prerendered HTML must carry
+// the words already resolved (otherwise crawlers and no-JS visitors get 25%
+// opacity text), and the animation must still arm and resolve in the browser.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    return r.exceptionDetails ? '' : r.result.value
+  }
+
+  await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+  await sleep(2500)
+
+  const total = await evaluate("document.querySelectorAll('[data-reveal-word]').length")
+  report(Number(total) > 0, 'the tagline reveal renders its words', `words=${total}`)
+
+  const mutedOnLoad = await evaluate("document.querySelectorAll('[data-reveal-word][data-active=\"false\"]').length")
+  report(mutedOnLoad > 0, 'the tagline is armed off screen on load', `${mutedOnLoad} muted`)
+
+  await evaluate("document.querySelector('[data-reveal-word]')?.scrollIntoView({ block: 'center' }); 1")
+  await sleep(2600)
+  const active = await evaluate("document.querySelectorAll('[data-reveal-word][data-active=\"true\"]').length")
+  report(Number(active) === Number(total), 'every tagline word resolves once scrolled into view', `${active}/${total}`)
+
+  // Tailwind v4's scale-* sets the standalone `scale` property, not `transform`.
+  const scale = await evaluate("getComputedStyle(document.querySelector('[data-reveal-rule]')).scale")
+  report(/^1( |$)/.test(scale ?? ''), 'the rule draws across as the sentence resolves', `scale=${scale}`)
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Text wrapping
+//
+// B1 asks for balanced headings and pretty body copy. The failure mode here is
+// subtle: putting `text-balance` outside the className string compiles fine and
+// renders as a boolean attribute, so nothing fails — the headings simply stay
+// unbalanced. This checks the computed value rather than the markup.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    return r.exceptionDetails ? '' : r.result.value
+  }
+
+  for (const route of ['/about/', '/format/', '/question-types/read-aloud/']) {
+    await send('Page.navigate', { url: `${BASE}${route}` }, sessionId)
+    await sleep(1800)
+
+    const result = await evaluate(`
+      (() => {
+        const style = (el) => getComputedStyle(el).textWrapStyle
+        const heads = [...document.querySelectorAll('main h1, main h2')]
+        return JSON.stringify({
+          total: heads.length,
+          unbalanced: heads.filter(h => style(h) !== 'balance')
+            .map(h => h.textContent.trim().slice(0, 30)),
+          stray: document.querySelectorAll('[text-balance]').length,
+        })
+      })()
+    `)
+
+    const { total, unbalanced, stray } = JSON.parse(result ?? '{}')
+    report(unbalanced.length === 0, `${route} headings use text-wrap: balance`, `${total - unbalanced.length}/${total}` + (unbalanced.length ? ` — ${unbalanced.join(', ')}` : ''))
+    report(stray === 0, `${route} has no stray text-balance attribute`, `${stray} found`)
+  }
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Page structure and motion
+//
+// Two regressions that are invisible in markup: the homepage losing its
+// three-step "how a mock runs" section (skill A2 puts it between the benefits
+// and the FAQ), and the motion curve silently reverting to the framework
+// default, which would leave the tagline reveal moving on a different curve to
+// every hover in the app.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    return r.exceptionDetails ? '' : r.result.value
+  }
+
+  await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+  await sleep(2200)
+
+  const steps = await evaluate(
+    "[...document.querySelectorAll('main ol > li')].filter(li => /^Step \\d/.test(li.textContent.trim())).length",
+  )
+  report(Number(steps) === 3, 'the homepage explains how a mock runs in three steps', `${steps} steps`)
+
+  const order = await evaluate(`
+    JSON.stringify([...document.querySelectorAll('main h2')].map(h => h.textContent.trim().slice(0, 24)))
+  `)
+  const headings = JSON.parse(order ?? '[]')
+  const howIdx = headings.findIndex((h) => /how a mock runs/i.test(h))
+  const faqIdx = headings.findIndex((h) => /frequently asked/i.test(h))
+  report(
+    howIdx >= 0 && faqIdx > howIdx,
+    'the three steps sit before the FAQ, per the page structure',
+    `how=${howIdx} faq=${faqIdx}`,
+  )
+
+  const curve = await evaluate(
+    "getComputedStyle(document.querySelector('nav a')).transitionTimingFunction",
+  )
+  report(
+    (curve ?? '').includes('0.32'),
+    'transitions share one motion curve rather than the framework default',
+    curve,
+  )
+
+  // B9 asks for physical press feedback. The geometry matters as much as the
+  // effect: a scale would shrink a 24px tap target, so the press is a
+  // translation and the measured box must be identical before and after.
+  const box = JSON.parse(
+    (await evaluate(`
+      (() => {
+        const b = document.querySelector('main a.btn-primary, a.btn-primary')
+        const r = b.getBoundingClientRect()
+        return JSON.stringify({
+          x: Math.round(r.left + r.width / 2),
+          y: Math.round(r.top + r.height / 2),
+          top: Math.round(r.top),
+          height: Math.round(r.height),
+        })
+      })()
+    `)) ?? '{}',
+  )
+  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }, sessionId)
+  await sleep(220)
+  const pressed = JSON.parse(
+    (await evaluate(`
+      (() => {
+        const b = document.querySelector('main a.btn-primary, a.btn-primary')
+        const r = b.getBoundingClientRect()
+        return JSON.stringify({
+          top: Math.round(r.top),
+          height: Math.round(r.height),
+          translate: getComputedStyle(b).translate,
+        })
+      })()
+    `)) ?? '{}',
+  )
+  report(pressed.translate === '0px 1px', 'buttons give physical press feedback', `translate=${pressed.translate}`)
+  report(
+    pressed.height === box.height && pressed.top === box.top + 1,
+    'the press does not resize the tap target',
+    `height ${box.height}->${pressed.height}, top ${box.top}->${pressed.top}`,
+  )
+  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }, sessionId)
+  await sleep(220)
+  const released = await evaluate("getComputedStyle(document.querySelector('main a.btn-primary, a.btn-primary')).translate")
+  report(released === 'none', 'the button returns on release', `translate=${released}`)
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+ws.close()
+chrome.kill()
+// Chrome keeps writing to its profile for a moment after the kill signal.
+await sleep(400)
+await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(() => {})
+
+console.log(`\n${failures === 0 ? 'ALL BROWSER CHECKS PASSED' : `${failures} BROWSER CHECK(S) FAILED`}\n`)
+process.exit(failures === 0 ? 0 : 1)

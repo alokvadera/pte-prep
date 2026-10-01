@@ -1,0 +1,275 @@
+const WORD_RE = /[A-Za-z][A-Za-z'’-]*/g
+
+export function words(text: string): string[] {
+  return text.match(WORD_RE) ?? []
+}
+
+export function wordCount(text: string): number {
+  return words(text).length
+}
+
+export function sentences(text: string): string[] {
+  return text
+    .split(/(?<=[.!?])\s+(?=[A-Z"'“(])/)
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+}
+
+export function normalizeWord(word: string): string {
+  return word.toLowerCase().replace(/[^a-z]/g, '')
+}
+
+const STOPWORDS = new Set(
+  [
+    'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'as', 'at',
+    'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can', 'cannot',
+    'could', 'did', 'do', 'does', 'doing', 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had',
+    'has', 'have', 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'i',
+    'if', 'in', 'into', 'is', 'it', 'its', 'itself', 'just', 'me', 'more', 'most', 'my', 'myself', 'no',
+    'nor', 'not', 'now', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'ought', 'our', 'ours',
+    'ourselves', 'out', 'over', 'own', 'rather', 'same', 'she', 'should', 'so', 'some', 'such', 'than',
+    'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they', 'this',
+    'those', 'through', 'to', 'too', 'under', 'until', 'up', 'very', 'was', 'we', 'were', 'what', 'when',
+    'where', 'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'would', 'you', 'your', 'yours',
+    'yourself', 'yourselves', 'also', 'however', 'therefore', 'thus', 'may', 'might', 'must', 'shall',
+    'within', 'upon', 'although', 'though', 'whereas', 'whether', 'often', 'many', 'much', 'one', 'two',
+  ].map(normalizeWord),
+)
+
+export function contentWords(text: string): string[] {
+  return words(text).map(normalizeWord).filter(isContentWord)
+}
+
+/** A word counts toward content coverage if it is not a stopword and long enough. */
+export function isContentWord(word: string): boolean {
+  const w = normalizeWord(word)
+  return w.length > 2 && !STOPWORDS.has(w)
+}
+
+/** Distinct content words from a list of raw terms, punctuation stripped. */
+export function contentTermSet(terms: readonly string[]): Set<string> {
+  return new Set(terms.filter(isContentWord).map(normalizeWord))
+}
+
+/**
+ * Recall-weighted match between a candidate and a list of key terms.
+ *
+ * Plain F1 divides by the candidate's own length, so a candidate who develops
+ * their answer at length is punished for it. PTE content scoring is about how
+ * much of the source was conveyed, not how tersely, so the length term is
+ * capped: short answers are penalised, long ones are not.
+ */
+export function softF1(candidate: string, referenceTerms: readonly string[]): number {
+  const ref = contentTermSet(referenceTerms)
+  if (ref.size === 0) return 0
+  const cand = new Set(contentWords(candidate))
+  if (cand.size === 0) return 0
+
+  let hits = 0
+  for (const w of ref) if (cand.has(w)) hits += 1
+
+  const recall = hits / ref.size
+  const lengthFit = Math.min(1, cand.size / ref.size)
+  return recall + lengthFit === 0 ? 0 : (2 * recall * lengthFit) / (recall + lengthFit)
+}
+/** Sørensen–Dice bigram similarity, 0..1. */
+export function diceCoefficient(a: string, b: string): number {
+  const normA = a.toLowerCase().replace(/\s+/g, ' ').trim()
+  const normB = b.toLowerCase().replace(/\s+/g, ' ').trim()
+  if (!normA.length || !normB.length) return 0
+  if (normA === normB) return 1
+
+  const bigrams = new Map<string, number>()
+  for (let i = 0; i < normA.length - 1; i++) {
+    const g = normA.slice(i, i + 2)
+    bigrams.set(g, (bigrams.get(g) ?? 0) + 1)
+  }
+
+  let matches = 0
+  for (let i = 0; i < normB.length - 1; i++) {
+    const g = normB.slice(i, i + 2)
+    const count = bigrams.get(g) ?? 0
+    if (count > 0) {
+      bigrams.set(g, count - 1)
+      matches += 1
+    }
+  }
+
+  return (2 * matches) / (normA.length - 1 + (normB.length - 1))
+}
+
+/** Token-level F1 of content words — used to score spoken/written summaries.
+ *  Both sides are filtered identically, so a candidate that reproduces the
+ *  reference exactly scores 1. */
+export function contentF1(candidate: string, referenceTerms: readonly string[]): number {
+  if (referenceTerms.length === 0) return 0
+  const cand = new Set(contentWords(candidate))
+  if (cand.size === 0) return 0
+  const ref = contentTermSet(referenceTerms)
+  if (ref.size === 0) return 0
+
+  let hits = 0
+  for (const w of ref) if (cand.has(w)) hits += 1
+
+  const precision = hits / cand.size
+  const recall = hits / ref.size
+  return precision + recall === 0 ? 0 : (2 * precision * recall) / (precision + recall)
+}
+
+/** Proportion of reference key terms present in the candidate. */
+export function keyTermCoverage(candidate: string, referenceTerms: readonly string[]): number {
+  if (referenceTerms.length === 0) return 0
+  const ref = contentTermSet(referenceTerms)
+  if (ref.size === 0) return 0
+  const cand = new Set(contentWords(candidate))
+  let hits = 0
+  for (const t of ref) if (cand.has(t)) hits += 1
+  return hits / ref.size
+}
+
+const CONTRACTIONS: Array<[RegExp, string]> = [
+  [/\bit's\b/gi, 'it is'],
+  [/\bthat's\b/gi, 'that is'],
+  [/\bthere's\b/gi, 'there is'],
+  [/\bhe's\b/gi, 'he is'],
+  [/\bshe's\b/gi, 'she is'],
+  [/\bwhat's\b/gi, 'what is'],
+  [/\bdon't\b/gi, 'do not'],
+  [/\bdoesn't\b/gi, 'does not'],
+  [/\bdidn't\b/gi, 'did not'],
+  [/\bcan't\b/gi, 'can not'],
+  [/\bwon't\b/gi, 'will not'],
+  [/\bisn't\b/gi, 'is not'],
+  [/\baren't\b/gi, 'are not'],
+  [/\bwasn't\b/gi, 'was not'],
+  [/\bweren't\b/gi, 'were not'],
+  [/\bhaven't\b/gi, 'have not'],
+  [/\bhasn't\b/gi, 'has not'],
+  [/\bcouldn't\b/gi, 'could not'],
+  [/\bshouldn't\b/gi, 'should not'],
+  [/\bwouldn't\b/gi, 'would not'],
+  [/\bi'm\b/gi, 'i am'],
+  [/\bwe're\b/gi, 'we are'],
+  [/\bthey're\b/gi, 'they are'],
+  [/\bthey've\b/gi, 'they have'],
+  [/\bwe've\b/gi, 'we have'],
+  [/\bi've\b/gi, 'i have'],
+  [/\bit'll\b/gi, 'it will'],
+]
+
+/** Levenshtein distance with a cheap length guard. */
+export function levenshtein(a: string, b: string): number {
+  if (a === b) return 0
+  const m = a.length
+  const n = b.length
+  if (m === 0) return n
+  if (n === 0) return m
+  if (Math.abs(m - n) / Math.max(m, n) > 0.6) return Math.max(m, n)
+
+  let prev = new Array<number>(n + 1)
+  let curr = new Array<number>(n + 1)
+  for (let j = 0; j <= n; j++) prev[j] = j
+
+  for (let i = 1; i <= m; i++) {
+    curr[0] = i
+    const ca = a.charCodeAt(i - 1)
+    for (let j = 1; j <= n; j++) {
+      const cost = ca === b.charCodeAt(j - 1) ? 0 : 1
+      curr[j] = Math.min((prev[j] as number) + 1, (curr[j - 1] as number) + 1, (prev[j - 1] as number) + cost)
+    }
+    const swap = prev
+    prev = curr
+    curr = swap
+  }
+  return prev[n] as number
+}
+
+export function wordErrorRate(candidate: string, reference: string): number {
+  const expand = (t: string) => CONTRACTIONS.reduce((acc, [re, to]) => acc.replace(re, to), t)
+  const norm = (t: string) =>
+    words(expand(t))
+      .map(normalizeWord)
+      .join(' ')
+  const a = norm(candidate)
+  const b = norm(reference)
+  if (!b) return 1
+  return Math.min(1, levenshtein(a, b) / Math.max(1, b.split(' ').length))
+}
+
+const CONNECTIVE_WORDS = new Set(
+  [
+    'however', 'therefore', 'moreover', 'furthermore', 'consequently', 'nevertheless', 'nonetheless',
+    'although', 'though', 'whereas', 'since', 'additionally', 'conversely', 'hence', 'thus', 'indeed',
+    'meanwhile', 'firstly', 'secondly', 'finally', 'overall', 'notably', 'similarly', 'specifically',
+    'first', 'second', 'third', 'apart', 'besides', 'likewise', 'otherwise', 'regardless', 'instead',
+  ].map(normalizeWord),
+)
+
+const CONNECTIVE_PHRASES = [
+  'as a result', 'for instance', 'for example', 'in contrast', 'on the other hand', 'in addition',
+  'in conclusion', 'to conclude', 'in summary', 'by contrast', 'in particular', 'in other words',
+  'that said', 'by comparison', 'on the contrary', 'first of all', 'above all',
+]
+
+/**
+ * Count linking words and phrases.
+ *
+ * Deliberately does not use `contentWords`, because the most useful connectives
+ * ("however", "although", "therefore") are on the stopword list and would
+ * otherwise be filtered out before they could be counted.
+ */
+export function connectiveCount(text: string): number {
+  const singles = words(text)
+    .map(normalizeWord)
+    .filter((w) => CONNECTIVE_WORDS.has(w)).length
+  // Punctuation is flattened so that "In conclusion, the…" still matches.
+  const flattened = ` ${text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()} `
+  const phrases = CONNECTIVE_PHRASES.filter((p) => flattened.includes(` ${p} `)).length
+  return singles + phrases
+}
+
+/** Longest run of consecutive simple present/past finite verbs — rough repetition penalty. */
+export function repetitionRatio(text: string): number {
+  const list = contentWords(text)
+  if (list.length === 0) return 0
+  const freq = new Map<string, number>()
+  for (const w of list) freq.set(w, (freq.get(w) ?? 0) + 1)
+  let repeated = 0
+  for (const count of freq.values()) if (count > 1) repeated += count
+  return repeated / list.length
+}
+
+/** Crude spelling-error proxy: tokens that look like misspellings of a known key term. */
+export function nearMissCount(candidate: string, referenceTerms: readonly string[]): number {
+  const cand = contentWords(candidate)
+  const refs = referenceTerms.map(normalizeWord)
+  let nearMiss = 0
+  for (const w of cand) {
+    if (refs.includes(w)) continue
+    const close = refs.some((r) => {
+      const d = levenshtein(w, r)
+      return d > 0 && d / Math.max(w.length, r.length) <= 0.34
+    })
+    if (close) nearMiss += 1
+  }
+  return nearMiss
+}
+
+export function averageSentenceLength(text: string): number {
+  const list = sentences(text)
+  if (list.length === 0) return 0
+  return wordCount(text) / list.length
+}
+
+export function sentenceLengthVariety(text: string): number {
+  const lengths = sentences(text).map((s) => wordCount(s))
+  if (lengths.length < 2) return 0
+  const mean = lengths.reduce((a, b) => a + b, 0) / lengths.length
+  if (mean === 0) return 0
+  const variance = lengths.reduce((acc, l) => acc + (l - mean) ** 2, 0) / lengths.length
+  return Math.sqrt(variance) / mean
+}

@@ -1,0 +1,258 @@
+import { Link } from 'react-router-dom'
+import { ADMISSION_TARGETS, rawToPteScale, toCefr } from '../domain/scoring'
+import { Seo } from '../seo/Seo'
+import { CtaBand, PageHeading } from '../components/ui/primitives'
+
+const FAQ = [
+  {
+    question: 'What is a good PTE score?',
+    answer:
+      'For most undergraduate UK university applications, 50 to 60 is the usual requirement, with many courses asking for 59 to 63. Taught postgraduate and professional programmes commonly ask for 60 to 70. Competitive subjects such as medicine and law frequently require 70 or above.',
+  },
+  {
+    question: 'What is the difference between the PTE 10-90 and 60-120 scales?',
+    answer:
+      'They are the same score expressed twice. The 10 to 90 scale is the one Pearson reports; the 60 to 120 scale is simply the same number with 50 added. A score of 63 out of 90 is 113 out of 120.',
+  },
+  {
+    question: 'Does PTE Academic have a passing score?',
+    answer:
+      'No. There is no pass mark. Each institution sets its own requirement, and for UK student visas the relevant standard is set separately by immigration policy rather than by the test.',
+  },
+  {
+    question: 'How is the overall PTE score calculated?',
+    answer:
+      'Every item is scored and the result is combined across the four communicative skills — Speaking, Writing, Reading and Listening — into a scaled score from 10 to 90 in half-point increments. Reading and Listening are scored exactly. Speaking and Writing are scored on content, form, oral fluency, pronunciation and range.',
+  },
+  {
+    question: 'How long is a PTE score valid?',
+    answer:
+      'Pearson test results are valid for two years from the test date. Most institutions require results that are no more than two years old at the point of application.',
+  },
+  {
+    question: 'Can I retake the PTE Academic?',
+    answer:
+      'Yes, but you can only book one test at a time. If you sit the test and do not achieve the score you need, you must wait for your results before booking another attempt.',
+  },
+]
+
+const SCALE_ROWS: Array<{ score: number; cefr: string; meaning: string; use: string }> = [
+  { score: 90, cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
+  { score: 85, cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
+  { score: 84, cefr: 'C1', meaning: 'Advanced', use: 'Competitive courses' },
+  { score: 76, cefr: 'C1', meaning: 'Advanced', use: 'Strong applications, competitive courses' },
+  { score: 75, cefr: 'B2', meaning: 'Upper intermediate', use: 'Top of the B2 band' },
+  { score: 69, cefr: 'B2', meaning: 'Upper intermediate', use: 'Postgraduate and professional programmes' },
+  { score: 63, cefr: 'B2', meaning: 'Upper intermediate', use: 'A common minimum requirement' },
+  { score: 59, cefr: 'B2', meaning: 'Upper intermediate', use: 'Bottom of the B2 band' },
+  { score: 58, cefr: 'B1', meaning: 'Intermediate', use: 'Many UK undergraduate courses' },
+  { score: 50, cefr: 'B1', meaning: 'Intermediate', use: 'The usual UK undergraduate floor' },
+  { score: 43, cefr: 'B1', meaning: 'Intermediate', use: 'Bottom of the B1 band' },
+  { score: 42, cefr: 'A2', meaning: 'Elementary', use: 'Pre-sessional English programmes' },
+  { score: 30, cefr: 'A2', meaning: 'Elementary', use: 'Below most university requirements' },
+  { score: 29, cefr: 'A1', meaning: 'Basic', use: 'Well below the test threshold' },
+]
+
+export default function ScoringGuide() {
+  return (
+    <>
+      <Seo />
+
+      <div className="page-shell-content">
+        <nav aria-label="Breadcrumb" className="text-ink-500 dark:text-ink-400 mb-6 text-sm">
+          <Link to="/" className="hover:text-brand-500 dark:hover:text-brand-300">
+            Home
+          </Link>
+          <span className="mx-2" aria-hidden="true">
+            /
+          </span>
+          <span>PTE scoring</span>
+        </nav>
+
+        <PageHeading
+          eyebrow="PTE scoring"
+          title="PTE score guide: what your number means"
+          description="The PTE Academic is reported on a scaled score from 10 to 90. See how it maps to CEFR bands, common university requirements, and the estimates shown here."
+        />
+
+        <h2 className="section-title mt-16">The two PTE scales</h2>
+        <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
+          They are the same number written two ways. Pearson reports 10 to 90; many universities quote 60 to 120. To
+          convert, add 50.
+        </p>
+        <div className="card mt-5 grid gap-4 sm:grid-cols-3">
+          {[
+            ['10 – 90', 'Pearson’s reported scale', 'Half-point increments'],
+            ['60 – 120', 'The same score, shifted', 'What universities publish'],
+            ['+ 50', 'The conversion', 'Both directions'],
+          ].map(([a, b, c]) => (
+            <div key={a}>
+              <p className="text-ink-900 dark:text-white text-2xl font-bold tabular-nums">{a}</p>
+              <p className="text-ink-600 dark:text-ink-300 mt-1 text-sm font-medium">{b}</p>
+              <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{c}</p>
+            </div>
+          ))}
+        </div>
+
+        <h2 className="section-title mt-16 scroll-mt-24">Score and CEFR band</h2>
+        <p className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
+          These are Pearson's published bands, from the Institution Score Guide and
+          pearsonpte.com: 85–90 is C2, 76–84 is C1, 59–75 is B2, 43–58 is B1, 30–42 is A2, and 10–29 is A1 or below.
+          Pearson publishes bands for the <em>overall</em> score only — there are no public per-skill bands.
+        </p>
+        <div className="card mt-5 overflow-x-auto p-0">
+          <table className="w-full min-w-lg border-collapse text-left text-sm">
+            <caption className="sr-only">PTE Academic score bands and their CEFR equivalents, from the published 10 to 90 scale</caption>
+            <thead>
+              <tr className="border-ink-200 dark:border-white/10 border-b">
+                {['Score (10–90)', 'Score (60–120)', 'CEFR', 'Level', 'Typically sufficient for'].map((h) => (
+                  <th key={h} scope="col" className="text-ink-500 dark:text-ink-400 px-4 py-3 text-xs font-bold tracking-wider uppercase">
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {SCALE_ROWS.map((r) => (
+                <tr key={r.score} className="border-ink-100 dark:border-white/6 border-b">
+                  <td className="text-ink-900 dark:text-white px-4 py-3 font-bold tabular-nums">{r.score}</td>
+                  <td className="text-ink-700 dark:text-ink-200 px-4 py-3 tabular-nums">{r.score + 50}</td>
+                  <td className="px-4 py-3">
+                    <span className="pill bg-brand-500/12 text-brand-700 dark:text-brand-300">{r.cefr}</span>
+                  </td>
+                  <td className="text-ink-600 dark:text-ink-300 px-4 py-3">{r.meaning}</td>
+                  <td className="text-ink-500 dark:text-ink-400 px-4 py-3">{r.use}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h2 className="section-title mt-16">What universities require</h2>
+        <ul className="mt-5 space-y-3">
+          {ADMISSION_TARGETS.map((t) => (
+            <li key={t.label} className="card">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{t.label}</h3>
+                <span className="text-ink-500 dark:text-ink-400 text-xs tabular-nums">target {t.range}</span>
+              </div>
+              <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{t.note}</p>
+            </li>
+          ))}
+        </ul>
+        <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">
+          Requirements change. Always check the specific course page rather than relying on a general threshold.
+        </p>
+
+        <h2 className="section-title mt-16">How this site estimates your score</h2>
+        <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
+          Being precise about this matters more than the number itself, so here is exactly what happens when you press
+          finish.
+        </p>
+
+        <ol className="mt-6 space-y-4">
+          {[
+            {
+              title: 'Every published rule is implemented exactly',
+              body: 'All-or-nothing items, one point per blank, one point per word spelled correctly, and the one-point deduction on the three types that use negative marking. Re-order Paragraphs is scored per correctly ordered adjacent pair, so a run of three boxes earns two points and the item maximum is one less than the number of boxes. The CEFR bands are Pearson\u2019s.',
+            },
+            {
+              title: 'Speaking and writing use a transparent rubric',
+              body: 'Pearson scores constructed responses with a proprietary model that cannot be reproduced, so this site reads the published trait scales and estimates the same four constructs from signals a browser can measure: content coverage, form, structure and range, plus measured pace, pause frequency, pitch and energy variation for speaking.',
+            },
+            {
+              title: 'The zero rules are respected',
+              body: 'The score guide states that when Content or Form scores zero, no points are awarded for the item at all. So an off-topic essay, an essay under 120 words, a summary that is not a single sentence, and a response with no content from the source all score zero however fluently they were delivered. That gate is implemented, not approximated.',
+            },
+            {
+              title: 'Eight types feed two skills at once',
+              body: 'Repeat Sentence, Re-tell Lecture and Summarize Group Discussion each count towards both Listening and Speaking. Summarize Written Text counts towards Reading and Writing; Summarize Spoken Text and Write from Dictation towards Listening and Writing; Highlight Correct Summary and Highlight Incorrect Words towards Listening and Reading. A single-skill model would misstate all four skill scores.',
+            },
+          ].map((step, i) => (
+            <li key={step.title} className="card flex gap-4">
+              <span className="bg-brand-500 text-white grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold">
+                {i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{step.title}</h3>
+                <p className="text-ink-500 dark:text-ink-300 mt-1.5 text-sm leading-relaxed">{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div className="card mt-8 overflow-hidden">
+          <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">The conversion curve, illustrated</h3>
+          <div className="mt-4 -mx-5 overflow-x-auto px-5">
+            <table className="w-full min-w-md border-collapse text-left text-sm">
+              <caption className="sr-only">How raw accuracy maps to the PTE 10 to 90 scale</caption>
+              <thead>
+                <tr className="border-ink-200 dark:border-white/10 border-b">
+                  {['Points earned', 'Score (10–90)', 'Score (60–120)', 'CEFR'].map((h) => (
+                    <th key={h} scope="col" className="text-ink-500 dark:text-ink-400 px-3 py-2 text-xs font-bold tracking-wider uppercase">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[0, 0.25, 0.5, 0.7, 0.85, 1].map((f) => {
+                  const s = rawToPteScale(f)
+                  return (
+                    <tr key={f} className="border-ink-100 dark:border-white/6 border-b">
+                      <td className="text-ink-700 dark:text-ink-200 px-3 py-2 tabular-nums">{Math.round(f * 100)}%</td>
+                      <td className="text-ink-900 dark:text-white px-3 py-2 font-bold tabular-nums">{s}</td>
+                      <td className="text-ink-700 dark:text-ink-200 px-3 py-2 tabular-nums">{s + 50}</td>
+                      <td className="text-ink-500 dark:text-ink-400 px-3 py-2">{toCefr(s)}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <h2 className="section-title mt-16">How to improve your score fastest</h2>
+        <ul className="mt-5 space-y-3">
+          {[
+            'Use the accuracy-by-question-type breakdown on your results page. Most candidates lose more points on Fill in the Blanks and Re-order Paragraphs than on the speaking tasks they worry about.',
+            'Fix Re-order Paragraphs first. It has no partial credit, so it is the cheapest place to pick up whole marks by learning to follow pronouns and time markers.',
+            'Practise Repeat Sentence daily. It is the largest single block of items in Part 1 and improves listening, speaking and pronunciation at the same time.',
+            'Write the essay under time pressure. Structure alone protects the coherence score, and it is the part candidates most often lose by planning too long.',
+            'Re-sit a full mock every four to seven days. The format is the thing being trained, not just the language.',
+          ].map((tip) => (
+            <li key={tip} className="text-ink-600 dark:text-ink-200 flex gap-3 leading-relaxed">
+              <span className="bg-mint-500 mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
+              {tip}
+            </li>
+          ))}
+        </ul>
+
+        <h2 className="section-title mt-16">Frequently asked questions</h2>
+        <div className="mt-6 space-y-3">
+          {FAQ.map((f) => (
+            <details key={f.question} className="card group">
+              <summary className="text-ink-900 dark:text-white flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+                {f.question}
+                <span className="text-ink-500 group-open:rotate-45 grid size-7 shrink-0 place-items-center rounded-md bg-ink-50 dark:bg-white/8 text-lg leading-none" aria-hidden="true">
+                  +
+                </span>
+              </summary>
+              <p className="text-ink-500 dark:text-ink-300 mt-3 border-t pt-3 text-sm leading-relaxed">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+
+        <CtaBand
+          title="Get a scored mock"
+          description="See where your current score actually sits on this scale."
+          actions={
+            <Link to="/mock" className="btn-primary px-6 py-3">
+              Start a free mock test
+            </Link>
+          }
+        />
+      </div>
+    </>
+  )
+}

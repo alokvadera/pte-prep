@@ -1,0 +1,10 @@
+# Plain-text headers file, read by Cloudflare Pages and Netlify.
+# (The previous JSON config object never applied anywhere.)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+/sw.js
+  Cache-Control: no-cache
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: SAMEORIGIN

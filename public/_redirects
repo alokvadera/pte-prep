@@ -1,0 +1,9 @@
+# Cloudflare Pages / Netlify SPA fallback.
+# /test/ and /result/ are real prerendered shells (see scripts/prerender.mjs),
+# so these rules only rewrite the bare paths to their documents.
+# Every other unknown path falls through to the 404 page.
+/test    /test/index.html     200
+/test/   /test/index.html     200
+/result  /result/index.html   200
+/result/ /result/index.html   200
+/*       /404.html            404

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!--
+      Body text is the usual Largest Contentful Paint element, so the one face it
+      needs is fetched ahead of the stylesheet rather than discovered inside it.
+      Only the regular weight is preloaded: preloading the whole family costs
+      more bandwidth than the swap delay it would save.
+    -->
+    <link
+      rel="preload"
+      href="/fonts/InstrumentSans-Regular.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    <meta name="theme-color" content="#f5f7fa" />
+    <title>PTE Prep — Free Unlimited PTE Academic Mock Tests</title>
+    <meta
+      name="description"
+      content="Free, unlimited PTE Academic mock tests. Full timed sections, all 22 question types, detailed score reports, CEFR band and question-level review. No signup, no server, runs in your browser."
+    />
+    <meta name="color-scheme" content="light" />
+    <meta property="og:title" content="PTE Prep — Free Unlimited PTE Academic Mock Tests" />
+    <meta
+      property="og:description"
+      content="Full-length timed PTE Academic mock tests with detailed score reports. No signup required."
+    />
+    <meta property="og:type" content="website" />
+    <!--
+      Self-hosted: no third-party request, and the app works offline.
+      Only the body face is preloaded. Body text is the usual Largest Contentful
+      Paint element, so fetching it ahead of the stylesheet is what moves LCP;
+      preloading the serif and mono faces as well cost more bandwidth than the
+      swap delay they saved. All three ship as WOFF2, which is roughly a third
+      of the size of the same face as TTF.
+    -->
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>PTE Prep needs JavaScript enabled to run practice tests in your browser.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

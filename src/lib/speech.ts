@@ -1,0 +1,270 @@
+import type { AudioScript, Speaker } from '../content/schema'
+
+// ---------------------------------------------------------------------------
+// Speech playback.
+//
+// The entire audio bank is the text in `src/content`. Rather than shipping MP3s
+// (which would mean hosting megabytes on a free tier), every recording is
+// synthesised in the browser by the platform speech engine. On macOS and
+// Windows that engine is entirely local, so practice works offline too.
+// ---------------------------------------------------------------------------
+
+export type VoiceHint = Speaker['voiceHint']
+
+export interface SpeakOptions {
+  /** Words per minute. PTE recordings run a little faster than conversation. */
+  rate?: number
+  pitch?: number
+  onTurnStart?: (turnIndex: number) => void
+  onEnd?: () => void
+  onError?: (message: string) => void
+}
+
+export interface SpeakController {
+  stop(): void
+  speaking: boolean
+}
+
+let cachedVoices: SpeechSynthesisVoice[] = []
+
+function synth(): SpeechSynthesis | null {
+  if (typeof window === 'undefined') return null
+  return window.speechSynthesis ?? null
+}
+
+/** Chrome and Safari populate `getVoices()` asynchronously. */
+export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
+  const s = synth()
+  if (!s) return Promise.resolve([])
+  const existing = s.getVoices()
+  if (existing.length > 0) {
+    cachedVoices = existing
+    return Promise.resolve(existing)
+  }
+  return new Promise((resolve) => {
+    let settled = false
+    const finish = () => {
+      if (settled) return
+      settled = true
+      cachedVoices = s.getVoices()
+      resolve(cachedVoices)
+    }
+    s.addEventListener('voiceschanged', finish, { once: true })
+    // Some engines never fire the event; resolve on a short timer.
+    setTimeout(finish, 600)
+  })
+}
+
+function scoreVoice(voice: SpeechSynthesisVoice, hint: VoiceHint): number {
+  const name = voice.name.toLowerCase()
+  const lang = voice.lang.toLowerCase()
+  if (!lang.startsWith('en')) return -1000
+
+  let score = 0
+  if (/(daniel|alex|fred|google uk english male|arthur|george)/.test(name)) score += 12
+  if (/(samantha|karen|serena|google uk english female|zira|female|samantha)/.test(name)) score += 10
+  if (/(natural|neural|premium|enhanced|online)/.test(name)) score += 8
+  if (voice.localService) score += 6
+  if (/(compact|eloquence|espeak)/.test(name)) score -= 8
+
+  switch (hint) {
+    case 'low':
+      if (/(daniel|alex|fred|george|david|daniel)/.test(name)) score += 14
+      break
+    case 'high':
+      if (/(samantha|karen|serena|zira|victoria|tessa|female)/.test(name)) score += 14
+      break
+    case 'mid-high':
+      score += 2
+      break
+    case 'mid':
+      score += 6
+      break
+  }
+  return score
+}
+
+/** Deterministically map a speaker to a distinct system voice. */
+function pickVoice(speaker: Speaker, index: number, used: Set<string>): SpeechSynthesisVoice | null {
+  const pool = cachedVoices
+    .map((v) => ({ v, s: scoreVoice(v, speaker.voiceHint) }))
+    .filter((x) => x.s > -1000)
+    .sort((a, b) => b.s - a.s)
+
+  const preferred = pool.find((x) => !used.has(x.v.name))
+  const fallback = pool[index % Math.max(1, pool.length)]
+  const chosen = preferred ?? fallback
+  if (!chosen) return null
+  used.add(chosen.v.name)
+  return chosen.v
+}
+
+function basePitch(hint: VoiceHint): number {
+  switch (hint) {
+    case 'low':
+      return 0.82
+    case 'mid':
+      return 0.95
+    case 'mid-high':
+      return 1.06
+    case 'high':
+      return 1.18
+  }
+}
+
+let keepAlive: number | null = null
+
+function stopKeepAlive(): void {
+  if (keepAlive !== null) {
+    if (typeof window !== 'undefined') window.clearInterval(keepAlive)
+    keepAlive = null
+  }
+}
+
+export function isSpeechSupported(): boolean {
+  return synth() !== null && typeof window !== 'undefined' && 'speechSynthesis' in window
+}
+
+export async function speakScript(script: AudioScript, options: SpeakOptions = {}): Promise<SpeakController> {
+  const s = synth()
+  const controller: SpeakController = { stop: () => {}, speaking: false }
+  if (!s) {
+    options.onError?.('Speech synthesis is not available in this browser.')
+    options.onEnd?.()
+    return controller
+  }
+
+  await loadVoices()
+  s.cancel()
+
+  const { rate = 1.0, onTurnStart, onEnd, onError } = options
+  const used = new Set<string>()
+  let cancelled = false
+
+  // Long utterances are silently truncated by some engines after ~15s unless
+  // the queue is nudged periodically.
+  keepAlive = typeof window !== 'undefined' ? window.setInterval(() => s.pause(), 0) : null
+  const keepAlivePulse = typeof window !== 'undefined' ? window.setInterval(() => s.resume(), 9000) : null
+
+  const cleanup = () => {
+    stopKeepAlive()
+    if (keepAlivePulse !== null) window.clearInterval(keepAlivePulse)
+    controller.speaking = false
+  }
+
+  controller.stop = () => {
+    cancelled = true
+    s.cancel()
+    cleanup()
+  }
+
+  const run = (index: number) => {
+    if (cancelled) return
+    if (index >= script.turns.length) {
+      cleanup()
+      onEnd?.()
+      return
+    }
+    const turn = script.turns[index]
+    if (!turn) {
+      run(index + 1)
+      return
+    }
+    const speaker = script.speakers.find((sp) => sp.id === turn.speaker) ?? script.speakers[0]
+    if (!speaker) {
+      run(index + 1)
+      return
+    }
+    onTurnStart?.(index)
+    const utter = new SpeechSynthesisUtterance(turn.text)
+    const voice = pickVoice(speaker, index, used)
+    if (voice) {
+      utter.voice = voice
+      utter.lang = voice.lang
+    }
+    utter.rate = rate
+    utter.pitch = basePitch(speaker.voiceHint)
+    utter.onend = () => {
+      // A short gap between speakers makes the exchange intelligible.
+      setTimeout(() => run(index + 1), 220)
+    }
+    utter.onerror = (event) => {
+      const err = String((event as SpeechSynthesisErrorEvent).error ?? '')
+      if (err === 'interrupted' || err === 'canceled') return
+      onError?.(err || 'Speech synthesis failed.')
+      cleanup()
+      onEnd?.()
+    }
+    s.speak(utter)
+  }
+
+  controller.speaking = true
+  run(0)
+  return controller
+}
+
+/** Read an arbitrary string (used for question prompts and the countdown). */
+export async function speakText(
+  text: string,
+  options: SpeakOptions & { voiceHint?: VoiceHint } = {},
+): Promise<SpeakController> {
+  const script: AudioScript = {
+    id: 'ad-hoc',
+    title: '',
+    kind: 'single-speaker',
+    topic: '',
+    speakers: [{ id: 's', name: 'Narrator', voiceHint: options.voiceHint ?? 'mid' }],
+    turns: [{ speaker: 's', text }],
+  }
+  return speakScript(script, options)
+}
+
+export function stopAllSpeech(): void {
+  const s = synth()
+  if (!s) return
+  stopKeepAlive()
+  s.cancel()
+}
+
+// ---------------------------------------------------------------------------
+// Short UI tones (countdown beeps) via the Web Audio API
+// ---------------------------------------------------------------------------
+
+let audioCtx: AudioContext | null = null
+
+function getAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null
+  const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+  if (!Ctor) return null
+  if (!audioCtx) audioCtx = new Ctor()
+  if (audioCtx.state === 'suspended') void audioCtx.resume()
+  return audioCtx
+}
+
+export function playTone(frequency = 660, durationMs = 120, gainPeak = 0.06): void {
+  const ctx = getAudioContext()
+  if (!ctx) return
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+  osc.type = 'sine'
+  osc.frequency.value = frequency
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime)
+  gain.gain.exponentialRampToValueAtTime(gainPeak, ctx.currentTime + 0.012)
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + durationMs / 1000)
+  osc.connect(gain).connect(ctx.destination)
+  osc.start()
+  osc.stop(ctx.currentTime + durationMs / 1000 + 0.02)
+}
+
+export function playCountdownBeep(remaining: number): void {
+  playTone(remaining <= 3 ? 880 : 620, remaining <= 3 ? 160 : 110)
+}
+
+export function playSuccessTone(): void {
+  playTone(700, 110, 0.05)
+  setTimeout(() => playTone(940, 140, 0.05), 100)
+}
+
+export function playErrorTone(): void {
+  playTone(300, 180, 0.05)
+}

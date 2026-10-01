@@ -1,0 +1,684 @@
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Bold.woff2') format('woff2');
+  font-weight: 600 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/InstrumentSerif-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('/fonts/InstrumentSerif-Italic.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('/fonts/IBMPlexMono-Bold.woff2') format('woff2');
+  font-weight: 600;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  /* White page ground, cool dividers and slate copy mirror the practice mock. */
+  --color-ink-50: #ffffff;
+  --color-ink-100: #f6f8fb;
+  --color-ink-200: #d8e0eb;
+  --color-ink-300: #bcc8d7;
+  --color-ink-400: #8998aa;
+  --color-ink-500: #606b7a;
+  --color-ink-600: #4b596c;
+  --color-ink-700: #354459;
+  --color-ink-800: #202d40;
+  --color-ink-850: #1c2633;
+  --color-ink-900: #171b20;
+  --color-ink-950: #10151c;
+
+  /* Blue marks navigation, selection, and the primary mock action. */
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-200: #bfdbfe;
+  --color-brand-300: #79b7ff;
+  --color-brand-400: #4f8de5;
+  --color-brand-500: #1756b0;
+  --color-brand-600: #164b9b;
+  --color-brand-700: #143f78;
+  --color-brand-800: #12335d;
+  --color-brand-900: #10294a;
+
+  /* --- Signals ------------------------------------------------------------
+     Three, each with exactly one meaning: held, partial, lost. Muted, printed
+     values rather than alert-box saturation. */
+  --color-mint-300: #7fc0a0;
+  --color-mint-400: #2f7a5b;
+  --color-mint-500: #2a6b50;
+  --color-mint-600: #215d45;
+  --color-mint-700: #174334;
+
+  --color-amber-brand: #9c4a24;
+  --color-amber-300: #e0a377;
+  --color-amber-400: #cf8148;
+  --color-amber-500: #9c4a24;
+  --color-amber-600: #8d4220;
+  --color-amber-700: #6b3218;
+
+  --color-rose-brand: #8c3a3a;
+  --color-rose-300: #d69191;
+  --color-rose-400: #c26b6b;
+  --color-rose-500: #a44a4a;
+  --color-rose-600: #833737;
+  --color-rose-700: #652929;
+
+  /* Compact portal controls; cards stay softly squared, not pill shaped. */
+  --radius-sm: 3px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
+
+  --radius-4xl: 2rem;
+
+  /* One size for the micro-label role: the mono eyebrow, the stat key, the
+     per-item counter. These were nine separate arbitrary values between 9px and
+     13px, which is not a scale. Declared once so they read as one voice.
+     Kept on the same readable 12px step as Tailwind's `text-xs`. */
+  --text-micro: 12px;
+  --text-micro--line-height: 1rem;
+
+  /* The measure cap for hero headings (skill B5). A heading wider than this
+     wraps at arbitrary points and stops being scannable; a token rather than an
+     arbitrary value so the cap means the same thing wherever it is used. */
+  --container-hero: 680px;
+
+  /* Motion (skill B7). One curve for the whole site rather than the framework
+     default: everything settles quickly and never overshoots, so a hover, a
+     panel and the tagline reveal all read as the same material. Set once here
+     so the twenty-plus `transition-*` utilities across the app inherit it
+     instead of each call site inventing its own. */
+  --ease-settle: cubic-bezier(0.32, 0.72, 0, 1);
+  --default-transition-timing-function: var(--ease-settle);
+
+  /* Elevation is a shift in value, not a blur. The only shadows that exist
+     here are the near-invisible ones used to lift a surface one step off its
+     ground; nothing is allowed to float. */
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -16px rgb(0 0 0 / 0.7);
+  --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset;
+  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 18px 48px -18px rgb(0 0 0 / 0.6);
+
+  --animate-in-up: enter-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-route-enter: route-enter 0.28s var(--ease-settle) both;
+  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgb(23 86 176 / 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgb(23 86 176 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(23 86 176 / 0);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -200% 0;
+  }
+  to {
+    background-position: 200% 0;
+  }
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    border-color: var(--color-ink-200);
+  }
+
+  .dark *,
+  .dark *::before,
+  .dark *::after {
+    border-color: rgb(255 255 255 / 0.08);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* Keeps native controls, scrollbars, and form widgets on-palette. */
+    color-scheme: light;
+  }
+
+  .dark {
+    color-scheme: dark;
+  }
+
+  .route-enter {
+    animation: var(--animate-route-enter);
+  }
+
+  .route-inner {
+    background-color: var(--color-ink-100);
+  }
+
+  .dark .route-inner {
+    background-color: var(--color-ink-950);
+  }
+
+  body {
+    @apply bg-ink-50 text-ink-800 font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+
+  .dark body {
+    @apply bg-ink-900 text-ink-100;
+  }
+
+  /* A visible, high-contrast focus indicator. brand-500 clears 3:1 against both
+     grounds, so one token serves light and dark without a variant. */
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  .dark :focus-visible {
+    outline-color: var(--color-brand-300);
+  }
+
+  /* Body copy is set with `text-wrap: pretty` so a single word is never left
+     alone on the last line. Headings opt into `text-balance` instead, which wins
+     on specificity since a utility class beats an element selector. */
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--color-brand-500) 26%, transparent);
+    color: var(--color-ink-900);
+  }
+
+  .dark ::selection {
+    background: color-mix(in oklab, var(--color-brand-300) 32%, transparent);
+    color: var(--color-ink-50);
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+
+  summary {
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  details > summary {
+    border-radius: var(--radius-sm);
+  }
+
+  textarea {
+    field-sizing: content;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Component classes.
+
+   Anything that is composed with `@apply` has to be declared with `@utility`
+   rather than inside `@layer components`; in Tailwind v4 only real utilities
+   can be applied, so a plain class would fail to resolve.
+   --------------------------------------------------------------------------- */
+
+@utility page-shell-prose {
+  @apply mx-auto w-full max-w-3xl px-4 pt-12 pb-20;
+}
+
+@utility page-shell-content {
+  @apply mx-auto w-full max-w-4xl px-4 pt-12 pb-20;
+}
+
+@utility page-shell-app {
+  @apply mx-auto w-full max-w-5xl px-4 pt-12 pb-20;
+}
+
+@utility page-shell-wide {
+  @apply mx-auto w-full max-w-6xl px-4;
+}
+
+@utility page-shell-empty {
+  @apply mx-auto w-full max-w-xl px-4 py-24;
+}
+
+@utility page-title {
+  @apply font-display text-ink-900 dark:text-white max-w-hero text-4xl font-bold text-balance sm:text-5xl;
+  line-height: 1.03;
+  letter-spacing: -0.05em;
+}
+
+@utility page-title-compact {
+  @apply font-display text-ink-900 dark:text-white text-3xl text-balance;
+  letter-spacing: -0.01em;
+}
+
+@utility page-intro {
+  @apply text-ink-600 dark:text-ink-300 mt-4 max-w-2xl text-lg leading-relaxed;
+}
+
+@utility page-heading {
+  @apply mb-10 flex flex-wrap items-end justify-between gap-5;
+}
+
+@utility page-heading-kicker {
+  @apply text-brand-600 dark:text-brand-300 mb-3 text-sm font-semibold;
+}
+
+@utility section-title {
+  @apply font-display text-ink-900 dark:text-white text-2xl font-bold text-balance sm:text-3xl;
+  letter-spacing: -0.04em;
+}
+
+@utility choice-card {
+  @apply cursor-pointer rounded-lg border border-ink-200 p-5 text-left transition-colors dark:border-white/10;
+}
+
+@utility choice-row {
+  @apply flex cursor-pointer items-start gap-3 rounded-lg border border-ink-200 p-4 transition-colors dark:border-white/10;
+}
+
+@utility choice-active {
+  @apply border-brand-500 bg-brand-500/10;
+}
+
+@utility choice-idle {
+  @apply hover:border-ink-300 dark:hover:border-white/20;
+}
+
+@utility choice-idle-solid {
+  @apply bg-white hover:border-ink-300 dark:bg-white/3 dark:hover:border-white/20;
+}
+
+@utility card {
+  /* Elevation is a shift in value, not a blur. Padding lives here so a bare
+     `card` can never collapse into a zero-padding strip (FAQ, sidebar, review
+     rows all hit that). Override with any padding utility when needed. */
+  @apply bg-white border-ink-200 rounded-lg border p-5;
+
+  &:where(.dark, .dark *) {
+    @apply border-white/8 bg-white/[0.025];
+  }
+}
+
+@utility card-solid {
+  @apply bg-white border-ink-200 rounded-lg border p-5;
+
+  &:where(.dark, .dark *) {
+    @apply bg-ink-850 border-white/10;
+  }
+}
+
+/** A surface a finger actually touches. The only place with real softness. */
+@utility touchable {
+  @apply rounded-md;
+}
+
+@utility btn {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-2.5 text-sm font-semibold duration-150 select-none;
+  /* `translate` is transitioned explicitly: `transition-colors` would leave the
+     press feedback snapping rather than easing. Avoids `transition-all`, which
+     animates every property the element happens to gain later. */
+  @apply transition-[color,background-color,border-color,fill,translate];
+  @apply disabled:pointer-events-none disabled:opacity-45;
+
+  /* Physical press feedback (skill B9). A one pixel drop rather than a scale:
+     a scale would shrink the hit area, and 24px is already the tap target
+     floor. Translation keeps the measured box identical. Written as plain CSS
+     because the translate utilities do not resolve through `@apply` here. */
+  &:active {
+    translate: 0 1px;
+  }
+}
+
+@utility btn-primary {
+  @apply btn rounded-full bg-brand-500 text-white;
+  @apply hover:bg-brand-400 active:bg-brand-600;
+  box-shadow:
+    0 1px 0 0 rgb(255 255 255 / 0.18) inset,
+    0 10px 24px -12px rgb(23 86 176 / 0.3);
+  letter-spacing: -0.01em;
+}
+
+@layer components {
+  .practice-collage { position: relative; margin-inline: auto; padding: 1.25rem 1.5rem 2.5rem; text-align: left; }
+  .practice-window { overflow: hidden; border: 1px solid #303944; border-radius: 18px; background: #171b20; color: #eff4fb; box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
+  .practice-window-header { display: flex; height: 54px; align-items: center; justify-content: space-between; border-bottom: 1px solid #303944; padding: 0 20px; color: #f8fbff; font-size: 13px; font-weight: 600; }
+  .practice-window-mark, .practice-window-avatar { display: grid; width: 27px; height: 27px; place-items: center; border-radius: 50%; background: #1756b0; color: white; font-size: 12px; font-weight: 700; }
+  .practice-window-avatar { background: #304054; }
+  .practice-window-label, .practice-overline, .practice-nav-caption { color: #8291a3; font: 10px 'IBM Plex Mono', monospace; letter-spacing: .12em; }
+  .practice-window-body { display: grid; min-height: 365px; grid-template-columns: 155px 1fr; }
+  .practice-window-nav { display: flex; flex-direction: column; gap: 5px; border-right: 1px solid #303944; padding: 20px 12px; }
+  .practice-window-nav a { display: flex; min-height: 34px; align-items: center; gap: 9px; border-radius: 6px; padding: 0 9px; color: #abb6c4; font-size: 11px; text-decoration: none; transition: background-color .18s, color .18s; }
+  .practice-window-nav a:hover, .practice-window-nav .practice-nav-active { background: #223750; color: #9bc9ff; }
+  .practice-nav-caption { padding: 0 8px 6px; font-size: 9px; }
+  .practice-nav-learn { margin-top: 14px; }
+  .practice-window-main { padding: 26px 28px 28px; }
+  .practice-window-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 21px; }
+  .practice-window-heading h2 { margin: 7px 0 3px; color: #f5f8fc; font-size: clamp(18px, 2vw, 24px); font-weight: 600; letter-spacing: -.04em; }
+  .practice-window-heading h2 span { color: #79b7ff; font-size: 15px; }
+  .practice-window-heading p { margin: 0; color: #8998aa; font-size: 11px; }
+  .practice-mini-cta { flex: 0 0 auto; border-radius: 999px; background: #1756b0; padding: 9px 13px; color: white; font-size: 10px; font-weight: 600; text-decoration: none; transition: background-color .18s, translate .18s; }
+  .practice-mini-cta:hover { background: #2f6fda; translate: 0 -1px; }
+  .practice-window-grid { display: grid; grid-template-columns: 1fr .92fr; gap: 12px; }
+  .practice-window-panel { min-width: 0; border: 1px solid #303944; border-radius: 9px; background: #1d232b; padding: 15px; }
+  .practice-panel-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: #dce5ef; font-size: 11px; font-weight: 600; }
+  .practice-period { color: #8291a3; font: 8px 'IBM Plex Mono', monospace; letter-spacing: .1em; }
+  .practice-score-line { display: flex; align-items: baseline; gap: 4px; margin: 7px 0 11px; color: #9aa8b8; font: 10px 'IBM Plex Mono', monospace; }
+  .practice-score-line strong { color: white; font-size: 34px; line-height: 1; letter-spacing: -.06em; }
+  .practice-score-change { margin-left: auto; color: #83c7a5; }
+  .practice-skill-row { display: grid; grid-template-columns: 65px 1fr 20px; align-items: center; gap: 8px; margin-top: 8px; color: #aeb9c6; font-size: 9px; }
+  .practice-skill-row b { color: #dce5ef; text-align: right; font: 9px 'IBM Plex Mono', monospace; }
+  .practice-meter { height: 5px; overflow: hidden; border-radius: 5px; background: #303944; }
+  .practice-meter i { display: block; height: 100%; border-radius: inherit; background: #4b91eb; }
+  .practice-focus-icon { color: #79b7ff; }
+  .practice-task { display: flex; align-items: center; gap: 9px; margin-top: 12px; color: #edf3fa; text-decoration: none; }
+  .practice-task-icon { display: grid; width: 29px; height: 29px; flex: 0 0 auto; place-items: center; border-radius: 7px; background: #223b57; color: #9bc9ff; }
+  .practice-task-blue { background: #2d3148; color: #b8bfff; }
+  .practice-task b, .practice-goal-panel b { display: block; font-size: 10px; font-weight: 600; }
+  .practice-task small, .practice-goal-panel small { display: block; margin-top: 3px; color: #8998aa; font-size: 9px; }
+  .practice-task-arrow { margin-left: auto; color: #8291a3; transition: translate .18s; }
+  .practice-task:hover .practice-task-arrow { translate: 3px 0; }
+  .practice-week-panel { display: block; color: inherit; text-decoration: none; transition: border-color .18s; }
+  .practice-week-panel:hover { border-color: #4b91eb; }
+  .practice-week-panel .practice-panel-title > span:last-child { color: #9bc9ff; font-size: 9px; }
+  .practice-week-total { margin-top: 9px; color: white; font: 20px 'IBM Plex Mono', monospace; }
+  .practice-week-total small { color: #8998aa; font: 9px 'Instrument Sans', sans-serif; }
+  .practice-bars { display: flex; height: 43px; align-items: end; justify-content: space-between; gap: 7px; margin-top: 5px; }
+  .practice-bars i { flex: 1; border-radius: 4px 4px 1px 1px; background: linear-gradient(#79b7ff, #2868c9); transform-origin: bottom; animation: bar-grow .8s var(--ease-settle) both; }
+  .practice-bars i:nth-child(2) { animation-delay: .05s; } .practice-bars i:nth-child(3) { animation-delay: .1s; } .practice-bars i:nth-child(4) { animation-delay: .15s; } .practice-bars i:nth-child(5) { animation-delay: .2s; } .practice-bars i:nth-child(6) { animation-delay: .25s; } .practice-bars i:nth-child(7) { animation-delay: .3s; }
+  .practice-week-days { display: flex; justify-content: space-between; margin-top: 5px; color: #8291a3; font: 8px 'IBM Plex Mono', monospace; }
+  .practice-goal-panel { display: flex; align-items: center; gap: 9px; }
+  .practice-goal-check, .practice-float-week-icon { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #1e3b31; color: #89d0ac; }
+  .practice-goal-percent { margin-left: auto; color: #83c7a5; font: 10px 'IBM Plex Mono', monospace; }
+  .practice-float { position: absolute; display: flex; align-items: center; gap: 10px; border: 1px solid #e7edf4; border-radius: 12px; background: white; padding: 12px 15px; color: #171b20; box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; }
+  .practice-float-score { top: 12%; left: 0; }
+  .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: #eff6ff; color: #1756b0; }
+  .practice-float small, .practice-float-week small { display: block; color: #738094; font: 8px 'IBM Plex Mono', monospace; letter-spacing: .06em; }
+  .practice-float b { display: block; margin-top: 2px; font: 600 19px 'IBM Plex Mono', monospace; }
+  .practice-float b i { color: #8998aa; font-size: 10px; font-style: normal; }
+  .practice-float-up { border-radius: 20px; background: #edf8f1; padding: 5px 7px; color: #28724e; font: 9px 'IBM Plex Mono', monospace; }
+  .practice-float-week { right: 0; bottom: 17%; animation-delay: .3s; }
+  .practice-float-week-icon { background: #edf8f1; }
+  .practice-float-week b { font: 600 11px 'Instrument Sans', sans-serif; }
+  .practice-preview-note { position: absolute; right: 28px; bottom: 0; margin: 0; color: #738094; font: 9px 'IBM Plex Mono', monospace; }
+  @keyframes preview-rise { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: none; } }
+  @keyframes float-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
+  @keyframes bar-grow { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
+  .practice-collage { height: 550px; padding: 0; }
+  .practice-window { width: min(930px, 88%); height: 500px; margin: 10px auto 0; border-radius: 12px; }
+  .practice-window-header { height: 46px; padding-inline: 16px; color: #aab4c2; font-size: 11px; }
+  .practice-window-mark { width: 8px; height: 8px; background: #79b7ff; }
+  .practice-window-avatar { width: 24px; height: 24px; background: #36404c; font-size: 10px; }
+  .practice-window-body { height: calc(100% - 46px); min-height: 0; grid-template-columns: 166px 1fr; }
+  .practice-window-nav { gap: 4px; padding: 16px 10px; }
+  .practice-window-nav a { min-height: 34px; gap: 9px; border-radius: 5px; padding: 0 9px; font-size: 11px; }
+  .practice-nav-caption { margin: 0 9px 5px; padding: 0; font-size: 9px; letter-spacing: .02em; }
+  .practice-nav-learn { margin-top: 0; }
+  .practice-streak { margin-top: auto; border: 1px solid #34404a; border-radius: 7px; padding: 11px; color: #b2bdc9; font-size: 10px; }
+  .practice-streak b { display: block; margin-bottom: 3px; color: #79b7ff; font-size: 13px; }
+  .practice-window-main { padding: 24px 27px; }
+  .practice-window-heading { align-items: flex-start; margin-bottom: 20px; }
+  .practice-overline { color: #a0acb8; font: 10px 'Instrument Sans', sans-serif; letter-spacing: 0; }
+  .practice-window-heading h2 { margin: 2px 0 0; font-size: 23px; font-weight: 620; letter-spacing: -.04em; }
+  .practice-mini-cta { border: 1px solid #4b5a65; border-radius: 5px; background: transparent; padding: 8px 11px; color: #e6ebf1; font-size: 10px; font-weight: 400; }
+  .practice-mini-cta:hover { border-color: #79b7ff; background: #20262d; }
+  .practice-window-grid { grid-template-columns: minmax(0, 1.5fr) minmax(195px, .85fr); gap: 14px; }
+  .practice-window-panel { border-color: #34404a; border-radius: 7px; background: #20262d; padding: 0; }
+  .practice-panel-title { min-height: 45px; border-bottom: 1px solid #34404a; padding: 0 14px; font-size: 11px; font-weight: 550; }
+  .practice-panel-title > span:last-child { color: #a0acb8; font-size: 9px; font-weight: 400; }
+  .practice-skill-list { padding: 3px 14px 7px; }
+  .practice-skill-row { grid-template-columns: 78px 1fr 28px; gap: 9px; margin: 12px 0; color: #bec8d3; font-size: 10px; }
+  .practice-skill-row b { color: white; font-size: 10px; font-weight: 500; }
+  .practice-meter { height: 5px; background: #3a4445; }
+  .practice-meter i { background: #79b7ff; }
+  .practice-continue-title { min-height: 42px; margin-top: 0; }
+  .practice-continue-title a { color: #a0acb8; font-size: 9px; text-decoration: none; }
+  .practice-task { min-height: 48px; margin: 0; border-bottom: 1px solid #333e48; padding: 8px 13px; font-size: 10px; }
+  .practice-task:last-child { border-bottom: 0; }
+  .practice-task-icon { width: 24px; height: 24px; border: 1px solid #586675; border-radius: 5px; background: transparent; font-size: 10px; }
+  .practice-task small { margin-top: 2px; color: #a0acb8; font-size: 9px; }
+  .practice-task-arrow { color: #a8b4c1; font-size: 9px; }
+  .practice-suggestion { display: flex; min-height: 149px; flex-direction: column; align-items: flex-start; padding: 14px; }
+  .practice-suggest-label { color: #79b7ff; font-size: 9px; }
+  .practice-suggestion strong { margin-top: 9px; color: white; font-size: 15px; font-weight: 580; letter-spacing: -.02em; }
+  .practice-suggestion p { margin: 5px 0 12px; color: #b6c0ca; font-size: 10px; line-height: 1.45; text-align: left; }
+  .practice-suggestion a { margin-top: auto; color: #79b7ff; font-size: 10px; text-decoration: none; }
+  .practice-float { z-index: 2; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border-color: #e1e6ed; border-radius: 10px; padding: 14px; text-decoration: none; }
+  .practice-float-score { top: 74px; left: 0; }
+  .practice-float-score small, .practice-float-week > small { color: #606b7a; font: 10px 'Instrument Sans', sans-serif; letter-spacing: 0; }
+  .practice-float-score strong { display: flex; align-items: baseline; gap: 7px; margin-top: 7px; font: 650 32px/1 'Instrument Sans', sans-serif; letter-spacing: -.07em; }
+  .practice-float-score strong i { color: #606b7a; font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0; }
+  .practice-float-score em { margin-top: 8px; color: #1756b0; font-size: 10px; font-style: normal; }
+  .practice-float-week { right: 0; bottom: 62px; }
+  .practice-bars { display: flex; width: 100%; height: 56px; align-items: end; gap: 5px; margin-top: 14px; border-bottom: 1px solid #d8e0eb; }
+  .practice-bars i { flex: 1; min-height: 5px; border-radius: 3px 3px 0 0; background: #2f6fda; opacity: .78; animation: bar-grow .65s var(--ease-settle) both; }
+  .practice-week-days { margin-top: 5px; color: #606b7a; font-size: 8px; }
+  @media (max-width: 950px) { .practice-float-score { left: -8px; } .practice-float-week { right: -8px; } }
+  /* Header on narrow screens.
+     The nav is a flex row with the logo and the theme toggle, and as a flex item
+     its default `min-width: auto` meant it refused to shrink: at 390px the row
+     overflowed the viewport by about 26px. `min-width: 0` lets it give way, and
+     items are dropped progressively so the ones that remain are the primary
+     destinations rather than an arbitrary cut. Links also gain block padding so
+     they stay above the 24px tap-target floor without widening. */
+  /* Nav links carry their own hit area at every width. WCAG 2.5.8 asks for 24px
+     and a text link at desktop sizes lands around 20px, which is close enough to
+     look deliberate and short enough to fail. */
+  .site-nav a { padding-block: 4px; }
+
+  @media (max-width: 760px) {
+    .site-header-row { gap: 12px; }
+    .site-nav { min-width: 0; overflow: hidden; gap: 14px; }
+    .site-nav a { padding-block: 7px; }
+  }
+  @media (max-width: 620px) {
+    .site-nav { gap: 12px; font-size: 11px; }
+    .site-nav a:nth-child(n + 3):not(:last-child) { display: none; }
+  }
+  @media (max-width: 560px) { .site-nav a:nth-child(2) { display: none; } }
+  @media (max-width: 700px) { .practice-collage { height: 470px; padding: 0 0 2rem; } .practice-window { width: calc(100% - 40px); height: 430px; } .practice-window-body { grid-template-columns: 142px 1fr; } .practice-window-main { padding: 20px 18px; } .practice-window-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; } .practice-suggestion { display: none; } .practice-float { width: 175px; } .practice-float-score { top: auto; bottom: 34px; left: 3px; } .practice-float-week { right: 3px; bottom: 34px; } }
+  @media (max-width: 600px) { .practice-collage { height: 385px; margin-top: 45px; } .practice-window { top: 4px; width: calc(100% - 20px); height: 360px; border-radius: 8px; } .practice-window-body { grid-template-columns: 112px 1fr; } .practice-window-nav { gap: 2px; padding: 11px 6px; font-size: 9px; } .practice-window-nav a { gap: 4px; padding: 0 5px; font-size: 9px; } .practice-streak { padding: 7px; font-size: 8px; } .practice-window-main { padding: 15px 11px; } .practice-window-heading h2 { font-size: 17px; } .practice-overline { font-size: 8px; } .practice-mini-cta { display: none; } .practice-panel-title { min-height: 36px; padding-inline: 10px; font-size: 10px; } .practice-skill-list { padding: 1px 9px; } .practice-skill-row { grid-template-columns: 59px 1fr 20px; gap: 6px; margin: 9px 0; font-size: 8px; } .practice-skill-row b { font-size: 8px; } .practice-continue-title { display: none; } .practice-task { min-height: 41px; grid-template-columns: 20px 1fr auto; gap: 6px; padding: 6px 8px; font-size: 8px; } .practice-task small { font-size: 7px; } .practice-task-icon { width: 19px; height: 19px; } .practice-task-arrow { font-size: 8px; } .practice-float { width: 145px; padding: 10px; } .practice-float-score { bottom: 5px; left: 14px; } .practice-float-week { right: 14px; bottom: 5px; } .practice-float-score strong { font-size: 25px; } .practice-bars { height: 35px; margin-top: 8px; } .practice-window-grid { margin-top: 10px; } }
+  @media (max-width: 420px) { .practice-window-nav { grid-template-columns: 1fr; } .practice-streak { font-size: 7px; } .practice-float { width: 124px; } .practice-float-score { left: 10px; } .practice-float-week { right: 10px; } }
+}
+
+@utility btn-secondary {
+  @apply btn rounded-lg border border-ink-200 bg-white text-ink-700;
+  @apply hover:bg-ink-100 active:scale-[0.98];
+
+  &:where(.dark, .dark *) {
+    @apply border-white/12 bg-white/6 text-ink-100 hover:bg-white/10;
+  }
+}
+
+@utility btn-ghost {
+  @apply btn text-ink-500 hover:bg-ink-100;
+
+  &:where(.dark, .dark *) {
+    @apply text-ink-300 hover:bg-white/8;
+  }
+}
+
+@utility btn-danger {
+  @apply btn border border-rose-brand/30 bg-rose-brand/10 text-rose-600 hover:bg-rose-brand/20;
+  &:where(.dark, .dark *) {
+    @apply text-rose-300;
+  }
+}
+
+@utility pill {
+  @apply inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 font-mono text-micro font-medium tracking-wide;
+}
+
+/* The single kicker style. Mono micro, tracked, never larger. Sections
+   that need a label above the heading use this — nothing inline. */
+@utility eyebrow {
+  @apply font-mono text-micro tracking-[0.14em];
+}
+
+@utility field {
+  @apply w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm;
+  @apply placeholder:text-ink-500 focus:border-brand-400 focus:ring-brand-500/25 focus:ring-3 focus:outline-none;
+
+  &:where(.dark, .dark *) {
+    @apply border-white/12 bg-ink-900/70 placeholder:text-ink-500;
+  }
+}
+
+@utility label {
+  @apply text-ink-600 dark:text-ink-300 mb-1.5 block text-xs font-semibold;
+}
+
+@utility passage {
+  @apply text-ink-700 dark:text-ink-200 text-base leading-relaxed;
+}
+
+@utility shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-brand-400) 18%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+@utility hero-rules {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--color-ink-200) 0 1px,
+    transparent 1px 2rem
+  );
+  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 62%);
+  mask-image: linear-gradient(to bottom, black 0%, transparent 62%);
+
+  &:where(.dark, .dark *) {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.075) 0 1px,
+      transparent 1px 2rem
+    );
+  }
+}
+
+/* Exam answer-sheet: dotted columns + a single vertical margin rule.
+   Used once, behind the hero score card, to say "exam hall" without an image. */
+@utility exam-sheet {
+  background-image:
+    linear-gradient(to right, var(--color-brand-500) 0 1px, transparent 1px),
+    radial-gradient(circle, var(--color-ink-300) 1px, transparent 1.2px);
+  background-size:
+    100% 100%,
+    22px 22px;
+  background-position:
+    28px 0,
+    0 0;
+  background-repeat: no-repeat, repeat;
+
+  &:where(.dark, .dark *) {
+    background-image:
+      linear-gradient(to right, var(--color-brand-400) 0 1px, transparent 1px),
+      radial-gradient(circle, rgb(255 255 255 / 0.16) 1px, transparent 1.2px);
+  }
+}
+
+/* Score-first cards: content cards stay flat, exam cards earn one hard top rule. */
+@utility card-exam {
+  @apply card relative overflow-hidden;
+  border-top-width: 3px;
+  border-top-color: var(--color-brand-500);
+}
+
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-300) transparent;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-ink-400) 55%, transparent);
+    border-radius: 99px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}

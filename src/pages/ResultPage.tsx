@@ -1,0 +1,601 @@
+import { useEffect, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
+import { ADMISSION_TARGETS, buildReport, cefrLabel } from '../domain/scoring'
+import { QUESTION_META } from '../domain/blueprint'
+import type { AttemptRecord, ItemResponse, ItemScoreDetail, QuestionType, Skill } from '../domain/types'
+import { getAttempt } from '../db/db'
+import { formatDuration } from '../lib/format'
+import { cn } from '../lib/cn'
+import { Seo } from '../seo/Seo'
+import { Badge, Card, ProgressBar } from '../components/ui/primitives'
+import { ScoreRangeBar, SkillBars } from '../components/charts/ScoreRangeBar'
+import { useTest } from '../store/useTest'
+import { useSettings } from '../store/useSettings'
+
+type Tab = 'overview' | 'by-type' | 'review'
+
+export default function ResultPage() {
+  const [params] = useSearchParams()
+  const mock = useTest((s) => s.mock)
+  const responses = useTest((s) => s.responses)
+  const finish = useTest((s) => s.finish)
+  const exit = useTest((s) => s.exit)
+  const { settings } = useSettings()
+  const [attempt, setAttempt] = useState<AttemptRecord | null>(null)
+  const [tab, setTab] = useState<Tab>('overview')
+  const [filter, setFilter] = useState<'all' | 'lost'>('all')
+
+  // Score once, when the runner reports the test is finished.
+  useEffect(() => {
+    if (!mock) return
+    let cancelled = false
+    void (async () => {
+      const existing = params.get('attempt')
+      if (existing) {
+        const stored = await getAttempt(existing)
+        if (stored && !cancelled) {
+          setAttempt(stored)
+          return
+        }
+      }
+      const record = await finish()
+      if (record && !cancelled) setAttempt(record)
+    })()
+    return () => {
+      cancelled = true
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mock])
+
+  const details = useMemo(() => {
+    if (!mock) return []
+    const items = mock.sections
+      .flatMap((s) => s.itemIds)
+      .map((id) => mock.items[id])
+      .filter((i): i is NonNullable<typeof i> => Boolean(i))
+    const metaById: Record<string, { skills: Skill[]; type: QuestionType; label: string }> = {}
+    for (const item of items) {
+      metaById[item.id] = {
+        skills: item.skills,
+        type: item.type,
+        label: QUESTION_META[item.type]?.label ?? item.type,
+      }
+    }
+    return buildReport(items, mock.answers, responses, metaById).details
+  }, [mock, responses])
+
+  if (!attempt) {
+    return (
+      <div className="grid min-h-dvh place-items-center px-4">
+        <div className="text-center">
+          <span className="border-brand-500/25 border-t-brand-500 mx-auto block size-9 animate-spin rounded-full border-2" />
+          <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">Scoring your responses…</p>
+        </div>
+      </div>
+    )
+  }
+
+  const skills = (['reading', 'listening', 'speaking', 'writing'] as Skill[])
+    .map((s) => ({ skill: s, score: attempt.skillScores[s] }))
+    .filter((s): s is { skill: Skill; score: number } => typeof s.score === 'number')
+
+  const weakest = skills.length ? skills.reduce((a, b) => (b.score < a.score ? b : a)) : null
+  const strongest = skills.length ? skills.reduce((a, b) => (b.score > a.score ? b : a)) : null
+  const accuracy = attempt.availablePoints > 0 ? attempt.earnedPoints / attempt.availablePoints : 0
+  const lost = details.filter((d) => d.ratio < 0.999)
+  const visibleDetails = filter === 'lost' ? lost : details
+
+  const estimatedCount = details.filter((d) => d.maxPoints > 0 && isEstimated(d)).length
+  const typeRows = Object.values(attempt.breakdown).sort((a, b) => {
+    const ra = a.maxPoints > 0 ? a.earnedPoints / a.maxPoints : 0
+    const rb = b.maxPoints > 0 ? b.earnedPoints / b.maxPoints : 0
+    return ra - rb
+  })
+
+  return (
+    <>
+      <Seo />
+
+      <div className="route-inner min-h-dvh">
+        <div className="page-shell-app">
+        {/* Header */}
+        <header className="flex flex-wrap items-start justify-between gap-6">
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone="mint">Estimated score</Badge>
+              <Badge tone="neutral">{attempt.mockTitle}</Badge>
+              <Badge tone="neutral">{formatDuration(attempt.durationMs)}</Badge>
+            </div>
+            <h1 className="page-title-compact mt-3">
+              CEFR {attempt.cefr} · {cefrLabel(attempt.cefr)}
+            </h1>
+            <p className="text-ink-500 dark:text-ink-300 mt-1.5 text-sm">
+              {Math.round(accuracy * 100)}% of the available points. The weakest area is{' '}
+              <span className="font-semibold capitalize">{weakest?.skill ?? '—'}</span>.
+            </p>
+          </div>
+
+          <div className="min-w-0 flex-1 basis-64 sm:max-w-sm">
+            <div className="flex flex-wrap items-baseline gap-3">
+              <p className="text-ink-900 dark:text-white font-mono text-4xl font-bold tabular-nums tracking-[-0.02em]">
+                {attempt.overallScore}
+              </p>
+              <p className="text-ink-500 dark:text-ink-400 text-sm">
+                of 90 · <span className="tabular-nums">{attempt.overallScore60}</span> on the 60–120 scale
+              </p>
+            </div>
+            <ScoreRangeBar
+              score={attempt.overallScore}
+              band={attempt.cefr}
+              className="mt-3"
+              label={`Overall score ${attempt.overallScore} out of 90, CEFR band ${attempt.cefr}`}
+            />
+          </div>
+        </header>
+
+        {/* Skills, on one shared scale so the bars are actually comparable. */}
+        <div className="card mt-6">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">By skill</h2>
+            <p className="text-ink-500 dark:text-ink-400 text-xs">
+              Each item's points feed every skill it scores, so these overlap. Pearson does not publish
+              per-skill scores, so these are our own.
+            </p>
+          </div>
+          <div className="mt-4">
+            <SkillBars
+              skills={skills.map(({ skill, score }) => ({ skill, value: score ?? 0 }))}
+              strongest={strongest?.skill}
+              weakest={weakest?.skill}
+            />
+          </div>
+        </div>
+
+        <details className="card mt-6">
+          <summary className="text-ink-900 dark:text-white cursor-pointer list-none text-sm font-semibold [&::-webkit-details-marker]:hidden">
+            How much of this number is exact?
+          </summary>
+          <div className="mt-4 grid gap-5 sm:grid-cols-2">
+            <div>
+              <p className="text-ink-900 dark:text-white font-mono text-3xl font-bold tabular-nums tracking-[-0.02em]">
+                {details.filter((d) => d.maxPoints > 0).length - estimatedCount}
+                <span className="text-ink-400 dark:text-ink-500 text-lg font-bold"> of {details.filter((d) => d.maxPoints > 0).length}</span>
+              </p>
+              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
+                items scored exactly against an answer key. Multiple choice, fill in the blanks, re-order paragraphs and
+                highlight-the-incorrect-words are all deterministic, including partial credit per blank and the
+                one-point deduction for a wrong multi-select.
+              </p>
+            </div>
+            <div>
+              <p className="text-ink-900 dark:text-white font-mono text-3xl font-bold tabular-nums tracking-[-0.02em]">
+                {estimatedCount}
+                <span className="text-ink-400 dark:text-ink-500 text-lg font-bold"> estimated</span>
+              </p>
+              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
+                speaking and writing responses, rated with a rubric over the same four constructs Pearson uses. Read
+                these as a band, not a number — and record with a microphone to narrow them.
+              </p>
+            </div>
+          </div>
+          <p className="text-ink-500 dark:text-ink-400 mt-5 border-t pt-4 text-xs leading-relaxed">
+            Pearson produces the overall score with a single item-response-theory scaling, and states plainly that it is
+            <em> not </em> an average of the four skill scores. Ours is computed from the same item points, which is the
+            closest honest approximation available without their model. The four things Pearson does not publish — the
+            Read Aloud error conversion, the trait weighting, the item-to-scale step, and per-skill CEFR bands — are
+            listed in full on the <Link to="/scoring" className="text-brand-500 dark:text-brand-300 underline">scoring page</Link>.
+          </p>
+        </details>
+
+        {/* Admission thresholds */}
+        <Card className="mt-6">
+          <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">What this score means</h2>
+          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+            {ADMISSION_TARGETS.map((t) => {
+              // Three states, not two: inside the target band, above it, or short.
+              const match = t.range.match(/(\d+)(?:–(\d+))?/)
+              const lo = Number(match?.[1] ?? 0)
+              const hi = match?.[2] ? Number(match[2]) : null
+              const score = attempt.overallScore60
+              const inside = hi === null ? score >= lo : score >= lo && score <= hi
+              const exceeds = hi !== null && score > hi
+              const state = inside ? 'met' : exceeds ? 'exceeded' : 'notMet'
+              return (
+                <li
+                  key={t.label}
+                  className={cn(
+                    'flex items-start gap-3 rounded-lg border p-4',
+                    state === 'notMet'
+                      ? 'border-ink-200 dark:border-white/10'
+                      : state === 'met'
+                        ? 'border-mint-500/50 bg-mint-500/8'
+                        : 'border-mint-500/25',
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-micro font-bold',
+                      state === 'notMet'
+                        ? 'bg-ink-200 text-ink-500 dark:bg-white/10 dark:text-ink-400'
+                        : 'bg-mint-500 text-white',
+                    )}
+                    aria-hidden="true"
+                  >
+                    {state === 'notMet' ? '·' : '✓'}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-ink-900 dark:text-white text-sm font-semibold">
+                      {t.label}{' '}
+                      <span className="text-ink-400 dark:text-ink-500 font-normal">· target {t.range}</span>
+                      {state !== 'notMet' ? (
+                        <span className="text-mint-700 dark:text-mint-300 ml-2 text-xs font-semibold">
+                          {state === 'met' ? 'met' : 'exceeded'}
+                        </span>
+                      ) : null}
+                    </p>
+                    <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs leading-relaxed">{t.note}</p>
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        </Card>
+
+        {/* Tabs */}
+        <div className="mt-10 border-ink-200 dark:border-white/10 border-b">
+          <div className="-mb-px flex gap-1 overflow-x-auto" role="tablist">
+            {(
+              [
+                ['overview', 'By question type'],
+                ['by-type', 'Skill detail'],
+                ['review', 'Answer review'],
+              ] as Array<[Tab, string]>
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={tab === id}
+                onClick={() => setTab(id)}
+                className={cn(
+                  'shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors',
+                  tab === id
+                    ? 'border-brand-500 text-brand-600 dark:text-brand-300'
+                    : 'text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-100',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-6">
+          {tab === 'overview' ? (
+            <Card>
+              <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Accuracy by question type</h2>
+              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">Weakest first.</p>
+              <ul className="mt-5 space-y-3.5">
+                {typeRows.map((row) => {
+                  const ratio = row.maxPoints > 0 ? row.earnedPoints / row.maxPoints : 0
+                  return (
+                    <li key={row.type}>
+                      <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+                        <span className="text-ink-800 dark:text-ink-100 text-sm font-medium">
+                          {row.label}
+                          <span className="text-ink-500 dark:text-ink-400 ml-2 text-xs">
+                            {row.correct}/{row.total} fully correct
+                          </span>
+                        </span>
+                        <span className="text-ink-900 dark:text-white text-sm font-bold tabular-nums">
+                          {row.earnedPoints.toFixed(1)} / {row.maxPoints}
+                        </span>
+                      </div>
+                      <ProgressBar
+                        value={row.earnedPoints}
+                        max={row.maxPoints}
+                        tone={ratio >= 0.8 ? 'mint' : ratio >= 0.5 ? 'amber' : 'rose'}
+                        label={row.label}
+                      />
+                    </li>
+                  )
+                })}
+              </ul>
+            </Card>
+          ) : null}
+
+          {tab === 'by-type' ? (
+            <div className="space-y-4">
+              {skills.map(({ skill, score }) => {
+                const types = typeRows.filter((r) => r.skill === skill)
+                return (
+                  <Card key={skill}>
+                    <div className="flex flex-wrap items-baseline justify-between gap-3">
+                      <h2 className="text-ink-900 dark:text-white text-base font-bold capitalize text-balance">{skill}</h2>
+                      <p className="text-ink-500 dark:text-ink-400 text-sm">
+                        Estimated <span className="text-ink-900 dark:text-white font-bold tabular-nums">{score}</span> / 90
+                        {score >= 71 ? ' · C1 level' : score >= 46 ? ' · B2 level' : ' · below B2'}
+                      </p>
+                    </div>
+                    <ul className="mt-4 space-y-3">
+                      {types.map((row) => {
+                        const qm = QUESTION_META[row.type]
+                        const ratio = row.maxPoints > 0 ? row.earnedPoints / row.maxPoints : 0
+                        return (
+                          <li key={row.type} className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                              <p className="text-ink-800 dark:text-ink-100 text-sm">{row.label}</p>
+                              <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs leading-relaxed">{qm?.tip}</p>
+                            </div>
+                            <span
+                              className={cn(
+                                'shrink-0 text-sm font-bold tabular-nums',
+                                ratio >= 0.8
+                                  ? 'text-mint-600 dark:text-mint-300'
+                                  : ratio >= 0.5
+                                    ? 'text-amber-600 dark:text-amber-300'
+                                    : 'text-rose-brand',
+                              )}
+                            >
+                              {Math.round(ratio * 100)}%
+                            </span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </Card>
+                )
+              })}
+            </div>
+          ) : null}
+
+          {tab === 'review' ? (
+            <div>
+              <div className="mb-4 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  className={cn('btn-secondary text-sm', filter === 'all' && 'border-brand-500 text-brand-600 dark:text-brand-300')}
+                  onClick={() => setFilter('all')}
+                >
+                  All {details.length}
+                </button>
+                <button
+                  type="button"
+                  className={cn('btn-secondary text-sm', filter === 'lost' && 'border-amber-500 text-amber-600 dark:text-amber-300')}
+                  onClick={() => setFilter('lost')}
+                >
+                  Points lost {lost.length}
+                </button>
+              </div>
+
+              <ul className="space-y-3">
+                {visibleDetails.map((d) => (
+                  <ReviewRow key={d.itemId} detail={d} response={responses[d.itemId]} />
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-10 flex flex-wrap gap-3">
+          <Link to="/mock" className="btn-primary" onClick={() => exit()}>
+            Take another mock
+          </Link>
+          <Link to="/dashboard" className="btn-secondary">
+            See progress
+          </Link>
+          <Link to="/practice" className="btn-secondary">
+            Practise your weakest type
+          </Link>
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={() => {
+              if (settings.autoOpenReview) setTab('review')
+              else setTab('overview')
+            }}
+          >
+            {settings.autoOpenReview ? 'Show full review' : 'Show breakdown'}
+          </button>
+        </div>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function isEstimated(d: ItemScoreDetail): boolean {
+  return d.type === 'write-essay' || d.type === 'summarize-written-text' || d.type === 'summarize-spoken-text' || d.skills.includes('speaking') || d.type === 'answer-short-question'
+}
+
+function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
+  const meta = QUESTION_META[detail.type]
+  const rows: Array<[string, number | undefined, number | undefined]> = [
+    ['Content', detail.traits?.content, detail.contentMax],
+    ['Form', detail.traits?.form, detail.formMax],
+    ['Oral fluency', detail.traits?.oralFluency, 5],
+    ['Pronunciation', detail.traits?.pronunciation, 5],
+    ['Development, structure and coherence', detail.traits?.development, detail.type === 'write-essay' ? 6 : undefined],
+    ['General linguistic range', detail.traits?.range, detail.type === 'write-essay' ? 6 : undefined],
+    ['Grammar', detail.traits?.grammar, 2],
+    ['Vocabulary', detail.traits?.vocabulary, 2],
+    ['Spelling', detail.traits?.spelling, 2],
+  ]
+  const shown = rows.filter(([, v]) => typeof v === 'number' && v > 0)
+
+  return (
+    <div>
+      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">
+        Estimated traits · {meta.traits.join(', ')}
+      </p>
+      <ul className="mt-2 space-y-2">
+        {shown.map(([label, value, max]) => {
+          const pct = clamp01(value as number)
+          return (
+            <li key={label}>
+              <div className="flex items-baseline justify-between text-xs">
+                <span className="text-ink-600 dark:text-ink-300">{label}</span>
+                <span className="text-ink-900 dark:text-white font-semibold tabular-nums">
+                  {pct >= 0.85 ? 'band top' : pct >= 0.6 ? 'band middle' : pct >= 0.3 ? 'band low' : 'band 0'}
+                  {max ? <span className="text-ink-500 dark:text-ink-400 font-normal"> of {max}</span> : null}
+                </span>
+              </div>
+              <div className="bg-ink-200 dark:bg-white/10 mt-1 h-1.5 w-full overflow-hidden rounded-full">
+                <div
+                  className={cn(
+                    'h-full rounded-full',
+                    pct >= 0.6 ? 'bg-mint-500' : pct >= 0.3 ? 'bg-amber-500' : 'bg-rose-brand',
+                  )}
+                  style={{ width: `${Math.max(2, pct * 100)}%` }}
+                />
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+      <p className="text-ink-500 dark:text-ink-400 mt-2 text-xs">
+        Pearson scores these traits with a model it does not publish, so these bands are estimates. The published
+        0–{maxOf(detail)} scale for each trait is what the bands are read against.
+      </p>
+    </div>
+  )
+}
+
+function maxOf(detail: ItemScoreDetail): number {
+  return detail.contentMax ?? detail.formMax ?? 5
+}
+
+function clamp01(v: number): number {
+  return Math.max(0, Math.min(1, v))
+}
+
+function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: ItemResponse | undefined }) {
+  const qm = QUESTION_META[detail.type]
+  const [open, setOpen] = useState(false)
+  const ratio = detail.maxPoints > 0 ? detail.points / detail.maxPoints : 0
+
+  return (
+    <li
+      className={cn(
+        'card overflow-hidden p-0',
+        detail.status === 'correct' && 'border-mint-500/40',
+        detail.status === 'partial' && 'border-amber-500/40',
+        detail.status === 'incorrect' && 'border-rose-brand/40',
+      )}
+    >
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full cursor-pointer items-center gap-4 p-4 text-left"
+        aria-expanded={open}
+      >
+        <span
+          className={cn(
+            'grid size-9 shrink-0 place-items-center rounded-lg text-xs font-bold',
+            detail.status === 'correct' && 'bg-mint-500/15 text-mint-600 dark:text-mint-300',
+            detail.status === 'partial' && 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
+            detail.status === 'incorrect' && 'bg-rose-brand/15 text-rose-brand',
+          )}
+          aria-hidden="true"
+        >
+          {detail.status === 'correct' ? '✓' : detail.status === 'partial' ? '~' : '✕'}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="text-ink-900 dark:text-white block text-sm font-semibold">{detail.label}</span>
+          <span className="text-ink-500 dark:text-ink-400 block text-xs capitalize">{detail.skills.join(' + ')}</span>
+        </span>
+        <span className="text-ink-900 dark:text-white shrink-0 text-sm font-bold tabular-nums">
+          {detail.points.toFixed(1)} / {detail.maxPoints}
+        </span>
+      </button>
+
+      {open ? (
+        <div className="border-ink-200 dark:border-white/10 space-y-4 border-t p-5">
+          {detail.notes.length > 0 ? (
+            <ul className="space-y-1.5">
+              {detail.notes.map((n, i) => (
+                <li key={i} className="text-ink-600 dark:text-ink-300 flex gap-2 text-sm leading-relaxed">
+                  <span className="text-amber-500 mt-0.5 shrink-0" aria-hidden="true">
+                    •
+                  </span>
+                  {n}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-mint-600 dark:text-mint-300 text-sm">Full marks on this item.</p>
+          )}
+
+          {detail.gated ? (
+            <p className="rounded-lg border border-rose-brand/40 bg-rose-brand/8 p-3 text-sm">
+              <span className="text-rose-brand font-semibold">Zeroed by the score guide.</span> When Content or Form
+              scores 0, no points are awarded for the item, however the other traits scored.
+            </p>
+          ) : null}
+
+          {detail.traits && isEstimated(detail) ? (
+            <TraitBreakdownView detail={detail} />
+          ) : null}
+
+          {detail.reference ? (
+            <div>
+              <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">
+                {isEstimated(detail) ? 'Model answer' : 'Answer key'}
+              </p>
+              <p className="passage bg-ink-50 dark:bg-white/4 mt-1.5 rounded-lg p-3 text-sm">{detail.reference}</p>
+            </div>
+          ) : null}
+
+          {response ? <ResponseEcho detail={detail} response={response} /> : null}
+
+          {qm?.tip ? (
+            <p className="text-brand-500 dark:text-brand-300 border-brand-500/25 border-t pt-3 text-sm leading-relaxed">
+              <span className="font-bold">Tip · </span>
+              {qm.tip}
+            </p>
+          ) : null}
+
+          {ratio >= 0.999 ? null : (
+            <p className="text-ink-500 dark:text-ink-400 text-xs">
+              Estimated traits: content {Math.round(Math.min(1, ratio * 1.1) * 100)}% of the available credit.
+            </p>
+          )}
+        </div>
+      ) : null}
+    </li>
+  )
+}
+
+function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response: ItemResponse }) {
+  const lines: string[] = []
+  const choice = response.choice as string | undefined
+  if (choice) lines.push(`Your answer: ${choice}`)
+  const choices = response.choices as string[] | undefined
+  if (choices && choices.length) lines.push(`Your answers: ${choices.join(' · ')}`)
+  const blanks = response.blanks as Array<string | null> | undefined
+  if (blanks) lines.push(`Your answers: ${blanks.map((b, i) => b || `(blank ${i + 1})`).join(' · ')}`)
+  const order = response.order as string[] | undefined
+  if (order) lines.push(`Your order: ${order.join(' → ')}`)
+  const highlighted = response.highlighted as number[] | undefined
+  const tokens = (detail as ItemScoreDetail & { _tokens?: string[] })._tokens
+  if (highlighted) lines.push(`You highlighted: ${highlighted.map((i) => tokens?.[i] ?? `#${i}`).join(' · ')}`)
+  const text = response.text as string | undefined
+  if (text) lines.push(`You wrote: ${text}`)
+  const transcript = response.transcript as string | undefined
+  if (transcript) lines.push(`Your answer (transcribed): ${transcript}`)
+
+  if (lines.length === 0) return null
+
+  return (
+    <div>
+      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold text-ink-500 dark:text-ink-400">What you gave</p>
+      <ul className="mt-1.5 space-y-1.5">
+        {lines.map((l, i) => (
+          <li key={i} className="text-ink-600 dark:text-ink-300 min-w-0 text-sm leading-relaxed break-words">
+            {l}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}

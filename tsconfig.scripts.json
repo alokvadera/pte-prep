@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    /* The app compiles with the automatic JSX runtime. Without this, a script
+       that renders a component would be transformed with the classic runtime and
+       fail on a missing React binding that the app itself never needs. */
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"]
+  },
+  "include": ["scripts/**/*.ts", "scripts/**/*.tsx", "src"]
+}
