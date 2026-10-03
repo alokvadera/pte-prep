@@ -38,11 +38,19 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
 
   const sttSupported = isSpeechRecognitionSupported()
   const micSupported = isRecordingSupported()
+  const finishRef = useRef<(() => Promise<void>) | null>(null)
 
   useEffect(() => {
     return () => {
-      if (timerRef.current !== null) window.clearInterval(timerRef.current)
-      recorderRef.current?.dispose()
+      if (timerRef.current !== null) {
+        window.clearInterval(timerRef.current)
+        timerRef.current = null
+      }
+      if (recorderRef.current?.getState() === 'recording' && !submittedRef.current) {
+        void finishRef.current?.()
+      } else {
+        recorderRef.current?.dispose()
+      }
     }
   }, [])
 
@@ -69,6 +77,10 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
       result?.transcript ?? '',
     )
   }, [onRecorded])
+
+  useEffect(() => {
+    finishRef.current = finish
+  }, [finish])
 
   const beginRecording = useCallback(async () => {
     setError(null)
@@ -146,7 +158,11 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
           <div className="min-w-0">
             <p className="text-ink-900 dark:text-white text-sm font-semibold">Record your response</p>
             <p className="text-ink-500 dark:text-ink-400 text-xs">
-              {prepSeconds > 0 ? `${prepSeconds}s to prepare, then up to ${seconds}s to speak.` : `Up to ${seconds} seconds.`}
+              {disabled
+                ? 'Audio is playing. Wait for audio to finish before recording.'
+                : prepSeconds > 0
+                  ? `${prepSeconds}s to prepare, then up to ${seconds}s to speak.`
+                  : `Up to ${seconds} seconds.`}
               {!micSupported ? ' Microphone not detected.' : ''}
             </p>
           </div>

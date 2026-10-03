@@ -11,7 +11,7 @@ const FAQ = [
   {
     question: 'Is this PTE mock test really free?',
     answer:
-      'Yes. There is no account, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no per-user server cost to pass on.',
+      'Yes. There is no account, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no per-user server cost to pass on. An optional cloud account exists only to sync your history across devices.',
   },
   {
     question: 'How accurate are the scores produced here?',

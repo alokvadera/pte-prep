@@ -28,6 +28,20 @@ import { weakestTypes } from '../domain/weakTypes'
 
 const SKILL_ORDER: Skill[] = ['reading', 'listening', 'speaking', 'writing']
 
+function getAttemptKind(a: AttemptRecord): 'full' | 'section' | 'drill' {
+  if (a.mockKind) return a.mockKind
+  if (a.sectionIds.length >= 3 || a.availablePoints >= 60 || a.mockTitle.toLowerCase().includes('full')) return 'full'
+  if (
+    a.mockTitle.toLowerCase().includes('practice') &&
+    (a.mockTitle.toLowerCase().includes('speaking') ||
+      a.mockTitle.toLowerCase().includes('reading') ||
+      a.mockTitle.toLowerCase().includes('listening'))
+  ) {
+    return 'section'
+  }
+  return 'drill'
+}
+
 export default function Dashboard() {
   const navigate = useNavigate()
   const { settings, set } = useSettings()
@@ -58,8 +72,10 @@ export default function Dashboard() {
   const stats = useMemo(() => {
     if (!attempts || attempts.length === 0) return null
     const sorted = [...attempts].sort((a, b) => a.finishedAt.localeCompare(b.finishedAt))
-    const latest = sorted[sorted.length - 1]
-    const first = sorted[0]
+    const fullAttempts = sorted.filter((a) => getAttemptKind(a) === 'full')
+    const primary = fullAttempts.length > 0 ? fullAttempts : sorted
+    const latest = primary[primary.length - 1]
+    const first = primary[0]
     if (!latest || !first) return null
 
     const skillAvg: Partial<Record<Skill, number>> = {}
@@ -87,10 +103,13 @@ export default function Dashboard() {
       latest,
       first,
       delta: latest.overallScore - first.overallScore,
-      best: Math.max(...attempts.map((a) => a.overallScore)),
+      best: Math.max(...primary.map((a) => a.overallScore)),
       skillAvg,
       typeRows,
       sorted,
+      trendAttempts: fullAttempts.length >= 2 ? fullAttempts : sorted,
+      isFullMockTrend: fullAttempts.length >= 2,
+      hasFullMocks: fullAttempts.length > 0,
     }
   }, [attempts])
 
@@ -239,21 +258,31 @@ export default function Dashboard() {
             ) : null}
 
             <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-              <Stat label="Latest score" value={stats.latest.overallScore} sub={`CEFR ${stats.latest.cefr}`} tone="brand" />
-              <Stat label="Best score" value={stats.best} sub={`across ${attempts.length} attempts`} tone="mint" />
+              <Stat
+                label="Latest score"
+                value={stats.latest.overallScore}
+                sub={stats.hasFullMocks ? `Full mock · CEFR ${stats.latest.cefr}` : `CEFR ${stats.latest.cefr}`}
+                tone="brand"
+              />
+              <Stat
+                label="Best score"
+                value={stats.best}
+                sub={stats.hasFullMocks ? 'best full mock' : `across ${attempts.length} attempts`}
+                tone="mint"
+              />
               <Stat
                 label="Change"
                 value={`${stats.delta >= 0 ? '+' : ''}${Math.round(stats.delta * 10) / 10}`}
-                sub="since first attempt"
+                sub={stats.hasFullMocks ? 'since first full mock' : 'since first attempt'}
                 tone={stats.delta >= 0 ? 'mint' : 'rose'}
               />
               <Stat label="Attempts" value={attempts.length} sub={formatDuration(stats.sorted.reduce((a, b) => a + b.durationMs, 0))} />
             </div>
 
-            {stats.sorted.length > 1 ? (
+            {stats.trendAttempts.length > 1 ? (
               <Card className="mt-8">
-                <CardTitle>Overall score over time</CardTitle>
-                <ScoreTrend points={stats.sorted.map((a) => ({ label: a.finishedAt, value: a.overallScore }))} />
+                <CardTitle>Overall score over time{stats.isFullMockTrend ? ' (Full mocks)' : ''}</CardTitle>
+                <ScoreTrend points={stats.trendAttempts.map((a) => ({ label: a.finishedAt, value: a.overallScore }))} />
               </Card>
             ) : null}
 
@@ -345,7 +374,28 @@ export default function Dashboard() {
                         <td className="text-ink-500 dark:text-ink-400 px-3 py-3 whitespace-nowrap">
                           {formatDateTime(a.finishedAt)}
                         </td>
-                        <td className="text-ink-700 dark:text-ink-200 max-w-[180px] truncate px-3 py-3">{a.mockTitle}</td>
+                        <td className="text-ink-700 dark:text-ink-200 max-w-[220px] px-3 py-3">
+                          <div className="flex items-center gap-2">
+                            <span className="truncate">{a.mockTitle}</span>
+                            {(() => {
+                              const kind = getAttemptKind(a)
+                              return (
+                                <span
+                                  className={cn(
+                                    'shrink-0 rounded px-1.5 py-0.5 text-micro font-semibold',
+                                    kind === 'full'
+                                      ? 'bg-brand-500/10 text-brand-700 dark:text-brand-300'
+                                      : kind === 'section'
+                                        ? 'bg-sky-500/10 text-sky-700 dark:text-sky-300'
+                                        : 'bg-ink-100 text-ink-600 dark:bg-white/10 dark:text-ink-300',
+                                  )}
+                                >
+                                  {kind === 'full' ? 'Full' : kind === 'section' ? 'Section' : 'Drill'}
+                                </span>
+                              )
+                            })()}
+                          </div>
+                        </td>
                         <td className="text-ink-900 dark:text-white px-3 py-3 font-bold tabular-nums">{a.overallScore}</td>
                         <td>
                           <Badge tone={a.overallScore >= 71 ? 'mint' : a.overallScore >= 46 ? 'brand' : 'amber'}>
@@ -405,17 +455,20 @@ export default function Dashboard() {
               {confirmClearAll ? (
                 <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rose-brand/30 bg-rose-brand/8 p-3.5 text-sm dark:bg-rose-brand/15">
                   <p className="text-rose-700 dark:text-rose-300 font-medium">
-                    Delete all attempt history? This cannot be undone.
+                    Delete all attempt history here and in cloud sync? This cannot be undone.
                   </p>
                   <div className="flex gap-2">
                     <Button
                       variant="danger"
                       size="sm"
                       onClick={() => {
-                        void clearAttempts().then(() => {
+                        void (async () => {
+                          const current = attempts ?? []
+                          await Promise.all(current.map((a) => deleteAttemptEverywhere(a.id)))
+                          await clearAttempts()
                           setAttempts([])
                           setConfirmClearAll(false)
-                        })
+                        })()
                       }}
                     >
                       Yes, clear all

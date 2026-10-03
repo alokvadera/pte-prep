@@ -99,10 +99,11 @@ export const useAuth = create<AuthStore>()(
       setTargetScore: async (score: number) => {
         const { token, user } = get()
         if (!token || !user) return
+        const previous = user.targetScore
         const updated = { ...user, targetScore: score }
         set({ user: updated })
         try {
-          await fetch('/api/auth/me', {
+          const res = await fetch('/api/auth/me', {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -110,8 +111,9 @@ export const useAuth = create<AuthStore>()(
             },
             body: JSON.stringify({ targetScore: score }),
           })
+          if (!res.ok) set({ user: { ...updated, targetScore: previous } })
         } catch {
-          /* ignore network error, keep optimistic state */
+          set({ user: { ...updated, targetScore: previous } })
         }
       },
 

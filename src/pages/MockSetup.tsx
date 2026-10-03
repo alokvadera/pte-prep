@@ -71,7 +71,6 @@ export default function MockSetup() {
   const capacity = useMemo(() => capacityByType(), [])
 
   const counts = useMemo(() => {
-    if (singleSection) return { ...MOCK_BLUEPRINT }
     const scale = LENGTHS[length].scale
     const out: Partial<Record<QuestionType, number>> = {}
     for (const [type, n] of Object.entries(MOCK_BLUEPRINT)) {
@@ -94,7 +93,7 @@ export default function MockSetup() {
       for (const t of readingTypes) out[t] = Math.max(1, (out[t] ?? 1) - Math.floor(excess / 3))
     }
     return out
-  }, [length, singleSection, capacity])
+  }, [length, capacity])
 
   const preview = useMemo(() => {
     const t = TIMINGS[timing]

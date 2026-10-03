@@ -315,7 +315,7 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
 
   // Summarize Group Discussion
   {
-    const n = counts['summarize-group-discussion'] ?? 0
+    const n = counts['summarize-group-discussion'] ?? MOCK_BLUEPRINT['summarize-group-discussion']
     const picks = pickN(BANK.groupDiscussionItems, n, makeRng(ctx.seed + 6))
     for (const sgd of picks) {
       const id = itemId('summarize-group-discussion', sgd.id)

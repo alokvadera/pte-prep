@@ -203,8 +203,8 @@ function Footer() {
           <div className="lg:col-span-2">
             <Logo />
             <p className="mt-3 max-w-sm leading-relaxed">
-              Free, unlimited PTE Academic practice. Everything runs in your browser — no account, no upload, no
-              payment.
+              Free, unlimited PTE Academic practice. Everything runs in your browser by default — no account required, no
+              payment. An optional account syncs history across devices.
             </p>
           </div>
           <div>

@@ -120,7 +120,10 @@ export const useTest = create<TestStore>()(
           sectionEndsAt: null,
           startedAt: new Date().toISOString(),
           elapsedMs: 0,
-          attemptId: `att-${Date.now().toString(36)}`,
+          attemptId:
+            typeof crypto !== 'undefined' && 'randomUUID' in crypto
+              ? `att-${crypto.randomUUID()}`
+              : `att-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`,
           timeExpired: false,
         })
       },
@@ -237,10 +240,15 @@ export const useTest = create<TestStore>()(
 
         const report = buildReport(items, mock.answers, responses, metaById)
 
+        const hasEstimated = report.details.some((d) => d.maxPoints > 0 && d.traits !== undefined)
+
         const attempt: AttemptRecord = {
-          id: attemptId ?? `att-${Date.now().toString(36)}`,
+          id: attemptId ?? (typeof crypto !== 'undefined' && 'randomUUID' in crypto
+            ? `att-${crypto.randomUUID()}`
+            : `att-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`),
           mockId: mock.id,
           mockTitle: mock.title,
+          mockKind: mock.kind,
           mode,
           startedAt: startedAt ?? new Date().toISOString(),
           finishedAt: new Date().toISOString(),
@@ -251,12 +259,15 @@ export const useTest = create<TestStore>()(
           availablePoints: report.availablePoints,
           earnedPoints: report.earnedPoints,
           skillScores: report.skills,
-          overallIsEstimate: true,
+          overallIsEstimate: hasEstimated,
+          timeScale: mock.timeScale,
+          ...(mock.untimed ? { untimed: true } : {}),
           overallScore: report.overall,
           overallScore60: report.overall60,
           cefr: report.cefr,
           completedItemIds: items.filter((i) => hasResponse(responses[i.id])).map((i) => i.id),
           breakdown: report.breakdown,
+          details: report.details,
         }
 
         set({ status: 'finished', attemptId: attempt.id })

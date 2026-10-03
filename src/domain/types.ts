@@ -232,6 +232,7 @@ export interface AttemptRecord {
   id: string
   mockId: string
   mockTitle: string
+  mockKind?: 'full' | 'section' | 'drill'
   mode: MockMode
   startedAt: string
   finishedAt: string
@@ -252,6 +253,10 @@ export interface AttemptRecord {
    * therefore our own estimate and is labelled as such wherever it is shown.
    */
   overallIsEstimate: boolean
+  /** Clock multiplier used for this attempt (1 = official timing). */
+  timeScale?: number
+  /** True when the attempt ran without a clock. */
+  untimed?: boolean
   /** Overall estimate, 10–90. */
   overallScore: number
   /** Overall estimate on the legacy 60–120 scale. */
@@ -261,6 +266,8 @@ export interface AttemptRecord {
   completedItemIds: string[]
   /** Item type level accuracy: type -> { correct, total, maxPoints }. */
   breakdown: Record<string, TypeStat>
+  /** Per-item scoring details for question review. */
+  details?: ItemScoreDetail[]
 }
 
 export interface TypeStat {

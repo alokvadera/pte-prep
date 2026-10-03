@@ -8,7 +8,7 @@ const SECTIONS = [
     eyebrow: 'Storage',
     heading: 'What this site stores',
     body: [
-      'Everything you do here stays on your device. Practice attempts, your answers, your recordings and your score history are written to IndexedDB in your own browser. They are never uploaded, and there is no account that could hold them elsewhere.',
+      'Everything you do here stays on your device by default. Practice attempts, your answers, your recordings and your score history are written to IndexedDB in your own browser. They are never uploaded unless you create an optional cloud account, which syncs copies to Cloudflare storage so your history follows you across devices.',
       'Clearing site data in your browser deletes all of it permanently. Because there is no copy on any server, that deletion cannot be undone by anyone, including us.',
     ],
   },
@@ -53,7 +53,7 @@ export default function Privacy() {
         breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Privacy' }]} />}
         eyebrow="Your data"
         title="Privacy"
-        description="This site has no server side database, account system or analytics. Everything you do stays in your browser."
+        description="This site stores everything locally by default, with no analytics. An optional cloud account can sync your history across devices."
       >
 
         {/* A rule above every section after the first. On a page that is nothing

@@ -20,7 +20,7 @@ export const SITE = {
   shortName: 'PTE Prep',
   tagline: 'Free unlimited PTE Academic mock tests',
   description:
-    'Take full-length PTE Academic mock tests for free. All 22 question types, real section timings, instant score reports, CEFR band and question-by-question review. No signup, no payment, runs in your browser.',
+    'Take full-length PTE Academic mock tests for free. All 22 question types, real section timings, instant score reports, CEFR band and question-by-question review. No signup required, no payment, runs in your browser with optional cloud sync.',
   locale: 'en_US',
   lang: 'en',
   themeColor: '#0e1413',

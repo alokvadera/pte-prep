@@ -51,6 +51,7 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
 
   const chosen = [...selected].filter((type) => types.includes(type))
   const buildable = chosen.filter((t) => (capacity[t] ?? 0) >= Math.min(perType, 2))
+  const dropped = chosen.filter((t) => !buildable.includes(t))
 
   const begin = () => {
     const mock = buildDrillMock(Math.floor(Math.random() * 1_000_000), buildable, perType)
@@ -137,6 +138,12 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
             </Button>
           </div>
         </div>
+        {dropped.length > 0 ? (
+          <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs leading-relaxed" role="status">
+            {dropped.length} selected {dropped.length === 1 ? 'type is' : 'types are'} skipped — the bank holds fewer
+            than {Math.min(perType, 2)} items for {dropped.map((t) => QUESTION_META[t].label).join(', ')}.
+          </p>
+        ) : null}
 
         {/* Roomier selection cards: p-5, min-height, and a 4-unit grid gap so a
             dense list of 22 types still reads as calm. */}

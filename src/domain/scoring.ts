@@ -729,10 +729,72 @@ export function scoreItem(item: Item, key: AnswerKey, response: ItemResponse | u
  * reported in the 0.5 increments Pearson uses. The score is labelled an
  * estimate everywhere it appears.
  */
+/**
+ * The one free parameter in the conversion below.
+ *
+ * It reproduces the observable *shape* of the published scale — 10 at zero, 90
+ * at full marks, close to linear through the middle, compressed at the ends —
+ * but it is not Pearson's parameter, because Pearson's IRT parameters are not
+ * published. It is the only number in the whole scoring path that a different,
+ * equally reasonable author could have written differently while still
+ * producing an equally plausible-looking scale, which makes it the honest place
+ * to measure sensitivity.
+ */
+const SCALE_SHAPE = 0.92
+
 export function rawToPteScale(fraction: number): number {
   const f = clamp(fraction, 0, 1)
-  const shaped = Math.pow(f, 0.92)
+  const shaped = Math.pow(f, SCALE_SHAPE)
   return Math.round((10 + 80 * shaped) * 2) / 2
+}
+
+/**
+ * How far the conversion could be wrong, as a range around the same estimate.
+ *
+ * This is **not** a confidence interval, a probability, or a standard error,
+ * and the UI must not call it one. Scoring here is fully deterministic — the
+ * same responses always produce the same score — so there is no sampling
+ * distribution to take quantiles from and no honest way to put a probability
+ * on this number. What can be bounded is the error in the mapping itself: hold
+ * the candidate's accuracy fixed and vary the shape exponent across the range
+ * the docstring above describes, and the reported score moves.
+ *
+ * The bounds are a stated judgement, not a derived interval. `high` is the
+ * exactly-linear case, which is the one reading of "close to linear in the
+ * middle" that needs no curvature at all. `low` is a stronger end-compression
+ * than the one chosen. Both are defensible; neither is measurably right, and
+ * the point of showing the band is that the reader is not asked to prefer one.
+ *
+ * The resulting band is deliberately **asymmetric and score-dependent**. It is
+ * widest through the middle of the scale and collapses to nothing at 90,
+ * because that is what the sensitivity analysis produces. A symmetric interval
+ * drawn here would be a different and less honest claim.
+ */
+const SCALE_SHAPE_BOUNDS = { low: 0.8, high: 1 } as const
+
+export interface ScoreBand {
+  low: number
+  mid: number
+  high: number
+}
+
+export function scoreBand(fraction: number, score: number): ScoreBand {
+  const f = clamp(fraction, 0, 1)
+  const at = (e: number) => Math.round((10 + 80 * Math.pow(f, e)) * 2) / 2
+  // A lower exponent raises the score, so name the ends by value, not by which
+  // bound produced them.
+  const a = at(SCALE_SHAPE_BOUNDS.low)
+  const b = at(SCALE_SHAPE_BOUNDS.high)
+  // The midpoint is the score the caller is displaying, not a re-derivation of
+  // it. The stored totals are rounded to 2dp before they reach this module, so
+  // re-deriving from the fraction can disagree with the shown score by half a
+  // point and put the marker outside its own rail. Folding the shown score
+  // into the bounds makes that impossible by construction rather than by luck.
+  return {
+    low: Math.min(a, b, score),
+    mid: score,
+    high: Math.max(a, b, score),
+  }
 }
 
 export interface ScoreReport {

@@ -112,6 +112,7 @@ export class VoiceRecorder {
   private pitchSum = 0
   private pitchCount = 0
   private transcript = ''
+  private lastInterim = ''
   private events: RecorderEvents
   private stopping = false
 
@@ -146,6 +147,7 @@ export class VoiceRecorder {
     this.pitchSum = 0
     this.pitchCount = 0
     this.transcript = ''
+    this.lastInterim = ''
     this.stopping = false
 
     try {
@@ -191,13 +193,21 @@ export class VoiceRecorder {
         rec.lang = 'en-US'
         rec.onresult = (event) => {
           let text = ''
+          let interim = ''
           for (let i = event.resultIndex; i < event.results.length; i++) {
             const r = event.results[i]
-            if (r && r.isFinal) text += `${r[0].transcript} `
+            if (r) {
+              if (r.isFinal) text += `${r[0].transcript} `
+              else interim += `${r[0].transcript} `
+            }
           }
           if (text.trim()) {
             this.transcript += text
+            this.lastInterim = ''
             this.events.onTranscript?.(this.transcript.trim())
+          } else if (interim.trim()) {
+            this.lastInterim = interim.trim()
+            this.events.onTranscript?.(`${this.transcript} ${this.lastInterim}`.trim())
           }
         }
         rec.onerror = () => {
@@ -264,6 +274,10 @@ export class VoiceRecorder {
       /* ignore */
     }
     this.recognition = null
+
+    if (this.lastInterim.trim() && !this.transcript.toLowerCase().includes(this.lastInterim.toLowerCase().trim())) {
+      this.transcript = `${this.transcript} ${this.lastInterim}`.trim()
+    }
 
     this.stream?.getTracks().forEach((t) => t.stop())
     this.stream = null

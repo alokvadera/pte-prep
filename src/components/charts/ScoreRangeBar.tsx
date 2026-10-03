@@ -1,5 +1,5 @@
 import { cn } from '../../lib/cn'
-import { CEFR_BANDS, nextBand } from '../../domain/scoring'
+import { CEFR_BANDS, nextBand, scoreBand } from '../../domain/scoring'
 
 // ---------------------------------------------------------------------------
 // Score as a range against its band, not as an arc.
@@ -13,6 +13,14 @@ import { CEFR_BANDS, nextBand } from '../../domain/scoring'
 // A range bar is linear, so length carries magnitude directly, and it can show
 // the thing a candidate actually needs — not "you scored 61" but "61 is just
 // into B2, and B2 runs to 75" — with the band boundaries drawn on the track.
+//
+// The marker on that track is a hard line, because the score is one number and
+// it should be readable at a glance. Left there it is also the most confident
+// thing in the interface, which overstates what is known: `scoreBand` supplies
+// the sensitivity of the 10–90 conversion, and the rail below the track draws
+// it. The marker keeps its width and its dominance; what changes is that it is
+// visibly not sitting in the middle of its own uncertainty, because it usually
+// is not.
 // ---------------------------------------------------------------------------
 
 const BAND_COLOR: Record<string, string> = {
@@ -46,13 +54,19 @@ interface Props {
   score: number
   /** The CEFR band that score falls in. */
   band: string
+  /**
+   * Earned ÷ available points for the same attempt. Supplying it draws the
+   * conversion-sensitivity rail. Omit it where there is no underlying attempt
+   * to measure — the band is then unknown rather than zero.
+   */
+  fraction?: number
   /** Rendered above or below the track. */
   size?: 'sm' | 'lg'
   className?: string
   label?: string
 }
 
-export function ScoreRangeBar({ score, band, size = 'lg', className, label }: Props) {
+export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, label }: Props) {
   const clamped = Math.max(10, Math.min(90, score))
   const pct = ((clamped - 10) / 80) * 100
   const current = BAND_EDGES.find((b) => b.band === band)
@@ -60,12 +74,24 @@ export function ScoreRangeBar({ score, band, size = 'lg', className, label }: Pr
     ? (((Math.min(clamped, current.to) - current.from) / Math.max(1, current.to - current.from + 1)) * 100)
     : 0
 
+  // Undefined when the caller has no attempt to measure. Degenerate (90–90 at
+  // full marks) when the conversion is exact there, in which case there is
+  // nothing to draw and saying so is better than drawing a zero-width bar.
+  const bounds = fraction === undefined ? null : scoreBand(fraction, clamped)
+  const showRail = bounds !== null && bounds.high > bounds.low
+  const toPct = (v: number) => ((Math.max(10, Math.min(90, v)) - 10) / 80) * 100
+
   return (
     <div className={className}>
       <div
         className={cn('relative w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10', size === 'lg' ? 'h-3' : 'h-1.5')}
         role="img"
-        aria-label={label ?? `Score ${clamped} out of 90, CEFR band ${band}`}
+        aria-label={
+          label ??
+          (showRail
+            ? `Score ${clamped} out of 90, CEFR band ${band}, conversion sensitivity ${bounds.low} to ${bounds.high}`
+            : `Score ${clamped} out of 90, CEFR band ${band}`)
+        }
       >
         {/* The bands themselves, so the boundary is visible without reading. */}
         {BAND_EDGES.map((b) => (
@@ -91,6 +117,23 @@ export function ScoreRangeBar({ score, band, size = 'lg', className, label }: Pr
         />
       </div>
 
+      {/* The sensitivity rail. Drawn on its own track below rather than over
+          the fill, so the score's own length stays unambiguous, and with end
+          ticks rather than a symmetric bracket — the band genuinely is
+          asymmetric, and rounding it into a centred error bar would be the
+          exact misreading the literature warns about. Ink-700/ink-300 keeps
+          the non-text contrast (SC 1.4.11) clear of 3:1 against its rail. */}
+      {showRail && bounds ? (
+        <div className="mt-1.5" aria-hidden="true">
+          <div className="relative h-1 w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10">
+            <div
+              className="absolute inset-y-0 bg-ink-700 dark:bg-white/35"
+              style={{ left: `${toPct(bounds.low)}%`, width: `${toPct(bounds.high) - toPct(bounds.low)}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
+
       {/* Band edges along the track, and the current band called out once. */}
       <div className="mt-2 flex justify-between gap-3 text-xs font-semibold text-ink-500 dark:text-ink-400 tabular-nums" aria-hidden="true">
         <span>10</span>
@@ -106,6 +149,23 @@ export function ScoreRangeBar({ score, band, size = 'lg', className, label }: Pr
           {nextBand(band)?.band ?? 'the top of the scale'}.{''}
         </p>
       ) : null}
+      {showRail && bounds ? (
+        <p className="text-ink-500 dark:text-ink-400 mt-3 max-w-prose text-xs">
+          The same attempt could land between{' '}
+          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.low}</span> and{' '}
+          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.high}</span> if our 10–90
+          conversion is wrong, which is a bound on the mapping and not a
+          confidence interval. Pearson builds that scale with IRT and does not
+          publish the parameters, so the conversion here reproduces the shape of
+          the scale rather than the scale itself. Curvature is the one number
+          that could reasonably have been written differently, and it moves the
+          score furthest through the middle of the range and not at all at 90 —
+          which is why one end of the rail sits further from the marker than the
+          other. Your answers are not in doubt; the mapping from them to a PTE
+          score is.
+        </p>
+      ) : null}
+
       {/* The in-band position, exposed to assistive tech without relying on the
           visual marker. */}
       <span className="sr-only">

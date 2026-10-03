@@ -16,7 +16,7 @@ const HOME_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'Is this PTE mock test really free?',
     answer:
-      'Yes. There is no account, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no per-user server cost to pass on.',
+      'Yes. There is no account, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no per-user server cost to pass on. An optional cloud account exists only to sync your history across devices.',
   },
   {
     question: 'How accurate are the scores produced here?',
@@ -153,7 +153,7 @@ const ABOUT_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'Where is my data stored?',
     answer:
-      'In your browser, on your own device, using IndexedDB. Your responses, recordings and score history never leave the machine. There is no account, no server-side database and no analytics on your answers. Clearing site data in your browser deletes everything.',
+      'In your browser, on your own device, using IndexedDB. Your responses, recordings and score history stay on the machine by default, with no analytics on your answers. An optional cloud account can sync copies across devices. Clearing site data in your browser deletes the local copy.',
   },
   {
     question: 'Is it really free, and why?',
@@ -365,9 +365,9 @@ export const PAGE_META: Record<string, PageMeta> = {
   },
 
   '/privacy/': {
-    title: 'Privacy — No Data Leaves Your Device',
+    title: 'Privacy — Local by Default, Optional Cloud Sync',
     description:
-      'No server database, no account, no analytics. Attempts, recordings and scores stay in your browser. What is stored, what is not, and why there is no cookie banner.',
+      'Local-first storage with zero tracking. Test attempts and recordings stay in your browser unless you sync to Cloudflare. What is stored and why.',
     path: '/privacy/',
     keywords: ['PTE practice privacy', 'does this site track me', 'no data collection'],
     structuredData: [

@@ -24,6 +24,7 @@ interface Props {
   /** Show the transcript beneath the player. */
   showTranscript?: boolean
   onPlayed?: () => void
+  onPlayStateChange?: (playing: boolean) => void
   compact?: boolean
   allowSpeedControl?: boolean
 }
@@ -40,6 +41,7 @@ export function AudioPlayer({
   leadIn = 3,
   showTranscript = false,
   onPlayed,
+  onPlayStateChange,
   compact = false,
   allowSpeedControl = false,
 }: Props) {
@@ -58,6 +60,16 @@ export function AudioPlayer({
   useEffect(() => {
     onPlayedRef.current = onPlayed
   }, [onPlayed])
+
+  useEffect(() => {
+    onPlayStateChange?.(state !== 'idle')
+  }, [state, onPlayStateChange])
+
+  useEffect(() => {
+    return () => {
+      onPlayStateChange?.(false)
+    }
+  }, [onPlayStateChange])
 
   const stimulusKey = `${audioId ?? ''}:${utterance ?? ''}:${fromTurn ?? ''}:${toTurn ?? ''}:${beepWord ?? ''}:${replays}`
   const [prevStimulusKey, setPrevStimulusKey] = useState(stimulusKey)

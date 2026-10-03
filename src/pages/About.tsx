@@ -27,7 +27,7 @@ const FAQ = [
   {
     question: 'Where is my data stored?',
     answer:
-      'In your browser, on your own device, using IndexedDB. Your responses, recordings and score history never leave the machine. There is no account, no server-side database and no analytics on your answers. Clearing site data in your browser deletes everything.',
+      'In your browser, on your own device, using IndexedDB. Your responses, recordings and score history stay on the machine by default, with no analytics on your answers. An optional cloud account can sync copies across devices. Clearing site data in your browser deletes the local copy.',
   },
   {
     question: 'Is it really free, and why?',

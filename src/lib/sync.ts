@@ -15,6 +15,10 @@ export async function syncAttemptToCloud(attempt: AttemptRecord): Promise<boolea
       },
       body: JSON.stringify(attempt),
     })
+    if (res.status === 401) {
+      useAuth.getState().logout()
+      return false
+    }
     return res.ok
   } catch {
     return false
@@ -29,6 +33,10 @@ export async function fetchAttemptFromCloud(id: string): Promise<AttemptRecord |
     const res = await fetch(`/api/attempts/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
+    if (res.status === 401) {
+      useAuth.getState().logout()
+      return null
+    }
     if (!res.ok) return null
     const data = (await res.json()) as { attempt?: AttemptRecord }
     if (data.attempt) {
@@ -47,10 +55,13 @@ export async function deleteAttemptEverywhere(id: string): Promise<void> {
   if (!token) return
 
   try {
-    await fetch(`/api/attempts/${id}`, {
+    const res = await fetch(`/api/attempts/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })
+    if (res.status === 401) {
+      useAuth.getState().logout()
+    }
   } catch {
     /* offline */
   }
@@ -64,6 +75,10 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
     const res = await fetch('/api/attempts', {
       headers: { Authorization: `Bearer ${token}` },
     })
+    if (res.status === 401) {
+      useAuth.getState().logout()
+      return { pushed: 0, pulled: 0 }
+    }
     if (!res.ok) return { pushed: 0, pulled: 0 }
 
     const data = (await res.json()) as { attempts?: AttemptRecord[] }

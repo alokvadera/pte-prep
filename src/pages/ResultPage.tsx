@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ADMISSION_TARGETS, buildReport, cefrLabel } from '../domain/scoring'
 import { QUESTION_META } from '../domain/blueprint'
+import { buildFullMock } from '../domain/assemble'
 import { formatSeconds, paceReport, paceWarnings } from '../domain/pace'
 import type { AttemptRecord, ItemResponse, ItemScoreDetail, QuestionType, Skill } from '../domain/types'
 import { getAttempt } from '../db/db'
@@ -74,11 +75,25 @@ export default function ResultPage() {
     }
   }, [mock, params, finish, attempt?.id, setSearchParams])
 
+  const seed = attempt?.seed
+  const effectiveMock = useMemo(() => {
+    if (mock) return mock
+    if (seed) {
+      try {
+        return buildFullMock(seed)
+      } catch {
+        return null
+      }
+    }
+    return null
+  }, [mock, seed])
+
   const details = useMemo(() => {
-    if (!mock) return []
-    const items = mock.sections
+    if (attempt?.details && attempt.details.length > 0) return attempt.details
+    if (!effectiveMock) return []
+    const items = effectiveMock.sections
       .flatMap((s) => s.itemIds)
-      .map((id) => mock.items[id])
+      .map((id) => effectiveMock.items[id])
       .filter((i): i is NonNullable<typeof i> => Boolean(i))
     const metaById: Record<string, { skills: Skill[]; type: QuestionType; label: string }> = {}
     for (const item of items) {
@@ -88,12 +103,14 @@ export default function ResultPage() {
         label: QUESTION_META[item.type]?.label ?? item.type,
       }
     }
-    return buildReport(items, mock.answers, responses, metaById).details
-  }, [mock, responses])
+    return buildReport(items, effectiveMock.answers, attempt?.responses ?? responses, metaById).details
+  }, [attempt, effectiveMock, responses])
 
-  // The real-test budget lives on the item, which the attempt record does not
-  // keep, so pace is read from the mock while the attempt is still in memory
-  // and falls back to nothing after a reload rather than to a guess.
+  // The real-test budget lives on the item. Pace is only shown while the
+  // live mock is still in memory, so budgets always match the actual run.
+  // Reconstructing from seed alone cannot reproduce half/quick/section/drill
+  // item sets, and showing pace against the wrong items would be worse than
+  // hiding the tab — the tab filter below already hides it then.
   const paceRows = useMemo(
     () => (mock && attempt ? paceReport(Object.values(mock.items), attempt.responses ?? {}) : []),
     [mock, attempt],
@@ -164,7 +181,9 @@ export default function ResultPage() {
         <header className="flex flex-wrap items-start justify-between gap-6">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge tone="mint">Estimated score</Badge>
+              <Badge tone={attempt.overallIsEstimate ? 'mint' : 'brand'}>
+                {attempt.overallIsEstimate ? 'Estimated score' : 'Auto-scored'}
+              </Badge>
               <Badge tone="neutral">{attempt.mockTitle}</Badge>
               <Badge tone="neutral">{formatDuration(attempt.durationMs)}</Badge>
               <button
@@ -201,6 +220,7 @@ export default function ResultPage() {
             <ScoreRangeBar
               score={attempt.overallScore}
               band={attempt.cefr}
+              fraction={accuracy}
               className="mt-3"
               label={`Overall score ${attempt.overallScore} out of 90, CEFR band ${attempt.cefr}`}
             />
@@ -328,7 +348,9 @@ export default function ResultPage() {
             )
               // Pace needs timing data, which only exists while a mock is in
               // memory, so the tab appears only when there is something to show.
-              .filter(([id]) => id !== 'pace' || paceRows.length > 0)
+              // Untimed runs record durations but have no budget to judge them
+              // against, so the tab stays hidden there too.
+              .filter(([id]) => id !== 'pace' || (paceRows.length > 0 && !attempt?.untimed))
               .map(([id, label]) => (
               <button
                 key={id}
@@ -397,6 +419,9 @@ export default function ResultPage() {
               <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
                 Average time per item against what the real test allows. Overruns tend to concentrate in two or three
                 types rather than spread evenly.
+                {attempt.timeScale && attempt.timeScale > 1
+                  ? ` This run used a ${attempt.timeScale}× clock, so the budgets below are the extended ones — overruns against official timing may be understated.`
+                  : null}
               </p>
               {paceWarnings(paceRows).length > 0 ? (
                 <Callout className="mt-5" label="Worth fixing first">
@@ -714,7 +739,7 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
           {ratio >= 0.999 ? null : (
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-100 pt-3 dark:border-white/10">
               <p className="text-ink-500 dark:text-ink-400 text-xs">
-                Estimated traits: content {Math.round(Math.min(1, ratio * 1.1) * 100)}% of the available credit.
+                Estimated traits: content {Math.round(ratio * 100)}% of the available credit.
               </p>
               <Link
                 to={`/practice?type=${detail.type}`}

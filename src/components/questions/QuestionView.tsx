@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AudioPlayer } from '../audio/AudioPlayer'
 import { ChartRenderer } from '../charts/ChartRenderer'
 import { Recorder, TypedAnswer } from '../recorder/Recorder'
@@ -507,6 +507,7 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
   // heard, not read, and showing it would test reading instead of listening.
   const showTargetText = item.type === 'read-aloud'
   const hasTarget = item.type === 'read-aloud' || item.type === 'repeat-sentence'
+  const [audioPlaying, setAudioPlaying] = useState(false)
 
   return (
     <div>
@@ -536,6 +537,7 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
             showTranscript={showTranscript}
             allowSpeedControl={!examMode}
             compact={!hasTarget}
+            onPlayStateChange={setAudioPlaying}
           />
         </div>
       ) : null}
@@ -566,6 +568,7 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
           prepSeconds={item.prepSeconds ?? 0}
           onRecorded={(analysis, transcript) => onChange({ audio: analysis, transcript })}
           onTyped={(t) => onChange({ text: t })}
+          disabled={audioPlaying}
         />
       </div>
     </div>

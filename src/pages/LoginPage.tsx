@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../store/useAuth'
 import { syncCloudToLocal } from '../lib/sync'
@@ -31,6 +31,11 @@ export default function LoginPage() {
   const [clientError, setClientError] = useState<string | null>(null)
   const [syncing, setSyncing] = useState(false)
   const [syncSuccess, setSyncSuccess] = useState(false)
+  const syncTimer = useRef<number | null>(null)
+
+  useEffect(() => () => {
+    if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
+  }, [])
 
   const redirectUrl = params.get('from') || '/dashboard'
 
@@ -94,7 +99,8 @@ export default function LoginPage() {
     await syncCloudToLocal()
     setSyncing(false)
     setSyncSuccess(true)
-    setTimeout(() => setSyncSuccess(false), 3000)
+    if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
+    syncTimer.current = window.setTimeout(() => setSyncSuccess(false), 3000)
   }
 
   return (
@@ -146,8 +152,8 @@ export default function LoginPage() {
               </div>
 
               {syncSuccess && (
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium" role="status">
-                  ✓ All tests and scores are synced with Cloudflare D1.
+                <p className="text-xs text-mint-700 dark:text-mint-300 font-medium" role="status">
+                  ✓ All tests and scores are synced with cloud storage.
                 </p>
               )}
 
@@ -224,7 +230,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
                   />
                 </div>
 
@@ -252,7 +258,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
                   />
                 </div>
 
@@ -273,7 +279,7 @@ export default function LoginPage() {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-type your password"
-                        className="w-full rounded-xl border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+                        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
                       />
                     </div>
 
@@ -351,10 +357,10 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <Link
-              to="/privacy"
+              to="/privacy/"
               className="text-micro text-ink-400 dark:text-ink-500 hover:underline"
             >
-              Privacy policy · Your tests remain private to your account
+              Privacy policy · Local by default, optional cloud sync
             </Link>
           </div>
         </div>

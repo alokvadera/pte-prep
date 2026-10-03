@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { RouteFallback } from './components/RouteFallback'
 import { useTest } from './store/useTest'
 import { useSettings } from './store/useSettings'
+import { useAuth } from './store/useAuth'
 
 // ---------------------------------------------------------------------------
 // The indexable routes are imported eagerly, on purpose.
@@ -53,6 +54,12 @@ function TestRoute({ children }: { children?: ReactNode }) {
 
 export default function App() {
   const { settings } = useSettings()
+  const checkSession = useAuth((s) => s.checkSession)
+
+  // Validate a persisted login once, so a revoked token cannot linger.
+  useEffect(() => {
+    void checkSession()
+  }, [checkSession])
 
   // Signals that the app is interactive. It runs as an effect so that, under
   // hydration, it fires only after React has taken over the prerendered markup
