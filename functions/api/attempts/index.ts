@@ -39,11 +39,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB
-  const results = await db
+    const results = await db
     .prepare(
       `SELECT id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,
               overall_score, overall_score_60, cefr, earned_points, available_points,
-              skill_scores, breakdown, synced_at
+              skill_scores, breakdown, responses, synced_at
        FROM attempts
        WHERE user_id = ?
        ORDER BY finished_at DESC
@@ -55,9 +55,29 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const attempts = (results.results ?? []).map((row) => {
     let skillScores = {}
     let breakdown = {}
+    let responses: Record<string, unknown> = {}
+    let seed = 0
+    let mockKind: string | undefined
+    let details: unknown[] | undefined
+    let sectionIds = ['speaking-writing', 'reading', 'listening']
+
     try {
       skillScores = JSON.parse(row.skill_scores)
       breakdown = JSON.parse(row.breakdown)
+      if (row.responses) {
+        const parsed = JSON.parse(row.responses)
+        if (parsed && typeof parsed === 'object') {
+          if ('responses' in parsed) {
+            responses = parsed.responses ?? {}
+            seed = Number(parsed.seed ?? 0)
+            mockKind = parsed.mockKind ?? undefined
+            details = parsed.details ?? undefined
+            if (Array.isArray(parsed.sectionIds)) sectionIds = parsed.sectionIds
+          } else {
+            responses = parsed
+          }
+        }
+      }
     } catch {
       /* ignore corrupted json */
     }
@@ -66,6 +86,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       id: row.id,
       mockId: row.mock_id,
       mockTitle: row.mock_title,
+      mockKind,
+      details,
       mode: row.mode,
       startedAt: row.started_at,
       finishedAt: row.finished_at,
@@ -78,11 +100,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       skillScores,
       breakdown,
       syncedAt: row.synced_at,
-      seed: 0,
-      sectionIds: ['speaking-writing', 'reading', 'listening'],
+      seed,
+      sectionIds,
       overallIsEstimate: true,
-      completedItemIds: [],
-      responses: {},
+      completedItemIds: Object.keys(responses),
+      responses,
     }
   })
 
@@ -130,7 +152,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const db = context.env.DB
   const skillScores = JSON.stringify(attempt.skillScores ?? {})
   const breakdown = JSON.stringify(attempt.breakdown ?? {})
-  const responses = attempt.responses ? JSON.stringify(attempt.responses) : null
+  const responses = JSON.stringify({
+    responses: attempt.responses ?? {},
+    seed: attempt.seed ?? 0,
+    mockKind: attempt.mockKind ?? null,
+    sectionIds: attempt.sectionIds ?? null,
+    details: attempt.details ?? null,
+  })
 
   await db
     .prepare(

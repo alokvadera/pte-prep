@@ -137,6 +137,10 @@ export const useTest = create<TestStore>()(
         const { status, sectionEndsAt, mock } = get()
         if (!mock) return
         if (status === 'finished' || status === 'break' || status === 'briefing') return
+        if (mock.untimed) {
+          set({ status: 'running' })
+          return
+        }
         if (sectionEndsAt === null) return
         if (Date.now() >= sectionEndsAt) set({ timeExpired: true })
         else set({ status: 'running' })
@@ -198,7 +202,7 @@ export const useTest = create<TestStore>()(
           itemIndex: 0,
           status: 'running',
           timeExpired: false,
-          sectionEndsAt: Date.now() + section.seconds * 1000,
+          sectionEndsAt: mock.untimed ? null : Date.now() + section.seconds * 1000,
           startedAt: startedAt ?? new Date().toISOString(),
         })
       },
@@ -262,6 +266,7 @@ export const useTest = create<TestStore>()(
           overallIsEstimate: hasEstimated,
           timeScale: mock.timeScale,
           ...(mock.untimed ? { untimed: true } : {}),
+          ...(mock.forwardOnly ? { forwardOnly: true } : {}),
           overallScore: report.overall,
           overallScore60: report.overall60,
           cefr: report.cefr,

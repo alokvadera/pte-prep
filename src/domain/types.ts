@@ -224,6 +224,8 @@ export interface MockTest {
   timeScale: number
   /** True when the candidate chose an untimed run. */
   untimed?: boolean
+  /** True when navigation is forward-only, like the real test. */
+  forwardOnly?: boolean
 }
 
 export type MockMode = 'exam' | 'practice' | 'review'
@@ -257,6 +259,8 @@ export interface AttemptRecord {
   timeScale?: number
   /** True when the attempt ran without a clock. */
   untimed?: boolean
+  /** True when the run forbade going back, like test day. */
+  forwardOnly?: boolean
   /** Overall estimate, 10–90. */
   overallScore: number
   /** Overall estimate on the legacy 60–120 scale. */

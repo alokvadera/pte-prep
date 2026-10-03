@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { typeSlug } from '../content/questionTypeDetail'
@@ -149,12 +149,18 @@ const COLLOCATIONS: Array<{ col: string; type: string; example: string }> = [
 
 function TemplateCard({ item }: { item: StrategyTemplate }) {
   const [copied, setCopied] = useState(false)
+  const timerRef = useRef<number | null>(null)
+
+  useEffect(() => () => {
+    if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+  }, [])
 
   const copy = async () => {
     try {
       await navigator.clipboard.writeText(item.templateText)
       setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+      timerRef.current = window.setTimeout(() => setCopied(false), 2000)
     } catch {
       // ignore
     }

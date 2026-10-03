@@ -58,10 +58,28 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   let skillScores = {}
   let breakdown = {}
   let responses = {}
+  let seed = 0
+  let mockKind: string | undefined
+  let details: unknown[] | undefined
+  let sectionIds = ['speaking-writing', 'reading', 'listening']
+
   try {
     skillScores = JSON.parse(row.skill_scores)
     breakdown = JSON.parse(row.breakdown)
-    if (row.responses) responses = JSON.parse(row.responses)
+    if (row.responses) {
+      const parsed = JSON.parse(row.responses)
+      if (parsed && typeof parsed === 'object') {
+        if ('responses' in parsed) {
+          responses = parsed.responses ?? {}
+          seed = Number(parsed.seed ?? 0)
+          mockKind = parsed.mockKind ?? undefined
+          details = parsed.details ?? undefined
+          if (Array.isArray(parsed.sectionIds)) sectionIds = parsed.sectionIds
+        } else {
+          responses = parsed
+        }
+      }
+    }
   } catch {
     /* ignore parse errors */
   }
@@ -72,6 +90,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         id: row.id,
         mockId: row.mock_id,
         mockTitle: row.mock_title,
+        mockKind,
+        details,
         mode: row.mode,
         startedAt: row.started_at,
         finishedAt: row.finished_at,
@@ -85,8 +105,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         breakdown,
         responses,
         syncedAt: row.synced_at,
-        seed: 0,
-        sectionIds: ['speaking-writing', 'reading', 'listening'],
+        seed,
+        sectionIds,
         overallIsEstimate: true,
         completedItemIds: Object.keys(responses),
       },

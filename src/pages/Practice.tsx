@@ -38,6 +38,9 @@ export default function Practice() {
 function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) {
   const navigate = useNavigate()
   const start = useTest((s) => s.start)
+  const activeMock = useTest((s) => s.mock)
+  const activeStatus = useTest((s) => s.status)
+  const [confirmOverwrite, setConfirmOverwrite] = useState(false)
   const [skill, setSkill] = useState<Skill | null>(() => (deepLinkType ? QUESTION_META[deepLinkType].skills[0] ?? null : null))
   const [selected, setSelected] = useState<Set<QuestionType>>(() => (deepLinkType ? new Set([deepLinkType]) : new Set(ALL_QUESTION_TYPES)))
   const [perType, setPerType] = useState(3)
@@ -58,6 +61,14 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
     if (mock.sections.every((s) => s.itemIds.length === 0)) return
     start(mock, 'practice')
     navigate('/test')
+  }
+
+  const handleBegin = () => {
+    if (activeMock && activeStatus !== 'finished') {
+      setConfirmOverwrite(true)
+      return
+    }
+    begin()
   }
 
   const toggle = (t: QuestionType) => {
@@ -192,9 +203,48 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
 
         <div className="border-ink-200 dark:border-white/10 mt-8 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
           <p className="text-ink-500 dark:text-ink-400 text-sm">Transcripts, tips and replays are available throughout.</p>
-          <Button size="lg" onClick={begin} disabled={buildable.length === 0}>Start this practice</Button>
+          <Button size="lg" onClick={handleBegin} disabled={buildable.length === 0}>Start this practice</Button>
         </div>
       </section>
+
+      {confirmOverwrite ? (
+        <div className="fixed inset-0 z-100 grid place-items-center p-4">
+          <button
+            type="button"
+            className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer"
+            onClick={() => setConfirmOverwrite(false)}
+            aria-label="Cancel"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-overwrite-title"
+            className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl"
+          >
+            <h2 id="confirm-overwrite-title" className="text-ink-900 dark:text-white text-lg font-bold text-balance">
+              Discard active test?
+            </h2>
+            <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">
+              You have a test in progress ({activeMock?.title}). Starting a practice drill will discard your current progress.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button type="button" className="btn-secondary" onClick={() => setConfirmOverwrite(false)}>
+                Keep active test
+              </button>
+              <button
+                type="button"
+                className="btn-danger"
+                onClick={() => {
+                  setConfirmOverwrite(false)
+                  begin()
+                }}
+              >
+                Discard & Start drill
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <Disclosure className="mt-8" summary={`Browse the exam reference for all ${ALL_QUESTION_TYPES.length} question types`}>
         <p className="mb-4 text-sm text-ink-500 dark:text-ink-300">See where each type appears, how often it is tested, and a quick strategy before you begin.</p>

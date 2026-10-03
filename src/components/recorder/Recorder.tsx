@@ -32,6 +32,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
   const [transcript, setTranscript] = useState('')
   const [typed, setTyped] = useState('')
   const [error, setError] = useState<string | null>(null)
+  const [lastDurationMs, setLastDurationMs] = useState<number | null>(null)
   const recorderRef = useRef<VoiceRecorder | null>(null)
   const timerRef = useRef<number | null>(null)
   const submittedRef = useRef(false)
@@ -64,6 +65,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
     const rec = recorderRef.current
     const result = rec ? await rec.stop() : null
     setPhase('done')
+    setLastDurationMs(result?.analysis?.durationMs ?? 0)
     onRecorded(
       result?.analysis ?? {
         durationMs: 0,
@@ -113,6 +115,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
     submittedRef.current = false
     setTranscript('')
     setError(null)
+    setLastDurationMs(null)
     if (prepSeconds > 0) {
       setPhase('prep')
       setPrepLeft(prepSeconds)
@@ -176,7 +179,12 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
       {phase === 'prep' ? (
         <div className="text-center">
           <p className="text-ink-500 dark:text-ink-300 text-sm font-semibold">Prepare</p>
-          <p className="text-brand-500 dark:text-brand-300 my-2 font-mono text-5xl font-bold tabular-nums" aria-live="assertive">
+          <p
+            className="text-brand-500 dark:text-brand-300 my-2 font-mono text-5xl font-bold tabular-nums"
+            role="timer"
+            aria-live="off"
+            aria-label={`${prepLeft} seconds to prepare`}
+          >
             {prepLeft}
           </p>
           <div className="bg-ink-200 dark:bg-white/10 mx-auto h-1.5 w-48 overflow-hidden rounded-full">
@@ -255,6 +263,13 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
           ) : null}
 
           {error ? <p className="text-rose-brand dark:text-rose-300 mt-3 text-xs">{error}</p> : null}
+
+          {lastDurationMs !== null && lastDurationMs > 0 && lastDurationMs <= 500 ? (
+            <p className="text-amber-600 dark:text-amber-300 mt-3 text-xs" role="status">
+              That take was under half a second, so it scores as unanswered. Record a longer take or type your
+              answer below so content can still be scored.
+            </p>
+          ) : null}
 
           {!sttSupported || !transcript ? (
             <div className="mt-3">

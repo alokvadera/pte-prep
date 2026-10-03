@@ -37,7 +37,7 @@ const FAQ = [
   {
     question: 'Can I use this offline?',
     answer:
-      'Yes. The app is cached as an installable progressive web app, and the recordings are generated locally by the speech synthesiser built into macOS, Windows, iOS and Android. Once the page has loaded once, it works with no connection at all.',
+      'Yes. The app is cached as an installable progressive web app, and the recordings are generated locally by the speech synthesiser built into macOS, Windows, iOS and Android. Once the page has loaded once, core practice works with no connection; browser speech recognition and cloud sync need a connection when you use them.',
   },
   {
     question: 'Why are the scores only estimates?',

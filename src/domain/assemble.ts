@@ -1083,6 +1083,8 @@ export interface BuildOptions {
   /** Multiplier on every section clock. 1 is the official timing. */
   timeScale?: number
   untimed?: boolean
+  /** True when the runner forbids going back, like the real test. */
+  forwardOnly?: boolean
 }
 
 export function buildMock(opts: BuildOptions): MockTest {
@@ -1138,6 +1140,7 @@ export function buildMock(opts: BuildOptions): MockTest {
     totalSeconds,
     timeScale: opts.timeScale ?? 1,
     ...(opts.untimed ? { untimed: true } : {}),
+    ...(opts.forwardOnly ? { forwardOnly: true } : {}),
     ...(opts.focusTypes ? { focusTypes: opts.focusTypes } : {}),
   }
 }
@@ -1185,7 +1188,7 @@ export function buildSectionMock(
   seed: number,
   section: SectionId,
   counts: Partial<Record<QuestionType, number>>,
-  opts: { timeScale?: number; untimed?: boolean } = {},
+  opts: { timeScale?: number; untimed?: boolean; forwardOnly?: boolean } = {},
 ): MockTest {
   return buildMock({
     seed,
@@ -1194,6 +1197,7 @@ export function buildSectionMock(
     counts,
     timeScale: opts.timeScale,
     untimed: opts.untimed,
+    forwardOnly: opts.forwardOnly,
     title: `${SECTION_META[section].longTitle} Practice`,
   })
 }

@@ -270,7 +270,12 @@ export function AudioPlayer({
       </div>
 
       {state === 'countdown' ? (
-        <p className="text-brand-500 dark:text-brand-300 mt-3 font-mono text-2xl font-bold tabular-nums" aria-live="assertive">
+        <p
+          className="text-brand-500 dark:text-brand-300 mt-3 font-mono text-2xl font-bold tabular-nums"
+          role="timer"
+          aria-live="off"
+          aria-label={`Starting in ${countdown} seconds`}
+        >
           Starting in {countdown}
         </p>
       ) : null}

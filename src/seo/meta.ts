@@ -41,7 +41,7 @@ const HOME_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'Does it work offline?',
     answer:
-      'Yes. After the first visit the app is cached as an installable app, and the audio is synthesised by your own device rather than streamed, so practice continues with no connection at all.',
+      'Yes. After the first visit the app is cached as an installable app, and the audio is synthesised by your own device rather than streamed, so core practice continues with no connection. Browser speech recognition and cloud sync need a connection when you use them.',
   },
 ]
 
@@ -163,7 +163,7 @@ const ABOUT_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'Can I use this offline?',
     answer:
-      'Yes. The app is cached as an installable progressive web app, and the recordings are generated locally by the speech synthesiser built into macOS, Windows, iOS and Android. Once the page has loaded once, it works with no connection at all.',
+      'Yes. The app is cached as an installable progressive web app, and the recordings are generated locally by the speech synthesiser built into macOS, Windows, iOS and Android. Once the page has loaded once, core practice works with no connection; browser speech recognition and cloud sync need a connection when you use them.',
   },
   {
     question: 'Why are the scores only estimates?',

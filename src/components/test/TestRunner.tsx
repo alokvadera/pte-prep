@@ -101,6 +101,7 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
     const panel = panelRef.current
     if (!panel) return
 
+    const previousActive = document.activeElement as HTMLElement | null
     // Move focus into the drawer
     const focusable = panel.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
     focusable[0]?.focus()
@@ -124,7 +125,10 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
       }
     }
     window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      previousActive?.focus?.()
+    }
   }, [open, onClose])
 
   if (!open) return null
@@ -214,6 +218,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
   const toggleFlag = useTest((s) => s.toggleFlag)
 
   const examMode = mode === 'exam'
+  const forwardOnly = Boolean(mock?.forwardOnly)
   const [navOpen, setNavOpen] = useState(false)
   // SC 4.1.3: question advanced, flag toggled, section changed.
   const [announcement, setAnnouncement] = useState('')
@@ -257,9 +262,9 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
   }, [status, itemIndex, sectionIndex, mock])
 
   useEffect(() => {
-    if (status !== 'running' || !sectionEndsAt || timeExpired) return
+    if (mock?.untimed || status !== 'running' || !sectionEndsAt || timeExpired) return
     if (Date.now() >= sectionEndsAt) useTest.getState().expireSection()
-  }, [now, sectionEndsAt, timeExpired, status])
+  }, [now, sectionEndsAt, timeExpired, status, mock?.untimed])
 
   useEffect(() => {
     if (status !== 'running' || !mock) return
@@ -276,6 +281,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         )
         next()
       } else if (e.altKey && (e.key === 'b' || e.key === 'B')) {
+        if (mock.forwardOnly) return
         if (itemIndex > 0) {
           e.preventDefault()
           prev()
@@ -418,21 +424,27 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
               {QUESTION_META[item.type]?.label ?? item.type}
             </span>
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                className="btn-ghost text-xs"
-                onClick={() => {
-                  toggleFlag(item.id)
-                  setAnnouncement(responses[item.id]?.flagged ? 'Flag removed.' : 'Flagged for review.')
-                }}
-                aria-pressed={Boolean(response?.flagged)}
-              >
-                <span className={response?.flagged ? 'text-amber-500 dark:text-amber-300' : ''}>⚑</span>
-                {response?.flagged ? 'Flagged' : 'Flag'}
-              </button>
-              <button type="button" className="btn-ghost text-xs" onClick={() => setNavOpen(true)}>
-                All questions
-              </button>
+              {forwardOnly ? (
+                <span className="text-ink-500 dark:text-ink-400 text-xs font-semibold">Test-day mode · forward only</span>
+              ) : (
+                <button
+                  type="button"
+                  className="btn-ghost text-xs"
+                  onClick={() => {
+                    toggleFlag(item.id)
+                    setAnnouncement(responses[item.id]?.flagged ? 'Flag removed.' : 'Flagged for review.')
+                  }}
+                  aria-pressed={Boolean(response?.flagged)}
+                >
+                  <span className={response?.flagged ? 'text-amber-500 dark:text-amber-300' : ''}>⚑</span>
+                  {response?.flagged ? 'Flagged' : 'Flag'}
+                </button>
+              )}
+              {forwardOnly ? null : (
+                <button type="button" className="btn-ghost text-xs" onClick={() => setNavOpen(true)}>
+                  All questions
+                </button>
+              )}
             </div>
           </div>
 
@@ -455,13 +467,23 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
 
       <div className="border-ink-200 dark:border-white/10 fixed inset-x-0 bottom-0 z-30 border-t bg-white/90 backdrop-blur-md pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] dark:bg-ink-900/90">
         <div className="page-shell-wide flex items-center justify-between gap-3 pt-3">
-          <button type="button" className="btn-secondary" onClick={prev} disabled={itemIndex === 0}>
-            ← Back
-            <kbd className="hidden sm:inline-block ml-1 rounded bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-micro font-mono text-ink-500 dark:text-ink-400">Alt+B</kbd>
-          </button>
-          <button type="button" className="btn-ghost hidden sm:inline-flex" onClick={() => setNavOpen(true)}>
-            {answered} of {section.itemIds.length} answered
-          </button>
+          {forwardOnly ? (
+            <span className="text-ink-500 dark:text-ink-400 text-xs">Test-day mode · no going back</span>
+          ) : (
+            <button type="button" className="btn-secondary" onClick={prev} disabled={itemIndex === 0}>
+              ← Back
+              <kbd className="hidden sm:inline-block ml-1 rounded bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-micro font-mono text-ink-500 dark:text-ink-400">Alt+B</kbd>
+            </button>
+          )}
+          {forwardOnly ? (
+            <span className="text-ink-500 dark:text-ink-400 hidden text-xs tabular-nums sm:inline">
+              {answered} of {section.itemIds.length} answered
+            </span>
+          ) : (
+            <button type="button" className="btn-ghost hidden sm:inline-flex" onClick={() => setNavOpen(true)}>
+              {answered} of {section.itemIds.length} answered
+            </button>
+          )}
           <button
             type="button"
             className="btn-primary"

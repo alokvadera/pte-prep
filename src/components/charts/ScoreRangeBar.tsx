@@ -121,13 +121,16 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
           the fill, so the score's own length stays unambiguous, and with end
           ticks rather than a symmetric bracket — the band genuinely is
           asymmetric, and rounding it into a centred error bar would be the
-          exact misreading the literature warns about. Ink-700/ink-300 keeps
-          the non-text contrast (SC 1.4.11) clear of 3:1 against its rail. */}
+          exact misreading the literature warns about. The segment is a
+          meaningful graphic, so it is held to SC 1.4.11: ink-700 on the ink-200
+          rail measures 7.9:1 in light, and white/50 against the white/10 rail
+          measures 3.6:1 in dark. The first value tried, white/35, was 2.3:1
+          and would have failed. */}
       {showRail && bounds ? (
         <div className="mt-1.5" aria-hidden="true">
           <div className="relative h-1 w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10">
             <div
-              className="absolute inset-y-0 bg-ink-700 dark:bg-white/35"
+              className="absolute inset-y-0 bg-ink-700 dark:bg-white/50"
               style={{ left: `${toPct(bounds.low)}%`, width: `${toPct(bounds.high) - toPct(bounds.low)}%` }}
             />
           </div>
@@ -154,15 +157,10 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
           The same attempt could land between{' '}
           <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.low}</span> and{' '}
           <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.high}</span> if our 10–90
-          conversion is wrong, which is a bound on the mapping and not a
-          confidence interval. Pearson builds that scale with IRT and does not
-          publish the parameters, so the conversion here reproduces the shape of
-          the scale rather than the scale itself. Curvature is the one number
-          that could reasonably have been written differently, and it moves the
-          score furthest through the middle of the range and not at all at 90 —
-          which is why one end of the rail sits further from the marker than the
-          other. Your answers are not in doubt; the mapping from them to a PTE
-          score is.
+          conversion is wrong — a bound on the mapping, not a confidence interval. Pearson's IRT parameters are
+          unpublished, so the conversion reproduces the shape of the scale rather than the scale itself, and the one
+          number that could reasonably have been written differently moves the score most through the middle and not
+          at all at 90. Your answers are not in doubt; the mapping is.
         </p>
       ) : null}
 

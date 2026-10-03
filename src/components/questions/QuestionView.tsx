@@ -380,8 +380,8 @@ function OrderQuestion({ item, response, onChange, examMode }: Props) {
       </ol>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
-          Use the arrows to reorder — drag is not reliable on touch devices. There is no partial credit here, so check
-          the chain of pronouns and time markers before moving on.
+          <span className="font-semibold text-mint-600 dark:text-mint-300">✓ Partial credit (+1 per correct adjacent pair):</span> Use
+          the arrows to reorder. Check the chain of pronouns, definite articles and time markers before moving on.
         </p>
       ) : null}
     </div>
@@ -495,6 +495,11 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
       {!examMode && isEssay ? (
         <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
           Twenty minutes. Aim for 200–300 words — content, form, structure and range are all scored.
+        </p>
+      ) : null}
+      {!examMode && isDictation ? (
+        <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
+          <span className="font-semibold text-mint-600 dark:text-mint-300">✓ No negative marking:</span> +1 point per correct word spelled correctly. There is no deduction for extra words.
         </p>
       ) : null}
     </div>

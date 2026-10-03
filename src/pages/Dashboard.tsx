@@ -48,12 +48,16 @@ export default function Dashboard() {
   const user = useAuth((s) => s.user)
   const hasLoggedInBefore = useAuth((s) => s.hasLoggedInBefore)
   const [confirmClearAll, setConfirmClearAll] = useState(false)
+  const [clearingAll, setClearingAll] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [attempts, setAttempts] = useState<AttemptRecord[] | null>(null)
 
   useEffect(() => {
     let cancelled = false
     void (async () => {
+      // Revalidate the session when landing here, so a revoked token from a
+      // long-lived tab cannot keep syncing against a closed account.
+      await useAuth.getState().checkSession()
       const initial = await listAttempts(100)
       if (!cancelled) setAttempts(initial)
       const { pushed, pulled } = await syncCloudToLocal()
@@ -461,17 +465,23 @@ export default function Dashboard() {
                     <Button
                       variant="danger"
                       size="sm"
+                      disabled={clearingAll}
                       onClick={() => {
+                        setClearingAll(true)
                         void (async () => {
-                          const current = attempts ?? []
-                          await Promise.all(current.map((a) => deleteAttemptEverywhere(a.id)))
-                          await clearAttempts()
-                          setAttempts([])
-                          setConfirmClearAll(false)
+                          try {
+                            const current = attempts ?? []
+                            await Promise.all(current.map((a) => deleteAttemptEverywhere(a.id)))
+                            await clearAttempts()
+                            setAttempts([])
+                            setConfirmClearAll(false)
+                          } finally {
+                            setClearingAll(false)
+                          }
                         })()
                       }}
                     >
-                      Yes, clear all
+                      {clearingAll ? 'Clearing…' : 'Yes, clear all'}
                     </Button>
                     <Button variant="secondary" size="sm" onClick={() => setConfirmClearAll(false)}>
                       Cancel

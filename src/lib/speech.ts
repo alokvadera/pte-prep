@@ -46,15 +46,19 @@ export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
   }
   return new Promise((resolve) => {
     let settled = false
-    const finish = () => {
+    let fallback: number | null = typeof window !== 'undefined' ? window.setTimeout(finish, 600) : null
+    function finish() {
       if (settled) return
       settled = true
-      cachedVoices = s.getVoices()
+      if (fallback !== null) {
+        window.clearTimeout(fallback)
+        fallback = null
+      }
+      cachedVoices = s?.getVoices() ?? []
       resolve(cachedVoices)
     }
     s.addEventListener('voiceschanged', finish, { once: true })
     // Some engines never fire the event; resolve on a short timer.
-    setTimeout(finish, 600)
   })
 }
 
@@ -157,6 +161,10 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
 
   const cleanup = () => {
     stopKeepAlive()
+    if (gapTimer !== null) {
+      window.clearTimeout(gapTimer)
+      gapTimer = null
+    }
     controller.speaking = false
   }
 
@@ -166,6 +174,7 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
     cleanup()
   }
 
+  let gapTimer: number | null = null
   const run = (index: number) => {
     if (cancelled) return
     if (index > lastTurn || index >= script.turns.length) {
@@ -194,7 +203,8 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
     utter.pitch = basePitch(speaker.voiceHint)
     utter.onend = () => {
       // A short gap between speakers makes the exchange intelligible.
-      setTimeout(() => run(index + 1), 220)
+      if (gapTimer !== null) window.clearTimeout(gapTimer)
+      gapTimer = window.setTimeout(() => run(index + 1), 220)
     }
     utter.onerror = (event) => {
       const err = String((event as SpeechSynthesisErrorEvent).error ?? '')
@@ -241,8 +251,13 @@ export async function speakWithBeep(
   const controller: SpeakController = { stop: () => {}, speaking: true }
   let inner: SpeakController | null = null
   let cancelled = false
+  let beepTimer: number | null = null
   controller.stop = () => {
     cancelled = true
+    if (beepTimer !== null) {
+      window.clearTimeout(beepTimer)
+      beepTimer = null
+    }
     inner?.stop()
     stopAllSpeech()
     controller.speaking = false
@@ -250,7 +265,8 @@ export async function speakWithBeep(
   const speakAfter = () => {
     if (cancelled) return
     playTone(990, 320, 0.09)
-    window.setTimeout(() => {
+    beepTimer = window.setTimeout(() => {
+      beepTimer = null
       if (cancelled) return
       void speakText(after, {
         ...options,

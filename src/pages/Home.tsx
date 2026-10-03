@@ -36,7 +36,7 @@ const FAQ = [
   {
     question: 'Does it work offline?',
     answer:
-      'Yes. After the first visit the app is cached as an installable app, and the audio is synthesised by your own device rather than streamed, so practice continues with no connection at all.',
+      'Yes. After the first visit the app is cached as an installable app, and the audio is synthesised by your own device rather than streamed, so core practice continues with no connection. Browser speech recognition and cloud sync need a connection when you use them.',
   },
 ]
 

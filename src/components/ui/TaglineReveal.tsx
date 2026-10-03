@@ -27,6 +27,7 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
     if (!root) return
 
     const words = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal-word]'))
+    const timers: number[] = []
 
     const reduced =
       typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -49,9 +50,11 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
           // Staggered per word position, so the sentence resolves in reading
           // order rather than every word flipping at once.
           const delay = Number(el.dataset.revealWord ?? '0') * 42
-          window.setTimeout(() => {
-            el.dataset.active = 'true'
-          }, delay)
+          timers.push(
+            window.setTimeout(() => {
+              el.dataset.active = 'true'
+            }, delay),
+          )
           io.unobserve(el)
         }
       },
@@ -59,7 +62,10 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
     )
 
     for (const w of words) io.observe(w)
-    return () => io.disconnect()
+    return () => {
+      for (const t of timers) window.clearTimeout(t)
+      io.disconnect()
+    }
   }, [])
 
   let index = 0

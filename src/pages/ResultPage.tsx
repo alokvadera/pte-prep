@@ -76,17 +76,23 @@ export default function ResultPage() {
   }, [mock, params, finish, attempt?.id, setSearchParams])
 
   const seed = attempt?.seed
+  // Seed rebuilds can only reproduce full mocks: half/quick counts and
+  // section/drill item sets are not recoverable from the seed alone, and
+  // showing details against the wrong items would be worse than showing the
+  // stored details only. New attempts always carry details anyway.
   const effectiveMock = useMemo(() => {
     if (mock) return mock
-    if (seed) {
-      try {
-        return buildFullMock(seed)
-      } catch {
-        return null
-      }
+    if (!seed) return null
+    const sectionCount = attempt?.sectionIds?.length ?? 0
+    const kind = attempt?.mockKind
+    if (kind && kind !== 'full') return null
+    if (!kind && sectionCount !== 0 && sectionCount !== 3) return null
+    try {
+      return buildFullMock(seed, { timeScale: attempt?.timeScale, untimed: attempt?.untimed })
+    } catch {
+      return null
     }
-    return null
-  }, [mock, seed])
+  }, [mock, seed, attempt?.mockKind, attempt?.sectionIds, attempt?.timeScale, attempt?.untimed])
 
   const details = useMemo(() => {
     if (attempt?.details && attempt.details.length > 0) return attempt.details
@@ -419,9 +425,11 @@ export default function ResultPage() {
               <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
                 Average time per item against what the real test allows. Overruns tend to concentrate in two or three
                 types rather than spread evenly.
-                {attempt.timeScale && attempt.timeScale > 1
-                  ? ` This run used a ${attempt.timeScale}× clock, so the budgets below are the extended ones — overruns against official timing may be understated.`
-                  : null}
+                {attempt.timeScale === undefined
+                  ? ` Timing mode was not recorded for this older attempt, so budgets below assume standard timing.`
+                  : attempt.timeScale > 1
+                    ? ` This run used a ${attempt.timeScale}× clock, so the budgets below are the extended ones — overruns against official timing may be understated.`
+                    : null}
               </p>
               {paceWarnings(paceRows).length > 0 ? (
                 <Callout className="mt-5" label="Worth fixing first">

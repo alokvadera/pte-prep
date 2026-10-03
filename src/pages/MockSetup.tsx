@@ -67,6 +67,7 @@ export default function MockSetup() {
   const [seed, setSeed] = useState(DEFAULT_SEED)
   const [singleSection, setSingleSection] = useState<SectionId | null>(null)
   const [timing, setTiming] = useState<TimingId>('standard')
+  const [forwardOnly, setForwardOnly] = useState(false)
 
   const capacity = useMemo(() => capacityByType(), [])
 
@@ -98,11 +99,11 @@ export default function MockSetup() {
   const preview = useMemo(() => {
     const t = TIMINGS[timing]
     const mock = singleSection
-      ? buildSectionMock(seed, singleSection, counts, { timeScale: t.scale, untimed: t.untimed })
-      : buildFullMock(seed, { counts, timeScale: t.scale, untimed: t.untimed })
+      ? buildSectionMock(seed, singleSection, counts, { timeScale: t.scale, untimed: t.untimed, forwardOnly })
+      : buildFullMock(seed, { counts, timeScale: t.scale, untimed: t.untimed, forwardOnly })
     const scored = mock.sections.flatMap((s) => s.itemIds).filter((id) => (mock.items[id]?.maxPoints ?? 0) > 0)
     return { mock, scoredCount: scored.length, minutes: Math.round(mock.totalSeconds / 60) }
-  }, [seed, counts, singleSection, timing])
+  }, [seed, counts, singleSection, timing, forwardOnly])
 
   const [confirmOverwrite, setConfirmOverwrite] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
@@ -259,6 +260,22 @@ export default function MockSetup() {
                   )
                 })}
               </div>
+            </fieldset>
+
+            <fieldset>
+              <legend className="label">Navigation</legend>
+              <button
+                type="button"
+                onClick={() => setForwardOnly((v) => !v)}
+                className={cn('choice-card w-full', forwardOnly ? 'choice-active' : 'choice-idle')}
+                aria-pressed={forwardOnly}
+              >
+                <p className="text-ink-900 dark:text-white text-sm font-bold">Test-day mode (no going back)</p>
+                <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">
+                  On test day you cannot return to a previous question. Turn this on to rehearse that: Back,
+                  question jumping and flags are disabled for the run.
+                </p>
+              </button>
             </fieldset>
 
             <fieldset>

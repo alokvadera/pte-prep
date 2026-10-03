@@ -112,6 +112,48 @@ scoring model rather than invented — `rawToPteScale` and `buildReport` are the
 places to start, and if the model cannot produce a defensible interval, the right
 answer is a wider, more obviously approximate strip, not a narrower invented one.
 
+### Correction, after building it
+
+**A quantile dot plot turned out to be the wrong form for this codebase, and
+what shipped instead is a sensitivity rail.** Recording this because the
+recommendation above is now known to be partly inapplicable, and the next person
+to read it should not re-attempt it.
+
+Scoring here is *fully deterministic*. `buildReport` sums `detail.points` across
+items and applies a fixed mapping, so the same responses always yield the same
+score. There is no sampling distribution, therefore no quantiles, and drawing
+five dots at invented percentiles would have been precisely the fabrication this
+whole finding is about. The two available shortcuts are both dishonest:
+
+- **Bootstrapping over items** measures what score a different mix of question
+  types would produce. Nothing in this product implies the item set is a random
+  sample — the candidate takes *the* test — so that measures a variation the user
+  will never experience.
+- **Widening by estimated-trait share** would mean inventing a coefficient for
+  how wrong the trait model can be, which is the thing being measured.
+
+What *can* be bounded honestly is the conversion itself. `rawToPteScale` maps
+accuracy with `f ** 0.92`, and that exponent is the single free parameter in the
+scoring path — a chosen stand-in for Pearson's unpublished IRT parameters.
+Holding the candidate's accuracy fixed and moving the exponent across the range
+its own docstring describes (exactly linear, `e = 1.0`, up to stronger
+end-compression, `e = 0.80`) moves the reported score by up to **6.5 points**
+through the middle of the scale and **not at all** at 90.
+
+So `scoreBand()` returns that interval, and `ScoreRangeBar` draws it as a rail
+beneath the track. The result is *asymmetric and score-dependent* — which is the
+one part of the quantile-dot argument that survives without a distribution, and
+which the old zero-width marker concealed completely. The rail deliberately does
+not recentre: an earlier version did, and the check suite caught it.
+
+What this gives up is the thing that made quantile dots win — visible frequency.
+The rail is an interval with a label that says so. It is the most honest graphic
+the current model supports, not the one the literature prefers.
+
+Guarded by nine assertions in `scripts/ui-states-check.tsx`, negative-tested: a
+version that re-derived the midpoint from the fraction, and a version that
+recentred the band into a symmetric error bar, both fail.
+
 ---
 
 ## Finding 2 — The loop has no return
