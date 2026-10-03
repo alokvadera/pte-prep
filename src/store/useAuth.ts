@@ -10,6 +10,8 @@ export interface User {
 interface AuthStore {
   user: User | null
   token: string | null
+  hasLoggedInBefore: boolean
+  lastEmail: string | null
   loading: boolean
   error: string | null
   login: (email: string, password?: string) => Promise<boolean>
@@ -25,6 +27,8 @@ export const useAuth = create<AuthStore>()(
     (set, get) => ({
       user: null,
       token: null,
+      hasLoggedInBefore: false,
+      lastEmail: null,
       loading: false,
       error: null,
 
@@ -41,7 +45,14 @@ export const useAuth = create<AuthStore>()(
             set({ loading: false, error: data.error ?? 'Invalid email or password' })
             return false
           }
-          set({ user: data.user, token: data.token, loading: false, error: null })
+          set({
+            user: data.user,
+            token: data.token,
+            hasLoggedInBefore: true,
+            lastEmail: data.user.email,
+            loading: false,
+            error: null,
+          })
           return true
         } catch {
           set({ loading: false, error: 'Could not connect to authentication service' })
@@ -62,7 +73,14 @@ export const useAuth = create<AuthStore>()(
             set({ loading: false, error: data.error ?? 'Registration failed' })
             return false
           }
-          set({ user: data.user, token: data.token, loading: false, error: null })
+          set({
+            user: data.user,
+            token: data.token,
+            hasLoggedInBefore: true,
+            lastEmail: data.user.email,
+            loading: false,
+            error: null,
+          })
           return true
         } catch {
           set({ loading: false, error: 'Could not connect to authentication service' })
@@ -106,7 +124,13 @@ export const useAuth = create<AuthStore>()(
           })
           if (res.ok) {
             const data = (await res.json()) as { user?: User }
-            if (data.user) set({ user: data.user })
+            if (data.user) {
+              set({
+                user: data.user,
+                hasLoggedInBefore: true,
+                lastEmail: data.user.email,
+              })
+            }
           } else if (res.status === 401) {
             set({ user: null, token: null })
           }
@@ -117,7 +141,22 @@ export const useAuth = create<AuthStore>()(
     }),
     {
       name: 'pte-prep-auth',
-      partialize: (s) => ({ user: s.user, token: s.token }),
+      partialize: (s) => ({
+        user: s.user,
+        token: s.token,
+        hasLoggedInBefore: Boolean(s.hasLoggedInBefore || s.user || s.token),
+        lastEmail: s.lastEmail ?? s.user?.email ?? null,
+      }),
+      merge: (persistedState, currentState) => {
+        const p = (persistedState as Partial<AuthStore>) || {}
+        const hasPrev = Boolean(p.hasLoggedInBefore || p.user || p.token)
+        return {
+          ...currentState,
+          ...p,
+          hasLoggedInBefore: hasPrev,
+          lastEmail: p.lastEmail ?? p.user?.email ?? null,
+        }
+      },
     },
   ),
 )

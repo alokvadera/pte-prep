@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { clearAttempts, listAttempts } from '../db/db'
 import { deleteAttemptEverywhere, syncCloudToLocal } from '../lib/sync'
 import { useAuth } from '../store/useAuth'
-import { AuthModal } from '../components/auth/AuthModal'
 import { QUESTION_META } from '../domain/blueprint'
 import type { AttemptRecord, QuestionType, Skill } from '../domain/types'
 import { formatDate, formatDateTime, formatDuration } from '../lib/format'
@@ -33,7 +32,7 @@ export default function Dashboard() {
   const navigate = useNavigate()
   const { settings, set } = useSettings()
   const user = useAuth((s) => s.user)
-  const [authModalOpen, setAuthModalOpen] = useState(false)
+  const hasLoggedInBefore = useAuth((s) => s.hasLoggedInBefore)
   const [confirmClearAll, setConfirmClearAll] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [attempts, setAttempts] = useState<AttemptRecord[] | null>(null)
@@ -142,12 +141,12 @@ export default function Dashboard() {
               </div>
             </div>
             <ButtonLink
-              to="/login"
+              to={user ? '/login' : hasLoggedInBefore ? '/login' : '/register'}
               variant={user ? 'secondary' : 'primary'}
               size="sm"
               className="shrink-0"
             >
-              {user ? 'Manage account' : 'Sign in / Register'}
+              {user ? 'Manage account' : hasLoggedInBefore ? 'Sign in' : 'Create account'}
             </ButtonLink>
           </div>
         </div>
@@ -489,11 +488,6 @@ export default function Dashboard() {
           </div>
         </Disclosure>
       </PageWrapper>
-      <AuthModal
-        open={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onSuccess={() => void listAttempts(100).then(setAttempts)}
-      />
     </>
   )
 }

@@ -1,9 +1,8 @@
-import { StrictMode, useEffect, useRef, useState, type ReactNode } from 'react'
+import { StrictMode, useEffect, useRef, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { cn } from '../lib/cn'
 import { useSettings, type Theme } from '../store/useSettings'
 import { useAuth } from '../store/useAuth'
-import { AuthModal } from './auth/AuthModal'
 
 function Logo() {
   return (
@@ -26,8 +25,10 @@ const NAV = [
 export function Layout() {
   const { settings, set } = useSettings()
   const location = useLocation()
-  const [authOpen, setAuthOpen] = useState(false)
   const user = useAuth((s) => s.user)
+  const hasLoggedInBefore = useAuth((s) => s.hasLoggedInBefore)
+
+  const authTarget = user ? '/login' : hasLoggedInBefore ? '/login' : '/register'
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
@@ -75,15 +76,27 @@ export function Layout() {
 
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
             <NavLink
-              to="/login"
+              to={authTarget}
               className={cn(
                 'btn-ghost rounded-full p-2 transition-colors cursor-pointer',
                 user
                   ? 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400'
                   : 'text-ink-600 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white',
               )}
-              title={user ? `Signed in as ${user.email} (Account)` : 'Sign in / Cloud Account'}
-              aria-label={user ? `Account: ${user.email}` : 'Sign in or Create Account'}
+              title={
+                user
+                  ? `Signed in as ${user.email} (Account)`
+                  : hasLoggedInBefore
+                    ? 'Sign in to your account'
+                    : 'Create a free account'
+              }
+              aria-label={
+                user
+                  ? `Account: ${user.email}`
+                  : hasLoggedInBefore
+                    ? 'Sign in'
+                    : 'Create account'
+              }
             >
               <svg className="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path
@@ -100,7 +113,6 @@ export function Layout() {
           </div>
         </div>
         <ScrollProgress />
-        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       </header>
 
       <main id="main" className="flex-1">

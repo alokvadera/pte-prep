@@ -12,11 +12,18 @@ export default function LoginPage() {
   const [params, setSearchParams] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, login, register, logout, loading, error, clearError, setTargetScore } = useAuth()
+  const { user, login, register, logout, loading, error, clearError, setTargetScore, hasLoggedInBefore, lastEmail } = useAuth()
 
-  const initialMode = params.get('mode') === 'register' || location.pathname === '/register' ? 'register' : 'login'
+  const initialMode =
+    params.get('mode') === 'register' || location.pathname === '/register'
+      ? 'register'
+      : params.get('mode') === 'login' || location.pathname === '/login'
+        ? 'login'
+        : hasLoggedInBefore
+          ? 'login'
+          : 'register'
   const [mode, setMode] = useState<'login' | 'register'>(initialMode)
-  const [email, setEmail] = useState('')
+  const [email, setEmail] = useState(lastEmail ?? '')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [targetScore, setTarget] = useState(65)

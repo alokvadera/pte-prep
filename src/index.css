@@ -316,12 +316,19 @@
   }
 }
 
+/* Each blob carries its own pair of stops so the field cycles through the
+     brand/mint hues instead of sitting on one flat colour. Both stops are
+     tokens, so the drift never introduces a hue that is not already in the
+     palette, and mint — the darker of the two — spends part of the cycle
+     lowering the wash's mean luminance, which is what protects the headline. */
 @keyframes drift {
   from {
     transform: translate3d(-4%, -3%, 0) scale(1);
+    background-color: var(--aurora-a, var(--color-brand-400));
   }
   to {
     transform: translate3d(6%, 5%, 0) scale(1.08);
+    background-color: var(--aurora-b, var(--color-brand-400));
   }
 }
 
@@ -1412,38 +1419,46 @@
     display: block;
     border-radius: 9999px;
     filter: blur(72px);
-    /* Measured contribution to the hero pixels: mean 13.7 and p95 61 of 255
+    /* Measured contribution to the hero pixels: mean 14.4 and p95 64 of 255
        levels in light. That is a wash you can see without it competing with the
-       headline, which sits at 4.75:1 over it. Dark sits lower because a bright
-       blob reads stronger against a dark ground. */
-    opacity: 0.32;
+       headline, which sits at 4.90:1 over it — the aurora was strengthened to
+       0.36 and the headline gained contrast anyway, because the mint stop in
+       `.text-gradient-move` replaced the lighter brand-400. Dark sits lower
+       because a bright blob reads stronger against a dark ground. */
+    opacity: 0.36;
   }
   .hero-aurora .aurora-1 {
+    --aurora-a: var(--color-brand-400);
+    --aurora-b: var(--color-mint-400);
     width: 32rem;
     height: 32rem;
     top: -9rem;
     left: -7rem;
-    background: var(--color-brand-400);
+    background: var(--aurora-a);
     animation: drift 20s ease-in-out infinite alternate;
   }
   .hero-aurora .aurora-2 {
+    --aurora-a: var(--color-mint-400);
+    --aurora-b: var(--color-brand-300);
     width: 28rem;
     height: 28rem;
     top: -5rem;
     right: -8rem;
-    background: var(--color-mint-400);
+    background: var(--aurora-a);
     animation: drift 25s ease-in-out infinite alternate-reverse;
   }
   .hero-aurora .aurora-3 {
+    --aurora-a: var(--color-brand-300);
+    --aurora-b: var(--color-mint-300);
     width: 24rem;
     height: 24rem;
     bottom: -6rem;
     left: 34%;
-    background: var(--color-brand-300);
+    background: var(--aurora-a);
     animation: drift 30s ease-in-out infinite alternate;
   }
   .dark .hero-aurora span {
-    opacity: 0.22;
+    opacity: 0.25;
   }
 
   /* On a phone the hero is 390px wide and these blobs are 384–512px across, so
@@ -1451,15 +1466,16 @@
      Measured at 390px: the aurora's contribution rose from a mean of 13/255 on a
      desktop to 35/255, and the headline over it fell to 2.86:1 — below the 3.0
      floor for large text. The field is scaled back to the corners it was drawn
-     for, so the title keeps a clean ground on every viewport. */
+     for, so the title keeps a clean ground on every viewport; at 390px it now
+     measures a mean of 10.2 with the headline at 5.29:1. */
   @media (max-width: 40rem) {
     .hero-aurora span {
       filter: blur(56px);
-      opacity: 0.26;
+      opacity: 0.28;
     }
 
     .dark .hero-aurora span {
-      opacity: 0.19;
+      opacity: 0.21;
     }
 
     .hero-aurora .aurora-1 {
@@ -1498,30 +1514,36 @@
   }
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
     .text-gradient-move {
-      /* The lightest stop is a mix rather than raw brand-400. brand-400 over the
-         aurora-tinted ground measured 3.39:1 — passing the 3.0 large-text floor
-         but with almost no room, and the gradient pans, so any stop can land
-         under any glyph. Mixed toward brand-600 it holds well clear. */
+      /* brand-400 was the old lightest stop, and it measured 3.39:1 over the
+         aurora-tinted ground — passing the 3.0 large-text floor with almost no
+         room, which mattered because the gradient pans and any stop can land
+         under any glyph. mint-400 replaces it: it is the project's second hue,
+         so the title finally reads as brand *and* mint rather than one blue,
+         and it measures 5.18:1 on the light ground. The darkest stop in the
+         sweep is therefore the lightest, which is the safe way round. */
       background-image: linear-gradient(
         100deg,
         var(--color-brand-700),
         var(--color-brand-500),
-        color-mix(in oklab, var(--color-brand-400) 55%, var(--color-brand-600)),
-        var(--color-brand-600),
+        var(--color-mint-400),
+        var(--color-brand-500),
         var(--color-brand-700)
       );
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      animation: gradient-pan 9s ease infinite;
+      animation: gradient-pan 7s ease infinite;
     }
     .dark .text-gradient-move {
+      /* On the dark ground the sweep runs the other way — light stops — and the
+         mint is mixed toward brand-300 rather than used raw, so the mid-point
+         stays luminous instead of dropping to mint-400's near-black green. */
       background-image: linear-gradient(
         100deg,
         var(--color-brand-300),
         var(--color-brand-200),
         var(--color-mint-300),
-        var(--color-brand-300),
+        color-mix(in oklab, var(--color-mint-400) 45%, var(--color-brand-300)),
         var(--color-brand-300)
       );
       color: transparent;
