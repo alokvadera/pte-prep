@@ -86,6 +86,15 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       /* ignore corrupted json */
     }
 
+    // Not stored as a column: derive it the way the client does, so pulled
+    // copies do not clobber the correct local flag with a blanket true.
+    const hasEstimated = Array.isArray(details)
+      ? details.some((d) => {
+          const item = d as { maxPoints?: unknown; traits?: unknown }
+          return typeof item.maxPoints === 'number' && item.maxPoints > 0 && item.traits !== undefined
+        })
+      : true
+
     return {
       id: row.id,
       mockId: row.mock_id,
@@ -108,7 +117,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       syncedAt: row.synced_at,
       seed,
       sectionIds,
-      overallIsEstimate: true,
+      overallIsEstimate: hasEstimated,
       completedItemIds: Object.keys(responses),
       responses,
     }
