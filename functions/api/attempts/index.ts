@@ -60,6 +60,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     let mockKind: string | undefined
     let details: unknown[] | undefined
     let sectionIds = ['speaking-writing', 'reading', 'listening']
+    let untimed: boolean | undefined
+    let timeScale: number | undefined
 
     try {
       skillScores = JSON.parse(row.skill_scores)
@@ -72,6 +74,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
             seed = Number(parsed.seed ?? 0)
             mockKind = parsed.mockKind ?? undefined
             details = parsed.details ?? undefined
+            untimed = parsed.untimed ? true : undefined
+            timeScale = typeof parsed.timeScale === 'number' ? parsed.timeScale : undefined
             if (Array.isArray(parsed.sectionIds)) sectionIds = parsed.sectionIds
           } else {
             responses = parsed
@@ -88,6 +92,8 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       mockTitle: row.mock_title,
       mockKind,
       details,
+      ...(untimed ? { untimed: true } : {}),
+      ...(timeScale ? { timeScale } : {}),
       mode: row.mode,
       startedAt: row.started_at,
       finishedAt: row.finished_at,
@@ -158,6 +164,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     mockKind: attempt.mockKind ?? null,
     sectionIds: attempt.sectionIds ?? null,
     details: attempt.details ?? null,
+    untimed: attempt.untimed ? true : null,
+    timeScale: typeof attempt.timeScale === 'number' ? attempt.timeScale : null,
   })
 
   await db

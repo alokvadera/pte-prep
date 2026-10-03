@@ -567,15 +567,33 @@ function scoreWordByWord(response: ItemResponse, key: AnswerKey): ConstructedSco
   const expectedNorm = expected.map(normalize)
   const givenNorm = given.map(normalize)
 
-  let hits = 0
-  const wrongWords: string[] = []
-  expectedNorm.forEach((w, i) => {
-    if (givenNorm[i] === w) hits += 1
-    else if (w) wrongWords.push(expected[i] as string)
-  })
+  // Pearson PTE Academic awards one point per reference word produced, regardless
+  // of position or insertion/omission offsets, with no deduction for extra words.
+  const remaining = new Map<string, number>()
+  for (const w of expectedNorm) {
+    if (w) remaining.set(w, (remaining.get(w) ?? 0) + 1)
+  }
 
-  // Words the candidate added beyond the reference are ignored, as the guide
-  // awards a point per correct word and deducts nothing.
+  let hits = 0
+  for (const w of givenNorm) {
+    const count = remaining.get(w) ?? 0
+    if (count > 0) {
+      hits += 1
+      remaining.set(w, count - 1)
+    }
+  }
+
+  // Identify missed reference words in original sentence order
+  const wrongWords: string[] = []
+  for (let i = 0; i < expected.length; i++) {
+    const norm = expectedNorm[i]!
+    const unhit = remaining.get(norm) ?? 0
+    if (unhit > 0) {
+      wrongWords.push(expected[i] as string)
+      remaining.set(norm, unhit - 1)
+    }
+  }
+
   const notes: string[] = []
   if (wrongWords.length > 0) {
     notes.push(`${hits} of ${expected.length} words correct. ${wrongWords.slice(0, 5).join(', ')}${wrongWords.length > 5 ? '…' : ''}`)
@@ -585,13 +603,14 @@ function scoreWordByWord(response: ItemResponse, key: AnswerKey): ConstructedSco
 
 /** Multiple Choice Multiple Answers and Highlight Incorrect Words. */
 function scoreNegated(correctSet: Set<number | string>, given: Array<number | string>): ConstructedScore {
+  const uniqueGiven = new Set(given)
   let correct = 0
   let incorrect = 0
-  for (const unit of given) {
+  for (const unit of uniqueGiven) {
     if (correctSet.has(unit)) correct += 1
     else incorrect += 1
   }
-  if (given.length === 0) return { ratio: 0, notes: ['Nothing was selected.'] }
+  if (uniqueGiven.size === 0) return { ratio: 0, notes: ['Nothing was selected.'] }
 
   const total = correctSet.size
   const earned = Math.max(0, correct - incorrect) // floored at zero
@@ -647,7 +666,7 @@ export function scoreItem(item: Item, key: AnswerKey, response: ItemResponse | u
   const finish = (ratio: number, notes: string[], detail?: Partial<ItemScoreDetail>): ItemScoreDetail => {
     const points = Math.max(0, Math.min(item.maxPoints, ratio * item.maxPoints))
     const status: ItemScoreDetail['status'] = ratio === 0 ? 'incorrect' : ratio >= 0.999 ? 'correct' : 'partial'
-    return { ...base, points, ratio, status, notes, reference: key.reference, ...detail }
+    return { ...base, points, ratio, status, notes, reference: key.reference, tokens: item.tokens, ...detail }
   }
 
   const constructed =

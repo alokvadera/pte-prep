@@ -56,9 +56,15 @@ export default function App() {
   const { settings } = useSettings()
   const checkSession = useAuth((s) => s.checkSession)
 
-  // Validate a persisted login once, so a revoked token cannot linger.
+  // Validate a persisted login on load and whenever the tab becomes visible
+  // again, so a revoked token from a long-lived tab cannot linger.
   useEffect(() => {
     void checkSession()
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') void checkSession()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [checkSession])
 
   // Signals that the app is interactive. It runs as an effect so that, under

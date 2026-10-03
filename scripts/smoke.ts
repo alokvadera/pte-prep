@@ -251,6 +251,22 @@ console.log('\n== Pearson rule conformance ==')
     scoreItem(hiwItem, key(hiwItem.id), { highlighted: [0, 1, 2] }).ratio === 0,
   )
 
+  // Write from Dictation: one point per correct reference word (multiset frequency match).
+  const wfdSentence = 'The professor explained the theory to the students.'
+  const wfdItem = { ...wfd, maxPoints: 1 }
+  const wfdKey = { reference: wfdSentence }
+  // Missing the first word ("The") must score 7/8, not zero.
+  const wfdMissingFirst = 'professor explained the theory to the students.'
+  const sMissingFirst = scoreItem(wfdItem, wfdKey, { text: wfdMissingFirst })
+  check('WFD: missing the first word scores 7 of 8 words, not zero', Math.abs(sMissingFirst.ratio - 7 / 8) < 0.001, String(sMissingFirst.ratio))
+  // Inserting an extra word ("quickly") must retain full marks (8/8).
+  const wfdExtraWord = 'The professor quickly explained the theory to the students.'
+  const sExtraWord = scoreItem(wfdItem, wfdKey, { text: wfdExtraWord })
+  check('WFD: inserting an extra word retains full marks for reference words', sExtraWord.ratio === 1, String(sExtraWord.ratio))
+  // Duplicated selections in MCQ-M must not double count
+  const mcqMDup = scoreItem(mcqM, key(mcqM.id), { choices: [...correct2, ...correct2] })
+  check('MCQ-M: duplicate selections do not double count', mcqMDup.ratio === 1)
+
   // Content 0 gates the whole item, however fluent the delivery.
   const rtl = byType('retell-lecture')
   check(

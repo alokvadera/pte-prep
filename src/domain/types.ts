@@ -323,4 +323,6 @@ export interface ItemScoreDetail {
   gated?: boolean
   /** Ideal answer shown in review. */
   reference?: string
+  /** Passage tokens, for Highlight Incorrect Words review. */
+  tokens?: string[]
 }

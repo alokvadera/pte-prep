@@ -94,6 +94,8 @@ export default function ResultPage() {
     }
   }, [mock, seed, attempt?.mockKind, attempt?.sectionIds, attempt?.timeScale, attempt?.untimed])
 
+  const effectiveResponses = attempt?.responses ?? responses
+
   const details = useMemo(() => {
     if (attempt?.details && attempt.details.length > 0) return attempt.details
     if (!effectiveMock) return []
@@ -109,8 +111,8 @@ export default function ResultPage() {
         label: QUESTION_META[item.type]?.label ?? item.type,
       }
     }
-    return buildReport(items, effectiveMock.answers, attempt?.responses ?? responses, metaById).details
-  }, [attempt, effectiveMock, responses])
+    return buildReport(items, effectiveMock.answers, effectiveResponses, metaById).details
+  }, [attempt, effectiveMock, effectiveResponses])
 
   // The real-test budget lives on the item. Pace is only shown while the
   // live mock is still in memory, so budgets always match the actual run.
@@ -556,7 +558,7 @@ export default function ResultPage() {
               ) : (
                 <ul className="space-y-3">
                   {visibleDetails.map((d) => (
-                    <ReviewRow key={d.itemId} detail={d} response={responses[d.itemId]} />
+                    <ReviewRow key={d.itemId} detail={d} response={effectiveResponses[d.itemId]} />
                   ))}
                 </ul>
               )}
@@ -774,8 +776,10 @@ function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response:
   const order = response.order as string[] | undefined
   if (order) lines.push(`Your order: ${order.join(' → ')}`)
   const highlighted = response.highlighted as number[] | undefined
-  const tokens = (detail as ItemScoreDetail & { _tokens?: string[] })._tokens
-  if (highlighted) lines.push(`You highlighted: ${highlighted.map((i) => tokens?.[i] ?? `#${i}`).join(' · ')}`)
+  const tokens = detail.tokens
+  if (highlighted && highlighted.length > 0) {
+    lines.push(`You highlighted: ${highlighted.map((i) => (tokens?.[i] ? `“${tokens[i]}”` : `#${i + 1}`)).join(' · ')}`)
+  }
   const text = response.text as string | undefined
   if (text) lines.push(`You wrote: ${text}`)
   const transcript = response.transcript as string | undefined

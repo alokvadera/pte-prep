@@ -322,6 +322,7 @@ export function hasResponse(r: ItemResponse | undefined): boolean {
   if (r.order && r.order.length > 0) return true
   if (r.highlighted && r.highlighted.length > 0) return true
   if (r.text && r.text.trim().length > 0) return true
+  if (r.transcript && r.transcript.trim().length > 0) return true
   if (r.audio && r.audio.durationMs > 500) return true
   return false
 }
