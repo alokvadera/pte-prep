@@ -14,7 +14,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const { user, login, register, logout, loading, error, clearError, setTargetScore, hasLoggedInBefore, lastEmail } = useAuth()
 
-  const initialMode =
+  const mode: 'login' | 'register' =
     params.get('mode') === 'register' || location.pathname === '/register'
       ? 'register'
       : params.get('mode') === 'login' || location.pathname === '/login'
@@ -22,7 +22,7 @@ export default function LoginPage() {
         : hasLoggedInBefore
           ? 'login'
           : 'register'
-  const [mode, setMode] = useState<'login' | 'register'>(initialMode)
+
   const [email, setEmail] = useState(lastEmail ?? '')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -44,10 +44,13 @@ export default function LoginPage() {
   }, [clearError])
 
   const switchMode = (newMode: 'login' | 'register') => {
-    setMode(newMode)
     clearError()
     setClientError(null)
-    setSearchParams({ mode: newMode }, { replace: true })
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      next.set('mode', newMode)
+      return next
+    }, { replace: true })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

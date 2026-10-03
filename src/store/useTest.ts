@@ -148,7 +148,13 @@ export const useTest = create<TestStore>()(
 
       setStatus: (status) => set({ status }),
 
-      goTo: (sectionIndex, itemIndex) => set({ sectionIndex, itemIndex, timeExpired: false }),
+      goTo: (sectionIndex, itemIndex) => {
+        const { mock, sectionIndex: curSec, itemIndex: curItem } = get()
+        if (mock?.forwardOnly) {
+          if (sectionIndex < curSec || (sectionIndex === curSec && itemIndex < curItem)) return
+        }
+        set({ sectionIndex, itemIndex, timeExpired: false })
+      },
 
       next: () => {
         const { mock, sectionIndex, itemIndex } = get()
@@ -167,7 +173,8 @@ export const useTest = create<TestStore>()(
       },
 
       prev: () => {
-        const { itemIndex } = get()
+        const { itemIndex, mock } = get()
+        if (mock?.forwardOnly) return
         if (itemIndex > 0) {
           set({ itemIndex: itemIndex - 1, timeExpired: false })
         }

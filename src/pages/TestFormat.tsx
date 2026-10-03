@@ -65,15 +65,33 @@ export default function TestFormat() {
           </div>
         }
       >
-        <div className="-mt-4 mb-8 flex flex-wrap gap-2">
-          {(['speaking-writing', 'reading', 'listening'] as const).map((key) => (
-            <a key={key} href={`#${key}`} className="btn-secondary px-3 py-1.5 text-xs">
-              {SECTION_META[key].longTitle}
+        {/* Two different things used to share one row and one button shape:
+            four jumps to sections of *this* page, and two links that leave it.
+            A scroll indicator and a page link are not the same act, so they no
+            longer look the same. The "On this page" label carries what the ↓
+            arrow was doing, which means the arrow can go. */}
+        <nav aria-label="Sections on this page" className="-mt-4 mb-8">
+          <p className="section-eyebrow mb-3">On this page</p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            {(['speaking-writing', 'reading', 'listening'] as const).map((key) => (
+              <a
+                key={key}
+                href={`#${key}`}
+                className="text-ink-600 dark:text-ink-300 hover:text-brand-600 dark:hover:text-brand-400 text-sm underline underline-offset-4 transition-colors"
+              >
+                {SECTION_META[key].longTitle}
+              </a>
+            ))}
+            <a
+              href="#weightage"
+              className="text-ink-600 dark:text-ink-300 hover:text-brand-600 dark:hover:text-brand-400 text-sm underline underline-offset-4 transition-colors"
+            >
+              Score weightage &amp; priority matrix
             </a>
-          ))}
-          <a href="#weightage" className="btn-secondary px-3 py-1.5 text-xs">
-            Score weightage & priority matrix ↓
-          </a>
+          </div>
+        </nav>
+
+        <div className="-mt-2 mb-8 flex flex-wrap gap-3">
           <Link to="/scoring" className="btn-secondary px-3 py-1.5 text-xs">
             How scoring works →
           </Link>

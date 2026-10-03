@@ -1264,14 +1264,25 @@
      (#171b20, #1756b0, #79b7ff, #303944...) the token it actually meant is
      named here instead.
      ------------------------------------------------------------------------ */
-  .practice-collage { position: relative; margin-inline: auto; height: 550px; padding: 0; text-align: left; }
-  .practice-window { overflow: hidden; width: min(930px, 88%); height: 500px; margin: 10px auto 0; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 12px; background: var(--color-ink-900); color: var(--color-ink-50); box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
+  /* The collage is a three-column grid rather than an absolutely-positioned stage.
+     The two floating cards used to be overlays pinned to the window's left and
+     right edges, and they covered the mock's own content: the score card sat on
+     top of the LEARN nav group and the week chart sat on top of the "Choose a
+     writing task" link. That is not fixable while they overlap. The window is
+     88% of a 1024px shell, so the gutter on each side is ~60px, and the cards
+     are 210px wide — there is no position on the window's edge that clears the
+     mock's content, because the mock's content fills its full width. The cards
+     therefore take their own grid tracks, where an overlap is not something a
+     breakpoint can reintroduce. They keep the surface, radius, shadow and the
+     diagonal stagger they had, so the arrangement still reads as a collage. */
+  .practice-collage { position: relative; display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr) minmax(0, 150px); align-items: center; gap: 16px; margin-inline: auto; text-align: left; }
+  .practice-window { overflow: hidden; width: 100%; height: 500px; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 12px; background: var(--color-ink-900); color: var(--color-ink-50); box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
   .practice-window-header { display: flex; height: 46px; align-items: center; justify-content: space-between; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding-inline: 16px; color: var(--color-ink-300); font-size: 11px; font-weight: 600; }
   .practice-window-mark { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-brand-300); }
   .practice-window-avatar { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--color-ink-700); color: white; font-size: 10px; font-weight: 700; }
   .practice-window-label, .practice-overline, .practice-nav-caption { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; }
   .practice-window-label, .practice-nav-caption { color: var(--color-ink-400); }
-  .practice-window-body { display: grid; height: calc(100% - 46px); grid-template-columns: 166px 1fr; }
+  .practice-window-body { display: grid; height: calc(100% - 46px); grid-template-columns: 150px 1fr; }
   .practice-window-nav { display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgb(255 255 255 / 0.08); padding: 16px 10px; }
   .practice-window-nav a { display: flex; min-height: 34px; align-items: center; gap: 9px; border-radius: 5px; padding: 0 9px; color: var(--color-ink-300); font-size: 11px; text-decoration: none; transition: background-color .18s, color .18s; }
   .practice-window-nav a:hover, .practice-window-nav .practice-nav-active { background: color-mix(in oklab, var(--color-brand-500) 26%, var(--color-ink-900)); color: var(--color-brand-300); }
@@ -1279,13 +1290,13 @@
   .practice-nav-learn { margin-top: 0; }
   .practice-streak { margin-top: auto; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 7px; padding: 11px; color: var(--color-ink-300); font-size: 10px; }
   .practice-streak b { display: block; margin-bottom: 3px; color: var(--color-brand-300); font-size: 13px; }
-  .practice-window-main { padding: 24px 27px; }
+  .practice-window-main { padding: 24px 22px; }
   .practice-window-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
   .practice-overline { color: var(--color-ink-400); letter-spacing: 0; }
   .practice-window-heading h2 { margin: 2px 0 0; color: var(--color-ink-50); font-size: 23px; font-weight: 600; letter-spacing: -.04em; }
   .practice-mini-cta { flex: 0 0 auto; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; padding: 8px 11px; color: var(--color-ink-100); font-size: 10px; font-weight: 400; text-decoration: none; transition: background-color .18s, border-color .18s; }
   .practice-mini-cta:hover { border-color: var(--color-brand-300); background: var(--color-ink-850); }
-  .practice-window-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(195px, .85fr); gap: 14px; }
+  .practice-window-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(168px, .85fr); gap: 12px; }
   .practice-window-panel { min-width: 0; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 7px; background: color-mix(in oklab, var(--color-ink-850) 70%, var(--color-ink-900)); }
   .practice-panel-title { display: flex; min-height: 45px; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding: 0 14px; color: var(--color-ink-100); font-size: 11px; font-weight: 550; }
   .practice-panel-title > span:last-child { color: var(--color-ink-400); font-size: 9px; font-weight: 400; }
@@ -1294,7 +1305,7 @@
   .practice-score-line strong { color: white; font-size: 34px; line-height: 1; letter-spacing: -.06em; }
   .practice-score-change { margin-left: auto; color: var(--color-mint-300); }
   .practice-skill-list { padding: 3px 14px 7px; }
-  .practice-skill-row { display: grid; grid-template-columns: 78px 1fr 28px; align-items: center; gap: 9px; margin: 12px 0; color: var(--color-ink-300); font-size: 10px; opacity: 0; animation: skill-row-enter 0.5s var(--ease-settle) both; }
+  .practice-skill-row { display: grid; grid-template-columns: 72px 1fr 26px; align-items: center; gap: 9px; margin: 12px 0; color: var(--color-ink-300); font-size: 10px; opacity: 0; animation: skill-row-enter 0.5s var(--ease-settle) both; }
   .practice-skill-row:nth-child(1) { animation-delay: 0.3s; }
   .practice-skill-row:nth-child(2) { animation-delay: 0.4s; }
   .practice-skill-row:nth-child(3) { animation-delay: 0.5s; }
@@ -1344,16 +1355,16 @@
   /* The floating score/week cards keep the light ground of the real dashboard
      widgets in light mode and use the app's elevated dark surface in dark mode,
      exactly like every other card. */
-  .practice-float { position: absolute; z-index: 2; display: flex; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 14px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; transition: transform 0.3s var(--ease-settle), box-shadow 0.3s var(--ease-settle), border-color 0.3s var(--ease-settle); }
-  .practice-float:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 24px 48px -16px rgb(20 38 66 / .5); border-color: var(--color-brand-300); }
-  .practice-float-score { top: 74px; left: 0; }
+  .practice-float { position: relative; z-index: 2; display: flex; width: 100%; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 13px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; transition: transform .3s var(--ease-settle), box-shadow .3s var(--ease-settle), border-color .3s var(--ease-settle); }
+  .practice-float:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -16px rgb(20 38 66 / .5); border-color: var(--color-brand-300); }
+  .practice-float-score { align-self: start; margin-top: 74px; }
   .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--color-brand-50); color: var(--color-brand-500); }
   .practice-float small, .practice-float-week small { display: block; color: var(--color-ink-500); font-family: var(--font-sans); font-size: 10px; letter-spacing: 0; }
   .practice-float-score strong { display: flex; align-items: baseline; gap: 7px; margin-top: 7px; font-family: var(--font-sans); font-size: 32px; line-height: 1; font-weight: 650; letter-spacing: -.07em; }
   .practice-float-score strong i { color: var(--color-ink-500); font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0; }
   .practice-float-score em { margin-top: 8px; color: var(--color-brand-500); font-size: 10px; font-style: normal; }
   .practice-float-up { border-radius: 20px; background: var(--color-ink-100); padding: 5px 7px; color: var(--color-mint-600); font-family: var(--font-mono); font-size: 9px; }
-  .practice-float-week { right: 0; bottom: 62px; animation-delay: .3s; }
+  .practice-float-week { align-self: end; margin-bottom: 58px; animation-delay: .3s; }
   .practice-float-week-icon { background: var(--color-ink-100); }
   .practice-float-week b { font-family: var(--font-sans); font-size: 11px; font-weight: 600; }
   .practice-preview-note { position: absolute; right: 28px; bottom: 0; margin: 0; color: var(--color-ink-500); font-family: var(--font-mono); font-size: 9px; }
@@ -1386,10 +1397,19 @@
   @media (max-width: 620px) {
     .site-nav { gap: 6px; font-size: 11px; }
   }
-  @media (max-width: 950px) { .practice-float-score { left: -8px; } .practice-float-week { right: -8px; } }
-  @media (max-width: 700px) { .practice-collage { height: 470px; padding: 0 0 2rem; } .practice-window { width: calc(100% - 40px); height: 430px; } .practice-window-body { grid-template-columns: 142px 1fr; } .practice-window-main { padding: 20px 18px; } .practice-window-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; } .practice-suggestion { display: none; } .practice-float { width: 175px; } .practice-float-score { top: auto; bottom: 34px; left: 3px; } .practice-float-week { right: 3px; bottom: 34px; } }
-  @media (max-width: 600px) { .practice-collage { height: 385px; margin-top: 45px; } .practice-window { top: 4px; width: calc(100% - 20px); height: 360px; border-radius: 8px; } .practice-window-body { grid-template-columns: 112px 1fr; } .practice-window-nav { gap: 2px; padding: 11px 6px; font-size: 9px; } .practice-window-nav a { gap: 4px; padding: 0 5px; font-size: 9px; } .practice-streak { padding: 7px; font-size: 8px; } .practice-window-main { padding: 15px 11px; } .practice-window-heading h2 { font-size: 17px; } .practice-overline { font-size: 8px; } .practice-mini-cta { display: none; } .practice-panel-title { min-height: 36px; padding-inline: 10px; font-size: 10px; } .practice-skill-list { padding: 1px 9px; } .practice-skill-row { grid-template-columns: 59px 1fr 20px; gap: 6px; margin: 9px 0; font-size: 8px; } .practice-skill-row b { font-size: 8px; } .practice-continue-title { display: none; } .practice-task { min-height: 41px; grid-template-columns: 20px 1fr auto; gap: 6px; padding: 6px 8px; font-size: 8px; } .practice-task small { font-size: 7px; } .practice-task-icon { width: 19px; height: 19px; } .practice-task-arrow { font-size: 8px; } .practice-float { width: 145px; padding: 10px; } .practice-float-score { bottom: 5px; left: 14px; } .practice-float-week { right: 14px; bottom: 5px; } .practice-float-score strong { font-size: 25px; } .practice-bars { height: 35px; margin-top: 8px; } .practice-window-grid { margin-top: 10px; } }
-  @media (max-width: 420px) { .practice-window-nav { grid-template-columns: 1fr; } .practice-streak { font-size: 7px; } .practice-float { width: 124px; } .practice-float-score { left: 10px; } .practice-float-week { right: 10px; } }
+  /* Below 1080px the flanking tracks stop paying for themselves: the mock needs
+     the width more than the cards do. The window takes the full width and the
+     two cards pair up beneath it. Same guarantee — no overlap at any width. */
+  @media (max-width: 1080px) {
+    .practice-collage { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 10px; }
+    .practice-window { grid-row: 1; grid-column: 1 / -1; width: min(880px, 100%); height: 480px; justify-self: center; }
+    .practice-float { max-width: 340px; justify-self: center; }
+    .practice-float-score { grid-row: 2; grid-column: 1; align-self: auto; margin-block: 0; }
+    .practice-float-week { grid-row: 2; grid-column: 2; align-self: auto; margin-block: 0; }
+  }
+  @media (max-width: 700px) { .practice-window { height: 430px; } .practice-window-body { grid-template-columns: 142px 1fr; } .practice-window-main { padding: 20px 18px; } .practice-window-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; } .practice-suggestion { display: none; } }
+  @media (max-width: 600px) { .practice-collage { gap: 12px; } .practice-window { height: 360px; border-radius: 8px; } .practice-window-body { grid-template-columns: 112px 1fr; } .practice-window-nav { gap: 2px; padding: 11px 6px; font-size: 9px; } .practice-window-nav a { gap: 4px; padding: 0 5px; font-size: 9px; } .practice-streak { padding: 7px; font-size: 8px; } .practice-window-main { padding: 15px 11px; } .practice-window-heading h2 { font-size: 17px; } .practice-overline { font-size: 8px; } .practice-mini-cta { display: none; } .practice-panel-title { min-height: 36px; padding-inline: 10px; font-size: 10px; } .practice-skill-list { padding: 1px 9px; } .practice-skill-row { grid-template-columns: 59px 1fr 20px; gap: 6px; margin: 9px 0; font-size: 8px; } .practice-skill-row b { font-size: 8px; } .practice-continue-title { display: none; } .practice-task { min-height: 41px; grid-template-columns: 20px 1fr auto; gap: 6px; padding: 6px 8px; font-size: 8px; } .practice-task small { font-size: 7px; } .practice-task-icon { width: 19px; height: 19px; } .practice-task-arrow { font-size: 8px; } .practice-float { padding: 11px; } .practice-float-score strong { font-size: 24px; } .practice-bars { height: 35px; margin-top: 8px; } .practice-window-grid { margin-top: 10px; } }
+  @media (max-width: 420px) { .practice-window-nav { grid-template-columns: 1fr; } .practice-streak { font-size: 7px; } .practice-float-score strong { font-size: 20px; } .practice-bars { gap: 3px; } }
 
   /* ------------------------------------------------------------------------
      Expressive motion surfaces.
@@ -1514,19 +1534,25 @@
   }
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
     .text-gradient-move {
-      /* brand-400 was the old lightest stop, and it measured 3.39:1 over the
-         aurora-tinted ground — passing the 3.0 large-text floor with almost no
-         room, which mattered because the gradient pans and any stop can land
-         under any glyph. mint-400 replaces it: it is the project's second hue,
-         so the title finally reads as brand *and* mint rather than one blue,
-         and it measures 5.18:1 on the light ground. The darkest stop in the
-         sweep is therefore the lightest, which is the safe way round. */
+      /* One hue, not two. An earlier pass put mint-400 in the middle of this
+         sweep for the colour and for its contrast — mint-400 measures 5.18:1
+         on the light ground where the lightest previous stop measured 4.58:1 —
+         and both numbers improved. Rendered, though, the mint stop sits where
+         the first line of the headline falls, so "Practice the test." came out
+         green and "Know what to do next." blue. Two hues on one heading reads
+         as two headings, and the green competes with the primary action
+         directly beneath it. Calibrated Silence reserves one accent for the
+         thing the reader came to see, so the sweep stays inside brand and the
+         lighter middle is a mix rather than raw brand-400 — brand-400 measured
+         3.39:1 over the aurora-tinted ground, which passes the 3.0 large-text
+         floor with almost no room, and the gradient pans, so any stop can land
+         under any glyph. */
       background-image: linear-gradient(
         100deg,
         var(--color-brand-700),
         var(--color-brand-500),
-        var(--color-mint-400),
-        var(--color-brand-500),
+        color-mix(in oklab, var(--color-brand-400) 55%, var(--color-brand-600)),
+        var(--color-brand-600),
         var(--color-brand-700)
       );
       -webkit-background-clip: text;
@@ -1535,15 +1561,12 @@
       animation: gradient-pan 7s ease infinite;
     }
     .dark .text-gradient-move {
-      /* On the dark ground the sweep runs the other way — light stops — and the
-         mint is mixed toward brand-300 rather than used raw, so the mid-point
-         stays luminous instead of dropping to mint-400's near-black green. */
       background-image: linear-gradient(
         100deg,
         var(--color-brand-300),
         var(--color-brand-200),
         var(--color-mint-300),
-        color-mix(in oklab, var(--color-mint-400) 45%, var(--color-brand-300)),
+        var(--color-brand-300),
         var(--color-brand-300)
       );
       color: transparent;

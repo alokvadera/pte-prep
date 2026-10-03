@@ -161,7 +161,6 @@ export default function Home() {
                       <span className="text-ink-500 dark:text-ink-400">{meta.weightNote}</span>
                     </p>
                     <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{meta.longTitle}</h3>
-                    <p className="text-ink-500 dark:text-ink-300 mt-1 font-mono text-xs tabular-nums">{meta.title}</p>
                     <p className="text-ink-500 dark:text-ink-300 mt-2 flex-1 text-sm leading-relaxed">{meta.blurb}</p>
                     <ul className="mt-4 space-y-1.5 border-t pt-4">
                       {questionTypesFor(key).map((t) => (

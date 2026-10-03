@@ -5,7 +5,7 @@ import { buildFullMock, buildSectionMock } from '../domain/assemble'
 import type { MockMode, QuestionType, SectionId } from '../domain/types'
 import { capacityByType } from '../content/bank'
 import { Seo } from '../seo/Seo'
-import { Badge, Button, PageWrapper } from '../components/ui/primitives'
+import { Button, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useTest } from '../store/useTest'
 import { useSettings } from '../store/useSettings'
@@ -329,18 +329,22 @@ export default function MockSetup() {
                 <p className="text-xs font-semibold text-ink-300">
                   Question types included
                 </p>
-                <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                {/* These were 23 individual `Badge`s, and `Badge` renders the
+                    `pill` shape — which the design system reserves for controls,
+                    not for data. A wall of ragged-width pills also told a
+                    candidate nothing: RTS, ASQ and FIB-D are internal shorthand
+                    with no meaning outside this app. The same information reads
+                    as what it is, a list, once it is set as one wrapping line of
+                    mono codes in the data voice. */}
+                <p className="text-ink-300 mt-2.5 font-mono text-xs leading-relaxed">
                   {preview.mock.sections
                     .flatMap((s) => s.itemIds)
                     .map((id) => preview.mock.items[id]?.type)
                     .filter((t): t is NonNullable<typeof t> => Boolean(t))
                     .filter((t, i, arr) => arr.indexOf(t) === i)
-                    .map((t) => (
-                      <li key={t}>
-                        <Badge tone="neutral" className="bg-white/8 text-ink-200">{QUESTION_META[t].short}</Badge>
-                      </li>
-                    ))}
-                </ul>
+                    .map((t) => QUESTION_META[t].short)
+                    .join('  ·  ')}
+                </p>
               </div>
 
               <div className="mt-5 border-t border-white/10 pt-4">

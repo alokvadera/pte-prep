@@ -36,18 +36,22 @@ export default function ResultPage() {
     void (async () => {
       try {
         const existing = params.get('attempt')
-        if (existing) {
-          if (attempt?.id === existing) {
+        const targetId = existing || (useTest.getState().status === 'finished' ? useTest.getState().attemptId : null)
+        if (targetId) {
+          if (attempt?.id === targetId) {
             setLoading(false)
             return
           }
-          let stored = await getAttempt(existing)
+          let stored = await getAttempt(targetId)
           if (!stored) {
-            stored = (await fetchAttemptFromCloud(existing)) ?? undefined
+            stored = (await fetchAttemptFromCloud(targetId)) ?? undefined
           }
           if (!cancelled) {
             setAttempt(stored ?? null)
             setLoading(false)
+            if (!existing && stored) {
+              setSearchParams({ attempt: stored.id }, { replace: true })
+            }
           }
           return
         }
