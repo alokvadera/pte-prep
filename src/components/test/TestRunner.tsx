@@ -273,14 +273,14 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
       if (!curSection) return
       const curIsLast = itemIndex === curSection.itemIds.length - 1
       const curIsLastSection = sectionIndex === mock.sections.length - 1
-      if (e.altKey && (e.key === 'n' || e.key === 'N')) {
+      if (e.altKey && (e.key === 'n' || e.key === 'N' || e.code === 'KeyN')) {
         e.preventDefault()
         const atEnd = curIsLast && curIsLastSection
         setAnnouncement(
           atEnd ? 'Test finished, scoring your responses.' : curIsLast ? 'Section finished.' : 'Question advanced.',
         )
         next()
-      } else if (e.altKey && (e.key === 'b' || e.key === 'B')) {
+      } else if (e.altKey && (e.key === 'b' || e.key === 'B' || e.code === 'KeyB')) {
         if (mock.forwardOnly) return
         if (itemIndex > 0) {
           e.preventDefault()

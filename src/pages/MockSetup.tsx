@@ -355,9 +355,14 @@ export default function MockSetup() {
                   <input
                     id="seed"
                     type="number"
+                    min={1}
+                    step={1}
                     className="field min-w-0 flex-1 tabular-nums"
                     value={seed}
-                    onChange={(e) => setSeed(Number(e.target.value) || 0)}
+                    onChange={(e) => {
+                      const n = Math.floor(Number(e.target.value))
+                      setSeed(Number.isFinite(n) && n > 0 ? n : DEFAULT_SEED)
+                    }}
                   />
                   <Button variant="secondary" className="shrink-0" onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}>
                     Shuffle

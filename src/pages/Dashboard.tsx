@@ -82,16 +82,20 @@ export default function Dashboard() {
     const first = primary[0]
     if (!latest || !first) return null
 
+    // Averages and type accuracy run over the same primary set as the trend:
+    // full mocks when they exist, otherwise everything. Mixing untimed drills
+    // and single-section runs into exam averages would understate real pacing
+    // and overstate practised types.
     const skillAvg: Partial<Record<Skill, number>> = {}
     for (const s of SKILL_ORDER) {
-      const values = attempts
+      const values = primary
         .map((a) => a.skillScores[s])
         .filter((v): v is number => typeof v === 'number')
       if (values.length > 0) skillAvg[s] = values.reduce((a, b) => a + b, 0) / values.length
     }
 
     const typeAgg: Record<string, { earned: number; max: number; n: number }> = {}
-    for (const a of attempts) {
+    for (const a of primary) {
       for (const [type, row] of Object.entries(a.breakdown)) {
         const acc = (typeAgg[type] ??= { earned: 0, max: 0, n: 0 })
         acc.earned += row.earnedPoints

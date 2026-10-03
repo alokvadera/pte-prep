@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, MOCK_BLUEPRINT, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { buildDrillMock } from '../domain/assemble'
@@ -70,6 +70,40 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
     }
     begin()
   }
+
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!confirmOverwrite) return
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    focusable[0]?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setConfirmOverwrite(false)
+        return
+      }
+      if (e.key === 'Tab' && focusable.length > 0) {
+        const first = focusable[0]!
+        const last = focusable[focusable.length - 1]!
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [confirmOverwrite])
 
   const toggle = (t: QuestionType) => {
     setSelected((prev) => {
@@ -194,11 +228,6 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
           <span className="text-ink-500 dark:text-ink-300 ml-auto font-mono text-xs tabular-nums">≈ {buildable.length * perType} questions</span>
         </div>
 
-        {buildable.length < chosen.length ? (
-          <p className="text-amber-600 dark:text-amber-300 mt-4 text-sm">
-            {chosen.length - buildable.length} question type{chosen.length - buildable.length === 1 ? ' has' : 's have'} too few items for this length and will be skipped.
-          </p>
-        ) : null}
         {chosen.length === 0 ? <p className="text-amber-600 dark:text-amber-300 mt-4 text-sm">Choose at least one question type to start a drill.</p> : null}
 
         <div className="border-ink-200 dark:border-white/10 mt-8 flex flex-wrap items-center justify-between gap-4 border-t pt-6">
@@ -216,6 +245,7 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
             aria-label="Cancel"
           />
           <div
+            ref={dialogRef}
             role="dialog"
             aria-modal="true"
             aria-labelledby="confirm-overwrite-title"

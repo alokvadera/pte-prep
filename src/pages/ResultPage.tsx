@@ -383,8 +383,10 @@ export default function ResultPage() {
           </div>
         </div>
 
-        <div key={tab} className="mt-6 animate-fade-in">
-          {tab === 'overview' ? (
+        <div key={tab} className="mt-6 animate-fade-in print:animate-none">
+          {/* All sections render so printing captures the whole report; only
+              the active tab shows on screen. */}
+          <section className={cn(tab === 'overview' ? '' : 'hidden print:block')}>
             <Card>
               <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Accuracy by question type</h2>
               <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">Weakest first.</p>
@@ -423,9 +425,9 @@ export default function ResultPage() {
                 })}
               </ul>
             </Card>
-          ) : null}
+          </section>
 
-          {tab === 'pace' ? (
+          <section className={cn('print:mt-8', tab === 'pace' ? '' : 'hidden print:block')}>
             <Card>
               <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Where your time went</h2>
               <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
@@ -474,7 +476,9 @@ export default function ResultPage() {
                 so pace here changes the pressure you feel rather than the marks you earn directly.
               </p>
             </Card>
-          ) : tab === 'by-type' ? (
+          </section>
+
+          <section className={cn('print:mt-8', tab === 'by-type' ? '' : 'hidden print:block')}>
             <div className="space-y-4">
               {skills.map(({ skill, score }) => {
                 const types = typeRows.filter((r) => r.skill === skill)
@@ -525,9 +529,9 @@ export default function ResultPage() {
                 )
               })}
             </div>
-          ) : null}
+          </section>
 
-          {tab === 'review' ? (
+          <section className={cn('print:mt-8', tab === 'review' ? '' : 'hidden print:block')}>
             <div>
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 <button
@@ -567,7 +571,7 @@ export default function ResultPage() {
                 </ul>
               )}
             </div>
-          ) : null}
+          </section>
         </div>
 
         <div className="no-print mt-10 flex flex-wrap gap-3">

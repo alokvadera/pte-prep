@@ -86,15 +86,22 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
 
   const beginRecording = useCallback(async () => {
     setError(null)
+    let recError: string | null = null
     const rec = new VoiceRecorder({
       onStateChange: (s) => setState(s),
       onLevel: (l) => setLevel(l),
       onTranscript: (t) => setTranscript(t),
+      onError: (msg) => {
+        recError = msg
+        setError(msg)
+      },
     })
     recorderRef.current = rec
     const ok = await rec.start()
     if (!ok) {
-      setError('Microphone unavailable. Type your answer below instead — it will still be scored on content.')
+      if (!recError) {
+        setError('Microphone unavailable. Type your answer below instead — it will still be scored on content.')
+      }
       setPhase('done')
       return
     }
