@@ -5,5 +5,5 @@ pages_build_output_dir = "dist"
 [[d1_databases]]
 binding = "DB"
 database_name = "pte-prep-db"
-database_id = "pte-prep-db-local"
+database_id = "5f2a6a7e-fa31-4993-957a-cae0be3f64af"
 migrations_dir = "migrations"
