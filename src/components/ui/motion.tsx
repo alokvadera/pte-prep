@@ -37,11 +37,11 @@ type RevealVariant = 'up' | 'down' | 'left' | 'right' | 'scale' | 'fade'
  * literal would compile to no CSS at all.
  */
 const HIDDEN_CLASS: Record<RevealVariant, string> = {
-  up: 'data-[armed=true]:data-[shown=false]:translate-y-10',
-  down: 'data-[armed=true]:data-[shown=false]:-translate-y-10',
-  left: 'data-[armed=true]:data-[shown=false]:translate-x-12',
-  right: 'data-[armed=true]:data-[shown=false]:-translate-x-12',
-  scale: 'data-[armed=true]:data-[shown=false]:scale-90',
+  up: 'data-[armed=true]:data-[shown=false]:translate-y-6',
+  down: 'data-[armed=true]:data-[shown=false]:-translate-y-6',
+  left: 'data-[armed=true]:data-[shown=false]:translate-x-6',
+  right: 'data-[armed=true]:data-[shown=false]:-translate-x-6',
+  scale: 'data-[armed=true]:data-[shown=false]:scale-95',
   fade: '',
 }
 
@@ -203,9 +203,9 @@ export function CountUp({
 export function Tilt({
   children,
   className,
-  max = 8,
+  max = 5,
   glare = true,
-  travel = 26,
+  travel = 16,
 }: {
   children: ReactNode
   className?: string

@@ -42,7 +42,7 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className="border-ink-200 dark:border-white/10 sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] dark:bg-ink-900/95">
+      <header className="border-ink-200 dark:border-white/10 sticky top-0 z-40 border-b bg-white/85 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] dark:bg-ink-900/80">
         <div className="site-header-row page-shell-wide flex h-[72px] items-center gap-2 sm:gap-4 md:gap-6">
           <Logo />
           <nav aria-label="Main navigation" className="site-nav ml-auto flex items-center gap-1 sm:gap-1.5 md:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">
@@ -74,26 +74,25 @@ export function Layout() {
           </nav>
 
           <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
-            <button
-              type="button"
-              onClick={() => setAuthOpen(true)}
+            <NavLink
+              to="/login"
               className={cn(
                 'btn-ghost rounded-full p-2 transition-colors cursor-pointer',
                 user
                   ? 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400'
                   : 'text-ink-600 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white',
               )}
-              title={user ? `Signed in as ${user.email} (Cloud Synced)` : 'Cloud Backup & Sync'}
-              aria-label={user ? `Account: ${user.email}` : 'Sign in for Cloud Backup'}
+              title={user ? `Signed in as ${user.email} (Account)` : 'Sign in / Cloud Account'}
+              aria-label={user ? `Account: ${user.email}` : 'Sign in or Create Account'}
             >
               <svg className="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                 />
               </svg>
-            </button>
+            </NavLink>
             <ThemeToggle theme={settings.theme} onChange={(t) => set('theme', t)} />
             <NavLink to="/mock" className="btn-primary px-4 py-2 text-xs sm:px-5 sm:text-sm hidden sm:inline-flex">
               Start mock

@@ -8,7 +8,7 @@ dist-ssr
 !.env.example
 *.tsbuildinfo
 .screenshots
-design-lab/dark-audit
+design-lab/contrast-render
 design-lab/motion-review
 .agents
 .claude

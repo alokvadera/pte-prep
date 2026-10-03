@@ -385,6 +385,20 @@ export const PAGE_META: Record<string, PageMeta> = {
     noindex: true,
   },
 
+  '/login': {
+    title: 'Sign In to PTE Prep — Sync Mock Tests & Scores',
+    description: 'Sign in to your PTE Prep account to sync attempts and scores.',
+    path: '/login/',
+    noindex: true,
+  },
+
+  '/register': {
+    title: 'Create PTE Prep Account — Sync Mock Tests & Scores',
+    description: 'Create a PTE Prep account to sync attempts and scores.',
+    path: '/register/',
+    noindex: true,
+  },
+
   '/test': {
     title: 'PTE Mock Test in Progress',
     description: 'Your PTE Academic practice test is running.',

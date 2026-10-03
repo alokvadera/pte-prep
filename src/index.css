@@ -321,7 +321,7 @@
     transform: translate3d(-4%, -3%, 0) scale(1);
   }
   to {
-    transform: translate3d(6%, 5%, 0) scale(1.18);
+    transform: translate3d(6%, 5%, 0) scale(1.08);
   }
 }
 
@@ -816,12 +816,12 @@
    the 404, Result and the test runner do not use PageWrapper). Same grounds and
    hairlines, no gutter to escape, because there is nothing above to escape from. */
 @utility band-flush {
-  @apply border-ink-200 dark:border-white/10 border-y py-12 sm:py-16;
+  @apply border-ink-200 dark:border-white/10 border-y py-16 sm:py-20;
   background: var(--ground-tint);
 }
 
 @utility band-flush-plain {
-  @apply bg-white/60 border-ink-200 dark:border-white/10 border-y py-12 sm:py-16 dark:bg-white/3;
+  @apply bg-white/60 border-ink-200 dark:border-white/10 border-y py-16 sm:py-20 dark:bg-white/3;
 }
 
 /* A key figure: the one number a section exists to state, set in the mono data
@@ -1097,17 +1097,17 @@
 
 @utility bg-mesh-gradient {
   background:
-    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-100) 15%, transparent) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-50) 10%, transparent) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-100) 20%, transparent) 0px, transparent 50%),
+    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-100) 15%, transparent) 0px, transparent 70%),
+    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-50) 10%, transparent) 0px, transparent 70%),
+    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-100) 20%, transparent) 0px, transparent 70%),
     var(--color-ink-50);
 }
 
 .dark .bg-mesh-gradient {
   background:
-    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-900) 20%, transparent) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-950) 15%, transparent) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-800) 25%, transparent) 0px, transparent 50%),
+    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-900) 20%, transparent) 0px, transparent 70%),
+    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-950) 15%, transparent) 0px, transparent 70%),
+    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-800) 25%, transparent) 0px, transparent 70%),
     var(--color-ink-900);
 }
 
@@ -1402,6 +1402,10 @@
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
+    /* Dissolve before the section edge so the drifting blobs never clip
+       into a straight square seam where the hero meets the next band. */
+    mask-image: linear-gradient(to bottom, black 62%, transparent 98%);
+    -webkit-mask-image: linear-gradient(to bottom, black 62%, transparent 98%);
   }
   .hero-aurora span {
     position: absolute;
@@ -1554,12 +1558,12 @@
     position: absolute;
     inset: 0;
     z-index: 3;
-    border-radius: inherit;
+    border-radius: 12px;
     pointer-events: none;
     opacity: 0;
     background: radial-gradient(
-      26rem circle at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
-      rgb(255 255 255 / 0.16),
+      20rem circle at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgb(255 255 255 / 0.08),
       transparent 62%
     );
     transition: opacity 0.3s var(--ease-settle);

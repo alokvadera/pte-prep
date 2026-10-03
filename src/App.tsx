@@ -24,6 +24,7 @@ import Home from './pages/Home'
 import MockSetup from './pages/MockSetup'
 import Practice from './pages/Practice'
 import Dashboard from './pages/Dashboard'
+import LoginPage from './pages/LoginPage'
 import TestFormat from './pages/TestFormat'
 import ScoringGuide from './pages/ScoringGuide'
 import Guide from './pages/Guide'
@@ -101,6 +102,8 @@ export default function App() {
           <Route path="/mock" element={<MockSetup />} />
           <Route path="/practice" element={<Practice />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<LoginPage />} />
           <Route path="/format" element={<TestFormat />} />
           <Route path="/scoring" element={<ScoringGuide />} />
           <Route path="/guide" element={<Guide />} />

@@ -12,10 +12,12 @@ interface AuthStore {
   token: string | null
   loading: boolean
   error: string | null
-  login: (email: string) => Promise<boolean>
+  login: (email: string, password?: string) => Promise<boolean>
+  register: (email: string, password: string, targetScore?: number) => Promise<boolean>
   logout: () => void
   setTargetScore: (score: number) => Promise<void>
   checkSession: () => Promise<void>
+  clearError: () => void
 }
 
 export const useAuth = create<AuthStore>()(
@@ -26,17 +28,38 @@ export const useAuth = create<AuthStore>()(
       loading: false,
       error: null,
 
-      login: async (email: string) => {
+      login: async (email: string, password?: string) => {
         set({ loading: true, error: null })
         try {
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email }),
+            body: JSON.stringify({ email, password }),
           })
           const data = (await res.json()) as { error?: string; token?: string; user?: User }
           if (!res.ok || !data.token || !data.user) {
-            set({ loading: false, error: data.error ?? 'Login failed' })
+            set({ loading: false, error: data.error ?? 'Invalid email or password' })
+            return false
+          }
+          set({ user: data.user, token: data.token, loading: false, error: null })
+          return true
+        } catch {
+          set({ loading: false, error: 'Could not connect to authentication service' })
+          return false
+        }
+      },
+
+      register: async (email: string, password: string, targetScore = 65) => {
+        set({ loading: true, error: null })
+        try {
+          const res = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password, targetScore }),
+          })
+          const data = (await res.json()) as { error?: string; token?: string; user?: User }
+          if (!res.ok || !data.token || !data.user) {
+            set({ loading: false, error: data.error ?? 'Registration failed' })
             return false
           }
           set({ user: data.user, token: data.token, loading: false, error: null })
@@ -49,6 +72,10 @@ export const useAuth = create<AuthStore>()(
 
       logout: () => {
         set({ user: null, token: null, error: null })
+      },
+
+      clearError: () => {
+        set({ error: null })
       },
 
       setTargetScore: async (score: number) => {

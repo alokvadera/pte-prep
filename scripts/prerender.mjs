@@ -89,6 +89,8 @@ const ROUTES = [
   { path: '/about/', file: 'about/index.html', priority: '0.5', changefreq: 'yearly' },
   { path: '/privacy/', file: 'privacy/index.html', priority: '0.4', changefreq: 'yearly' },
   { path: '/dashboard/', file: 'dashboard/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
+  { path: '/login/', file: 'login/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
+  { path: '/register/', file: 'register/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
 ]
 
 // The per-question-type hub and spokes. The slug list mirrors the keys in

@@ -147,6 +147,15 @@ confirmed good result, amber for caution, rose for the mistake being corrected.
 Only one band ground and one tinted callout tone per group — the point of naming
 them was to stop a fourth variant appearing.
 
+Colour is checked twice, at two different levels. `scripts/contrast.mjs` scores
+the token pairs statically. `scripts/contrast-render.mjs` (`npm run
+contrast:render`, part of `verify:full`) loads every prerendered route in both
+themes, walks the rendered text, composites each foreground through the alpha
+chain of surfaces behind it and scores the result against 1.4.3 and 1.4.11. Both
+are needed: the rendered pass is what caught a breadcrumb separator at 1.59:1 on
+the light ground while the same ink was perfectly legible in dark, and it is the
+only check that sees text sitting on a translucent band.
+
 Bands are used on the routed content pages. The app screens (dashboard, setup,
 runner, result) are built from cards over `page-shell-app` and take no band: a
 full-width ground there would compete with the surfaces that carry the data.

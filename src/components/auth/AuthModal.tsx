@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Badge, Button } from '../ui/primitives'
 import { useAuth } from '../../store/useAuth'
 import { syncCloudToLocal } from '../../lib/sync'
@@ -15,6 +16,7 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
   const { user, login, logout, loading, error, setTargetScore } = useAuth()
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isSyncing, setIsSyncing] = useState(false)
   const [syncStatus, setSyncStatus] = useState<string | null>(null)
 
@@ -58,7 +60,7 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
     e.preventDefault()
     if (!email.trim()) return
 
-    const ok = await login(email.trim())
+    const ok = await login(email.trim(), password || undefined)
     if (ok) {
       setIsSyncing(true)
       await syncCloudToLocal()
@@ -187,9 +189,20 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
                 placeholder="you@example.com"
                 className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
               />
-              <p className="text-micro text-ink-400 dark:text-ink-500 mt-1">
-                Enter your email to receive a direct session token. No passwords needed.
-              </p>
+            </div>
+
+            <div>
+              <label htmlFor="auth-password" className="block text-xs font-semibold text-ink-700 dark:text-ink-300 mb-1.5">
+                Password
+              </label>
+              <input
+                id="auth-password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password (if set)"
+                className="w-full rounded-lg border border-ink-200 bg-white px-3 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+              />
             </div>
 
             {error && (
@@ -198,13 +211,22 @@ export function AuthModal({ open, onClose, onSuccess }: AuthModalProps) {
               </p>
             )}
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-ink-100 dark:border-white/6">
-              <Button variant="ghost" size="sm" onClick={onClose}>
-                Cancel
-              </Button>
-              <Button variant="primary" size="sm" type="submit" disabled={loading || !email.trim()}>
-                {loading ? 'Connecting...' : 'Sign in & Sync'}
-              </Button>
+            <div className="flex items-center justify-between pt-2 border-t border-ink-100 dark:border-white/6">
+              <Link
+                to="/login"
+                onClick={onClose}
+                className="text-xs text-brand-600 hover:underline dark:text-brand-400 font-semibold"
+              >
+                Full login / register page →
+              </Link>
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={onClose}>
+                  Cancel
+                </Button>
+                <Button variant="primary" size="sm" type="submit" disabled={loading || !email.trim()}>
+                  {loading ? 'Signing in...' : 'Sign in & Sync'}
+                </Button>
+              </div>
             </div>
           </form>
         )}

@@ -98,7 +98,7 @@ export default function Home() {
                 Tilt wrapper leans the whole collage toward the pointer — purely
                 decorative, so it changes no layout and no hit area. */}
             <div className="animate-rise-in w-full max-w-5xl px-4 sm:px-0" style={{ animationDelay: '260ms' }}>
-              <Tilt className="relative">
+              <Tilt className="relative" max={4} glare={false}>
                 <ScorePreview />
               </Tilt>
             </div>

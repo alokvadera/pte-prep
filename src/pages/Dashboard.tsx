@@ -141,14 +141,14 @@ export default function Dashboard() {
                 </p>
               </div>
             </div>
-            <Button
+            <ButtonLink
+              to="/login"
               variant={user ? 'secondary' : 'primary'}
               size="sm"
-              onClick={() => setAuthModalOpen(true)}
               className="shrink-0"
             >
-              {user ? 'Manage account' : 'Enable Cloud Backup'}
-            </Button>
+              {user ? 'Manage account' : 'Sign in / Register'}
+            </ButtonLink>
           </div>
         </div>
 

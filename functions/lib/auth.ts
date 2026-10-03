@@ -85,3 +85,61 @@ export function extractBearerToken(request: Request): string | null {
   if (!auth || !auth.startsWith('Bearer ')) return null
   return auth.slice(7).trim()
 }
+
+export async function hashPassword(password: string): Promise<{ hash: string; salt: string }> {
+  const saltBytes = crypto.getRandomValues(new Uint8Array(16))
+  const salt = base64UrlEncode(saltBytes)
+
+  const enc = new TextEncoder()
+  const keyMaterial = await crypto.subtle.importKey(
+    'raw',
+    enc.encode(password),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveBits'],
+  )
+
+  const derivedBits = await crypto.subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: saltBytes,
+      iterations: 100000,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256,
+  )
+
+  const hash = base64UrlEncode(new Uint8Array(derivedBits))
+  return { hash, salt }
+}
+
+export async function verifyPassword(password: string, hash: string, salt: string): Promise<boolean> {
+  try {
+    const saltBytes = base64UrlDecode(salt)
+    const enc = new TextEncoder()
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      enc.encode(password),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveBits'],
+    )
+
+    const derivedBits = await crypto.subtle.deriveBits(
+      {
+        name: 'PBKDF2',
+        salt: saltBytes,
+        iterations: 100000,
+        hash: 'SHA-256',
+      },
+      keyMaterial,
+      256,
+    )
+
+    const computedHash = base64UrlEncode(new Uint8Array(derivedBits))
+    return computedHash === hash
+  } catch {
+    return false
+  }
+}
