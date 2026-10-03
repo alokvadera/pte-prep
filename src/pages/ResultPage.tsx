@@ -337,7 +337,7 @@ export default function ResultPage() {
           </div>
         </div>
 
-        <div className="mt-6">
+        <div key={tab} className="mt-6 animate-fade-in">
           {tab === 'overview' ? (
             <Card>
               <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Accuracy by question type</h2>

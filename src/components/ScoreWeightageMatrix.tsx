@@ -555,7 +555,7 @@ export function ScoreWeightageMatrix() {
                     <h3 className="text-ink-900 dark:text-white text-base font-bold">
                       <Link
                         to={`/question-types/${slug}/`}
-                        className="hover:text-brand-600 dark:hover:text-brand-400 hover:underline"
+                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 hover:text-brand-600 dark:hover:text-brand-400 hover:underline"
                       >
                         {item.name}
                       </Link>
@@ -625,7 +625,7 @@ export function ScoreWeightageMatrix() {
                 <div className="flex items-center gap-3">
                   <Link
                     to={`/question-types/${slug}/`}
-                    className="text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-white font-medium hover:underline"
+                    className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-white font-medium hover:underline"
                   >
                     Scoring rubric & mistakes →
                   </Link>

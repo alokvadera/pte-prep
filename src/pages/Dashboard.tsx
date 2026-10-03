@@ -442,7 +442,7 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
           fill="none"
           stroke="currentColor"
           strokeWidth={2}
-          className="text-brand-500 dark:text-brand-300"
+          className="text-brand-500 dark:text-brand-300 animate-fade-in"
           strokeLinejoin="round"
         />
       ) : null}

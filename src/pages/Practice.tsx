@@ -143,7 +143,7 @@ export default function Practice() {
 
         {/* Roomier selection cards: p-5, min-height, and a 4-unit grid gap so a
             dense list of 22 types still reads as calm. */}
-        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div key={skill ?? 'all'} className="mt-4 grid gap-4 sm:grid-cols-2 animate-fade-in">
           {types.map((t) => {
             const meta = QUESTION_META[t]
             const on = selected.has(t)
@@ -201,7 +201,7 @@ export default function Practice() {
               return (
                 <tr key={t} className="border-ink-100 align-top last:border-0 dark:border-white/6">
                   <td className="px-3 py-2.5 font-semibold text-ink-900 dark:text-white">
-                    <Link to={`/question-types/${typeSlug(t)}/`} className="hover:text-brand-600 dark:hover:text-brand-400 hover:underline">
+                    <Link to={`/question-types/${typeSlug(t)}/`} className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 hover:text-brand-600 dark:hover:text-brand-400 hover:underline">
                       {meta.label}
                     </Link>
                   </td>

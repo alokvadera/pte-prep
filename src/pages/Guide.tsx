@@ -273,7 +273,7 @@ export default function Guide() {
               </span>
               <h2 className="section-title mt-2">Academic Collocations (Fill in the Blanks)</h2>
             </div>
-            <Link to="/practice?type=fill-in-blanks-dropdown" className="text-brand-600 dark:text-brand-300 text-xs font-semibold hover:underline">
+            <Link to="/practice?type=fill-in-blanks-dropdown" className="text-brand-600 dark:text-brand-300 -m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-xs font-semibold hover:underline">
               Practice FIB dropdowns →
             </Link>
           </div>
@@ -313,13 +313,13 @@ export default function Guide() {
                     <div className="border-ink-100 dark:border-white/6 mt-3 flex items-center justify-between border-t pt-2.5 text-xs">
                       <Link
                         to={`/question-types/${typeSlug(t)}/`}
-                        className="text-ink-600 hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-400 font-medium hover:underline"
+                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-400 font-medium hover:underline"
                       >
                         Deep dive & rubric →
                       </Link>
                       <Link
                         to={`/practice?type=${t}`}
-                        className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-semibold hover:underline"
+                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-semibold hover:underline"
                       >
                         Practice drill →
                       </Link>

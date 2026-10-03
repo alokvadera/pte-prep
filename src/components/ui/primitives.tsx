@@ -393,7 +393,7 @@ export function ProgressBar({
       aria-valuemax={100}
       aria-label={label}
     >
-      <div className={cn('h-full rounded-full transition-[width] duration-500', colors[tone])} style={{ width: `${pct}%` }} />
+      <div className={cn('h-full rounded-full origin-left animate-bar-reveal transition-[width] duration-500 ease-out', colors[tone])} style={{ width: `${pct}%` }} />
     </div>
   )
 }
@@ -427,13 +427,13 @@ export function Toggle({
       <span
         aria-hidden="true"
         className={cn(
-          'relative mt-0.5 h-6 w-11 shrink-0 rounded-full border transition-colors',
+          'relative mt-0.5 h-6 w-11 shrink-0 rounded-full border transition-colors duration-200 ease-out',
           checked ? 'border-brand-500 bg-brand-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
         )}
       >
         <span
           className={cn(
-            'absolute top-0.5 size-4.5 rounded-full bg-white transition-transform',
+            'absolute top-0.5 size-4.5 rounded-full bg-white shadow-xs transition-transform duration-200 ease-out',
             checked ? 'translate-x-5.5' : 'translate-x-0.5',
           )}
         />

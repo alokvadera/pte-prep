@@ -150,7 +150,7 @@ export default function TestFormat() {
                             <span className="text-ink-500 dark:text-ink-400 mr-2 tabular-nums">{i + 1}.</span>
                             <Link
                               to={`/question-types/${slug}/`}
-                              className="hover:text-brand-600 dark:hover:text-brand-400 hover:underline -m-1 inline-block rounded-sm px-1 py-1"
+                              className="hover:text-brand-600 dark:hover:text-brand-400 hover:underline -m-1 inline-flex min-h-6 items-center rounded-sm px-1"
                             >
                               {qm.label}
                             </Link>
@@ -165,7 +165,7 @@ export default function TestFormat() {
                       <div className="border-ink-100 dark:border-white/6 mt-4 flex flex-wrap items-center gap-4 border-t pt-2.5 text-xs">
                         <Link
                           to={`/practice?type=${t}`}
-                          className="text-brand-600 dark:text-brand-400 font-medium hover:underline -m-1 inline-block rounded-sm px-1 py-1"
+                          className="text-brand-600 dark:text-brand-400 font-medium hover:underline -m-1 inline-flex min-h-6 items-center rounded-sm px-1"
                         >
                           Practice this type →
                         </Link>

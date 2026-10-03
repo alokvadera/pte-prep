@@ -137,6 +137,7 @@
   --animate-modal-enter: modal-enter 0.22s var(--ease-settle) both;
   --animate-fade-in: fade-in 0.2s ease-out both;
   --animate-question-enter: question-enter 0.2s var(--ease-settle) both;
+  --animate-bar-reveal: bar-reveal 0.65s var(--ease-settle) both;
 }
 
 @keyframes route-enter {
@@ -203,10 +204,25 @@
 
 @keyframes eq-pulse {
   0%, 100% {
-    transform: scaleY(0.42);
+    transform: scaleY(0.25);
   }
-  50% {
+  35% {
+    transform: scaleY(0.9);
+  }
+  65% {
+    transform: scaleY(0.45);
+  }
+  85% {
     transform: scaleY(1);
+  }
+}
+
+@keyframes bar-reveal {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -414,22 +430,22 @@
 }
 
 @utility choice-active {
-  @apply border-brand-500 bg-brand-500/10 dark:border-brand-400 dark:bg-brand-500/20;
+  @apply border-brand-500 bg-brand-500/10 shadow-xs dark:border-brand-400 dark:bg-brand-500/20;
 }
 
 @utility choice-idle {
-  @apply hover:border-ink-300 dark:hover:border-white/20;
+  @apply hover:border-ink-300 hover:-translate-y-0.5 hover:shadow-xs dark:hover:border-white/20;
 }
 
 @utility choice-idle-solid {
-  @apply bg-white hover:border-ink-300 dark:bg-white/3 dark:hover:border-white/20;
+  @apply bg-white hover:border-ink-300 hover:-translate-y-0.5 hover:shadow-xs dark:bg-white/3 dark:hover:border-white/20;
 }
 
 @utility card {
   /* Elevation is a shift in value, not a blur. Padding lives here so a bare
      `card` can never collapse into a zero-padding strip (FAQ, sidebar, review
      rows all hit that). Override with any padding utility when needed. */
-  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow] duration-200;
+  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow,translate,background-color] duration-200;
 
   &:where(.dark, .dark *) {
     @apply border-white/10 bg-white/[0.035] shadow-xs;
@@ -437,7 +453,7 @@
 }
 
 @utility card-solid {
-  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow] duration-200;
+  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow,translate,background-color] duration-200;
 
   &:where(.dark, .dark *) {
     @apply bg-ink-850 border-white/12 shadow-xs;
@@ -460,9 +476,14 @@
   animation: var(--animate-question-enter);
 }
 
+@utility animate-bar-reveal {
+  transform-origin: left;
+  animation: var(--animate-bar-reveal);
+}
+
 @utility eq-bar {
   transform-origin: bottom;
-  animation: eq-pulse 1.2s ease-in-out infinite;
+  animation: eq-pulse 1s ease-in-out infinite;
 }
 
 /* Buttons carry shape, weight, colour and press feedback only — never size.
@@ -474,10 +495,8 @@
      button wherever a component import would be awkward; the <Button> component
      overrides it per size via tailwind-merge. */
   @apply px-5 py-2.5 text-sm;
-  /* `translate` is transitioned explicitly: `transition-colors` would leave the
-     press feedback snapping rather than easing. Avoids `transition-all`, which
-     animates every property the element happens to gain later. */
-  @apply transition-[color,background-color,border-color,fill,translate];
+  /* `translate` and `box-shadow` are transitioned explicitly: avoids `transition-all`. */
+  @apply transition-[color,background-color,border-color,fill,translate,box-shadow];
   @apply disabled:pointer-events-none disabled:opacity-45;
 
   /* Physical press feedback (skill B9). A one pixel drop rather than a scale:
@@ -492,6 +511,7 @@
 @utility btn-primary {
   @apply btn bg-brand-500 text-white;
   @apply hover:bg-brand-400 active:bg-brand-600;
+  @apply hover:-translate-y-0.5 hover:shadow-md;
   box-shadow:
     0 1px 0 0 rgb(255 255 255 / 0.18) inset,
     0 10px 24px -12px rgb(23 86 176 / 0.3);
@@ -542,7 +562,12 @@
   .practice-skill-row { display: grid; grid-template-columns: 78px 1fr 28px; align-items: center; gap: 9px; margin: 12px 0; color: var(--color-ink-300); font-size: 10px; }
   .practice-skill-row b { color: white; text-align: right; font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
   .practice-meter { height: 5px; overflow: hidden; border-radius: 5px; background: var(--color-ink-700); }
-  .practice-meter i { display: block; height: 100%; border-radius: inherit; background: var(--color-brand-300); }
+  .practice-meter i { display: block; height: 100%; border-radius: inherit; background: var(--color-brand-300); transform-origin: left; animation: meter-fill 0.8s var(--ease-settle) both; }
+  .practice-skill-row:nth-child(1) .practice-meter i { animation-delay: 0.2s; }
+  .practice-skill-row:nth-child(2) .practice-meter i { animation-delay: 0.28s; }
+  .practice-skill-row:nth-child(3) .practice-meter i { animation-delay: 0.36s; }
+  .practice-skill-row:nth-child(4) .practice-meter i { animation-delay: 0.44s; }
+  @keyframes meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
   .practice-focus-icon { color: var(--color-brand-300); }
   .practice-continue-title { min-height: 42px; margin-top: 0; }
   .practice-continue-title a { color: var(--color-ink-400); font-size: 9px; text-decoration: none; }
@@ -573,7 +598,8 @@
   /* The floating score/week cards keep the light ground of the real dashboard
      widgets in light mode and use the app's elevated dark surface in dark mode,
      exactly like every other card. */
-  .practice-float { position: absolute; z-index: 2; display: flex; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 14px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; }
+  .practice-float { position: absolute; z-index: 2; display: flex; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 14px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; transition: transform 0.25s var(--ease-settle), box-shadow 0.25s var(--ease-settle); }
+  .practice-float:hover { transform: translateY(-3px); box-shadow: 0 20px 42px -16px rgb(20 38 66 / .45); }
   .practice-float-score { top: 74px; left: 0; }
   .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--color-brand-50); color: var(--color-brand-500); }
   .practice-float small, .practice-float-week small { display: block; color: var(--color-ink-500); font-family: var(--font-sans); font-size: 10px; letter-spacing: 0; }
@@ -589,6 +615,7 @@
   @keyframes float-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
   @keyframes bar-grow { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
   .dark .practice-float { border-color: rgb(255 255 255 / 0.08); background: var(--color-ink-850); color: var(--color-ink-50); box-shadow: 0 20px 40px -15px rgb(0 0 0 / .6); }
+  .dark .practice-float:hover { box-shadow: 0 24px 48px -15px rgb(0 0 0 / .7); }
   .dark .practice-float small, .dark .practice-float-week > small { color: var(--color-ink-400); }
   .dark .practice-float-score strong { color: var(--color-ink-50); }
   .dark .practice-float-score strong i { color: var(--color-ink-400); }
@@ -621,10 +648,10 @@
 
 @utility btn-secondary {
   @apply btn border border-ink-200 bg-white text-ink-700;
-  @apply hover:bg-ink-100 active:scale-[0.98];
+  @apply hover:bg-ink-100 hover:border-ink-300 hover:-translate-y-0.5 hover:shadow-xs;
 
   &:where(.dark, .dark *) {
-    @apply border-white/12 bg-white/6 text-ink-100 hover:bg-white/10;
+    @apply border-white/12 bg-white/6 text-ink-100 hover:bg-white/10 dark:hover:border-white/20;
   }
 }
 
