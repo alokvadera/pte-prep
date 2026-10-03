@@ -460,7 +460,7 @@ export function Toggle({
  */
 export function EmptyState({ icon, title, description, action }: { icon?: ReactNode; title: string; description: string; action?: ReactNode }) {
   return (
-    <div className="card flex flex-col items-center px-6 py-14 text-center">
+    <div className="card flex flex-col items-start px-6 py-10 text-left">
       {icon ? <div className="text-ink-300 dark:text-ink-400 mb-3">{icon}</div> : null}
       <h2 className="section-title">{title}</h2>
       <p className="text-ink-500 dark:text-ink-400 mt-1.5 max-w-sm text-sm leading-relaxed">{description}</p>

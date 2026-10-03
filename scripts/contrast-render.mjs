@@ -78,6 +78,11 @@ const ROUTES = [
   { path: '/guide', shot: null },
   { path: '/about', shot: null },
   { path: '/dashboard', shot: 'dashboard' },
+  // Auth renders muted helper copy on tinted card surfaces, which is where an
+  // inverted ink pair hides longest. Both modes share one component but show
+  // different copy, so both are walked.
+  { path: '/login', shot: null },
+  { path: '/register', shot: null },
   { path: '/not-a-page', shot: null },
   { path: '/privacy/', shot: null },
   { path: '/question-types/', shot: 'question-types-hub' },

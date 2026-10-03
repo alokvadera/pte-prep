@@ -315,12 +315,12 @@ export function Tilt({
 export function PointerField({
   children,
   className,
-  radius = 260,
+  radius = 300,
   travel = 12,
 }: {
   children: ReactNode
   className?: string
-  /** Pointer distance at which a child has fully settled back to rest. */
+  /** Centre-to-centre distance at which a child has fully settled back to rest. */
   radius?: number
   /** Maximum pixel travel of a child's edge. */
   travel?: number
@@ -345,11 +345,17 @@ export function PointerField({
       for (const child of el.querySelectorAll<HTMLElement>('[data-pf]')) {
         const box = child.getBoundingClientRect()
         if (box.width === 0 && box.height === 0) continue
-        // Distance from the pointer to the nearest edge, so a pointer inside a
-        // card reads as fully arrived rather than as distance zero at centre.
-        const dx = Math.max(box.left - point.x, 0, point.x - box.right)
-        const dy = Math.max(box.top - point.y, 0, point.y - box.bottom)
-        const distance = Math.hypot(dx, dy)
+        const cx = box.left + box.width / 2
+        const cy = box.top + box.height / 2
+        const dx0 = point.x - cx
+        const dy0 = point.y - cy
+        const distance = Math.hypot(dx0, dy0)
+
+        // Falloff on centre distance, not distance to the nearest edge. The
+        // edge version looked right for the card being pointed at and wrong for
+        // everything else: a neighbour one 16px gap away scored almost as
+        // strongly as the target and slid 5.9px, which read as the whole column
+        // shifting rather than one card being chosen.
         const falloff = distance >= radius ? 0 : 1 - distance / radius
         if (falloff <= 0.01) {
           if (child.style.getPropertyValue('--pf-x')) {
@@ -358,13 +364,26 @@ export function PointerField({
           }
           continue
         }
-        const cx = box.left + box.width / 2
-        const cy = box.top + box.height / 2
-        const pull = falloff * travel
-        const ux = (cx - point.x) / (Math.hypot(cx - point.x, cy - point.y) || 1)
-        const uy = (cy - point.y) / (Math.hypot(cx - point.x, cy - point.y) || 1)
-        child.style.setProperty('--pf-x', `${(ux * pull).toFixed(2)}px`)
-        child.style.setProperty('--pf-y', `${(uy * pull).toFixed(2)}px`)
+        const unit = distance || 1
+
+        // Two parts, because one part was measurably wrong. Leaning the card
+        // toward the pointer alone gives the card *under* the cursor a
+        // direction of zero, so the card you are pointing at stayed still while
+        // its neighbours moved toward it — the opposite of what this is for.
+        // So every card in range also rises by its own proximity, and the
+        // lean is the smaller half of the movement.
+        const lean = falloff * travel
+        let vx = (dx0 / unit) * lean * 0.5
+        let vy = (dy0 / unit) * lean * 0.5 - falloff * travel * 0.5
+
+        // `travel` is a hard ceiling on the edge's movement, not a scale hint.
+        const magnitude = Math.hypot(vx, vy)
+        if (magnitude > travel) {
+          vx = (vx / magnitude) * travel
+          vy = (vy / magnitude) * travel
+        }
+        child.style.setProperty('--pf-x', `${vx.toFixed(2)}px`)
+        child.style.setProperty('--pf-y', `${vy.toFixed(2)}px`)
       }
     }
 

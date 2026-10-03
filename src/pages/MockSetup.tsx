@@ -105,6 +105,13 @@ export default function MockSetup() {
     return { mock, scoredCount: scored.length, minutes: Math.round(mock.totalSeconds / 60) }
   }, [seed, counts, singleSection, timing, forwardOnly])
 
+  const includedTypes = [...new Set(
+    preview.mock.sections
+      .flatMap((section) => section.itemIds)
+      .map((id) => preview.mock.items[id]?.type)
+      .filter((type): type is QuestionType => type != null),
+  )]
+
   const [confirmOverwrite, setConfirmOverwrite] = useState(false)
   const dialogRef = useRef<HTMLDivElement>(null)
 
@@ -330,27 +337,16 @@ export default function MockSetup() {
                 </div>
               </dl>
 
-              <div className="border-ink-200 dark:border-white/10 mt-5 border-t pt-4">
-                <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
-                  Question types included
-                </p>
-                {/* These were 23 individual `Badge`s, and `Badge` renders the
-                    `pill` shape — which the design system reserves for controls,
-                    not for data. A wall of ragged-width pills also told a
-                    candidate nothing: RTS, ASQ and FIB-D are internal shorthand
-                    with no meaning outside this app. The same information reads
-                    as what it is, a list, once it is set as one wrapping line of
-                    mono codes in the data voice. */}
-                <p className="text-ink-500 dark:text-ink-400 mt-2.5 font-mono text-xs leading-relaxed">
-                  {preview.mock.sections
-                    .flatMap((s) => s.itemIds)
-                    .map((id) => preview.mock.items[id]?.type)
-                    .filter((t): t is NonNullable<typeof t> => Boolean(t))
-                    .filter((t, i, arr) => arr.indexOf(t) === i)
-                    .map((t) => QUESTION_META[t].short)
-                    .join('  ·  ')}
-                </p>
-              </div>
+              <details className="border-ink-200 dark:border-white/10 group mt-5 border-t pt-4">
+                <summary className="text-ink-700 dark:text-ink-200 flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold">
+                  <span>{includedTypes.length} question types included</span>
+                  <span className="text-ink-500 dark:text-ink-400 font-normal group-open:hidden">Show</span>
+                  <span className="text-ink-500 dark:text-ink-400 hidden font-normal group-open:inline">Hide</span>
+                </summary>
+                <ul className="text-ink-600 dark:text-ink-300 mt-3 max-h-48 space-y-1 overflow-y-auto pr-2 text-xs">
+                  {includedTypes.map((type) => <li key={type}>{QUESTION_META[type].label}</li>)}
+                </ul>
+              </details>
 
               <div className="border-ink-200 dark:border-white/10 mt-5 border-t pt-4">
                 <label className="text-ink-500 dark:text-ink-400 mb-1.5 block text-xs font-semibold" htmlFor="seed">

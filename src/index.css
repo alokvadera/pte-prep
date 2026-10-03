@@ -738,12 +738,7 @@
    be assembled inline by SectionHeading. A page that is not using the component
    still gets the same kicker. */
 @utility section-eyebrow {
-  @apply text-ink-500 dark:text-ink-400 mb-2 flex items-center gap-2 font-mono text-micro uppercase tracking-wider;
-
-  &::before {
-    content: '';
-    @apply bg-brand-500 dark:bg-brand-400 inline-block h-px w-5 shrink-0;
-  }
+  @apply text-brand-600 dark:text-brand-300 mb-2 block text-sm font-semibold tracking-wide;
 }
 
 /* The square that carries a step, rank or index digit. */
@@ -1274,19 +1269,14 @@
      (#171b20, #1756b0, #79b7ff, #303944...) the token it actually meant is
      named here instead.
      ------------------------------------------------------------------------ */
-  /* The collage is a three-column grid rather than an absolutely-positioned stage.
-     The two floating cards used to be overlays pinned to the window's left and
-     right edges, and they covered the mock's own content: the score card sat on
-     top of the LEARN nav group and the week chart sat on top of the "Choose a
-     writing task" link. That is not fixable while they overlap. The window is
-     88% of a 1024px shell, so the gutter on each side is ~60px, and the cards
-     are 210px wide — there is no position on the window's edge that clears the
-     mock's content, because the mock's content fills its full width. The cards
-     therefore take their own grid tracks, where an overlap is not something a
-     breakpoint can reintroduce. They keep the surface, radius, shadow and the
-     diagonal stagger they had, so the arrangement still reads as a collage. */
-  .practice-collage { position: relative; display: grid; grid-template-columns: minmax(0, 150px) minmax(0, 1fr) minmax(0, 150px); align-items: center; gap: 16px; margin-inline: auto; text-align: left; }
-  .practice-window { overflow: hidden; width: 100%; height: 500px; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 12px; background: var(--color-ink-900); color: var(--color-ink-50); box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
+  .home-hero-shell.page-shell-wide { max-width: 80rem; }
+  .home-preview-shell { max-width: 72rem; margin-inline: auto; }
+
+  /* Keep the dashboard as the hero's main visual, with the two sample cards
+     layered at its outer edges. Their overlap stops at the frame border, clear
+     of the inset navigation and task links; at tablet widths they move below. */
+  .practice-collage { position: relative; width: 100%; margin-inline: auto; padding-block: 2rem; text-align: left; }
+  .practice-window { position: relative; z-index: 1; overflow: hidden; width: 76%; height: 32rem; margin-inline: auto; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 12px; background: var(--color-ink-900); color: var(--color-ink-50); box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
   .practice-window-header { display: flex; height: 46px; align-items: center; justify-content: space-between; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding-inline: 16px; color: var(--color-ink-300); font-size: 11px; font-weight: 600; }
   .practice-window-mark { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-brand-300); }
   .practice-window-avatar { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--color-ink-700); color: white; font-size: 10px; font-weight: 700; }
@@ -1362,36 +1352,25 @@
   .practice-suggestion p { margin: 5px 0 12px; color: var(--color-ink-300); font-size: 10px; line-height: 1.45; text-align: left; }
   .practice-suggestion a { margin-top: auto; color: var(--color-brand-300); font-size: 10px; text-decoration: none; transition: color 0.2s var(--ease-settle); }
   .practice-suggestion a:hover { color: var(--color-brand-200); }
-  /* The floating score/week cards keep the light ground of the real dashboard
-     widgets in light mode and use the app's elevated dark surface in dark mode,
-     exactly like every other card. */
-  .practice-float { position: relative; z-index: 2; display: flex; width: 100%; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 13px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; transition: transform .3s var(--ease-settle), box-shadow .3s var(--ease-settle), border-color .3s var(--ease-settle); }
+  /* Keep the floating cards light in both themes so they read as distinct
+     layers above the dark dashboard preview. */
+  .practice-float { position: absolute; z-index: 3; display: flex; width: min(12.5%, 12rem); flex-direction: column; align-items: stretch; gap: 0; border: 1px solid rgb(255 255 255 / .72); border-radius: 14px; background: rgb(255 255 255 / .96); padding: 16px; color: var(--color-ink-900); box-shadow: 0 24px 52px -22px rgb(20 38 66 / .48), inset 0 1px 0 rgb(255 255 255 / .7); animation: float-in .7s .18s var(--ease-settle) both; transition: transform .3s var(--ease-settle), box-shadow .3s var(--ease-settle), border-color .3s var(--ease-settle); }
   .practice-float:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -16px rgb(20 38 66 / .5); border-color: var(--color-brand-300); }
-  .practice-float-score { align-self: start; margin-top: 74px; }
+  .practice-float-score { top: 18%; left: 0; }
   .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--color-brand-50); color: var(--color-brand-500); }
   .practice-float small, .practice-float-week small { display: block; color: var(--color-ink-500); font-family: var(--font-sans); font-size: 10px; letter-spacing: 0; }
   .practice-float-score strong { display: flex; align-items: baseline; gap: 7px; margin-top: 7px; font-family: var(--font-sans); font-size: 32px; line-height: 1; font-weight: 650; letter-spacing: -.07em; }
   .practice-float-score strong i { color: var(--color-ink-500); font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0; }
   .practice-float-score em { margin-top: 8px; color: var(--color-brand-500); font-size: 10px; font-style: normal; }
   .practice-float-up { border-radius: 20px; background: var(--color-ink-100); padding: 5px 7px; color: var(--color-mint-600); font-family: var(--font-mono); font-size: 9px; }
-  .practice-float-week { align-self: end; margin-bottom: 58px; animation-delay: .3s; }
+  .practice-float-week { right: 0; bottom: 8%; animation-delay: .3s; }
   .practice-float-week-icon { background: var(--color-ink-100); }
   .practice-float-week b { font-family: var(--font-sans); font-size: 11px; font-weight: 600; }
   .practice-preview-note { position: absolute; right: 28px; bottom: 0; margin: 0; color: var(--color-ink-500); font-family: var(--font-mono); font-size: 9px; }
   @keyframes preview-rise { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: none; } }
   @keyframes float-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
   @keyframes bar-grow { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
-  .dark .practice-float { border-color: rgb(255 255 255 / 0.08); background: var(--color-ink-850); color: var(--color-ink-50); box-shadow: 0 20px 40px -15px rgb(0 0 0 / .6); }
-  .dark .practice-float:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 28px 56px -12px rgb(0 0 0 / .75); border-color: var(--color-brand-400); }
-  .dark .practice-float small, .dark .practice-float-week > small { color: var(--color-ink-400); }
-  .dark .practice-float-score strong { color: var(--color-ink-50); }
-  .dark .practice-float-score strong i { color: var(--color-ink-400); }
-  .dark .practice-float-score em { color: var(--color-brand-300); }
-  .dark .practice-float-icon { background: color-mix(in oklab, var(--color-brand-500) 24%, transparent); color: var(--color-brand-300); }
-  .dark .practice-float-week-icon { background: var(--color-ink-800); }
-  .dark .practice-float-up { background: var(--color-mint-700); color: var(--color-mint-300); }
-  .dark .practice-bars { border-bottom-color: rgb(255 255 255 / 0.08); }
-  .dark .practice-week-days { color: var(--color-ink-400); }
+  .dark .practice-float:hover { border-color: var(--color-brand-300); }
 
   /* Header on narrow screens.
      The nav is a flex row with the logo and the theme toggle, and as a flex item
@@ -1407,15 +1386,14 @@
   @media (max-width: 620px) {
     .site-nav { gap: 6px; font-size: 11px; }
   }
-  /* Below 1080px the flanking tracks stop paying for themselves: the mock needs
-     the width more than the cards do. The window takes the full width and the
-     two cards pair up beneath it. Same guarantee — no overlap at any width. */
+  /* The float cards only overlap the outside frame edge on a wide hero. Below
+     this width, put them in their own row so the dashboard remains readable. */
   @media (max-width: 1080px) {
-    .practice-collage { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 10px; }
-    .practice-window { grid-row: 1; grid-column: 1 / -1; width: min(880px, 100%); height: 480px; justify-self: center; }
-    .practice-float { max-width: 340px; justify-self: center; }
-    .practice-float-score { grid-row: 2; grid-column: 1; align-self: auto; margin-block: 0; }
-    .practice-float-week { grid-row: 2; grid-column: 2; align-self: auto; margin-block: 0; }
+    .practice-collage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding-block: 0; }
+    .practice-window { grid-row: 1; grid-column: 1 / -1; width: min(880px, 100%); height: 30rem; justify-self: center; }
+    .practice-float { position: relative; width: 100%; max-width: 340px; justify-self: center; }
+    .practice-float-score { top: auto; left: auto; grid-row: 2; grid-column: 1; }
+    .practice-float-week { right: auto; bottom: auto; grid-row: 2; grid-column: 2; }
   }
   @media (max-width: 700px) { .practice-window { height: 430px; } .practice-window-body { grid-template-columns: 142px 1fr; } .practice-window-main { padding: 20px 18px; } .practice-window-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; } .practice-suggestion { display: none; } }
   @media (max-width: 600px) { .practice-collage { gap: 12px; } .practice-window { height: 360px; border-radius: 8px; } .practice-window-body { grid-template-columns: 112px 1fr; } .practice-window-nav { gap: 2px; padding: 11px 6px; font-size: 9px; } .practice-window-nav a { gap: 4px; padding: 0 5px; font-size: 9px; } .practice-streak { padding: 7px; font-size: 8px; } .practice-window-main { padding: 15px 11px; } .practice-window-heading h2 { font-size: 17px; } .practice-overline { font-size: 8px; } .practice-mini-cta { display: none; } .practice-panel-title { min-height: 36px; padding-inline: 10px; font-size: 10px; } .practice-skill-list { padding: 1px 9px; } .practice-skill-row { grid-template-columns: 59px 1fr 20px; gap: 6px; margin: 9px 0; font-size: 8px; } .practice-skill-row b { font-size: 8px; } .practice-continue-title { display: none; } .practice-task { min-height: 41px; grid-template-columns: 20px 1fr auto; gap: 6px; padding: 6px 8px; font-size: 8px; } .practice-task small { font-size: 7px; } .practice-task-icon { width: 19px; height: 19px; } .practice-task-arrow { font-size: 8px; } .practice-float { padding: 11px; } .practice-float-score strong { font-size: 24px; } .practice-bars { height: 35px; margin-top: 8px; } .practice-window-grid { margin-top: 10px; } }
@@ -1449,12 +1427,8 @@
     display: block;
     border-radius: 9999px;
     filter: blur(72px);
-    /* Measured contribution to the hero pixels: mean 14.4 and p95 64 of 255
-       levels in light. That is a wash you can see without it competing with the
-       headline, which sits at 4.90:1 over it — the aurora was strengthened to
-       0.36 and the headline gained contrast anyway, because the mint stop in
-       `.text-gradient-move` replaced the lighter brand-400. Dark sits lower
-       because a bright blob reads stronger against a dark ground. */
+    /* A soft but visible wash; keep the dark theme calmer because bright blobs
+       read more strongly against its darker ground. */
     opacity: 0.36;
   }
   .hero-aurora .aurora-1 {
@@ -1530,57 +1504,26 @@
     }
   }
 
-  /* An animated gradient that can be clipped to text.
-
-     The transparent fill is the whole trick, so it lives behind @supports with
-     a real colour as the fallback — a browser without `background-clip: text`
-     gets solid accent text, never invisible text. */
-  .text-gradient-move {
-    color: var(--color-brand-700);
-    background-size: 220% 220%;
-  }
+  /* Subtle tonal headline treatment with a solid-colour fallback. */
+  .text-gradient-move { color: var(--color-ink-900); }
   .dark .text-gradient-move {
-    color: var(--color-brand-300);
+    color: white;
   }
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
     .text-gradient-move {
-      /* One hue, not two. An earlier pass put mint-400 in the middle of this
-         sweep for the colour and for its contrast — mint-400 measures 5.18:1
-         on the light ground where the lightest previous stop measured 4.58:1 —
-         and both numbers improved. Rendered, though, the mint stop sits where
-         the first line of the headline falls, so "Practice the test." came out
-         green and "Know what to do next." blue. Two hues on one heading reads
-         as two headings, and the green competes with the primary action
-         directly beneath it. Calibrated Silence reserves one accent for the
-         thing the reader came to see, so the sweep stays inside brand and the
-         lighter middle is a mix rather than raw brand-400 — brand-400 measured
-         3.39:1 over the aurora-tinted ground, which passes the 3.0 large-text
-         floor with almost no room, and the gradient pans, so any stop can land
-         under any glyph. */
-      background-image: linear-gradient(
-        100deg,
-        var(--color-brand-700),
-        var(--color-brand-500),
-        color-mix(in oklab, var(--color-brand-400) 55%, var(--color-brand-600)),
-        var(--color-brand-600),
-        var(--color-brand-700)
-      );
+      background-image: linear-gradient(105deg, var(--color-ink-900), var(--color-ink-700));
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      animation: gradient-pan 7s ease infinite;
     }
     .dark .text-gradient-move {
-      background-image: linear-gradient(
-        100deg,
-        var(--color-brand-300),
-        var(--color-brand-200),
-        var(--color-mint-300),
-        var(--color-brand-300),
-        var(--color-brand-300)
-      );
+      background-image: linear-gradient(105deg, #ffffff, var(--color-ink-300));
       color: transparent;
     }
+  }
+
+  @media (forced-colors: active) {
+    .text-gradient-move { background: none; color: CanvasText; }
   }
 
   /* A rule that pans its gradient slowly, for under a heading. */
@@ -1884,4 +1827,3 @@
     size: A4 portrait;
   }
 }
-

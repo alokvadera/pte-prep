@@ -1255,6 +1255,99 @@ for (const width of [390, 768, 1100]) {
   await send('Target.disposeBrowserContext', { browserContextId })
 }
 
+// --- hero collage occlusion ---------------------------------------------------
+//
+// The home hero is a layered artwork: two sample cards sit at the outside edge
+// of a dark practice preview. This checks their real rectangles against the
+// preview's text and links, plus page headings, so a future size change cannot
+// hide useful copy behind the visual layers.
+//
+// Below the breakpoint where the cards drop out of absolute positioning and
+// become ordinary grid cells, nothing can occlude anything and the check is
+// skipped rather than trivially passed.
+
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Page.enable', {}, sessionId)
+
+  for (const width of [1440, 1100, 900, 768, 390]) {
+    await send('Emulation.setDeviceMetricsOverride', {
+      width,
+      height: 900,
+      deviceScaleFactor: 1,
+      mobile: width < 700,
+    }, sessionId)
+    await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+    await sleep(1000)
+
+    const probe = await send(
+      'Runtime.evaluate',
+      {
+        expression: `(() => {
+          const box = (el) => {
+            const b = el.getBoundingClientRect()
+            return { l: b.left, t: b.top, r: b.right, b: b.bottom }
+          }
+          // Only absolutely-positioned cards can occlude; a static card is in
+          // flow and cannot overlap a sibling.
+          const floats = [...document.querySelectorAll('.practice-float')]
+            .filter((el) => getComputedStyle(el).position === 'absolute')
+          if (!floats.length) return JSON.stringify({ skipped: true })
+
+          // Everything a card must not sit on top of: the site header, the
+          // preview's own nav and links, and every heading on the page.
+          const targets = []
+          const header = document.querySelector('header')
+          if (header) targets.push({ label: 'site header', el: header })
+          for (const el of document.querySelectorAll(
+            '.practice-window-nav a, .practice-window-nav span, .practice-window-main a, .practice-window-main h2',
+          )) {
+            targets.push({
+              label: (el.closest('.practice-window-nav') ? 'preview nav ' : 'preview link ') + el.textContent.trim().slice(0, 24),
+              el,
+            })
+          }
+          for (const el of document.querySelectorAll('main h1, main h2, main h3')) {
+            targets.push({ label: el.tagName + ' "' + el.textContent.trim().slice(0, 28) + '"', el })
+          }
+
+          const hits = []
+          for (const f of floats) {
+            const fb = box(f)
+            const name = (f.className.split(' ').find((c) => c.startsWith('practice-float-')) || 'float')
+            for (const t of targets) {
+              if (f.contains(t.el) || t.el.contains(f)) continue
+              const tb = box(t.el)
+              if (tb.width === 0 || tb.height === 0) continue
+              const x = Math.min(fb.r, tb.r) - Math.max(fb.l, tb.l)
+              const y = Math.min(fb.b, tb.b) - Math.max(fb.t, tb.t)
+              if (x > 1 && y > 1) {
+                hits.push(name + ' covers ' + t.label + ' by ' + Math.round(x) + 'x' + Math.round(y) + 'px')
+              }
+            }
+          }
+          return JSON.stringify({ skipped: false, floats: floats.length, hits })
+        })()`,
+        returnByValue: true,
+      },
+      sessionId,
+    )
+
+    const v = JSON.parse(probe.result.value)
+    if (v.skipped) continue
+    report(
+      v.hits.length === 0,
+      `the hero collage clears the nav and headings at ${width}px`,
+      v.hits.slice(0, 3).join('; '),
+    )
+  }
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
 ws.close()
 chrome.kill()
 // Chrome keeps writing to its profile for a moment after the kill signal.

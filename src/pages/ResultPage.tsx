@@ -36,7 +36,14 @@ export default function ResultPage() {
     void (async () => {
       try {
         const existing = params.get('attempt')
-        const targetId = existing || (useTest.getState().status === 'finished' ? useTest.getState().attemptId : null)
+        // A live mock in memory is authoritative and has NOT been scored or
+        // persisted yet. `attemptId` is allocated when the test starts, so
+        // using it as a storage key here would always miss and strand the page
+        // on the empty state instead of reaching the `finish()` branch below.
+        // Only fall back to a stored lookup when there is no live session —
+        // i.e. a deep link or a reload of /result?attempt=…
+        const live = useTest.getState()
+        const targetId = existing ?? (!live.mock && live.status === 'finished' ? live.attemptId : null)
         if (targetId) {
           if (attempt?.id === targetId) {
             setLoading(false)

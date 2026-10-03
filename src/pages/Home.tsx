@@ -51,13 +51,13 @@ export default function Home() {
           the exception that proves the rule: every interior page is
           left-aligned, so the marketing page reads as a distinct register
           rather than a different product. */}
-      <section className="relative overflow-hidden bg-mesh-gradient">
+      <section className="home-hero relative overflow-hidden bg-mesh-gradient">
         <div className="hero-aurora" aria-hidden="true">
           <span className="aurora-1" />
           <span className="aurora-2" />
           <span className="aurora-3" />
         </div>
-        <div className="page-shell-wide relative z-10 pt-16 sm:pt-20">
+        <div className="page-shell-wide home-hero-shell relative z-10 pt-16 sm:pt-20">
           <div className="flex flex-col items-center text-center">
             <div className="flex max-w-3xl flex-col items-center">
               <p className="text-brand-600 dark:text-brand-300 animate-rise-in mb-4 text-sm font-semibold">
@@ -97,12 +97,12 @@ export default function Home() {
                 it renders in the exact design language of the real product. The
                 Tilt wrapper leans the whole collage toward the pointer — purely
                 decorative, so it changes no layout and no hit area. */}
-            <div className="animate-rise-in w-full max-w-5xl px-4 sm:px-0" style={{ animationDelay: '260ms' }}>
+            <div className="home-preview-shell animate-rise-in mt-16 w-full px-4 sm:px-0" style={{ animationDelay: '260ms' }}>
               <Tilt className="relative" max={4} glare={false}>
                 <ScorePreview />
               </Tilt>
             </div>
-            <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-12 text-xs">
+            <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-14 text-xs sm:mb-16">
               Illustrative practice interface. Scores and activity are sample data.
             </p>
           </div>
@@ -315,7 +315,7 @@ function questionTypesFor(section: 'speaking-writing' | 'reading' | 'listening')
 
 function ScorePreview() {
   return (
-    <div className="practice-collage" aria-label="Preview of the PTE practice dashboard">
+    <div className="practice-collage" role="group" aria-label="Preview of the PTE practice dashboard">
       <div className="practice-float practice-float-score"><small>Last mock estimate</small><strong>63 <i>out of 90</i></strong><em>Speaking improved by 4 points</em></div>
       <div className="practice-window">
         <div className="practice-window-header"><div className="flex items-center gap-2"><span className="practice-window-mark" /><span>PTE Prep</span></div><div className="flex items-center gap-5"><span>Practice hub</span><span>Help</span><span className="practice-window-avatar">AV</span></div></div>

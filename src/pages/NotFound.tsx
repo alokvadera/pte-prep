@@ -45,7 +45,7 @@ export default function NotFound() {
             with a visible target — the same shape as every other list of
             destinations on the site. */}
           <div className="border-ink-200 dark:border-white/10 mx-auto mt-10 max-w-sm border-t pt-8">
-            <p className="section-eyebrow mb-4 justify-center">Or try one of these</p>
+            <p className="section-eyebrow mb-4 text-center">Or try one of these</p>
             <ul className="space-y-1">
               {DESTINATIONS.map((d) => (
                 <li key={d.to}>
@@ -54,7 +54,7 @@ export default function NotFound() {
                     className="hover:bg-ink-50 dark:hover:bg-white/4 text-ink-700 dark:text-ink-200 hover:text-brand-600 dark:hover:text-brand-300 flex items-center justify-between gap-3 rounded-sm px-3 py-2.5 text-sm transition-colors"
                   >
                     <span className="link-card">{d.label}</span>
-                    <span aria-hidden="true" className="text-ink-400 dark:text-ink-500 shrink-0">
+                    <span aria-hidden="true" className="text-ink-500 dark:text-ink-400 shrink-0">
                       →
                     </span>
                   </Link>

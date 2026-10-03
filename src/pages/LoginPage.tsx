@@ -235,7 +235,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-400"
                   />
                 </div>
 
@@ -263,7 +263,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
-                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-400"
                   />
                 </div>
 
@@ -284,7 +284,7 @@ export default function LoginPage() {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         placeholder="Re-type your password"
-                        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+                        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-400"
                       />
                     </div>
 
@@ -345,7 +345,7 @@ export default function LoginPage() {
                         Create one
                       </button>
                     </p>
-                    <p className="mt-2 text-micro text-ink-400 dark:text-ink-500">
+                    <p className="mt-2 text-micro text-ink-500 dark:text-ink-400">
                       Forgot your password? It can be reset from the account page on any device where
                       you are still signed in. Your local practice history is unaffected either way.
                     </p>
@@ -369,7 +369,7 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <Link
               to="/privacy/"
-              className="text-micro text-ink-400 dark:text-ink-500 hover:underline"
+              className="text-micro text-ink-500 dark:text-ink-400 hover:underline"
             >
               Privacy policy · Local by default, optional cloud sync
             </Link>
@@ -414,7 +414,7 @@ function PasswordChangeForm() {
     <form onSubmit={submit} className="rounded-xl border border-ink-100 bg-ink-50/70 p-4 dark:border-white/8 dark:bg-white/4 space-y-3">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-xs font-semibold text-ink-700 dark:text-ink-200">Password</span>
-        <span className="text-micro text-ink-400 dark:text-ink-500">Forgot it elsewhere? Reset it here while signed in.</span>
+        <span className="text-micro text-ink-500 dark:text-ink-400">Forgot it elsewhere? Reset it here while signed in.</span>
       </div>
       <input
         type="password"
@@ -423,7 +423,7 @@ function PasswordChangeForm() {
         value={value}
         onChange={(e) => setValue(e.target.value)}
         placeholder="New password · at least 6 characters"
-        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-400"
       />
       <input
         type="password"
@@ -432,7 +432,7 @@ function PasswordChangeForm() {
         value={confirm}
         onChange={(e) => setConfirm(e.target.value)}
         placeholder="Confirm new password"
-        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white"
+        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 focus:outline-none dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-400"
       />
       {message ? (
         <p
