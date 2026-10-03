@@ -1595,6 +1595,18 @@
      (lift, hairline, corner glow) and `.practice-float` owns the collage's — so
      it was removed rather than left as a second, competing definition. */
 
+  /* Pointer-proximity field. The JS writes `--pf-x`/`--pf-y` target values on
+     whichever children are near the cursor; the browser does the interpolation
+     through this transition, so no easing is computed per frame in JS. `travel`
+     is capped in the component by pixel distance, and the whole rule is
+     neutralised by the reduced-motion layer below like every other motion
+     surface. Nothing here animates on a coarse pointer, because the component
+     never arms there. */
+  .pointer-field [data-pf] {
+    translate: var(--pf-x, 0px) var(--pf-y, 0px);
+    transition: translate 0.4s var(--ease-settle);
+  }
+
   /* 3D tilt stage. The inner layer leans; the glare tracks the cursor. */
   .tilt {
     position: relative;

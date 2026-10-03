@@ -18,6 +18,9 @@ interface AuthStore {
   register: (email: string, password: string, targetScore?: number) => Promise<boolean>
   logout: () => void
   setTargetScore: (score: number) => Promise<void>
+  /** Session-authenticated reset for users who forgot the password on a
+      signed-in device. Returns true on success, else an error message. */
+  changePassword: (newPassword: string) => Promise<true | string>
   checkSession: () => Promise<void>
   clearError: () => void
 }
@@ -90,6 +93,29 @@ export const useAuth = create<AuthStore>()(
 
       logout: () => {
         set({ user: null, token: null, error: null })
+      },
+
+      changePassword: async (newPassword: string) => {
+        const { token } = get()
+        if (!token) return 'You are not signed in.'
+        if (newPassword.length < 6) return 'Password must be at least 6 characters long.'
+        try {
+          const res = await fetch('/api/auth/me', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ newPassword }),
+          })
+          if (!res.ok) {
+            const data = (await res.json().catch(() => null)) as { error?: string } | null
+            return data?.error ?? 'Could not change the password.'
+          }
+          return true
+        } catch {
+          return 'Could not connect to authentication service.'
+        }
       },
 
       clearError: () => {

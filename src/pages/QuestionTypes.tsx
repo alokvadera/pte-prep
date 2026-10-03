@@ -12,7 +12,7 @@ import {
   TickList,
 } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
-import { Reveal, Tilt } from '../components/ui/motion'
+import { PointerField, Reveal, Tilt } from '../components/ui/motion'
 import { cn } from '../lib/cn'
 
 const SECTION_ORDER: SectionId[] = ['speaking-writing', 'reading', 'listening']
@@ -90,7 +90,8 @@ export default function QuestionTypes() {
                 </p>
               </div>
 
-              <ul className="mt-8 grid gap-4 sm:grid-cols-2">
+              <PointerField className="mt-8">
+              <ul className="grid gap-4 sm:grid-cols-2">
                 {types.map((type, i) => {
                   const q = QUESTION_META[type]
                   const detail = QUESTION_TYPE_DETAIL[type]
@@ -98,7 +99,11 @@ export default function QuestionTypes() {
 
                   return (
                     <Reveal as="li" key={type} delay={Math.min(i, 4) * 45} duration={600} className="flex">
-                      <article className="card-solid flex w-full flex-col">
+                      {/* `data-pf` opts this card into the proximity field. It
+                          sits on the card and not on the Reveal wrapper above
+                          it, because both animate `translate` and only one of
+                          them may own it. */}
+                      <article data-pf className="card-solid flex w-full flex-col">
                       <div className="flex min-w-0 items-start justify-between gap-3">
                         <h3 className="text-ink-900 dark:text-white min-w-0 text-base font-bold leading-tight text-balance">
                           {/* Padded so the card title is a 24px tap target; the
@@ -153,6 +158,7 @@ export default function QuestionTypes() {
                   )
                 })}
               </ul>
+            </PointerField>
             </section>
           )
         })}

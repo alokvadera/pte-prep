@@ -277,3 +277,123 @@ export function Tilt({
     </div>
   )
 }
+
+/**
+ * A pointer-proximity field: children drift a few pixels toward the cursor as
+ * it comes near them, and settle back when it leaves.
+ *
+ * This is the one cursor behaviour on the site, and it earns its place on the
+ * 22-card question-type grid rather than by decoration. That grid is two
+ * columns of near-identical cards, and the thing a reader is actually doing is
+ * scanning for one entry — moving the pointer toward the card narrows the
+ * search, the way leaning toward something narrows a search visually. It is
+ * deliberately not a cursor follower, a trail, or a glow: those are decoration
+ * wearing the costume of interaction.
+ *
+ * The rules it obeys are the ones `Tilt` already obeys, and they are not
+ * optional:
+ *
+ * - **Pixel travel, not degrees.** `travel` is the cap on how far a child's
+ *   edge actually moves, so the motion reads the same on a 200px card and a
+ *   600px panel. `Tilt` had to compute this from its own half-width; here it is
+ *   simply the value written.
+ * - **Not armed at all under `prefers-reduced-motion`.** Same rule as Reveal:
+ *   the element is left in its resolved state rather than transitioned through
+ *   a zero-duration version of a movement.
+ * - **Not armed on a coarse pointer.** A tap has no approach and no hover, so
+ *   on touch this would only ever fire after the fact.
+ * - **One listener, written to custom properties.** The per-frame work is two
+ *   `setProperty` calls on the child that is actually near the cursor; the
+ *   interpolation is the browser's, via a CSS `transition` on `translate`.
+ *
+ * It must not be pointed at an element that already carries `Reveal` or
+ * `Tilt`. Both of those animate `translate`, and two owners of one property is
+ * the last thing a grid of 22 cards needs. Targets are therefore opted in with
+ * `data-pf`, not assumed from the child list, which lets the field sit outside
+ * a grid whose items are already scroll-revealed.
+ */
+export function PointerField({
+  children,
+  className,
+  radius = 260,
+  travel = 12,
+}: {
+  children: ReactNode
+  className?: string
+  /** Pointer distance at which a child has fully settled back to rest. */
+  radius?: number
+  /** Maximum pixel travel of a child's edge. */
+  travel?: number
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (prefersReducedMotion()) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+
+    let raf = 0
+    let queued: { x: number; y: number } | null = null
+
+    const apply = () => {
+      raf = 0
+      const point = queued
+      queued = null
+      if (!point) return
+
+      for (const child of el.querySelectorAll<HTMLElement>('[data-pf]')) {
+        const box = child.getBoundingClientRect()
+        if (box.width === 0 && box.height === 0) continue
+        // Distance from the pointer to the nearest edge, so a pointer inside a
+        // card reads as fully arrived rather than as distance zero at centre.
+        const dx = Math.max(box.left - point.x, 0, point.x - box.right)
+        const dy = Math.max(box.top - point.y, 0, point.y - box.bottom)
+        const distance = Math.hypot(dx, dy)
+        const falloff = distance >= radius ? 0 : 1 - distance / radius
+        if (falloff <= 0.01) {
+          if (child.style.getPropertyValue('--pf-x')) {
+            child.style.setProperty('--pf-x', '0px')
+            child.style.setProperty('--pf-y', '0px')
+          }
+          continue
+        }
+        const cx = box.left + box.width / 2
+        const cy = box.top + box.height / 2
+        const pull = falloff * travel
+        const ux = (cx - point.x) / (Math.hypot(cx - point.x, cy - point.y) || 1)
+        const uy = (cy - point.y) / (Math.hypot(cx - point.x, cy - point.y) || 1)
+        child.style.setProperty('--pf-x', `${(ux * pull).toFixed(2)}px`)
+        child.style.setProperty('--pf-y', `${(uy * pull).toFixed(2)}px`)
+      }
+    }
+
+    const onMove = (e: PointerEvent) => {
+      queued = { x: e.clientX, y: e.clientY }
+      if (!raf) raf = requestAnimationFrame(apply)
+    }
+    const onLeave = () => {
+      queued = null
+      cancelAnimationFrame(raf)
+      raf = 0
+      for (const child of el.querySelectorAll<HTMLElement>('[data-pf]')) {
+        child.style.setProperty('--pf-x', '0px')
+        child.style.setProperty('--pf-y', '0px')
+      }
+    }
+
+    el.addEventListener('pointermove', onMove)
+    el.addEventListener('pointerleave', onLeave)
+    return () => {
+      el.removeEventListener('pointermove', onMove)
+      el.removeEventListener('pointerleave', onLeave)
+      cancelAnimationFrame(raf)
+    }
+  }, [radius, travel])
+
+  return (
+    <div ref={ref} className={cn('pointer-field', className)}>
+      {children}
+    </div>
+  )
+}

@@ -1,5 +1,5 @@
 import type { Env, UserRecord } from '../../types'
-import { extractBearerToken, verifySessionToken } from '../../lib/auth'
+import { extractBearerToken, hashPassword, verifySessionToken } from '../../lib/auth'
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const token = extractBearerToken(context.request)
@@ -63,9 +63,9 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     })
   }
 
-  let body: { targetScore?: number }
+  let body: { targetScore?: number; newPassword?: string }
   try {
-    body = (await context.request.json()) as { targetScore?: number }
+    body = (await context.request.json()) as { targetScore?: number; newPassword?: string }
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
       status: 400,
@@ -79,6 +79,24 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     await db
       .prepare('UPDATE users SET target_score = ?, updated_at = datetime("now") WHERE id = ?')
       .bind(score, session.userId)
+      .run()
+  }
+
+  // Session-authenticated password change: the valid session is the proof of
+  // identity, which covers users who forgot the password on a device where
+  // they are still signed in. There is no email infrastructure for a
+  // logged-out reset, so that case stays impossible by design.
+  if (typeof body.newPassword === 'string') {
+    if (body.newPassword.length < 6) {
+      return new Response(JSON.stringify({ error: 'Password must be at least 6 characters long.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+    const { hash, salt } = await hashPassword(body.newPassword)
+    await db
+      .prepare('UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime("now") WHERE id = ?')
+      .bind(hash, salt, session.userId)
       .run()
   }
 
