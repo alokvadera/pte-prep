@@ -102,7 +102,7 @@ export default function Home() {
                 <ScorePreview />
               </Tilt>
             </div>
-            <p className="text-ink-500 dark:text-ink-400 mt-5 mb-16 text-xs">
+            <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-12 text-xs">
               Illustrative practice interface. Scores and activity are sample data.
             </p>
           </div>
@@ -327,7 +327,7 @@ function ScorePreview() {
             <div className="practice-window-heading"><div><span className="practice-overline">WEDNESDAY · SEPTEMBER 30</span><h2>Your practice overview</h2></div><Link to="/practice" className="practice-mini-cta">Choose a task</Link></div>
             <div className="practice-window-grid">
               <section className="practice-window-panel practice-focus-panel" aria-label="Sample skill estimates and practice tasks"><div className="practice-panel-title"><span>Skill estimates</span><span>Sample results</span></div><div className="practice-skill-list">{([['Speaking', '72%', '65'], ['Writing', '64%', '58'], ['Reading', '79%', '71'], ['Listening', '70%', '63']] as const).map(([skill, percent, score]) => <div key={skill} className="practice-skill-row"><span>{skill}</span><span className="practice-meter"><i style={{ width: percent }} /></span><b>{score}</b></div>)}</div><div className="practice-panel-title practice-continue-title"><span>Continue practice</span><Link to="/practice">View all</Link></div><Link to="/practice" className="practice-task"><span className="practice-task-icon">◖</span><span>Read Aloud<small>Speaking · 5 questions</small></span><span className="practice-task-arrow">8 min</span></Link><Link to="/practice" className="practice-task"><span className="practice-task-icon">▱</span><span>Summarize Written Text<small>Writing · 3 questions</small></span><span className="practice-task-arrow">12 min</span></Link></section>
-              <section className="practice-window-panel practice-suggestion"><span className="practice-suggest-label">SUGGESTED NEXT</span><strong>Give writing a little time.</strong><p>Try one short response, then review structure and grammar in your feedback.</p><Link to="/practice">Choose a writing task ↗</Link></section>
+              <section className="practice-window-panel practice-suggestion"><span className="practice-suggest-label">SUGGESTED NEXT</span><strong>Give writing a little time.</strong><p>Try one short response, then review structure and grammar in your feedback.</p><Link to="/practice">Choose a writing task&nbsp; ↗</Link></section>
             </div>
           </div>
         </div>
