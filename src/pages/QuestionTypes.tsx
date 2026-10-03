@@ -115,33 +115,37 @@ export default function QuestionTypes() {
 
                       <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{detail.what}</p>
 
-                      <dl className="text-ink-500 dark:text-ink-400 mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs">
-                        <div className="flex gap-1.5">
-                          <dt className="text-ink-500 dark:text-ink-400">Skills</dt>
+                      {/* These three were label/value pairs on one wrapped line, separated only
+                          by space, so they read as a run-on: "Skills Speaking
+                          Per test 6–7 Scoring Scored on traits". Stacked, each
+                          fact is findable and the card can be scanned rather
+                          than read. */}
+                      <dl className="text-ink-700 dark:text-ink-300 mt-3 space-y-1 text-xs">
+                        <div className="flex gap-2">
+                          <dt className="text-ink-500 dark:text-ink-400 w-14 shrink-0">Skills</dt>
                           <dd>{q.skills.map((s) => SKILL_LABEL[s]).join(' + ')}</dd>
                         </div>
-                        <div className="flex gap-1.5">
-                          <dt className="text-ink-500 dark:text-ink-400">Per test</dt>
+                        <div className="flex gap-2">
+                          <dt className="text-ink-500 dark:text-ink-400 w-14 shrink-0">Per test</dt>
                           <dd>{q.perTest}</dd>
                         </div>
-                        <div className="flex gap-1.5">
-                          <dt className="text-ink-500 dark:text-ink-400">Scoring</dt>
+                        <div className="flex gap-2">
+                          <dt className="text-ink-500 dark:text-ink-400 w-14 shrink-0">Scoring</dt>
                           <dd>{SCORING_LABEL[q.scoring]}</dd>
                         </div>
                       </dl>
 
-                      <div className="border-ink-100 dark:border-white/6 mt-4 flex items-center justify-between border-t pt-2.5 text-xs">
-                        <Link
-                          to={`/question-types/${slug}/`}
-                          className="text-ink-600 hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-400 -m-1 inline-flex min-h-6 items-center rounded-sm px-1 font-medium hover:underline"
-                        >
-                          Guide & rubric →
-                        </Link>
+                      {/* One action per card. "Guide & rubric →" pointed at exactly the same place
+                          as the card title directly above it, so the guide was
+                          linked twice and the drill — the action a candidate on
+                          this page is most likely to want — had to share the row
+                          with its own twin. The title carries the guide. */}
+                      <div className="border-ink-100 dark:border-white/6 mt-4 flex items-center border-t pt-2.5 text-xs">
                         <Link
                           to={`/practice?type=${type}`}
                           className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 font-semibold hover:underline"
                         >
-                          Drill →
+                          Drill this type →
                         </Link>
                       </div>
                       </article>

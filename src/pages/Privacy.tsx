@@ -25,7 +25,7 @@ const SECTIONS = [
     heading: 'Audio and speech',
     body: [
       'Listening items are spoken by the speech synthesiser already built into your operating system. The audio is generated on your device as you play it; no audio file is fetched from a server.',
-      'Speaking items are recorded using your microphone, and where your browser offers speech recognition, the transcription is produced locally by the browser. Recorded audio is held in memory or in your local database and is discarded when you clear site data.',
+      'Speaking items are recorded using your microphone. Where your browser offers speech recognition, transcription uses the browser\u2019s speech service — in Chrome this sends audio to Google\u2019s servers for recognition, so a transcribed take is not fully on-device. Recorded audio itself is held in memory or in your local database and is discarded when you clear site data. Typing your answer instead keeps everything local.',
     ],
   },
   {

@@ -183,15 +183,16 @@ export default function Dashboard() {
             <span className="border-brand-500/25 border-t-brand-500 size-8 animate-spin rounded-full border-2" />
           </div>
         ) : attempts.length === 0 ? (
-          <div className="mt-12 space-y-8">
+          <div className="mt-10 space-y-6">
+            {/* No button here on purpose. The three cards immediately below
+                already offer a timed mock, a practice drill and the reference,
+                so a fourth blue button saying "Start your first mock" was the
+                same action twice on one screen — and a third if you counted the
+                persistent header CTA. The empty state states what is missing;
+                the cards are what to do about it. */}
             <EmptyState
               title="No attempts yet"
               description="Take a full mock test and your score history, skill trends and question-type breakdown will appear here."
-              action={
-                <ButtonLink to="/mock">
-                  Start your first mock
-                </ButtonLink>
-              }
             />
 
             <div className="grid gap-6 sm:grid-cols-3">
@@ -421,9 +422,11 @@ export default function Dashboard() {
                                 type="button"
                                 className="text-rose-700 dark:text-rose-300 font-bold hover:underline cursor-pointer"
                                 onClick={() => {
-                                  void deleteAttemptEverywhere(a.id)
-                                  void listAttempts(100).then(setAttempts)
                                   setDeletingId(null)
+                                  void (async () => {
+                                    await deleteAttemptEverywhere(a.id)
+                                    setAttempts(await listAttempts(100))
+                                  })()
                                 }}
                               >
                                 Yes

@@ -57,7 +57,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   let skillScores = {}
   let breakdown = {}
-  let responses = {}
+  let responses: Record<string, unknown> = {}
   let seed = 0
   let mockKind: string | undefined
   let details: unknown[] | undefined
@@ -88,6 +88,16 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     /* ignore parse errors */
   }
 
+  // The estimate flag is not stored as a column, so derive it the same way
+  // the client does: estimated only when a scored item carries trait scores.
+  // Records without details keep the previous default of true.
+  const hasEstimated = Array.isArray(details)
+    ? details.some((d) => {
+        const row = d as { maxPoints?: unknown; traits?: unknown }
+        return typeof row.maxPoints === 'number' && row.maxPoints > 0 && row.traits !== undefined
+      })
+    : true
+
   return new Response(
     JSON.stringify({
       attempt: {
@@ -113,7 +123,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
         syncedAt: row.synced_at,
         seed,
         sectionIds,
-        overallIsEstimate: true,
+        overallIsEstimate: hasEstimated,
         completedItemIds: Object.keys(responses),
       },
     }),

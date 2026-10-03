@@ -673,8 +673,11 @@
   @apply mx-auto w-full max-w-5xl px-4 sm:px-6 lg:px-8;
 }
 
+/* `py-16` rather than `py-24`: inside a `band-flush` the shell's own 96px of
+   padding stacked on the band's 64px, so the 404 opened with ~160px of nothing
+   above the status code and closed with the same below. */
 @utility page-shell-empty {
-  @apply mx-auto w-full max-w-xl px-4 py-24 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-xl px-4 py-16 sm:px-6 lg:px-8;
 }
 
 /* Typographic scale (v3). Four roles, used everywhere:
@@ -882,8 +885,15 @@
   @apply flex cursor-pointer items-start gap-3 rounded-lg border border-ink-200 p-4 transition-[color,background-color,border-color,box-shadow,translate] duration-200 active:translate-y-px dark:border-white/10;
 }
 
+/* Selection is carried by the brand *border*, not by a brand fill. The fill
+   was `bg-brand-500/10`, which on a column of choice cards put three large blue
+   masses side by side on /mock — brand used as decoration across a third of the
+   screen. Calibrated Silence reserves the accent for the thing the reader came
+   to see, and here that thing is the selected edge. The tint drops to a
+   whisper and the shadow goes entirely: the same doc says shadow is almost
+   never the right tool for separating a surface from its ground. */
 @utility choice-active {
-  @apply border-brand-500 bg-brand-500/10 shadow-xs dark:border-brand-400 dark:bg-brand-500/20;
+  @apply border-brand-500 bg-brand-500/[0.04] dark:border-brand-400 dark:bg-brand-500/10;
 }
 
 @utility choice-idle {

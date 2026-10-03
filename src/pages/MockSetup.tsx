@@ -309,24 +309,29 @@ export default function MockSetup() {
           </div>
 
           <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-            <div className="rounded-xl bg-ink-900 p-5 text-white shadow-card">
-              <p className="font-mono text-micro text-brand-300">TEST PREVIEW</p>
-              <h2 className="mt-2 text-xl font-bold tracking-tight text-balance">This run</h2>
+            {/* This was `bg-ink-900 text-white` — a near-black slab on a light page,
+                which outweighed the entire left column and read as a different
+                product. It carries no status the rest of the setup screen does
+                not, so it now uses the same card as everything else and keeps
+                its instrument feel from the mono eyebrow instead of from mass. */}
+            <div className="card-solid p-5">
+              <p className="section-eyebrow">Test preview</p>
+              <h2 className="text-ink-900 dark:text-white mt-1 text-xl font-bold tracking-tight text-balance">This run</h2>
 
               <dl className="mt-4 space-y-3 text-sm">
                 <Row label="Scored items" value={String(preview.scoredCount)} />
                 <Row label="Total points" value={String(preview.mock.totalPoints)} />
                 <Row label="Time allowed" value={formatClock(preview.mock.totalSeconds)} />
-                <div className="flex flex-col gap-1 border-t border-white/10 pt-2.5">
-                  <dt className="text-xs text-ink-300">Sections</dt>
-                  <dd className="text-xs font-semibold leading-relaxed text-white">
+                <div className="border-ink-200 dark:border-white/10 flex flex-col gap-1 border-t pt-2.5">
+                  <dt className="text-ink-500 dark:text-ink-400 text-xs">Sections</dt>
+                  <dd className="text-ink-900 dark:text-white text-xs font-semibold leading-relaxed">
                     {preview.mock.sections.map((s) => SECTION_META[s.id].longTitle).join(' → ')}
                   </dd>
                 </div>
               </dl>
 
-              <div className="mt-5 border-t border-white/10 pt-4">
-                <p className="text-xs font-semibold text-ink-300">
+              <div className="border-ink-200 dark:border-white/10 mt-5 border-t pt-4">
+                <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
                   Question types included
                 </p>
                 {/* These were 23 individual `Badge`s, and `Badge` renders the
@@ -336,7 +341,7 @@ export default function MockSetup() {
                     with no meaning outside this app. The same information reads
                     as what it is, a list, once it is set as one wrapping line of
                     mono codes in the data voice. */}
-                <p className="text-ink-300 mt-2.5 font-mono text-xs leading-relaxed">
+                <p className="text-ink-500 dark:text-ink-400 mt-2.5 font-mono text-xs leading-relaxed">
                   {preview.mock.sections
                     .flatMap((s) => s.itemIds)
                     .map((id) => preview.mock.items[id]?.type)
@@ -347,8 +352,8 @@ export default function MockSetup() {
                 </p>
               </div>
 
-              <div className="mt-5 border-t border-white/10 pt-4">
-                <label className="mb-1.5 block text-xs font-semibold text-ink-300" htmlFor="seed">
+              <div className="border-ink-200 dark:border-white/10 mt-5 border-t pt-4">
+                <label className="text-ink-500 dark:text-ink-400 mb-1.5 block text-xs font-semibold" htmlFor="seed">
                   Test seed
                 </label>
                 <div className="flex min-w-0 gap-2">
@@ -368,7 +373,7 @@ export default function MockSetup() {
                     Shuffle
                   </Button>
                 </div>
-                <p className="mt-1.5 text-xs leading-relaxed text-ink-300">
+                <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs leading-relaxed">
                   Same seed produces the same test. Share it to reproduce a paper.
                 </p>
               </div>
@@ -377,7 +382,7 @@ export default function MockSetup() {
                 Start {LENGTHS[length].label.toLowerCase()}
               </Button>
 
-              <p className="mt-3 text-center text-xs leading-relaxed text-ink-300">
+              <p className="text-ink-500 dark:text-ink-400 mt-3 text-center text-xs leading-relaxed">
                 Allow playback when prompted so the listening items work.
               </p>
             </div>
@@ -431,8 +436,10 @@ export default function MockSetup() {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex min-w-0 items-baseline justify-between gap-3">
-      <dt className="shrink-0 text-xs text-ink-300">{label}</dt>
-      <dd className="min-w-0 truncate text-right text-xs font-semibold tabular-nums text-white">{value}</dd>
+      <dt className="text-ink-500 dark:text-ink-400 shrink-0 text-xs">{label}</dt>
+      <dd className="text-ink-900 dark:text-white min-w-0 truncate text-right text-xs font-semibold tabular-nums">
+        {value}
+      </dd>
     </div>
   )
 }
