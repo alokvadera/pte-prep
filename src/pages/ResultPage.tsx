@@ -5,10 +5,11 @@ import { QUESTION_META } from '../domain/blueprint'
 import { formatSeconds, paceReport, paceWarnings } from '../domain/pace'
 import type { AttemptRecord, ItemResponse, ItemScoreDetail, QuestionType, Skill } from '../domain/types'
 import { getAttempt } from '../db/db'
+import { fetchAttemptFromCloud, syncAttemptToCloud } from '../lib/sync'
 import { formatDuration } from '../lib/format'
 import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
-import { Badge, Button, ButtonLink, Card, ProgressBar } from '../components/ui/primitives'
+import { Badge, Button, ButtonLink, Callout, Card, ProgressBar } from '../components/ui/primitives'
 import { ScoreRangeBar, SkillBars } from '../components/charts/ScoreRangeBar'
 import { CountUp } from '../components/ui/motion'
 import { useTest } from '../store/useTest'
@@ -39,7 +40,10 @@ export default function ResultPage() {
             setLoading(false)
             return
           }
-          const stored = await getAttempt(existing)
+          let stored = await getAttempt(existing)
+          if (!stored) {
+            stored = (await fetchAttemptFromCloud(existing)) ?? undefined
+          }
           if (!cancelled) {
             setAttempt(stored ?? null)
             setLoading(false)
@@ -52,6 +56,7 @@ export default function ResultPage() {
             setAttempt(record)
             setLoading(false)
             setSearchParams({ attempt: record.id }, { replace: true })
+            void syncAttemptToCloud(record)
           }
           return
         }
@@ -364,7 +369,7 @@ export default function ResultPage() {
                         <div className="flex items-center gap-3">
                           <Link
                             to={`/practice?type=${row.type}`}
-                            className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+                            className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
                           >
                             Drill this type →
                           </Link>
@@ -394,9 +399,8 @@ export default function ResultPage() {
                 types rather than spread evenly.
               </p>
               {paceWarnings(paceRows).length > 0 ? (
-                <div className="border-brand-500/30 bg-brand-500/[0.06] mt-5 rounded-lg border p-4">
-                  <p className="text-ink-900 dark:text-white text-sm font-semibold">Worth fixing first</p>
-                  <p className="text-ink-600 dark:text-ink-200 mt-1.5 text-sm leading-relaxed">
+                <Callout className="mt-5" label="Worth fixing first">
+                  <p className="text-ink-600 dark:text-ink-200 text-sm leading-relaxed">
                     {paceWarnings(paceRows)
                       .map(
                         (r) =>
@@ -405,7 +409,7 @@ export default function ResultPage() {
                       .join('; ')}
                     . Each of these is reading or listening time you will not have on the day.
                   </p>
-                </div>
+                </Callout>
               ) : null}
               <ul className="mt-5 space-y-3">
                 {paceRows.map((row) => (
@@ -455,7 +459,7 @@ export default function ResultPage() {
                                 <p className="text-ink-800 dark:text-ink-100 text-sm font-medium">{row.label}</p>
                                 <Link
                                   to={`/practice?type=${row.type}`}
-                                  className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+                                  className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
                                 >
                                   Drill →
                                 </Link>
@@ -714,7 +718,7 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
               </p>
               <Link
                 to={`/practice?type=${detail.type}`}
-                className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+                className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
               >
                 Drill {detail.label} →
               </Link>

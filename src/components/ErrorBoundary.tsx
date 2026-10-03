@@ -51,14 +51,15 @@ export class ErrorBoundary extends Component<Props, State> {
     const { error } = this.state
     if (!error) return this.props.children
 
+    // The recovery screen sits on the same tinted ground as the 404: the two
+    // screens a user reaches when something has gone wrong should look like the
+    // same product as the one that worked.
     return (
-      <div className="bg-ink-50 dark:bg-ink-900 flex min-h-dvh flex-col items-center justify-center px-4 py-16">
+      <div className="band-flush flex min-h-dvh flex-col items-center justify-center px-4">
         <div className="w-full max-w-lg">
-          <p className="text-ink-500 dark:text-ink-400 font-mono text-xs">Something went wrong</p>
+          <p className="section-eyebrow">Something went wrong</p>
 
-          <h1 className="font-display text-ink-900 dark:text-white mt-3 text-3xl leading-[1.1] tracking-[-0.015em] text-balance sm:text-4xl">
-            The page could not finish loading
-          </h1>
+          <h1 className="page-title">The page could not finish loading</h1>
 
           <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
             Your test data is stored only in this browser, so this usually means the browser could not read it. Clearing
@@ -80,7 +81,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
           <p className="text-ink-500 dark:text-ink-400 mt-6 text-sm">
             Or go back to{' '}
-            <Link to="/" className="text-brand-600 dark:text-brand-300 underline underline-offset-2">
+            <Link to="/" className="link-inline">
               the home page
             </Link>
             .

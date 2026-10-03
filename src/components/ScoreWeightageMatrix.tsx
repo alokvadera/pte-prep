@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { typeSlug } from '../content/questionTypeDetail'
 import type { QuestionType, SectionId, Skill } from '../domain/types'
-import { Badge } from './ui/primitives'
+import { Badge, Callout } from './ui/primitives'
 import { cn } from '../lib/cn'
 
 export interface ItemWeightage {
@@ -443,15 +443,10 @@ export function ScoreWeightageMatrix() {
       </div>
 
       {/* The Integrated Scoring Trap Callout */}
-      <div className="card-solid border-amber-500/30 bg-amber-500/5 mt-6 p-5">
-        <div className="flex items-center gap-2">
-          <span className="bg-amber-500 text-white rounded-full px-2 py-0.5 font-mono text-micro font-bold uppercase tracking-wider">
-            Crucial PTE Fact
-          </span>
-          <h3 className="text-ink-900 dark:text-white text-sm font-bold">
-            The &quot;Integrated Scoring Trap&quot;
-          </h3>
-        </div>
+      <Callout tone="amber" className="mt-6 p-5" label="Crucial PTE Fact">
+        <h3 className="text-ink-900 dark:text-white text-sm font-bold">
+          The &quot;Integrated Scoring Trap&quot;
+        </h3>
         <p className="text-ink-700 dark:text-ink-200 text-sm mt-2 leading-relaxed">
           Candidates who fail <strong>Writing</strong> often assume they wrote a poor essay. In reality, over{' '}
           <strong>50% of your Writing marks</strong> are awarded in the Listening and Reading sections:{' '}
@@ -460,7 +455,7 @@ export function ScoreWeightageMatrix() {
           <span className="font-medium text-ink-900 dark:text-white">Summarize Spoken Text (~12 pts)</span>. Similarly,{' '}
           <strong>Read Aloud</strong> donates ~22 points directly to <strong>Reading</strong>.
         </p>
-      </div>
+      </Callout>
 
       {/* Interactive Filters */}
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -526,7 +521,7 @@ export function ScoreWeightageMatrix() {
           Showing <strong>{filteredItems.length}</strong> of 22 question types
         </span>
         {selectedSkill !== 'all' && (
-          <span className="text-brand-600 dark:text-brand-400 font-medium">
+          <span className="text-brand-600 dark:text-brand-300 font-medium">
             Highlighted: all tasks that provide marks toward {selectedSkill}
           </span>
         )}

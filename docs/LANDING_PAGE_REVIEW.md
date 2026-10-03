@@ -252,3 +252,29 @@ now states explicitly.
 
 **Cookie consent banner per B10.** Listed above as intentionally omitted; adding
 one to a site with nothing to consent to would be misleading.
+## Pace analysis (added after research)
+
+The strongest convergent finding across the guidance available on this test is that
+pacing, not language, is what usually costs the marks: running out of time, rushing,
+or over-investing in a few items. Advice to "manage your time better" is not
+actionable, because a candidate cannot see *which* items are eating the section.
+
+Every timed item in the app already carries the budget the real test allows
+(`Item.seconds`), so the missing half was measuring. `secondsOnItem` turned out to
+be a declared field that nothing ever wrote — the type said the data existed, the
+tests agreed, and no candidate's pace had ever been recorded. The runner now
+accumulates time per item and the report compares the two.
+
+Deliberate choices:
+
+- **Under budget is not presented as good.** A repeat sentence finished in two
+  seconds was probably not understood. The report says so on the tab rather than
+  rewarding speed on its own.
+- **No reading or listening rows** for types that are not individually timed.
+  Showing them as "infinite speed" would be technically true and useless.
+- **The tab only appears when there is timing data**, so a report reloaded from
+  history after the mock is gone shows no empty panel.
+
+The panel and the existing "Drill weakest type" link originally disagreed, because
+the link read only the latest attempt while the panel read five. Both now read the
+same function, asserted against each other.

@@ -1,12 +1,28 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { clearAttempts, deleteAttempt, listAttempts } from '../db/db'
+import { clearAttempts, listAttempts } from '../db/db'
+import { deleteAttemptEverywhere, syncCloudToLocal } from '../lib/sync'
+import { useAuth } from '../store/useAuth'
+import { AuthModal } from '../components/auth/AuthModal'
 import { QUESTION_META } from '../domain/blueprint'
 import type { AttemptRecord, QuestionType, Skill } from '../domain/types'
 import { formatDate, formatDateTime, formatDuration } from '../lib/format'
 import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
-import { Badge, Button, ButtonLink, Card, CardTitle, Disclosure, EmptyState, PageWrapper, ProgressBar, Stat, Toggle } from '../components/ui/primitives'
+import {
+  Badge,
+  Button,
+  ButtonLink,
+  Card,
+  CardTitle,
+  Disclosure,
+  EmptyState,
+  PageWrapper,
+  ProgressBar,
+  SectionHeading,
+  Stat,
+  Toggle,
+} from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useSettings } from '../store/useSettings'
 import { weakestTypes } from '../domain/weakTypes'
@@ -16,14 +32,25 @@ const SKILL_ORDER: Skill[] = ['reading', 'listening', 'speaking', 'writing']
 export default function Dashboard() {
   const navigate = useNavigate()
   const { settings, set } = useSettings()
+  const user = useAuth((s) => s.user)
+  const [authModalOpen, setAuthModalOpen] = useState(false)
   const [confirmClearAll, setConfirmClearAll] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [attempts, setAttempts] = useState<AttemptRecord[] | null>(null)
 
   useEffect(() => {
+    let cancelled = false
     void (async () => {
-      setAttempts(await listAttempts(100))
+      const initial = await listAttempts(100)
+      if (!cancelled) setAttempts(initial)
+      const { pushed, pulled } = await syncCloudToLocal()
+      if (!cancelled && (pushed > 0 || pulled > 0)) {
+        setAttempts(await listAttempts(100))
+      }
     })()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // Only types with evidence behind them, so the panel recommends rather than surveys.
@@ -76,9 +103,55 @@ export default function Dashboard() {
         breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Progress' }]} />}
         eyebrow="Progress"
         title="See what is getting stronger."
-        description="Your attempts, skill trends and next steps stay on this device. Nothing is uploaded."
+        description="Your attempts and skill trends are private to you. Sign in with email to back them up securely to Cloudflare edge storage."
         actions={attempts && attempts.length > 0 ? <ButtonLink to="/mock" size="lg">Take another mock</ButtonLink> : undefined}
       >
+        <div className="mt-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-ink-100 bg-ink-50/70 p-4 sm:p-5 dark:border-white/8 dark:bg-white/4">
+            <div className="flex items-center gap-3.5">
+              <div
+                className={cn(
+                  'size-10 rounded-xl flex items-center justify-center shrink-0',
+                  user
+                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'bg-brand-500/10 text-brand-600 dark:text-brand-400',
+                )}
+              >
+                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">
+                    {user ? user.email : 'Cloud Backup & Sync'}
+                  </p>
+                  <Badge tone={user ? 'mint' : 'neutral'}>
+                    {user ? 'Cloud Synced' : 'Device Only'}
+                  </Badge>
+                </div>
+                <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5">
+                  {user
+                    ? `Target score: ${user.targetScore}. Tests are backed up to Cloudflare D1.`
+                    : 'Sign in with your email to automatically back up tests and sync across devices.'}
+                </p>
+              </div>
+            </div>
+            <Button
+              variant={user ? 'secondary' : 'primary'}
+              size="sm"
+              onClick={() => setAuthModalOpen(true)}
+              className="shrink-0"
+            >
+              {user ? 'Manage account' : 'Enable Cloud Backup'}
+            </Button>
+          </div>
+        </div>
+
         {attempts === null ? (
           <div className="mt-12 grid place-items-center py-20">
             <span className="border-brand-500/25 border-t-brand-500 size-8 animate-spin rounded-full border-2" />
@@ -123,14 +196,17 @@ export default function Dashboard() {
           <>
             {focus.length > 0 ? (
               <section className="mt-10" aria-labelledby="focus-heading">
-                <div className="flex flex-wrap items-baseline justify-between gap-3">
-                  <h2 id="focus-heading" className="text-ink-900 dark:text-white text-lg font-bold text-balance">
-                    Practise these next
-                  </h2>
-                  <p className="text-ink-500 dark:text-ink-400 text-sm">
-                    Weighted toward your last {Math.min(attempts.length, 5)} attempts
-                  </p>
-                </div>
+                <SectionHeading
+                  id="focus-heading"
+                  className="mb-2"
+                  eyebrow="Focus"
+                  title="Practise these next"
+                  action={
+                    <p className="text-ink-500 dark:text-ink-400 text-sm">
+                      Weighted toward your last {Math.min(attempts.length, 5)} attempts
+                    </p>
+                  }
+                />
                 <p className="text-ink-500 dark:text-ink-300 mt-2 max-w-2xl text-sm leading-relaxed">
                   Ranked by what you are getting wrong rather than what you have practised least. Re-testing material you
                   already know carries much less value than re-testing the items you keep missing.
@@ -155,7 +231,7 @@ export default function Dashboard() {
                                 : `${f.itemsSeen} item${f.itemsSeen === 1 ? '' : 's'} across ${f.attemptsSeen} attempt${f.attemptsSeen === 1 ? '' : 's'}`}
                             </p>
                           </div>
-                          <span className="text-brand-600 dark:text-brand-400 text-sm font-semibold">Drill this type →</span>
+                          <span className="text-brand-600 dark:text-brand-300 text-sm font-semibold">Drill this type →</span>
                         </Link>
                     </li>
                   ))}
@@ -218,7 +294,7 @@ export default function Dashboard() {
                         </span>
                         <Link
                           to={`/practice?type=${row.type}`}
-                          className="text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 text-xs font-semibold hover:underline"
+                          className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
                         >
                           Drill →
                         </Link>
@@ -253,12 +329,12 @@ export default function Dashboard() {
             <Card className="mt-6">
               <CardTitle>Attempt history</CardTitle>
               <div className="scrollbar-thin -mx-5 mt-6 overflow-x-auto px-5 sm:-mx-6 sm:px-6">
-                <table className="w-full min-w-lg border-collapse text-left text-sm">
+                <table className="table-data min-w-lg">
                   <caption className="sr-only">Your PTE mock test attempts</caption>
                   <thead>
                     <tr className="border-ink-200 dark:border-white/10 border-b">
                       {['Date', 'Test', 'Score', 'CEFR', 'Duration', ''].map((h, i) => (
-                        <th key={i} scope="col" className="text-ink-500 dark:text-ink-400 px-3 py-2 text-xs font-bold tracking-wider uppercase">
+                        <th key={i} scope="col">
                           {h}
                         </th>
                       ))}
@@ -272,7 +348,7 @@ export default function Dashboard() {
                         </td>
                         <td className="text-ink-700 dark:text-ink-200 max-w-[180px] truncate px-3 py-3">{a.mockTitle}</td>
                         <td className="text-ink-900 dark:text-white px-3 py-3 font-bold tabular-nums">{a.overallScore}</td>
-                        <td className="px-3 py-3">
+                        <td>
                           <Badge tone={a.overallScore >= 71 ? 'mint' : a.overallScore >= 46 ? 'brand' : 'amber'}>
                             {a.cefr}
                           </Badge>
@@ -280,7 +356,7 @@ export default function Dashboard() {
                         <td className="text-ink-500 dark:text-ink-400 px-3 py-3 whitespace-nowrap tabular-nums">
                           {formatDuration(a.durationMs)}
                         </td>
-                        <td className="px-3 py-3 text-right whitespace-nowrap">
+                        <td className="text-right whitespace-nowrap">
                           {deletingId === a.id ? (
                             <span className="inline-flex items-center gap-2 text-xs">
                               <span className="text-rose-600 dark:text-rose-400 font-semibold">Delete?</span>
@@ -288,7 +364,7 @@ export default function Dashboard() {
                                 type="button"
                                 className="text-rose-700 dark:text-rose-300 font-bold hover:underline cursor-pointer"
                                 onClick={() => {
-                                  void deleteAttempt(a.id)
+                                  void deleteAttemptEverywhere(a.id)
                                   void listAttempts(100).then(setAttempts)
                                   setDeletingId(null)
                                 }}
@@ -413,6 +489,11 @@ export default function Dashboard() {
           </div>
         </Disclosure>
       </PageWrapper>
+      <AuthModal
+        open={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        onSuccess={() => void listAttempts(100).then(setAttempts)}
+      />
     </>
   )
 }

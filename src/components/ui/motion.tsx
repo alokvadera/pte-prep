@@ -58,7 +58,7 @@ export function Reveal({
   id,
   variant = 'up',
   delay = 0,
-  duration = 700,
+  duration = 600,
   className,
 }: {
   children: ReactNode
@@ -183,8 +183,11 @@ export function CountUp({
     format?.(display) ??
     `${prefix}${decimals > 0 ? display.toFixed(decimals) : Math.round(display).toLocaleString()}${suffix}`
 
+  // `data-countup` is the hook the motion review samples: timing the roll from
+  // outside is otherwise impossible, since the value never sits in the DOM
+  // between frames.
   return (
-    <span ref={ref} className={cn('tabular-nums', className)}>
+    <span ref={ref} data-countup="" className={cn('tabular-nums', className)}>
       {text}
     </span>
   )
@@ -200,14 +203,22 @@ export function CountUp({
 export function Tilt({
   children,
   className,
-  max = 7,
+  max = 8,
   glare = true,
+  travel = 26,
 }: {
   children: ReactNode
   className?: string
-  /** Maximum lean in degrees at the edges. */
+  /**
+   * Ceiling on the lean at the edges, for a surface narrow enough not to be
+   * limited by `travel`. Every stage on the site today is a full-width panel,
+   * so this is a backstop rather than a per-call-site setting: at 960px the
+   * clamp lands on about 3.1deg, well under it.
+   */
   max?: number
   glare?: boolean
+  /** How far the outer edge is allowed to travel, in CSS pixels. */
+  travel?: number
 }) {
   const ref = useRef<HTMLDivElement | null>(null)
 
@@ -221,10 +232,25 @@ export function Tilt({
       const rect = el.getBoundingClientRect()
       const px = (event.clientX - rect.left) / rect.width - 0.5
       const py = (event.clientY - rect.top) / rect.height - 0.5
+
+      /* Lean is proportional to the distance from the centre, so a single angle
+         moves a wide surface's edge much further than a small card's: at 4deg a
+         960px stage swings its corner about 33px, a 240px card only 8px. The
+         same `max` therefore reads as a strong lean on a card and a barely
+         perceptible one on a full-width panel. Rather than tune each call site
+         by hand, cap the angle so the outer edge travels about `travel` pixels.
+         Measured, the full-width stages were leaning under 1.5deg before this. */
+      const halfWidth = rect.width / 2
+      const byTravel =
+        halfWidth > travel
+          ? (2 * Math.asin(travel / halfWidth) * 180) / Math.PI
+          : Number.POSITIVE_INFINITY
+      const lean = Math.min(max, byTravel)
+
       cancelAnimationFrame(raf)
       raf = requestAnimationFrame(() => {
-        el.style.setProperty('--tilt-x', `${(-py * max).toFixed(2)}deg`)
-        el.style.setProperty('--tilt-y', `${(px * max).toFixed(2)}deg`)
+        el.style.setProperty('--tilt-x', `${(-py * lean).toFixed(2)}deg`)
+        el.style.setProperty('--tilt-y', `${(px * lean).toFixed(2)}deg`)
         el.style.setProperty('--tilt-gx', `${((px + 0.5) * 100).toFixed(1)}%`)
         el.style.setProperty('--tilt-gy', `${((py + 0.5) * 100).toFixed(1)}%`)
       })
@@ -242,7 +268,7 @@ export function Tilt({
       el.removeEventListener('pointerleave', onLeave)
       cancelAnimationFrame(raf)
     }
-  }, [max])
+  }, [max, travel])
 
   return (
     <div ref={ref} className={cn('tilt', className)}>

@@ -2,7 +2,18 @@ import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, MOCK_BLUEPRINT, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
-import { Accordion, Badge, ButtonLink, Card, CtaBand, PageWrapper } from '../components/ui/primitives'
+import {
+  Accordion,
+  Badge,
+  ButtonLink,
+  Callout,
+  Card,
+  CtaBand,
+  PageWrapper,
+  SectionBand,
+  SectionHeading,
+  TickList,
+} from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { ScoreWeightageMatrix } from '../components/ScoreWeightageMatrix'
 import { Reveal, Tilt } from '../components/ui/motion'
@@ -71,15 +82,15 @@ export default function TestFormat() {
           </Link>
         </div>
 
-        <h2 className="section-title mt-8 scroll-mt-24">The three sections at a glance</h2>
+        <SectionHeading className="mt-8" eyebrow="At a glance" title="The three sections" />
         <Reveal variant="fade">
           <Card flush variant="solid" className="mt-6 overflow-x-auto">
-          <table className="w-full min-w-lg border-collapse text-left text-sm">
+          <table className="table-data min-w-lg">
             <caption className="sr-only">PTE Academic sections, durations and scored skill</caption>
             <thead>
               <tr className="border-ink-200 dark:border-white/10 border-b">
                 {['Part', 'Section', 'Duration', 'Types', 'Scored skill'].map((h) => (
-                  <th key={h} scope="col" className="text-ink-500 dark:text-ink-400 px-4 py-3 text-xs font-bold tracking-wider uppercase">
+                  <th key={h} scope="col">
                     {h}
                   </th>
                 ))}
@@ -91,13 +102,13 @@ export default function TestFormat() {
                 const types = ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === key)
                 return (
                   <tr key={key} className="border-ink-100 dark:border-white/6 border-b">
-                    <td className="text-ink-500 dark:text-ink-400 px-4 py-3">{meta.title}</td>
-                    <td className="text-ink-900 dark:text-white px-4 py-3 font-semibold">{meta.longTitle}</td>
-                    <td className="text-ink-700 dark:text-ink-200 px-4 py-3 whitespace-nowrap tabular-nums">
+                    <td className="text-ink-500 dark:text-ink-400">{meta.title}</td>
+                    <td className="text-ink-900 dark:text-white font-semibold">{meta.longTitle}</td>
+                    <td className="text-ink-700 dark:text-ink-200 whitespace-nowrap tabular-nums">
                       {meta.weightNote}
                     </td>
-                    <td className="text-ink-500 dark:text-ink-400 px-4 py-3 tabular-nums">{types.length}</td>
-                    <td className="text-ink-500 dark:text-ink-400 px-4 py-3 capitalize">{meta.skill}</td>
+                    <td className="text-ink-500 dark:text-ink-400 tabular-nums">{types.length}</td>
+                    <td className="text-ink-500 dark:text-ink-400 capitalize">{meta.skill}</td>
                   </tr>
                 )
               })}
@@ -111,24 +122,19 @@ export default function TestFormat() {
         </p>
 
         <Reveal className="mt-12">
-          <Tilt max={4} glare={false}>
-        <div className="card-solid border-brand-500/30 bg-brand-500/5 p-6">
-          <div className="flex items-center gap-2">
-            <span className="bg-brand-500 text-white rounded-full px-2.5 py-0.5 font-mono text-micro font-bold uppercase tracking-wider">
-              2025 Update
-            </span>
-            <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Two new question types added</h2>
-          </div>
+          <Tilt glare={false}>
+        <Callout label="2025 Update" className="p-6">
+          <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Two new question types added</h2>
           <p className="text-ink-600 dark:text-ink-300 mt-3 text-sm leading-relaxed">
             Pearson added two item types in August 2025, bringing the total to 22. <strong className="text-ink-900 dark:text-white">Summarize Group Discussion</strong> plays a recorded exchange between three or four speakers and asks you to summarise the group's position in your own words. <strong className="text-ink-900 dark:text-white">Respond to a Situation</strong> describes a scenario and asks you to deliver an appropriate spoken response. Both sit in Part 1 and are scored on oral fluency, pronunciation and content.
           </p>
-        </div>
+        </Callout>
           </Tilt>
         </Reveal>
 
         <ScoreWeightageMatrix />
 
-        <h2 className="section-title mt-16">All 22 question types</h2>
+        <SectionHeading className="mt-16" eyebrow="The library" title="All 22 question types" />
 
         {(['speaking-writing', 'reading', 'listening'] as const).map((key) => {
           const meta = SECTION_META[key]
@@ -150,7 +156,7 @@ export default function TestFormat() {
                   const qm = QUESTION_META[t]
                   const slug = typeSlug(t)
                   return (
-                    <Reveal as="li" key={t} id={t} delay={Math.min(i, 5) * 45} duration={600} className="flex scroll-mt-24">
+                    <Reveal as="li" key={t} id={t} delay={Math.min(i, 4) * 45} duration={600} className="flex scroll-mt-24">
                       <article className="card-solid flex w-full flex-col justify-between">
                       <div>
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -173,7 +179,7 @@ export default function TestFormat() {
                       <div className="border-ink-100 dark:border-white/6 mt-4 flex flex-wrap items-center gap-4 border-t pt-2.5 text-xs">
                         <Link
                           to={`/practice?type=${t}`}
-                          className="text-brand-600 dark:text-brand-400 font-medium hover:underline -m-1 inline-flex min-h-6 items-center rounded-sm px-1"
+                          className="text-brand-600 dark:text-brand-300 font-medium hover:underline -m-1 inline-flex min-h-6 items-center rounded-sm px-1"
                         >
                           Practice this type →
                         </Link>
@@ -193,32 +199,32 @@ export default function TestFormat() {
           )
         })}
 
-        <Reveal className="mt-16">
-          <Tilt max={3} glare={false}>
-        <div className="card-solid p-6">
-          <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">How the test is delivered</h2>
-          <ul className="mt-4 space-y-3">
-            {[
-              'Computer-delivered at a test centre, with a headset, microphone, keyboard and screen.',
-              'You speak your answers aloud while the prompt is on screen. Nothing is recorded by the candidate.',
-              'There is no scheduled break between the three parts; the next part starts as soon as the previous one ends.',
-              'Each section opens with an on-screen introduction and countdown, which count towards the section time.',
-              'All items are machine scored. Constructed speaking and writing responses are scored on content, form, oral fluency and pronunciation.',
-            ].map((point) => (
-              <li key={point} className="text-ink-600 dark:text-ink-200 flex gap-3 text-sm leading-relaxed">
-                <span className="bg-brand-500 dark:bg-brand-300 mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
-                {point}
-              </li>
-            ))}
-          </ul>
-        </div>
-          </Tilt>
-        </Reveal>
+        {/* The closing group — delivery mechanics and the FAQ — is the part a
+            reader arrives at after the library, so it sits in its own band rather
+            than continuing the same column. */}
+        <SectionBand className="mt-16">
+          <SectionHeading eyebrow="On the day" title="How the test is delivered" />
+          <Reveal>
+            <Tilt glare={false}>
+              <div className="card-solid p-6">
+                <TickList
+                  items={[
+                    'Computer-delivered at a test centre, with a headset, microphone, keyboard and screen.',
+                    'You speak your answers aloud while the prompt is on screen. Nothing is recorded by the candidate.',
+                    'There is no scheduled break between the three parts; the next part starts as soon as the previous one ends.',
+                    'Each section opens with an on-screen introduction and countdown, which count towards the section time.',
+                    'All items are machine scored. Constructed speaking and writing responses are scored on content, form, oral fluency and pronunciation.',
+                  ]}
+                />
+              </div>
+            </Tilt>
+          </Reveal>
 
-        <h2 className="section-title mt-16">Frequently asked questions</h2>
-        <Reveal variant="fade">
-          <Accordion className="mt-6" items={FAQ} />
-        </Reveal>
+          <SectionHeading className="mt-12" eyebrow="Questions" title="Frequently asked questions" />
+          <Reveal variant="fade">
+            <Accordion items={FAQ} />
+          </Reveal>
+        </SectionBand>
 
         <CtaBand
           title="Practice the format now"

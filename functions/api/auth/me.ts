@@ -1,0 +1,89 @@
+import type { Env, UserRecord } from '../../types'
+import { extractBearerToken, verifySessionToken } from '../../lib/auth'
+
+export const onRequestGet: PagesFunction<Env> = async (context) => {
+  const token = extractBearerToken(context.request)
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  if (!session) {
+    return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const db = context.env.DB
+  const user = await db
+    .prepare('SELECT id, email, target_score, created_at, updated_at FROM users WHERE id = ?')
+    .bind(session.userId)
+    .first<UserRecord>()
+
+  if (!user) {
+    return new Response(JSON.stringify({ error: 'User not found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  return new Response(
+    JSON.stringify({
+      user: {
+        id: user.id,
+        email: user.email,
+        targetScore: user.target_score,
+      },
+    }),
+    {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    },
+  )
+}
+
+export const onRequestPatch: PagesFunction<Env> = async (context) => {
+  const token = extractBearerToken(context.request)
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  if (!session) {
+    return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  let body: { targetScore?: number }
+  try {
+    body = (await context.request.json()) as { targetScore?: number }
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const db = context.env.DB
+  if (typeof body.targetScore === 'number') {
+    const score = Math.max(10, Math.min(90, Math.round(body.targetScore)))
+    await db
+      .prepare('UPDATE users SET target_score = ?, updated_at = datetime("now") WHERE id = ?')
+      .bind(score, session.userId)
+      .run()
+  }
+
+  return new Response(JSON.stringify({ ok: true }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}

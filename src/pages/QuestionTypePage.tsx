@@ -4,7 +4,13 @@ import type { QuestionType } from '../domain/types'
 import { QUESTION_TYPE_DETAIL, faqForType, relatedTypes, typeFromSlug, typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
-import { ButtonLink, PageWrapper } from '../components/ui/primitives'
+import {
+  ButtonLink,
+  Callout,
+  NumMarker,
+  PageWrapper,
+  SectionHeading,
+} from '../components/ui/primitives'
 import NotFound from './NotFound'
 
 const SKILL_LABEL: Record<string, string> = {
@@ -63,7 +69,7 @@ export default function QuestionTypePage() {
         <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">{detail.how}</p>
 
         <section className="mt-10 sm:mt-12">
-          <h2 className="section-title">How {meta.label} is scored</h2>
+          <SectionHeading eyebrow="Scoring" title={`How ${meta.label} is scored`} />
           <p className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">{detail.scoring}</p>
 
           <dl className="card-solid mt-6 grid gap-px overflow-hidden p-0 sm:grid-cols-2">
@@ -102,22 +108,21 @@ export default function QuestionTypePage() {
         </section>
 
         <section className="mt-12 sm:mt-14">
-          <h2 className="section-title">
-            Common {meta.label} mistakes
-          </h2>
-          <ol className="mt-4 space-y-3">
+          <SectionHeading className="mb-4" eyebrow="Watch out" title={`Common ${meta.label} mistakes`} />
+          <ol className="space-y-3">
             {detail.mistakes.map((m, i) => (
               <li key={i} className="flex gap-3">
-                <span className="text-ink-300 dark:text-ink-400 mt-0.5 font-mono text-sm tabular-nums">{i + 1}</span>
+                <NumMarker tone="quiet" className="mt-0.5">
+                  {i + 1}
+                </NumMarker>
                 <span className="text-ink-600 dark:text-ink-200 leading-relaxed">{m}</span>
               </li>
             ))}
           </ol>
 
-          <div className="border-ink-200 dark:border-white/10 mt-6 border-l-4 border-l-brand-500 dark:border-l-brand-400 bg-brand-500/5 dark:bg-brand-500/10 rounded-r-lg p-4">
-            <p className="text-brand-700 dark:text-brand-300 font-mono text-micro font-semibold uppercase tracking-wider">Strategy</p>
-            <p className="text-ink-800 dark:text-ink-100 mt-1 text-sm leading-relaxed">{meta.tip}</p>
-          </div>
+          <Callout rule label="Strategy" className="mt-6">
+            {meta.tip}
+          </Callout>
         </section>
 
         <section className="mt-10 flex flex-wrap gap-3">
@@ -126,9 +131,7 @@ export default function QuestionTypePage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="section-title">
-            {meta.label} questions, answered
-          </h2>
+          <SectionHeading eyebrow="Questions" title={`${meta.label} questions, answered`} />
           {/* Rendered visibly because the FAQPage JSON-LD for this route is built
               from these same entries — marked-up FAQ content has to be on the
               page, not hidden in the head. */}
@@ -143,9 +146,10 @@ export default function QuestionTypePage() {
         </section>
 
         <section className="mt-16">
-          <h2 className="section-title">
-            Related {section.longTitle.toLowerCase()} question types
-          </h2>
+          <SectionHeading
+            eyebrow="Keep going"
+            title={`Related ${section.longTitle.toLowerCase()} question types`}
+          />
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
             {related.map((r: QuestionType) => (
               <li key={r} className="card-solid p-4">
@@ -163,19 +167,19 @@ export default function QuestionTypePage() {
           </ul>
 
           <p className="text-ink-500 dark:text-ink-400 mt-6 text-sm leading-relaxed">
-            <Link to="/question-types/" className="text-brand-600 dark:text-brand-300 underline underline-offset-2">
+            <Link to="/question-types/" className="link-inline">
               All {SECTION_META[meta.section].longTitle} question types
             </Link>{' '}
             ·{' '}
-            <Link to="/guide" className="text-brand-600 dark:text-brand-300 underline underline-offset-2">
+            <Link to="/guide" className="link-inline">
               tips for all 22 types
             </Link>{' '}
             ·{' '}
-            <Link to="/format" className="text-brand-600 dark:text-brand-300 underline underline-offset-2">
+            <Link to="/format" className="link-inline">
               full test format
             </Link>{' '}
             ·{' '}
-            <Link to="/scoring" className="text-brand-600 dark:text-brand-300 underline underline-offset-2">
+            <Link to="/scoring" className="link-inline">
               how PTE scores work
             </Link>
             .

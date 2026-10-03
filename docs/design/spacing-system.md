@@ -120,16 +120,62 @@ belongs to the Home hero, the CtaBand, and empty states only.
 Pills for controls, squares for surfaces. `rounded-full` belongs to buttons,
 nav pills, toggles, progress tracks, dots and avatars. Cards, fields and
 disclosures use `sm/md/lg` (3/4/7px) so a surface never mimics a control.
-`card-interactive` and `card-lift` are the only hover-lift patterns; `CtaBand`
-keeps its `rounded-xl + border-t-4` as the single closing-CTA exception.
+`card-interactive` is the only hover-lift pattern on a card; `CtaBand` keeps its
+`rounded-xl + border-t-4` as the single closing-CTA exception.
+
+### Section furniture
+
+The vocabulary a long page uses to break itself into parts. Every one of these
+replaces a pattern that was previously hand-written per route at slightly
+different values — two callout tints that were nearly the same colour, three
+numbered markers at three sizes, one band on Home and none on any interior page.
+
+| Utility / component | Use |
+| --- | --- |
+| `SectionBand` (`band`, `band-plain`) | A wide field separating groups of sections. Inside a page shell the band cancels the shell's gutters and restores them as its own padding, so its ground spans the shell while its content stays in the measure. `band-flush` / `band-flush-plain` are the same grounds for a route that is not inside a shell. |
+| `SectionHeading` | The one section header: `section-eyebrow` kicker, `section-title` H2, optional description and action. Carries `id` so a section heading can still be an anchor target. |
+| `section-eyebrow` | The mono kicker with its leading hairline. Used standalone where a section header is not appropriate. |
+| `Callout` (`callout`, tones, `callout-rule`) | The one tinted panel per page that states the thing to remember. `rule` swaps the full border for a single left rule when the note sits inside another surface. |
+| `KeyFigure` (`key-figure-*`) | The number a section exists to state, in the mono data voice with its own left rule. |
+| `NumMarker` (`num-marker`) | The square carrying a step, rank or index digit. |
+| `TickList` (`tick-item`) | A list marked by a small filled dot. Replaces ad-hoc bullet lists. |
+| `table-data` | The one data-table treatment: header voice, cell padding, row rules. Call sites keep only the semantic classes (`tabular-nums`, `font-semibold`, `text-right`). The table inside a Fill in the Blanks passage is question content, not a data table, and does not use it. |
+| `link-inline` / `link-card` | The two link families. `link-inline` is a prose link (underlined, brand ink, with a hover); `link-card` is a card title whose whole row is the target. Roughly twenty inline class strings previously split between `brand-300` and `brand-400` for dark mode. |
+
+Callout tones are roles rather than decoration: brand for guidance, mint for a
+confirmed good result, amber for caution, rose for the mistake being corrected.
+Only one band ground and one tinted callout tone per group — the point of naming
+them was to stop a fourth variant appearing.
+
+Bands are used on the routed content pages. The app screens (dashboard, setup,
+runner, result) are built from cards over `page-shell-app` and take no band: a
+full-width ground there would compete with the surfaces that carry the data.
+
+The hero aurora is scaled back below 640px. Its blobs are fixed at 384–512px
+across, so on a 390px phone three of them blanket the whole section: measured,
+the headline over it fell to 2.86:1, under the large-text floor. The field now
+shrinks to the corners it was drawn for, and the headline measures 5.15:1 on a
+phone against 4.77:1 on a desktop.
 
 ### Motion
 
 `--ease-settle` (`cubic-bezier(0.32, 0.72, 0, 1)`) is the single curve for
 everything the user operates and for `Reveal`. `--ease-pop` is reserved for
-the hero collage entrance; `--ease-glide` for drifting backgrounds. `Tilt`
-is hero-only (the Home practice collage with glare); interior cards use
-`Reveal` alone so a card never carries two motions at once.
+entrances that overshoot; `--ease-glide` for drifting backgrounds. `Tilt` is
+used on the Home collage (with glare) and on the wide panels of the content
+pages (glare off) — never on a card that already carries `Reveal`, so nothing
+moves twice at once. Its lean is capped by pixel travel rather than degrees, so
+a full-width panel and a small card move their edges by about the same amount.
+
+**Reduced motion is two layers, not one.** The blanket reset in the base layer
+(`animation-duration: 0.01ms`, `will-change: auto`) is the safety net and covers
+everything, including animations nobody registered. On top of it every entrance
+is re-pointed at the opacity-only `fade-in`, and `transition-property` is
+narrowed to colour, opacity and shadow at 150ms. A visitor who asks for reduced
+motion is not asking for a site that feels broken; a route change should still
+arrive, it should just not move them across the screen. `Reveal`, `Tilt` and
+`CountUp` do not arm at all under the preference, so their content is resolved
+from the first paint. `scripts/motion-review.mjs` asserts all three properties.
 
 ## Product preview
 
@@ -149,6 +195,10 @@ into its own visual identity again.
 | Choice card | `choice-card` | Setup or practice option |
 | Choice row | `choice-row` | Answer option or compact selectable row |
 | Table | `<Card flush>` | Wide data with a semantic table inside |
+
+Every page header now carries a hairline under it — the one piece of furniture
+shared by all fourteen interior routes, and the reason they read as one product
+before any other rule is applied.
 
 ## Exceptions
 

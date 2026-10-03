@@ -1,0 +1,9 @@
+name = "pte-prep"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "pte-prep-db"
+database_id = "pte-prep-db-local"
+migrations_dir = "migrations"

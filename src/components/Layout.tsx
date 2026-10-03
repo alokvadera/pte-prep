@@ -1,7 +1,9 @@
-import { StrictMode, useEffect, useRef, type ReactNode } from 'react'
+import { StrictMode, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { cn } from '../lib/cn'
 import { useSettings, type Theme } from '../store/useSettings'
+import { useAuth } from '../store/useAuth'
+import { AuthModal } from './auth/AuthModal'
 
 function Logo() {
   return (
@@ -24,6 +26,8 @@ const NAV = [
 export function Layout() {
   const { settings, set } = useSettings()
   const location = useLocation()
+  const [authOpen, setAuthOpen] = useState(false)
+  const user = useAuth((s) => s.user)
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
@@ -39,9 +43,9 @@ export function Layout() {
       </a>
 
       <header className="border-ink-200 dark:border-white/10 sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] dark:bg-ink-900/95">
-        <div className="site-header-row page-shell-wide flex h-[72px] items-center gap-6">
+        <div className="site-header-row page-shell-wide flex h-[72px] items-center gap-2 sm:gap-4 md:gap-6">
           <Logo />
-          <nav aria-label="Main navigation" className="site-nav ml-auto flex items-center gap-1 sm:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">
+          <nav aria-label="Main navigation" className="site-nav ml-auto flex items-center gap-1 sm:gap-1.5 md:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">
             {NAV.map((item) => {
               const isMatch = item.to === '/format'
                 ? location.pathname === '/format' || location.pathname.startsWith('/question-types')
@@ -55,7 +59,7 @@ export function Layout() {
                   to={item.to}
                   className={
                     cn(
-                      'flex items-center whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-all sm:text-sm',
+                      'flex items-center whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium transition-all sm:px-3 sm:text-sm',
                       item.label === 'Test format' && 'hidden sm:flex',
                       isMatch
                         ? 'bg-brand-500/10 text-brand-600 font-semibold dark:bg-brand-400/15 dark:text-brand-300'
@@ -69,14 +73,35 @@ export function Layout() {
             })}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+            <button
+              type="button"
+              onClick={() => setAuthOpen(true)}
+              className={cn(
+                'btn-ghost rounded-full p-2 transition-colors cursor-pointer',
+                user
+                  ? 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400'
+                  : 'text-ink-600 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white',
+              )}
+              title={user ? `Signed in as ${user.email} (Cloud Synced)` : 'Cloud Backup & Sync'}
+              aria-label={user ? `Account: ${user.email}` : 'Sign in for Cloud Backup'}
+            >
+              <svg className="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z"
+                />
+              </svg>
+            </button>
             <ThemeToggle theme={settings.theme} onChange={(t) => set('theme', t)} />
-            <NavLink to="/mock" className="btn-primary px-5 py-2 text-sm hidden sm:inline-flex">
+            <NavLink to="/mock" className="btn-primary px-4 py-2 text-xs sm:px-5 sm:text-sm hidden sm:inline-flex">
               Start mock
             </NavLink>
           </div>
         </div>
         <ScrollProgress />
+        <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
       </header>
 
       <main id="main" className="flex-1">
@@ -172,7 +197,7 @@ function Footer() {
             </p>
           </div>
           <div>
-            <h2 className="text-ink-900 dark:text-white mb-2.5 text-sm font-semibold text-balance">Practice</h2>
+            <h2 className="section-eyebrow">Practice</h2>
             <ul className="flex flex-col gap-0.5">
               <li><FooterLink to="/mock">Full mock tests</FooterLink></li>
               <li><FooterLink to="/practice">Single-skill practice</FooterLink></li>
@@ -180,7 +205,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <h2 className="text-ink-900 dark:text-white mb-2.5 text-sm font-semibold text-balance">Learn</h2>
+            <h2 className="section-eyebrow">Learn</h2>
             <ul className="flex flex-col gap-0.5">
               <li><FooterLink to="/format">PTE test format</FooterLink></li>
               <li><FooterLink to="/question-types/">All 22 question types</FooterLink></li>

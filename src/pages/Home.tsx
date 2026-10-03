@@ -3,7 +3,7 @@ import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/bluep
 import { bankCapacity } from '../content/bank'
 import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
-import { Accordion, CtaBand, ButtonLink } from '../components/ui/primitives'
+import { Accordion, CtaBand, ButtonLink, SectionHeading } from '../components/ui/primitives'
 import { TaglineReveal } from '../components/ui/TaglineReveal'
 import { CountUp, Reveal, Tilt } from '../components/ui/motion'
 
@@ -63,7 +63,7 @@ export default function Home() {
               <p className="text-brand-600 dark:text-brand-300 animate-rise-in mb-4 text-sm font-semibold">
                 PTE preparation, in one place
               </p>
-              <h1 className="hero-title animate-rise-in" style={{ animationDelay: '60ms' }}>
+              <h1 className="hero-title animate-rise-in" style={{ animationDelay: '50ms' }}>
                 <span className="text-gradient-move">
                   Practice the test.<br />Know what to do next.
                 </span>
@@ -71,14 +71,14 @@ export default function Home() {
 
               <p
                 className="text-ink-600 dark:text-ink-200 animate-rise-in mt-6 max-w-2xl text-lg leading-relaxed text-pretty"
-                style={{ animationDelay: '140ms' }}
+                style={{ animationDelay: '110ms' }}
               >
                 Choose a focused task, take a timed mock, and use your practice history to decide where to spend your next study session.
               </p>
 
               <div
                 className="animate-rise-in mt-8 flex flex-wrap items-center justify-center gap-3"
-                style={{ animationDelay: '210ms' }}
+                style={{ animationDelay: '170ms' }}
               >
                 <ButtonLink to="/mock" size="lg">
                   Start full mock test
@@ -87,7 +87,7 @@ export default function Home() {
                   Practice by skill
                 </ButtonLink>
               </div>
-              <p className="text-ink-500 dark:text-ink-400 animate-rise-in mt-4 text-sm" style={{ animationDelay: '280ms' }}>
+              <p className="text-ink-500 dark:text-ink-400 animate-rise-in mt-4 text-sm" style={{ animationDelay: '220ms' }}>
                 Four skills · {ALL_QUESTION_TYPES.length} task types · free browser-based practice
               </p>
             </div>
@@ -97,8 +97,8 @@ export default function Home() {
                 it renders in the exact design language of the real product. The
                 Tilt wrapper leans the whole collage toward the pointer — purely
                 decorative, so it changes no layout and no hit area. */}
-            <div className="animate-rise-in w-full max-w-5xl px-4 sm:px-0" style={{ animationDelay: '330ms' }}>
-              <Tilt className="relative" max={5}>
+            <div className="animate-rise-in w-full max-w-5xl px-4 sm:px-0" style={{ animationDelay: '260ms' }}>
+              <Tilt className="relative">
                 <ScorePreview />
               </Tilt>
             </div>
@@ -110,8 +110,8 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="border-ink-200 dark:border-white/10 border-y bg-gradient-subtle">
-        <div className="page-shell-wide py-12">
+      <section className="band-flush">
+        <div className="page-shell-wide">
           <Reveal variant="fade">
             <p className="page-heading-kicker mb-6">The exam, reproduced</p>
           </Reveal>
@@ -122,7 +122,7 @@ export default function Home() {
               { k: SECTION_META.listening.weightNote, v: 'Listening', d: `Section 3 · ${questionTypesFor('listening').length} question types` },
               { k: `${capacity}+`, v: 'distinct items', d: 'Seeded · never repeats early' },
             ].map((s, idx) => (
-              <Reveal key={s.v} delay={idx * 80} variant="up">
+              <Reveal key={s.v} delay={Math.min(idx, 3) * 70} variant="up">
                 <div className="border-l-2 border-brand-500/60 pl-4">
                   <dt className="font-mono text-ink-900 dark:text-white text-2xl font-bold tabular-nums tracking-[-0.02em] sm:text-3xl">
                     {idx === 3 ? <><CountUp value={capacity} duration={1200} />+</> : s.k}
@@ -139,8 +139,11 @@ export default function Home() {
       {/* ---------------------------------------------------------------- */}
       <section className="page-shell-wide py-16 sm:py-20">
         <div className="max-w-2xl">
-          <p className="page-heading-kicker mb-3">Exam structure & timing</p>
-          <h2 className="section-title">A mock that runs like test day</h2>
+          <SectionHeading
+            className="mb-0"
+            eyebrow="Exam structure & timing"
+            title="A mock that runs like test day"
+          />
           <p className="text-ink-500 dark:text-ink-300 mt-4 leading-relaxed">
             Three sections in order, one running clock, no pauses. The score you get here
             is on the same 10–90 scale with the same CEFR bands, so a 65 here means a 65 there.
@@ -151,7 +154,7 @@ export default function Home() {
           {(['speaking-writing', 'reading', 'listening'] as const).map((key, idx) => {
             const meta = SECTION_META[key]
             return (
-              <Reveal key={key} delay={idx * 100} variant="up">
+              <Reveal key={key} delay={Math.min(idx, 2) * 90} variant="up">
                 <article className="card-exam flex h-full flex-col">
                     <p className="flex items-center justify-between font-mono text-micro tabular-nums">
                       <span className="text-brand-600 dark:text-brand-300 font-bold">Part {idx + 1}</span>
@@ -190,10 +193,13 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="border-ink-200 dark:border-white/10 border-y bg-white/60 dark:bg-white/3">
-        <div className="page-shell-wide py-16 sm:py-20">
-          <p className="page-heading-kicker mb-3">Score breakdown & insights</p>
-          <h2 className="section-title">What the report shows you</h2>
+      <section className="band-flush-plain">
+        <div className="page-shell-wide">
+          <SectionHeading
+            className="mb-0"
+            eyebrow="Score breakdown & insights"
+            title="What the report shows you"
+          />
           <p className="text-ink-500 dark:text-ink-300 mt-3 max-w-2xl leading-relaxed">
             Not a single number. Four skills, 22 types, every lost point traced to its rule.
           </p>
@@ -224,7 +230,7 @@ export default function Home() {
                 body: 'Every attempt is stored on your own device with a trend line, so you can see whether the last three weeks of practice actually moved anything.',
               },
             ].map((f, idx) => (
-              <Reveal key={f.title} delay={idx * 80} variant="scale">
+              <Reveal key={f.title} delay={Math.min(idx, 3) * 70} variant="scale">
                 <article className="card-interactive">
                   <h3 className="text-ink-900 dark:text-white text-lg font-bold leading-tight text-balance">{f.title}</h3>
                   <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{f.body}</p>
@@ -246,7 +252,7 @@ export default function Home() {
           so the page answers "what happens when I press start" at the point
           where the reader has just decided they want to. */}
       <section className="page-shell-wide py-16 sm:py-20">
-        <h2 className="section-title">How a mock runs</h2>
+        <SectionHeading className="mb-0" eyebrow="How it works" title="How a mock runs" />
         <p className="text-ink-500 dark:text-ink-300 mt-4 max-w-2xl leading-relaxed">
           Three steps, and nothing to set up. The whole thing runs in this browser tab.
         </p>
@@ -266,7 +272,7 @@ export default function Home() {
               body: 'An overall score on both PTE scales, four skill scores, a CEFR band, and a per item breakdown showing the correct answer against the one you gave.',
             },
           ].map((step, i) => (
-            <Reveal as="li" key={step.title} delay={i * 120} variant="left">
+            <Reveal as="li" key={step.title} delay={Math.min(i, 2) * 90} variant="left">
               <p className="text-brand-600 dark:text-brand-300 font-mono text-micro font-bold tabular-nums">
                 Step {i + 1}
               </p>
@@ -279,7 +285,7 @@ export default function Home() {
 
       {/* ---------------------------------------------------------------- */}
       <section className="page-shell-wide pt-16 sm:pt-20 pb-0">
-        <h2 className="section-title">Frequently asked questions</h2>
+        <SectionHeading className="mb-0" eyebrow="Questions" title="Frequently asked questions" />
         <Accordion className="mt-6" items={FAQ} />
       </section>
 

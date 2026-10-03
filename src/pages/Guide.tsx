@@ -3,7 +3,16 @@ import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
-import { Accordion, Button, ButtonLink, CtaBand, PageWrapper } from '../components/ui/primitives'
+import {
+  Accordion,
+  Button,
+  ButtonLink,
+  CtaBand,
+  PageWrapper,
+  SectionBand,
+  SectionHeading,
+  TickList,
+} from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { Reveal, Tilt } from '../components/ui/motion'
 
@@ -175,7 +184,7 @@ function TemplateCard({ item }: { item: StrategyTemplate }) {
       </div>
 
       <p className="mt-3 text-xs text-ink-500 dark:text-ink-400 leading-relaxed">
-        <span className="font-semibold text-mint-600 dark:text-mint-400">Why it works:</span> {item.rationale}
+        <span className="font-semibold text-mint-600 dark:text-mint-300">Why it works:</span> {item.rationale}
       </p>
     </div>
   )
@@ -190,7 +199,7 @@ export default function Guide() {
         breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'PTE tips' }]} />}
         eyebrow="Study guide"
         title="PTE strategies that move the score."
-        description={<>Most advice is generic. Start with the changes that return the most marks, then explore techniques for all 22 types in the <Link to="/question-types/" className="text-brand-600 underline underline-offset-2 dark:text-brand-300">question type guide</Link>.</>}
+        description={<>Most advice is generic. Start with the changes that return the most marks, then explore techniques for all 22 types in the <Link to="/question-types/" className="link-inline">question type guide</Link>.</>}
       >
         <div className="-mt-4 mb-8 flex flex-wrap gap-2">
           <a href="#high-impact" className="btn-secondary px-3 py-1.5 text-xs">
@@ -210,7 +219,12 @@ export default function Guide() {
           </a>
         </div>
 
-        <h2 id="high-impact" className="section-title mt-8 scroll-mt-24">The five highest-impact changes</h2>
+        <SectionHeading
+          id="high-impact"
+          className="mt-8"
+          eyebrow="Priority order"
+          title="The five highest-impact changes"
+        />
         <ol className="mt-6 space-y-4">
           {[
             {
@@ -234,7 +248,7 @@ export default function Guide() {
               body: 'The clock is part of what the test measures. If every attempt has unlimited time and visible transcripts, you are training the language but not the test. Alternate deliberately.',
             },
           ].map((item, i) => (
-            <Reveal as="li" key={item.title} delay={i * 80} className="flex">
+            <Reveal as="li" key={item.title} delay={Math.min(i, 4) * 70} className="flex">
               <article className="card flex w-full gap-4">
               <span className="bg-mint-500 text-white grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold">
                 {i + 1}
@@ -254,7 +268,7 @@ export default function Guide() {
               <span className="pill bg-mint-500/10 text-mint-700 dark:text-mint-300 font-mono text-micro uppercase tracking-wider">
                 Exam-proven frameworks
               </span>
-              <h2 className="section-title mt-2">Proven 2025/2026 Strategy Templates</h2>
+              <SectionHeading className="mt-2 mb-0" eyebrow="Frameworks" title="Proven 2025/2026 Strategy Templates" />
             </div>
             <p className="text-ink-500 dark:text-ink-400 max-w-md text-xs leading-relaxed">
               Safe structures that hit Pearson content keywords and maintain oral fluency without triggering template penalties.
@@ -263,8 +277,8 @@ export default function Guide() {
 
           <div className="mt-6 space-y-4">
             {TEMPLATES.map((tmpl, i) => (
-              <Reveal key={tmpl.id} delay={i * 70}>
-                <Tilt max={3} glare={false}>
+              <Reveal key={tmpl.id} delay={Math.min(i, 4) * 60}>
+                <Tilt glare={false}>
                   <TemplateCard item={tmpl} />
                 </Tilt>
               </Reveal>
@@ -278,7 +292,7 @@ export default function Guide() {
               <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro uppercase tracking-wider">
                 Vocabulary booster
               </span>
-              <h2 className="section-title mt-2">Academic Collocations (Fill in the Blanks)</h2>
+              <SectionHeading className="mt-2 mb-0" eyebrow="Vocabulary" title="Academic Collocations (Fill in the Blanks)" />
             </div>
             <Link to="/practice?type=fill-in-blanks-dropdown" className="text-brand-600 dark:text-brand-300 -m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-xs font-semibold hover:underline">
               Practice FIB dropdowns →
@@ -303,7 +317,12 @@ export default function Guide() {
           </div>
         </div>
 
-        <h2 id="by-type" className="section-title mt-16 scroll-mt-24">Technique by question type</h2>
+        <SectionHeading
+          id="by-type"
+          className="mt-16"
+          eyebrow="By type"
+          title="Technique by question type"
+        />
         {(['speaking-writing', 'reading', 'listening'] as const).map((key) => (
           <section key={key} className="mt-10">
             <h3 className="text-ink-900 dark:text-white text-xl font-bold text-balance">{SECTION_META[key].longTitle}</h3>
@@ -311,7 +330,7 @@ export default function Guide() {
               {ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === key).map((t, i) => {
                 const qm = QUESTION_META[t]
                 return (
-                  <Reveal as="article" key={t} id={t} delay={Math.min(i, 6) * 50} duration={600} className="scroll-mt-24">
+                  <Reveal as="article" key={t} id={t}              delay={Math.min(i, 4) * 45} duration={600} className="scroll-mt-24">
                     <div className="card">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <h4 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{qm.label}</h4>
@@ -329,7 +348,7 @@ export default function Guide() {
                       </Link>
                       <Link
                         to={`/practice?type=${t}`}
-                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 font-semibold hover:underline"
+                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 font-semibold hover:underline"
                       >
                         Practice drill →
                       </Link>
@@ -342,53 +361,50 @@ export default function Guide() {
           </section>
         ))}
 
-        <h2 className="section-title mt-16">Recording rules that decide items silently</h2>
-        <p className="text-ink-600 dark:text-ink-200 mt-4 max-w-2xl leading-relaxed">
+        <SectionHeading
+          className="mt-16"
+          eyebrow="Recording"
+          title="Recording rules that decide items silently"
+        />
+        <p className="text-ink-600 dark:text-ink-200 max-w-2xl leading-relaxed">
           The microphone is not forgiving about silence. These are the mechanics of the recording itself, rather than of
           the language, and they cost marks more often than pronunciation does. Each one is taken from Pearson's own
           guidance for the question type.
         </p>
-        <ul className="mt-5 space-y-3">
-          {[
+        <TickList
+          className="mt-5"
+          items={[
             'Start the instant the recording status changes. On an Answer Short Question the microphone opens when the box changes and closes on its own — Pearson states that waiting more than three seconds ends the recording, marks the item completed, and the answer is gone. There is no second attempt.',
             'Once you have started talking, do not stop for more than a second or two before you finish. A long pause mid answer reads as hesitation to fluency scoring, and the microphone can close on the same rule that opened it.',
             'On Summarize Spoken Text you get three seconds with the image before the audio starts. Use it to predict the topic and the vocabulary you are about to hear, rather than staring at it.',
             'Read Aloud gives you forty seconds of recording and about forty seconds of preparation beforehand. Preparation is for the first three words; the recording clock does not wait for you.',
             'The same silence rule governs every speaking item, which is why the habit worth building is answering on the tone rather than composing an answer and then delivering it.',
-          ].map((tip) => (
-            <li key={tip} className="text-ink-600 dark:text-ink-200 flex gap-3 leading-relaxed">
-              <span className="bg-brand-500 dark:bg-brand-300 mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
-              {tip}
-            </li>
-          ))}
-        </ul>
+          ]}
+        />
 
-        <h2 className="section-title mt-16">Under time pressure</h2>
-        <ul className="mt-5 space-y-3">
-          {[
+        <SectionHeading className="mt-16" eyebrow="Time pressure" title="Under time pressure" />
+        <TickList
+          className="mt-5"
+          items={[
             'Never leave a single-answer question blank. A guess is free; a blank is zero.',
             'In Fill in the Blanks, decide the word class first, then the word. Options change between noun, verb, adjective and adverb, and the class is usually given away by the article or ending.',
             'On the table completion, work down a column rather than across a row so you stay in one part of the passage.',
             'Do the listening items in order. The recordings are short and the momentum matters more than doubling back.',
             'Write the essay in the last 20 minutes of Part 1 whatever happens. An unwritten essay is a guaranteed zero on a whole trait group.',
             'If you run out of time in a section, the clock does not stop. Submit rather than leaving blanks, because the next section still counts.',
-          ].map((tip) => (
-            <li key={tip} className="text-ink-600 dark:text-ink-200 flex gap-3 leading-relaxed">
-              <span className="bg-brand-500 dark:bg-brand-300 mt-2 size-1.5 shrink-0 rounded-full" aria-hidden="true" />
-              {tip}
-            </li>
-          ))}
-        </ul>
+          ]}
+        />
 
-        <h2 id="study-plan" className="section-title mt-16 scroll-mt-24">A four-week study plan</h2>
+        <SectionBand className="mt-16">
+        <SectionHeading id="study-plan" eyebrow="Schedule" title="A four-week study plan" />
         <Reveal variant="fade">
           <div className="card mt-5 overflow-x-auto p-0">
-          <table className="w-full min-w-lg border-collapse text-left text-sm">
+          <table className="table-data min-w-lg">
             <caption className="sr-only">Four week PTE preparation plan</caption>
             <thead>
               <tr className="border-ink-200 dark:border-white/10 border-b">
                 {['Week', 'Focus', 'Daily practice', 'Mock test'].map((h) => (
-                  <th key={h} scope="col" className="text-ink-500 dark:text-ink-400 px-4 py-3 text-xs font-bold tracking-wider uppercase">
+                  <th key={h} scope="col">
                     {h}
                   </th>
                 ))}
@@ -402,10 +418,10 @@ export default function Guide() {
                 ['4', 'Full simulation', 'Timed sections, no transcripts, no pauses', 'Two full mocks, exam mode'],
               ].map((row) => (
                 <tr key={row[0]} className="border-ink-100 dark:border-white/6 border-b">
-                  <td className="text-ink-900 dark:text-white px-4 py-3 font-bold">{row[0]}</td>
-                  <td className="text-ink-700 dark:text-ink-200 px-4 py-3">{row[1]}</td>
-                  <td className="text-ink-500 dark:text-ink-400 px-4 py-3">{row[2]}</td>
-                  <td className="text-ink-500 dark:text-ink-400 px-4 py-3">{row[3]}</td>
+                  <td className="text-ink-900 dark:text-white font-bold">{row[0]}</td>
+                  <td className="text-ink-700 dark:text-ink-200">{row[1]}</td>
+                  <td className="text-ink-500 dark:text-ink-400">{row[2]}</td>
+                  <td className="text-ink-500 dark:text-ink-400">{row[3]}</td>
                 </tr>
               ))}
             </tbody>
@@ -413,10 +429,16 @@ export default function Guide() {
           </div>
         </Reveal>
 
-        <h2 id="faqs" className="section-title mt-16 scroll-mt-24">Frequently asked questions</h2>
+        <SectionHeading
+          id="faqs"
+          className="mt-16"
+          eyebrow="Questions"
+          title="Frequently asked questions"
+        />
         <Reveal variant="fade">
-          <Accordion className="mt-6" items={FAQ} />
+          <Accordion items={FAQ} />
         </Reveal>
+        </SectionBand>
 
         <CtaBand
           title="Apply it to a real paper"

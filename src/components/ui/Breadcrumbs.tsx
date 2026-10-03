@@ -38,7 +38,11 @@ export function Breadcrumbs({ trail, className }: { trail: Crumb[]; className?: 
                 )}
               </li>
               {last ? null : (
-                <li aria-hidden="true" className="text-ink-300 dark:text-ink-400 select-none">
+                // ink-300 measured 1.59:1 against the light page ground — a
+                // separator nobody can see is not separating anything. ink-500
+                // is the trail's own colour and clears 4.5 in light; dark keeps
+                // the quieter ink-400, which clears it against the dark ground.
+                <li aria-hidden="true" className="text-ink-500 dark:text-ink-400 select-none">
                   /
                 </li>
               )}

@@ -286,22 +286,33 @@ export function SectionHeading({
   title,
   description,
   action,
+  id,
+  className,
 }: {
   eyebrow?: string
   title: string
   description?: string
   action?: ReactNode
+  /** So a section heading can still be the target of an in-page anchor, and so
+   *  a `aria-labelledby` on a wrapper section names the heading alone rather
+   *  than the eyebrow and the heading as one string. */
+  id?: string
+  /** Spacing overrides only — the type scale and kicker come from the utility. */
+  className?: string
 }) {
   return (
-    <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
+    <div className={cn('mb-5 flex flex-wrap items-end justify-between gap-4', className)}>
       <div className="min-w-0">
-        {eyebrow ? (
-          <p className="text-ink-500 dark:text-ink-400 mb-1.5 flex items-center gap-2 font-mono text-micro">
-            <span aria-hidden="true" className="bg-brand-500 dark:bg-brand-400 inline-block h-px w-5" />
-            {eyebrow}
-          </p>
-        ) : null}
-        <h2 className="section-title">{title}</h2>
+        {/* The kicker and its leading hairline live in the `section-eyebrow`
+            utility so a page that is not using this component still gets the
+            same treatment instead of re-inventing it. */}
+        {eyebrow ? <p className="section-eyebrow">{eyebrow}</p> : null}
+        {/* The id sits on the heading, never on this wrapper: an anchor target
+            and an `aria-labelledby` both want the heading's own text, and the
+            scroll margin comes with it so the sticky header never covers it. */}
+        <h2 id={id} className={cn('section-title', id && 'scroll-mt-24')}>
+          {title}
+        </h2>
         {description ? (
           <p className="text-ink-500 dark:text-ink-300 mt-1.5 max-w-2xl text-sm leading-relaxed">{description}</p>
         ) : null}
@@ -442,11 +453,16 @@ export function Toggle({
   )
 }
 
+/**
+ * An empty state. Its title is an H2 rather than an H3: an empty state is a
+ * top-level block on its route, and heading straight from the page H1 to an H3
+ * leaves a screen reader navigating by heading with no level at all in between.
+ */
 export function EmptyState({ icon, title, description, action }: { icon?: ReactNode; title: string; description: string; action?: ReactNode }) {
   return (
     <div className="card flex flex-col items-center px-6 py-14 text-center">
       {icon ? <div className="text-ink-300 dark:text-ink-400 mb-3">{icon}</div> : null}
-      <h3 className="text-ink-900 dark:text-white text-lg font-bold text-balance">{title}</h3>
+      <h2 className="section-title">{title}</h2>
       <p className="text-ink-500 dark:text-ink-400 mt-1.5 max-w-sm text-sm leading-relaxed">{description}</p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
@@ -459,6 +475,177 @@ export function EmptyState({ icon, title, description, action }: { icon?: ReactN
  * one place the accent tints a whole surface, which is why it stays a tint and
  * never a gradient.
  */
+/* ---------------------------------------------------------------------------
+   Section furniture.
+
+   A band to separate groups of sections, a callout to state the thing a page
+   wants remembered, a key figure for the number a section exists to say, and a
+   tick list. Each replaces a pattern that was being hand-written per page at
+   slightly different values — see the note in index.css.
+
+   The utilities behind the backgrounds, tones and marks live in `index.css`;
+   these components only choose between them, so a page cannot pick a fifth
+   shade of tint.
+--------------------------------------------------------------------------- */
+
+/**
+ * A wide band. `tone="tint"` is the page's one coloured field, `tone="plain"` a
+ * quiet lift in value for a second band that would otherwise repeat it.
+ * Everything inside keeps the page shell's measure, so a band re-groups a page
+ * without moving a single element sideways.
+ */
+export function SectionBand({
+  tone = 'tint',
+  eyebrow,
+  title,
+  description,
+  action,
+  className,
+  children,
+}: {
+  tone?: 'tint' | 'plain'
+  eyebrow?: string
+  title?: string
+  description?: string
+  action?: ReactNode
+  className?: string
+  children?: ReactNode
+}) {
+  return (
+    <section className={cn(tone === 'plain' ? 'band-plain' : 'band', className)}>
+      {title ? (
+        <SectionHeading eyebrow={eyebrow} title={title} description={description} action={action} />
+      ) : null}
+      {children}
+    </section>
+  )
+}
+
+type CalloutTone = 'brand' | 'mint' | 'amber' | 'rose'
+
+const CALLOUT_TONE: Record<CalloutTone, string> = {
+  brand: 'callout',
+  mint: 'callout callout-mint',
+  amber: 'callout callout-amber',
+  rose: 'callout callout-rose',
+}
+
+const CALLOUT_TITLE: Record<CalloutTone, string> = {
+  brand: 'callout-title',
+  mint: 'callout-title callout-title-mint',
+  amber: 'callout-title callout-title-amber',
+  rose: 'callout-title callout-title-rose',
+}
+
+/**
+ * The one tinted panel on a page that carries the thing to remember. The tone is
+ * a role rather than decoration: brand for guidance, mint for a confirmed good
+ * result, amber for caution, rose for the mistake being corrected.
+ */
+export function Callout({
+  tone = 'brand',
+  label,
+  rule = false,
+  className,
+  children,
+}: {
+  tone?: CalloutTone
+  /** The mono label above the body. Omit for a bare statement. */
+  label?: string
+  /** A single rule down the side instead of a full border, for a note inside a
+   *  surface that already has one. */
+  rule?: boolean
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <div className={cn(rule ? cn('callout-rule', CALLOUT_TONE[tone]) : CALLOUT_TONE[tone], className)}>
+      {label ? <p className={CALLOUT_TITLE[tone]}>{label}</p> : null}
+      <div className={cn('text-ink-700 dark:text-ink-100 text-sm leading-relaxed', label && 'mt-1.5')}>
+        {children}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * The number a section exists to state, set in the mono data voice. Label is the
+ * unit or subject, note the one line of context that stops the figure being a
+ * decoration.
+ */
+export function KeyFigure({
+  value,
+  label,
+  note,
+  className,
+}: {
+  value: ReactNode
+  label: string
+  note?: string
+  className?: string
+}) {
+  return (
+    <div className={cn('border-ink-200 dark:border-white/10 border-l-2 border-l-brand-500 pl-4 dark:border-l-brand-400', className)}>
+      <p className="key-figure">
+        <span className="key-figure-value">{value}</span>
+        <span className="key-figure-label">{label}</span>
+      </p>
+      {note ? <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">{note}</p> : null}
+    </div>
+  )
+}
+
+const TICK_TONE = {
+  brand: 'tick-item',
+  mint: 'tick-item tick-item-mint',
+  quiet: 'tick-item tick-item-quiet',
+} as const
+
+/** A list marked by a small filled dot rather than a bullet glyph. */
+export function TickList({
+  items,
+  tone = 'brand',
+  className,
+}: {
+  items: ReactNode[]
+  tone?: keyof typeof TICK_TONE
+  className?: string
+}) {
+  return (
+    <ul className={cn('tick-list', className)}>
+      {items.map((item, i) => (
+        <li key={i} className={TICK_TONE[tone]}>
+          {item}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** The square that carries a step, rank or index digit. */
+export function NumMarker({
+  tone = 'brand',
+  className,
+  children,
+}: {
+  tone?: 'brand' | 'mint' | 'quiet'
+  className?: string
+  children: ReactNode
+}) {
+  return (
+    <span
+      className={cn(
+        'num-marker',
+        tone === 'mint' && 'num-marker-mint',
+        tone === 'quiet' && 'num-marker-quiet',
+        className,
+      )}
+    >
+      {children}
+    </span>
+  )
+}
+
 export function CtaBand({
   title,
   description,

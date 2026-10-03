@@ -92,7 +92,7 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
       </div>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
-          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ No negative marking:</span> Select one best answer. Always guess if you are unsure.
+          <span className="font-semibold text-mint-600 dark:text-mint-300">✓ No negative marking:</span> Select one best answer. Always guess if you are unsure.
         </p>
       ) : null}
     </fieldset>
@@ -200,7 +200,7 @@ function DropdownBlanks({ item, response, onChange, examMode }: Props) {
       </p>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-400 mt-4 text-xs">
-          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ Partial credit:</span> Each correct blank earns 1 point with no penalty for errors. Read the whole text before choosing.
+          <span className="font-semibold text-mint-600 dark:text-mint-300">✓ Partial credit:</span> Each correct blank earns 1 point with no penalty for errors. Read the whole text before choosing.
         </p>
       ) : null}
     </div>
@@ -249,7 +249,7 @@ function InlineBlanks({ item, response, onChange, examMode }: Props) {
       </p>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-400 mt-4 text-xs">
-          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ Partial credit:</span> +1 per correct word. Fill every blank before proceeding.
+          <span className="font-semibold text-mint-600 dark:text-mint-300">✓ Partial credit:</span> +1 per correct word. Fill every blank before proceeding.
         </p>
       ) : null}
     </div>
@@ -320,7 +320,7 @@ function TableBlanks({ table, response, onChange, examMode, prompt }: Omit<Props
       </div>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
-          <span className="font-semibold text-mint-600 dark:text-mint-400">✓ Partial credit:</span> Each blank is scored separately (+1 each, no penalty).
+          <span className="font-semibold text-mint-600 dark:text-mint-300">✓ Partial credit:</span> Each blank is scored separately (+1 each, no penalty).
         </p>
       ) : null}
     </div>

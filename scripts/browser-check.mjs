@@ -255,6 +255,55 @@ for (const route of ROUTES) {
           description: document.querySelector('meta[name=description]')?.getAttribute('content') ?? '',
           jsonLd: document.querySelectorAll('script[type="application/ld+json"]').length,
           interactive: document.querySelectorAll('a[href], button, input, select, textarea').length,
+          // A section band escapes the page shell with a negative margin, which
+          // is only safe while the shell is centred — assert the rendered
+          // geometry rather than trusting the arithmetic.
+          overflowX: document.documentElement.scrollWidth - window.innerWidth,
+          bands: document.querySelectorAll('.band, .band-plain, .band-flush, .band-flush-plain').length,
+          bandOvershoot: [...document.querySelectorAll('.band, .band-plain')].some((b) => {
+            const r = b.getBoundingClientRect()
+            return r.left < -1 || r.right > window.innerWidth + 1
+          }),
+          // A band whose ground never resolved would read as a stray hairline.
+          bandGroundOk: [...document.querySelectorAll('.band, .band-flush')].every(
+            (b) => getComputedStyle(b).backgroundImage !== 'none',
+          ),
+          callouts: document.querySelectorAll('.callout, .callout-rule').length,
+          // Structure, which a component refactor silently breaks: a heading
+          // level skipped, an aria-labelledby pointing at nothing, an in-page
+          // link to a target that was renamed.
+          headingSkips: (() => {
+            const levels = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')]
+              .filter((h) => h.getClientRects().length > 0)
+              .map((h) => Number(h.tagName[1]))
+            const skips = []
+            for (let i = 1; i < levels.length; i++) {
+              if (levels[i] - levels[i - 1] > 1) skips.push(levels[i - 1] + '→' + levels[i])
+            }
+            return skips
+          })(),
+          danglingLabels: [...document.querySelectorAll('[aria-labelledby]')]
+            // Split on a literal space rather than a whitespace class: this
+            // expression lives inside a template literal, where the backslash of
+            // an escape is consumed before the browser ever sees it.
+            .flatMap((el) => (el.getAttribute('aria-labelledby') || '').split(' '))
+            .filter((id) => id && !document.getElementById(id)),
+          danglingAnchors: [...document.querySelectorAll('a[href^="#"]')]
+            .map((a) => (a.getAttribute('href') || '').slice(1))
+            .filter((id) => id && !document.getElementById(id)),
+          // The route transition is the one animation every navigation runs, so
+          // its weight is asserted rather than eyeballed: it has to resolve to
+          // the shared keyframe inside a sane band, not to nothing and not to
+          // something slow enough to delay the page.
+          routeEnter: (() => {
+            const el = document.querySelector('.route-enter')
+            if (!el) return null
+            const cs = getComputedStyle(el)
+            return {
+              name: cs.animationName,
+              ms: Math.round(parseFloat(cs.animationDuration) * 1000),
+            }
+          })(),
         });
       })()`,
       returnByValue: true,
@@ -278,6 +327,18 @@ for (const route of ROUTES) {
   report(data.title.length > 10, `${label.padEnd(14)} has a title`, data.title)
   report(data.description.length > 40, `${label.padEnd(14)} has a meta description`)
   report(data.canonical.length > 0, `${label.padEnd(14)} has a canonical`, data.canonical)
+  report(data.overflowX <= 1, `${label.padEnd(14)} does not scroll sideways`, `overflows by ${data.overflowX}px`)
+  report(!data.bandOvershoot, `${label.padEnd(14)} bands span the shell without overshooting`)
+  report(data.bandGroundOk, `${label.padEnd(14)} band grounds resolve`)
+  report(data.callouts <= 3, `${label.padEnd(14)} uses at most three tinted callouts`, `${data.callouts}`)
+  report(data.headingSkips.length === 0, `${label.padEnd(14)} skips no heading level`, data.headingSkips.join(' '))
+  report(data.danglingLabels.length === 0, `${label.padEnd(14)} aria-labelledby all resolve`, data.danglingLabels.join(' '))
+  report(data.danglingAnchors.length === 0, `${label.padEnd(14)} in-page links resolve`, data.danglingAnchors.join(' '))
+report(
+  data.routeEnter === null || (data.routeEnter.name === 'route-enter' && data.routeEnter.ms >= 200 && data.routeEnter.ms <= 400),
+  `${label.padEnd(14)} route transition is the shared one, weighted right`,
+  data.routeEnter ? `${data.routeEnter.name} ${data.routeEnter.ms}ms` : 'no route-enter element',
+)
   report(!hydrationWarning, `${label.padEnd(14)} hydrates without mismatch`, hydrationWarning ?? '')
   report(pageErrors.length === 0, `${label.padEnd(14)} has no uncaught exceptions`, pageErrors.join(' | '))
   report(realErrors.length === 0, `${label.padEnd(14)} has no console errors`, realErrors.join(' | ').slice(0, 160))
@@ -732,7 +793,15 @@ for (const route of ROUTES) {
 
   for (const slug of QUESTION_TYPE_SLUGS) {
     await send('Page.navigate', { url: `${BASE}/question-types/${slug}/` }, sessionId)
-    await sleep(1100)
+    // Wait for the document to be ready rather than sleeping a fixed amount.
+    // Under load a page intermittently had not rendered within the old fixed
+    // 1100ms, which produced confident failures about missing canonicals,
+    // breadcrumbs and headings on a page that was simply not there yet.
+    for (let i = 0; i < 40; i++) {
+      const ready = await evaluate("document.readyState === 'complete' && !!document.querySelector('main h1') && !!document.querySelector('link[rel=canonical]')")
+      if (ready === true) break
+      await sleep(150)
+    }
     titles.add((await evaluate('document.title')) ?? '')
     descriptions.add((await evaluate("document.querySelector('meta[name=description]')?.content ?? ''")) ?? '')
     canonicals.add((await evaluate("document.querySelector('link[rel=canonical]')?.href ?? ''")) ?? '')
@@ -1135,6 +1204,57 @@ for (const route of ROUTES) {
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })
 }
+
+// --- section furniture at narrow widths -------------------------------------
+//
+// A band escapes the page shell's gutters with a negative margin, and that
+// margin is breakpoint-dependent (-mx-4 / sm:-mx-6 / lg:-mx-8). The desktop pass
+// above therefore proves one width out of three; the geometry is measured again
+// at each breakpoint on the routes that actually carry a band.
+
+for (const width of [390, 768, 1100]) {
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Page.enable', {}, sessionId)
+  await send('Emulation.setDeviceMetricsOverride', {
+    width,
+    height: 900,
+    deviceScaleFactor: 1,
+    mobile: width < 700,
+  }, sessionId)
+
+  for (const route of ['/', '/about', '/guide', '/format', '/question-types/']) {
+    await send('Page.navigate', { url: BASE + route }, sessionId)
+    await sleep(900)
+    const probe = await send(
+      'Runtime.evaluate',
+      {
+        expression: `(() => {
+          const bands = [...document.querySelectorAll('.band, .band-plain, .band-flush, .band-flush-plain')]
+          const bad = bands.filter((el) => {
+            const r = el.getBoundingClientRect()
+            return r.left < -1 || r.right > window.innerWidth + 1
+          })
+          return { overflow: document.documentElement.scrollWidth - window.innerWidth,
+                   bands: bands.length, bad: bad.length }
+        })()`,
+        returnByValue: true,
+      },
+      sessionId,
+    )
+    const v = probe.result.value
+    report(
+      v.overflow <= 1 && v.bad === 0,
+      `${route.padEnd(14)} furniture at ${width}px keeps its geometry`,
+      `overflow ${v.overflow}px · ${v.bad}/${v.bands} bands off-edge`,
+    )
+  }
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
 ws.close()
 chrome.kill()
 // Chrome keeps writing to its profile for a moment after the kill signal.

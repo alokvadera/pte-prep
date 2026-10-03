@@ -155,7 +155,7 @@
   --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-glide: cubic-bezier(0.16, 1, 0.3, 1);
 
-  --animate-rise-in: rise-in 0.7s var(--ease-settle) both;
+  --animate-rise-in: rise-in 0.6s var(--ease-settle) both;
   --animate-pop-in: pop-in 0.9s var(--ease-pop) both;
   --animate-float-slow: float-slow 6s ease-in-out infinite;
   --animate-bob: bob 3.6s ease-in-out infinite;
@@ -457,6 +457,28 @@
     color-scheme: dark;
   }
 
+  /* The one tinted ground on the site: a slow diagonal wash from the page
+     ground, through a 40% brand mix at the midpoint, and back. Declared once as
+     a variable so the section band and `bg-gradient-subtle` cannot drift into
+     two slightly different tints, which is what had started to happen. */
+  :root {
+    --ground-tint: linear-gradient(
+      135deg,
+      var(--color-ink-50) 0%,
+      color-mix(in oklab, var(--color-brand-50) 40%, var(--color-ink-50)) 50%,
+      var(--color-ink-50) 100%
+    );
+  }
+
+  .dark {
+    --ground-tint: linear-gradient(
+      135deg,
+      var(--color-ink-900) 0%,
+      color-mix(in oklab, var(--color-brand-900) 30%, var(--color-ink-900)) 50%,
+      var(--color-ink-900) 100%
+    );
+  }
+
   .route-enter {
     animation: var(--animate-route-enter);
   }
@@ -546,6 +568,22 @@
     field-sizing: content;
   }
 
+  /* Reduced motion, in two parts.
+
+     The blanket reset below is the safety net: nothing loops, nothing travels,
+     nothing is delayed. It stays, because it also covers the animations nobody
+     remembered to register — the drift, the gradient pan, the shimmer.
+
+     On top of it, the entrances are re-pointed at the one keyframe that only
+     changes opacity. A visitor who asks for reduced motion is not asking for a
+     website that feels broken; they are asking not to be moved across the
+     screen. A 180ms fade gives them the arrival without the travel, which the
+     blanket reset could not do — it left every entrance simply switched off,
+     so a route change was an instant jump with no sense of having happened.
+
+     Anything driven by React (Reveal, Tilt, CountUp) does not arm at all under
+     this preference, so that content is in its resolved state from the first
+     paint and there is nothing left here to soften. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -556,9 +594,45 @@
          for 400ms. */
       animation-delay: 0.01ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      transition-delay: 0s !important;
       scroll-behavior: auto !important;
+      /* Promoted layers exist only to animate; with nothing animating they are
+         pure memory. */
+      will-change: auto !important;
+    }
+
+    /* Colour and opacity still get a real, short transition. A hover or a
+       selected state that snaps is disorienting in a different way, and a value
+       change is not what this preference is about — `transition-property` is
+       narrowed so nothing is translated or scaled. */
+    *,
+    *::before,
+    *::after {
+      transition-property: color, background-color, border-color, fill, stroke, opacity, box-shadow !important;
+      transition-duration: 0.15s !important;
+      transition-timing-function: var(--ease-settle) !important;
+    }
+
+    /* Every entrance becomes the opacity-only fade. Listed by animation class
+       rather than by keyframe name so a component cannot silently keep a
+       transform; anything not on this list still gets the blanket reset. */
+    .route-enter,
+    .animate-fade-in,
+    .animate-rise-in,
+    .animate-pop-in,
+    .animate-slide-up,
+    .animate-slide-down,
+    .animate-scale-in,
+    .animate-rotate-in,
+    .animate-drawer-enter,
+    .animate-modal-enter,
+    .animate-question-enter {
+      animation: fade-in 0.18s ease-out both !important;
+    }
+
+    /* A bar that grows is a measurement being drawn, not decoration — but it
+       still arrives as a fade so the panel does not slide. */
+    .animate-bar-reveal {
+      animation: fade-in 0.25s ease-out both !important;
     }
   }
 }
@@ -623,7 +697,10 @@
 }
 
 @utility page-heading {
-  @apply mb-10 flex flex-wrap items-end justify-between gap-5;
+  /* The hairline under every page header is what makes fourteen routes read as
+     one product: it separates "what this page is" from "what is on it" without
+     adding a surface, and it is the only furniture the page heading needs. */
+  @apply mb-8 flex flex-wrap items-end justify-between gap-x-5 gap-y-4 border-b pb-6;
 }
 
 @utility page-heading-kicker {
@@ -633,6 +710,161 @@
 @utility section-title {
   @apply font-display text-ink-900 dark:text-white text-2xl font-bold leading-[1.2] text-balance;
   letter-spacing: -0.025em;
+}
+
+/* ---------------------------------------------------------------------------
+   Section furniture.
+
+   The vocabulary a long page uses to break itself into parts. Every one of
+   these began as a pattern hand-written on two or more routes with slightly
+   different values — two callout treatments that were nearly the same colour,
+   three numbered markers at three sizes, one band on Home and none anywhere
+   else. They are named here once so the pages can stop inventing them.
+
+   All of it is built from existing tokens; nothing here introduces a colour.
+   --------------------------------------------------------------------------- */
+
+/* The mono eyebrow that opens a section, with the leading hairline that used to
+   be assembled inline by SectionHeading. A page that is not using the component
+   still gets the same kicker. */
+@utility section-eyebrow {
+  @apply text-ink-500 dark:text-ink-400 mb-2 flex items-center gap-2 font-mono text-micro uppercase tracking-wider;
+
+  &::before {
+    content: '';
+    @apply bg-brand-500 dark:bg-brand-400 inline-block h-px w-5 shrink-0;
+  }
+}
+
+/* The square that carries a step, rank or index digit. */
+@utility num-marker {
+  @apply bg-brand-500 grid size-7 shrink-0 place-items-center rounded-lg font-mono text-xs font-bold text-white tabular-nums;
+}
+
+@utility num-marker-mint {
+  @apply bg-mint-500;
+}
+
+@utility num-marker-quiet {
+  @apply bg-ink-100 text-ink-600 dark:bg-white/8 dark:text-ink-200;
+}
+
+/* A callout: the one tinted panel on a page that says the thing to remember.
+   Tones are roles, not decoration — brand for guidance, mint for a confirmed
+   positive, amber for caution, rose for the mistake being corrected. */
+@utility callout {
+  @apply rounded-lg border border-brand-500/30 bg-brand-500/5 p-5 dark:border-brand-400/30 dark:bg-brand-500/10;
+}
+
+@utility callout-mint {
+  @apply border-mint-500/30 bg-mint-500/6 dark:border-mint-400/30 dark:bg-mint-500/10;
+}
+
+@utility callout-amber {
+  @apply border-amber-500/30 bg-amber-500/5 dark:border-amber-400/30 dark:bg-amber-500/10;
+}
+
+@utility callout-rose {
+  @apply border-rose-brand/30 bg-rose-brand/5 dark:border-rose-400/30 dark:bg-rose-brand/10;
+}
+
+/* The left-rule variant: one rule down the side instead of a full border, for a
+   note that sits inside another surface rather than beside it. */
+@utility callout-rule {
+  @apply rounded-r-lg border-0 border-l-4 border-l-brand-500 bg-brand-500/5 p-4 dark:border-l-brand-400 dark:bg-brand-500/10;
+}
+
+/* The callout's own label. Mono, uppercase, in the tone's ink. */
+@utility callout-title {
+  @apply text-brand-700 dark:text-brand-300 font-mono text-micro font-semibold tracking-wider uppercase;
+}
+
+@utility callout-title-mint {
+  @apply text-mint-700 dark:text-mint-300;
+}
+
+@utility callout-title-amber {
+  @apply text-amber-700 dark:text-amber-300;
+}
+
+@utility callout-title-rose {
+  @apply text-rose-600 dark:text-rose-300;
+}
+
+/* A band: a wide field that separates one group of sections from the next.
+   Home hand-wrote this twice as inline utilities; the interior pages had none
+   at all, which is why they read as one undifferentiated column.
+
+   The band escapes the page shell's gutters with a matching negative margin and
+   puts them straight back as its own padding, so its ground spans the shell's
+   full width while its content still lines up with every section above and
+   below — edge to edge on a phone, a wide field inside the measure on a
+   desktop. Done this way rather than with `100vw`, which overflows by the width
+   of a classic scrollbar and would introduce a horizontal one. */
+@utility band {
+  @apply border-ink-200 dark:border-white/10 -mx-4 border-y px-4 py-12 sm:-mx-6 sm:px-6 sm:py-16 lg:-mx-8 lg:px-8;
+  background: var(--ground-tint);
+}
+
+/* The quiet variant: a lift in value rather than a tint, for a second band on a
+   page whose first one already carries the colour. */
+@utility band-plain {
+  @apply border-ink-200 dark:border-white/10 -mx-4 border-y bg-white/60 px-4 py-12 sm:-mx-6 sm:px-6 sm:py-16 lg:-mx-8 lg:px-8 dark:bg-white/3;
+}
+
+/* The same two bands for an element that is already outside a page shell (Home,
+   the 404, Result and the test runner do not use PageWrapper). Same grounds and
+   hairlines, no gutter to escape, because there is nothing above to escape from. */
+@utility band-flush {
+  @apply border-ink-200 dark:border-white/10 border-y py-12 sm:py-16;
+  background: var(--ground-tint);
+}
+
+@utility band-flush-plain {
+  @apply bg-white/60 border-ink-200 dark:border-white/10 border-y py-12 sm:py-16 dark:bg-white/3;
+}
+
+/* A key figure: the one number a section exists to state, set in the mono data
+   voice at display size with its own hairline. Used where a figure carries more
+   than the sentence around it. */
+@utility key-figure {
+  @apply flex flex-wrap items-baseline gap-x-3 gap-y-1;
+}
+
+@utility key-figure-value {
+  @apply font-mono text-ink-900 text-3xl font-bold tabular-nums tracking-[-0.03em] sm:text-4xl dark:text-white;
+}
+
+@utility key-figure-label {
+  @apply text-ink-500 dark:text-ink-400 text-sm font-medium;
+}
+
+/* A list whose items are marked by a small tick or rule rather than a bullet
+   glyph. The tick is a rule rotated 45deg so it scales with type size instead
+   of shipping an icon per item. */
+@utility tick-list {
+  @apply space-y-3;
+}
+
+@utility tick-item {
+  @apply text-ink-600 dark:text-ink-200 flex gap-3 leading-relaxed;
+
+  &::before {
+    content: '';
+    @apply bg-brand-500 dark:bg-brand-300 mt-2.5 size-1.5 shrink-0 rounded-full;
+  }
+}
+
+@utility tick-item-mint {
+  &::before {
+    @apply bg-mint-500 dark:bg-mint-300;
+  }
+}
+
+@utility tick-item-quiet {
+  &::before {
+    @apply bg-ink-300 dark:bg-ink-500;
+  }
 }
 
 @utility choice-card {
@@ -680,6 +912,45 @@
 
 .dark .divider-soft {
   @apply border-white/6;
+}
+
+/* The one table treatment. Five pages were hand-rolling the same header and
+   cell classes, which is how three data tables ended up with two different
+   header greys and three different row heights. The utility owns the structure —
+   alignment, header voice, cell padding, row rules — and call sites keep the
+   semantic classes that carry meaning: `tabular-nums`, `font-semibold`,
+   `whitespace-nowrap`, and the per-column ink. */
+/* Links, in the three families a page actually uses. These were ~20 inline
+   class strings, split between brand-300 and brand-400 for dark mode, and the
+   prose family had no hover state at all while everything else did. */
+@utility link-inline {
+  @apply text-brand-600 dark:text-brand-300 underline underline-offset-2 transition-colors hover:text-brand-700 dark:hover:text-brand-200;
+}
+
+/* A link that behaves as a card title: the whole row is the target, so the
+   hover lands on the ink, not on an underline. */
+@utility link-card {
+  @apply text-ink-900 dark:text-white font-semibold transition-colors hover:text-brand-600 dark:hover:text-brand-300;
+}
+
+@utility table-data {
+  @apply w-full border-collapse text-left text-sm;
+
+  & thead th {
+    @apply text-ink-500 dark:text-ink-400 border-ink-200 dark:border-white/10 border-b px-4 py-3 text-xs font-bold tracking-wider uppercase;
+  }
+
+  & tbody td {
+    @apply border-ink-100 dark:border-white/6 border-b px-4 py-3 align-middle;
+  }
+
+  & tbody tr:last-child td {
+    @apply border-b-0;
+  }
+
+  & caption {
+    @apply text-ink-500 dark:text-ink-400 mt-3 text-left text-xs;
+  }
 }
 
 @utility card-interactive {
@@ -821,21 +1092,7 @@
 }
 
 @utility bg-gradient-subtle {
-  background: linear-gradient(
-    135deg,
-    var(--color-ink-50) 0%,
-    color-mix(in oklab, var(--color-brand-50) 40%, var(--color-ink-50)) 50%,
-    var(--color-ink-50) 100%
-  );
-}
-
-.dark .bg-gradient-subtle {
-  background: linear-gradient(
-    135deg,
-    var(--color-ink-900) 0%,
-    color-mix(in oklab, var(--color-brand-900) 30%, var(--color-ink-900)) 50%,
-    var(--color-ink-900) 100%
-  );
+  background: var(--ground-tint);
 }
 
 @utility bg-mesh-gradient {
@@ -1151,7 +1408,11 @@
     display: block;
     border-radius: 9999px;
     filter: blur(72px);
-    opacity: 0.34;
+    /* Measured contribution to the hero pixels: mean 13.7 and p95 61 of 255
+       levels in light. That is a wash you can see without it competing with the
+       headline, which sits at 4.75:1 over it. Dark sits lower because a bright
+       blob reads stronger against a dark ground. */
+    opacity: 0.32;
   }
   .hero-aurora .aurora-1 {
     width: 32rem;
@@ -1178,7 +1439,45 @@
     animation: drift 30s ease-in-out infinite alternate;
   }
   .dark .hero-aurora span {
-    opacity: 0.24;
+    opacity: 0.22;
+  }
+
+  /* On a phone the hero is 390px wide and these blobs are 384–512px across, so
+     three of them blanket the entire section instead of sitting in its corners.
+     Measured at 390px: the aurora's contribution rose from a mean of 13/255 on a
+     desktop to 35/255, and the headline over it fell to 2.86:1 — below the 3.0
+     floor for large text. The field is scaled back to the corners it was drawn
+     for, so the title keeps a clean ground on every viewport. */
+  @media (max-width: 40rem) {
+    .hero-aurora span {
+      filter: blur(56px);
+      opacity: 0.26;
+    }
+
+    .dark .hero-aurora span {
+      opacity: 0.19;
+    }
+
+    .hero-aurora .aurora-1 {
+      width: 19rem;
+      height: 19rem;
+      top: -7rem;
+      left: -6rem;
+    }
+
+    .hero-aurora .aurora-2 {
+      width: 17rem;
+      height: 17rem;
+      top: -4rem;
+      right: -6rem;
+    }
+
+    .hero-aurora .aurora-3 {
+      width: 14rem;
+      height: 14rem;
+      bottom: -4rem;
+      left: 30%;
+    }
   }
 
   /* An animated gradient that can be clipped to text.
@@ -1195,11 +1494,15 @@
   }
   @supports ((-webkit-background-clip: text) or (background-clip: text)) {
     .text-gradient-move {
+      /* The lightest stop is a mix rather than raw brand-400. brand-400 over the
+         aurora-tinted ground measured 3.39:1 — passing the 3.0 large-text floor
+         but with almost no room, and the gradient pans, so any stop can land
+         under any glyph. Mixed toward brand-600 it holds well clear. */
       background-image: linear-gradient(
         100deg,
         var(--color-brand-700),
         var(--color-brand-500),
-        var(--color-brand-400),
+        color-mix(in oklab, var(--color-brand-400) 55%, var(--color-brand-600)),
         var(--color-brand-600),
         var(--color-brand-700)
       );
@@ -1228,19 +1531,10 @@
     animation: gradient-pan 7s ease infinite;
   }
 
-  /* Card lift: a small rise and a coloured hairline on hover. */
-  .card-lift {
-    transition: translate 0.35s var(--ease-settle), box-shadow 0.35s var(--ease-settle), border-color 0.3s;
-  }
-  .card-lift:hover {
-    translate: 0 -5px;
-    border-color: color-mix(in oklab, var(--color-brand-400) 60%, var(--color-ink-200));
-    box-shadow: 0 18px 40px -22px rgb(23 86 176 / 0.45);
-  }
-  .dark .card-lift:hover {
-    border-color: color-mix(in oklab, var(--color-brand-300) 45%, transparent);
-    box-shadow: 0 22px 46px -20px rgb(0 0 0 / 0.7);
-  }
+  /* NB: a `.card-lift` rule briefly lived here as a third hover treatment. It
+     was never applied anywhere — `card-interactive` already owns the card hover
+     (lift, hairline, corner glow) and `.practice-float` owns the collage's — so
+     it was removed rather than left as a second, competing definition. */
 
   /* 3D tilt stage. The inner layer leans; the glare tracks the cursor. */
   .tilt {

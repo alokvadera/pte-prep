@@ -23,11 +23,27 @@
 import { spawn } from 'node:child_process'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
+import zlib from 'node:zlib'
 import path from 'node:path'
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 
-const BASE = (process.argv[2] ?? 'http://localhost:5200').replace(/\/+$/, '')
-const OUT_DIR = path.resolve('design-lab/motion-review')
+// Usage: node scripts/motion-review.mjs [baseUrl] [--width=390] [--height=844]
+//
+// The viewport is a flag because the motion that matters on a phone is different:
+// a sticky header, taller cards and a longer scroll mean fewer items are on
+// screen at once, and a reveal that settles in 600ms on a desktop can still be
+// running when the next one is scrolled to.
+const args = process.argv.slice(2)
+const numericFlag = (name, fallback) => {
+  const hit = args.find((a) => a.startsWith(`--${name}=`))
+  const value = hit ? Number(hit.split('=')[1]) : NaN
+  return Number.isFinite(value) && value > 0 ? value : fallback
+}
+const BASE = (args.find((a) => !a.startsWith('--')) ?? 'http://localhost:5200').replace(/\/+$/, '')
+const WIDTH = numericFlag('width', 1280)
+const HEIGHT = numericFlag('height', 900)
+const MOBILE = WIDTH < 700
+const OUT_DIR = path.resolve(MOBILE ? 'design-lab/motion-review/mobile' : 'design-lab/motion-review')
 
 const CANDIDATES = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -54,6 +70,15 @@ const ROUTES = [
   { path: '/practice', name: 'practice' },
 ]
 
+/**
+ * The lean budget, read from the component's own default. A reviewer that
+ * hard-codes its own copy of a tuning constant starts describing a site that no
+ * longer exists, so this one cannot drift.
+ */
+const TILT_TRAVEL = Number(
+  readFileSync('src/components/ui/motion.tsx', 'utf8').match(/travel = (\d+)/)?.[1] ?? 26,
+)
+
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-motion-'))
 const PORT = 9335
 const chrome = spawn(
@@ -68,7 +93,7 @@ const chrome = spawn(
     // frame numbers would measure the software rasteriser rather than the CSS.
     '--disable-gpu',
     '--hide-scrollbars',
-    '--window-size=1280,900',
+    `--window-size=${WIDTH},${HEIGHT}`,
     'about:blank',
   ],
   { stdio: 'ignore' },
@@ -149,6 +174,185 @@ async function setReducedMotion(reduce) {
   )
 }
 
+// --- pixels ----------------------------------------------------------------
+//
+// The hero is the one place where two expressive layers stack: the drifting
+// aurora behind, the animated gradient title in front. Neither the token
+// contrast audit nor the computed styles can say whether the result is still
+// legible, so the hero is measured from the rendered pixels.
+
+/** Minimal decoder for the 8-bit RGB/RGBA PNGs CDP returns. */
+function decodePng(buf) {
+  if (buf.readUInt32BE(0) !== 0x89504e47) throw new Error('not a PNG')
+  let off = 8
+  let width = 0
+  let height = 0
+  let bitDepth = 0
+  let colorType = 0
+  const idat = []
+  while (off < buf.length) {
+    const len = buf.readUInt32BE(off)
+    const type = buf.toString('ascii', off + 4, off + 8)
+    const data = buf.subarray(off + 8, off + 8 + len)
+    if (type === 'IHDR') {
+      width = data.readUInt32BE(0)
+      height = data.readUInt32BE(4)
+      bitDepth = data[8]
+      colorType = data[9]
+    } else if (type === 'IDAT') idat.push(data)
+    else if (type === 'IEND') break
+    off += 12 + len
+  }
+  if (bitDepth !== 8 || (colorType !== 6 && colorType !== 2)) {
+    throw new Error(`unsupported PNG (${bitDepth}-bit, colour type ${colorType})`)
+  }
+  const bpp = colorType === 6 ? 4 : 3
+  const raw = zlib.inflateSync(Buffer.concat(idat))
+  const stride = width * bpp
+  const out = Buffer.alloc(width * height * bpp)
+  let pos = 0
+  for (let y = 0; y < height; y++) {
+    const filter = raw[pos++]
+    const line = raw.subarray(pos, pos + stride)
+    pos += stride
+    const o = y * stride
+    const prev = o - stride
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? out[o + x - bpp] : 0
+      const b = y > 0 ? out[prev + x] : 0
+      const c = x >= bpp && y > 0 ? out[prev + x - bpp] : 0
+      let v = line[x]
+      if (filter === 1) v = (v + a) & 255
+      else if (filter === 2) v = (v + b) & 255
+      else if (filter === 3) v = (v + ((a + b) >> 1)) & 255
+      else if (filter === 4) {
+        const p = a + b - c
+        const pa = Math.abs(p - a)
+        const pb = Math.abs(p - b)
+        const pc = Math.abs(p - c)
+        const pr = pa <= pb && pa <= pc ? a : pb <= pc ? b : c
+        v = (v + pr) & 255
+      }
+      out[o + x] = v
+    }
+  }
+  return { width, height, bpp, data: out }
+}
+
+const relLum = (r, g, b) => {
+  const f = (c) => {
+    const s = c / 255
+    return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+  }
+  return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+}
+
+/**
+ * Contrast of each glyph pixel against its own local background.
+ *
+ * `fg` is the render, `bg` the same frame with the text hidden. Subtracting the
+ * two per pixel gives the true background under every glyph — necessary because
+ * the aurora makes the backdrop non-uniform, so no single "background colour"
+ * can be sampled from the box.
+ */
+function glyphContrast(fg, bg, box) {
+  const W = box.x1 - box.x0
+  const H = box.y1 - box.y0
+  if (W <= 2 || H <= 2) return { min: Infinity, below3: 0, below45: 0, glyphs: 0, fgWorst: null, bgWorst: null }
+
+  const dist = new Int32Array(W * H)
+  const lum = new Float64Array(W * H)
+  const bgLum = new Float64Array(W * H)
+  for (let y = 0; y < H; y++) {
+    for (let x = 0; x < W; x++) {
+      const i = ((box.y0 + y) * fg.width + (box.x0 + x)) * fg.bpp
+      const fr = fg.data[i]
+      const fgc = fg.data[i + 1]
+      const fb = fg.data[i + 2]
+      dist[y * W + x] = Math.max(Math.abs(fr - bg.data[i]), Math.abs(fgc - bg.data[i + 1]), Math.abs(fb - bg.data[i + 2]))
+      lum[y * W + x] = relLum(fr, fgc, fb)
+      bgLum[y * W + x] = relLum(bg.data[i], bg.data[i + 1], bg.data[i + 2])
+    }
+  }
+
+  let min = Infinity
+  let below3 = 0
+  let below45 = 0
+  let glyphs = 0
+  let fgWorst = null
+  let bgWorst = null
+  for (let y = 1; y < H - 1; y++) {
+    for (let x = 1; x < W - 1; x++) {
+      const k = y * W + x
+      const d = dist[k]
+      if (d <= 60) continue
+      // Keep only stroke cores: pixels whose colour-distance from the backdrop is
+      // a local maximum. An antialiased edge is a blend of glyph and backdrop and
+      // would otherwise be scored as if it were the text's own colour.
+      let isCore = true
+      for (let dy = -1; dy <= 1 && isCore; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue
+          if (dist[(y + dy) * W + (x + dx)] > d) {
+            isCore = false
+            break
+          }
+        }
+      }
+      if (!isCore) continue
+      glyphs++
+      const lf = lum[k]
+      const lb = bgLum[k]
+      const ratio = (Math.max(lf, lb) + 0.05) / (Math.min(lf, lb) + 0.05)
+      if (ratio < min) {
+        min = ratio
+        const i = ((box.y0 + y) * fg.width + (box.x0 + x)) * fg.bpp
+        fgWorst = `rgb(${fg.data[i]},${fg.data[i + 1]},${fg.data[i + 2]})`
+        bgWorst = `rgb(${bg.data[i]},${bg.data[i + 1]},${bg.data[i + 2]})`
+      }
+      if (ratio < 3) below3++
+      if (ratio < 4.5) below45++
+    }
+  }
+  return { min, below3, below45, glyphs, fgWorst, bgWorst }
+}
+
+/**
+ * How much colour the aurora actually contributes to the hero pixels.
+ *
+ * `opacity: 0.34` through a 72px blur is not 34% of anything measurable, so the
+ * only honest reading of "is the aurora doing enough to be worth its cost?" is
+ * the delta it puts into the rendered frame. Returns mean and p95 channel
+ * difference, in 0–255 levels, over the given box.
+ */
+function pixelDelta(a, b, box) {
+  const deltas = []
+  for (let y = box.y0; y < box.y1; y += 2) {
+    for (let x = box.x0; x < box.x1; x += 2) {
+      const i = (y * a.width + x) * a.bpp
+      const d = Math.max(
+        Math.abs(a.data[i] - b.data[i]),
+        Math.abs(a.data[i + 1] - b.data[i + 1]),
+        Math.abs(a.data[i + 2] - b.data[i + 2]),
+      )
+      deltas.push(d)
+    }
+  }
+  if (!deltas.length) return { mean: 0, p95: 0, max: 0 }
+  deltas.sort((x, y) => x - y)
+  const sum = deltas.reduce((s, d) => s + d, 0)
+  return {
+    mean: +(sum / deltas.length).toFixed(1),
+    p95: deltas[Math.floor(deltas.length * 0.95)],
+    max: deltas[deltas.length - 1],
+  }
+}
+
+async function shootPng() {
+  const { data } = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }, sessionId)
+  return decodePng(Buffer.from(data, 'base64'))
+}
+
 // --- probes ----------------------------------------------------------------
 
 /** Static picture of the motion layer on the current route. */
@@ -161,15 +365,26 @@ const SNAPSHOT = `(() => {
     return Math.max(max, delay + dur)
   }, 0)
 
-  // Select every armed element, not only those already carrying data-shown: an
-  // element that never reveals never gets the attribute and would be missed.
-  const reveals = [...document.querySelectorAll('[data-armed]')]
+  // Every *Reveal* element, not only those already carrying data-shown: one that
+  // never reveals never gets the attribute and would otherwise be missed. The
+  // tagline rule also sets data-armed but resolves through data-revealed, so it
+  // is excluded.
+  const reveals = [...document.querySelectorAll('[data-armed]:not([data-reveal-rule])')]
   const hidden = reveals.filter((el) => el.dataset.shown !== 'true')
   // A hidden element that is on screen right now is invisible content.
-  const hiddenOnScreen = hidden.filter((el) => {
+  // The observer only fires once an element is 8% past the bottom edge, so
+  // "on screen" here has to mean the same thing or the bottom band reads as
+  // invisible content when it is simply not meant to have revealed yet.
+  const hiddenOnScreenEls = hidden.filter((el) => {
     const r = el.getBoundingClientRect()
-    return r.bottom > 0 && r.top < innerHeight && r.width > 0
-  }).length
+    if (!r.width || !r.height) return false
+    // Match what the observer itself requires: at least a tenth of the element
+    // inside a root shortened by 8% at the bottom. A looser test flags a card
+    // resting in the bottom band that is simply not meant to have revealed yet.
+    const visible = Math.min(innerHeight * 0.92, r.bottom) - Math.max(0, r.top)
+    return visible > 0 && visible / r.height >= 0.1
+  })
+  const hiddenOnScreen = hiddenOnScreenEls.length
 
   const aurora = [...document.querySelectorAll('.hero-aurora span')].map((el) => {
     const cs = getComputedStyle(el)
@@ -188,6 +403,10 @@ const SNAPSHOT = `(() => {
     revealCount: reveals.length,
     hiddenCount: hidden.length,
     hiddenOnScreen,
+    hiddenOnScreenTags: hiddenOnScreenEls.slice(0, 4).map((el) => {
+      const r = el.getBoundingClientRect()
+      return el.tagName.toLowerCase() + ' top' + Math.round(r.top) + ' h' + Math.round(r.height)
+    }),
     aurora,
     tiltCount: document.querySelectorAll('.tilt').length,
     durations,
@@ -205,12 +424,17 @@ const SCROLL_AND_SETTLE = `(async () => {
   }
   window.scrollTo(0, H)
   await new Promise((r) => setTimeout(r, 1400))
-  const reveals = [...document.querySelectorAll('[data-armed]')]
+  const reveals = [...document.querySelectorAll('[data-armed]:not([data-reveal-rule])')]
   const hidden = reveals.filter((el) => el.dataset.shown !== 'true')
   return {
     total: reveals.length,
     stillHidden: hidden.length,
-    hiddenTags: hidden.slice(0, 5).map((el) => (el.id ? '#' + el.id : el.className.toString().split(' ')[0])),
+    hiddenTags: hidden.slice(0, 6).map((el) => {
+      const r = el.getBoundingClientRect()
+      const cls = (typeof el.className === 'string' ? el.className : '').split(' ').filter(Boolean)[0] || ''
+      return el.tagName.toLowerCase() + (el.id ? '#' + el.id : '') + (cls ? '.' + cls : '') +
+        ' ' + Math.round(r.width) + 'x' + Math.round(r.height) + ' top' + Math.round(r.top)
+    }),
   }
 })()`
 
@@ -225,7 +449,7 @@ const REVEAL_LAG = `(async () => {
   document.documentElement.style.scrollBehavior = 'auto'
   window.scrollTo(0, 0)
   await new Promise((r) => setTimeout(r, 700))
-  const els = [...document.querySelectorAll('[data-armed]')]
+  const els = [...document.querySelectorAll('[data-armed]:not([data-reveal-rule])')]
   const seen = new Map()
   const iv = setInterval(() => {
     const t = performance.now()
@@ -292,22 +516,59 @@ const REDUCED_PROBE = `(() => {
   // The aurora keeps its animation name but its duration collapses to ~0.
   const auroraDur = [...document.querySelectorAll('.hero-aurora span')]
     .map((el) => parseFloat(getComputedStyle(el).animationDuration) || 0)
+
+  // What the entrance actually resolves to. The point of the reduced-motion
+  // layer is that an arrival still happens — as a fade. This reads the real
+  // computed animation rather than trusting the stylesheet.
+  const route = document.querySelector('.route-enter')
+  const routeCs = route ? getComputedStyle(route) : null
+
+  // Nothing anywhere may still be travelling: any running animation whose
+  // keyframes mention transform is a movement this preference asked to stop.
+  const moving = [...document.querySelectorAll('body *')].filter((el) => {
+    const cs = getComputedStyle(el)
+    if (parseFloat(cs.animationDuration) > 0.02 && cs.animationName !== 'none') {
+      for (const sheet of document.styleSheets) {
+        let rules
+        try { rules = sheet.cssRules } catch { continue }
+        for (const rule of rules) {
+          if (rule.type === CSSRule.KEYFRAMES_RULE && rule.name === cs.animationName) {
+            if (rule.cssText.includes('transform') || rule.cssText.includes('translate')) return true
+          }
+        }
+      }
+    }
+    return false
+  })
+
+  const btn = document.querySelector('a.btn-primary, button.btn-primary')
+  const btnCs = btn ? getComputedStyle(btn) : null
+
   return {
     armed,
     heroInvisible: invisibleHero,
     auroraMaxDuration: Math.round(Math.max(0, ...auroraDur) * 1000),
+    routeName: routeCs ? routeCs.animationName : '(no route-enter element)',
+    routeDuration: routeCs ? Math.round(parseFloat(routeCs.animationDuration) * 1000) : 0,
+    movingCount: moving.length,
+    buttonTransitionProperty: btnCs ? btnCs.transitionProperty : '',
+    buttonTransitionMs: btnCs ? Math.round(parseFloat(btnCs.transitionDuration) * 1000) : 0,
   }
 })()`
 
 // --- run -------------------------------------------------------------------
 
 await mkdir(OUT_DIR, { recursive: true })
-await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId)
+await send(
+  'Emulation.setDeviceMetricsOverride',
+  { width: WIDTH, height: HEIGHT, deviceScaleFactor: 1, mobile: MOBILE },
+  sessionId,
+)
 
 const findings = []
 const line = (s) => findings.push(s)
 
-line('\n  Motion review (headless Chrome, 1280×900)\n')
+line(`\n  Motion review (headless Chrome, ${WIDTH}×${HEIGHT}${MOBILE ? ', mobile' : ''})\n`)
 
 for (const route of ROUTES) {
   await evaluate('window.scrollTo(0,0); 1')
@@ -340,7 +601,7 @@ for (const route of ROUTES) {
 
   if (stuck) findings.push(`    FAIL  ${route.path}: ${scrolled.stillHidden} elements stayed hidden after a full scroll`)
   if (snap.hiddenOnScreen && snap.hiddenOnScreen > 0) {
-    findings.push(`    NOTE  ${route.path}: ${snap.hiddenOnScreen} armed-but-hidden elements on screen at rest`)
+    findings.push(`    NOTE  ${route.path}: ${snap.hiddenOnScreen} armed-but-hidden on screen at rest (${snap.hiddenOnScreenTags.join(', ')})`)
   }
   if (frames.p95 > 24) findings.push(`    NOTE  ${route.path}: p95 frame gap ${frames.p95}ms (above a 24ms budget)`)
   if (frames.long > 4) findings.push(`    NOTE  ${route.path}: ${frames.long} frames over 32ms while scrolling`)
@@ -348,6 +609,84 @@ for (const route of ROUTES) {
     findings.push(`    NOTE  ${route.path}: a card waited ${lag.worstLag}ms after entering view (stagger is index-based)`)
   }
 }
+
+// --- hero legibility over the aurora ---------------------------------------
+
+await navigate(BASE + '/', 2200)
+for (const theme of ['light', 'dark']) {
+  await evaluate(`document.documentElement.classList.toggle('dark', ${theme === 'dark'}); 1`)
+  await sleep(500)
+  const box = await evaluate(`(() => {
+    const h = document.querySelector('main h1')
+    if (!h) return null
+    const r = h.getBoundingClientRect()
+    return { x0: Math.max(0, Math.round(r.left)), y0: Math.max(0, Math.round(r.top)),
+             x1: Math.min(${WIDTH}, Math.round(r.right)), y1: Math.min(${HEIGHT}, Math.round(r.bottom)) }
+  })()`)
+  if (!box) continue
+  // Freeze every animation first. The aurora drifts and the title gradient pans,
+  // so two frames taken even 120ms apart differ all over the hero — and every
+  // moved background pixel would read as a glyph at roughly 1:1.
+  await evaluate(`(() => {
+    const s = document.createElement('style')
+    s.id = 'motion-freeze'
+    s.textContent = '*,*::before,*::after{animation:none !important;transition:none !important}'
+    document.head.appendChild(s)
+    return 1
+  })()`)
+  await sleep(80)
+  const withText = await shootPng()
+  await evaluate("document.querySelector('main h1').style.visibility = 'hidden'; 1")
+  await sleep(80)
+  const withoutText = await shootPng()
+  await evaluate("document.querySelector('main h1').style.visibility = ''; document.getElementById('motion-freeze')?.remove(); 1")
+
+  const c = glyphContrast(withText, withoutText, box)
+  const label = c.min === Infinity ? 'n/a' : c.min.toFixed(2) + ':1'
+  line(`\n  hero title over aurora (${theme}): worst core-glyph contrast ${label} ` +
+    `· ${c.below3} px under 3 (large) · ${c.below45} px under 4.5 · ${c.glyphs} core px` +
+    (c.fgWorst ? ` · worst ${c.fgWorst} on ${c.bgWorst}` : ''))
+  if (c.min < 3) findings.push(`    FAIL  hero title contrast ${label} in ${theme} theme (large text needs 3.0)`)
+  else if (c.min < 3.6) findings.push(`    NOTE  hero title contrast ${label} in ${theme} theme is close to the 3.0 floor`)
+  await screenshot(path.join(OUT_DIR, `hero-${theme}.png`))
+}
+await evaluate("document.documentElement.classList.remove('dark'); 1")
+
+// --- aurora strength ------------------------------------------------------
+
+await navigate(BASE + '/', 2000)
+for (const theme of ['light', 'dark']) {
+  await evaluate(`document.documentElement.classList.toggle('dark', ${theme === 'dark'}); 1`)
+  await sleep(400)
+  const box = await evaluate(`(() => {
+    const el = document.querySelector('.hero-aurora')
+    if (!el) return null
+    const r = el.getBoundingClientRect()
+    return { x0: Math.max(0, Math.round(r.left)), y0: Math.max(0, Math.round(r.top)),
+             x1: Math.min(${WIDTH}, Math.round(r.right)), y1: Math.min(${HEIGHT}, Math.round(r.bottom)) }
+  })()`)
+  if (!box) continue
+  // Freeze first: a drifting blob would differ between the two frames and every
+  // moved pixel would be counted as aurora.
+  await evaluate(`(() => {
+    const s = document.createElement('style')
+    s.id = 'motion-freeze'
+    s.textContent = '*,*::before,*::after{animation:none !important;transition:none !important}'
+    document.head.appendChild(s)
+    return 1
+  })()`)
+  await sleep(80)
+  const withAurora = await shootPng()
+  await evaluate("document.querySelector('.hero-aurora').style.visibility = 'hidden'; 1")
+  await sleep(80)
+  const withoutAurora = await shootPng()
+  await evaluate("document.querySelector('.hero-aurora').style.visibility = ''; document.getElementById('motion-freeze')?.remove(); 1")
+  const d = pixelDelta(withAurora, withoutAurora, box)
+  line(`\n  aurora contribution (${theme}): mean ${d.mean} · p95 ${d.p95} · max ${d.max} levels of 255`)
+  if (d.mean < 3) findings.push(`    NOTE  the aurora is nearly invisible in the ${theme} theme (mean ${d.mean}/255)`)
+  if (d.mean > 16) findings.push(`    NOTE  the aurora is heavy in the ${theme} theme (mean ${d.mean}/255) — competes with the headline`)
+}
+await evaluate("document.documentElement.classList.remove('dark'); 1")
 
 // --- tilt response ---------------------------------------------------------
 
@@ -363,23 +702,136 @@ const tiltBox = await evaluate(`(() => {
   const x = Math.round(r.left + r.width / 2)
   const y = Math.round(r.top + r.height / 2)
   const hit = document.elementFromPoint(x, y)
-  return { x, y, covered: hit ? el.contains(hit) || hit === el : false }
+  return { x, y, left: Math.round(r.left), top: Math.round(r.top),
+           right: Math.round(r.right), w: Math.round(r.width), h: Math.round(r.height),
+           covered: hit ? el.contains(hit) || hit === el : false }
 })()`)
 
 if (tiltBox) {
   // Two moves: the first establishes the pointer inside the element, which is
-  // what some engines require before they emit a pointermove.
+  // what some engines require before they emit a pointermove. The second goes
+  // for the corner — lean is proportional to the distance from centre, so a
+  // hit near the middle reads ~0deg and would say nothing about intensity.
   await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tiltBox.x, y: tiltBox.y }, sessionId)
   await sleep(80)
-  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tiltBox.x - 55, y: tiltBox.y - 35 }, sessionId)
-  await sleep(180)
-  const leaning = await evaluate(`document.querySelector('.tilt').style.getPropertyValue('--tilt-y')`)
+  await send(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseMoved', x: tiltBox.right - (tiltBox.w > 260 ? 14 : 6), y: tiltBox.top + (tiltBox.h > 180 ? 14 : 6) },
+    sessionId,
+  )
+  await sleep(220)
+  const lean = await evaluate(`(() => {
+    const el = document.querySelector('.tilt')
+    const s = el.style
+    return { x: s.getPropertyValue('--tilt-x').trim(), y: s.getPropertyValue('--tilt-y').trim(),
+             gx: s.getPropertyValue('--tilt-gx').trim(), gy: s.getPropertyValue('--tilt-gy').trim() }
+  })()`)
+  // How far the far edge actually travels: half the width times the sine of the
+  // lean. This is the number that makes two different surface sizes comparable,
+  // and the one the component's `travel` budget bounds.
+  const degrees = Math.abs(parseFloat(lean.y) || 0)
+  const shiftEstimate = Math.round((tiltBox.w / 2) * Math.sin((degrees * Math.PI) / 180))
   await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 4, y: 4 }, sessionId)
-  await sleep(260)
-  const rested = await evaluate(`document.querySelector('.tilt').style.getPropertyValue('--tilt-y')`)
-  line(`\n  tilt: pointer hit ${tiltBox.covered ? 'yes' : 'NO'} · lean ${leaning.trim() || '(unset)'} → rest ${rested.trim() || '(unset)'}`)
-  if (!leaning.trim() || leaning.trim() === '0deg') findings.push('    FAIL  tilt did not respond to a pointer move')
-  if (rested.trim() && rested.trim() !== '0deg') findings.push(`    NOTE  tilt did not reset (${rested.trim()})`)
+  await sleep(300)
+  const rested = await evaluate(`document.querySelector('.tilt').style.getPropertyValue('--tilt-y').trim()`)
+  line(`\n  tilt: pointer hit ${tiltBox.covered ? 'yes' : 'NO'} · stage ${tiltBox.w}x${tiltBox.h}`)
+  line(`    lean x ${lean.x || '(unset)'} · y ${lean.y || '(unset)'} · glare at ${lean.gx || '-'} ${lean.gy || '-'}`)
+  line(`    edge travel ${shiftEstimate}px at ${degrees.toFixed(2)}deg · rest ${rested || '(unset)'}`)
+  if (!lean.y || lean.y === '0deg') findings.push('    FAIL  tilt did not respond to a pointer move')
+  if (shiftEstimate < 6) {
+    findings.push(`    NOTE  tilt moves the edge only ${shiftEstimate}px — too slight to read as a lean`)
+  } else if (shiftEstimate > 30) {
+    findings.push(`    NOTE  tilt moves the edge ${shiftEstimate}px — far enough to disturb reading`)
+  }
+  if (rested && rested !== '0deg') findings.push(`    NOTE  tilt did not reset (${rested})`)
+}
+
+// Every stage on the page, sized by the rule the component applies: the lean is
+// capped so the outer edge travels about TILT_TRAVEL pixels, whatever surface
+// it is. The value itself is read from the component, not copied here.
+const stages = await evaluate(
+  `(() => [...document.querySelectorAll('.tilt')].map((el) => Math.round(el.getBoundingClientRect().width)))()`,
+)
+if (stages.length) {
+  const perStage = stages.map((w) => {
+    const half = w / 2
+    const byTravel =
+      half > TILT_TRAVEL ? (2 * Math.asin(TILT_TRAVEL / half) * 180) / Math.PI : Infinity
+    const deg = Math.min(8, byTravel) / 2
+    return { w, deg: +deg.toFixed(2), px: Math.round(half * Math.sin((deg * Math.PI) / 180)) }
+  })
+  line(
+    `\n  tilt stages by width: ` +
+      perStage.map((s) => `${s.w}px → ${s.deg}deg / ${s.px}px`).join(' · '),
+  )
+  const undersized = perStage.filter((s) => s.px < 6)
+  if (undersized.length) {
+    findings.push(`    NOTE  ${undersized.length} tilt stage(s) lean under 6px at the edge`)
+  }
+}
+
+// --- expressive layer intensities ------------------------------------------
+//
+// The tokens say what each effect asked for; only the engine can say what it
+// resolved. These are the tuning surface — the aurora's strength, how far the
+// title gradient travels, and how long the count-up takes to arrive.
+
+await navigate(BASE + '/', 2400)
+const intensity = await evaluate(`(async () => {
+  const raf = () => new Promise((r) => requestAnimationFrame(r))
+  const aurora = [...document.querySelectorAll('.hero-aurora span')].map((el) => {
+    const s = getComputedStyle(el)
+    return { opacity: +s.opacity, blur: Math.round(parseFloat(String(s.filter).match(/[\\d.]+/)?.[0] ?? '0')),
+             dur: parseFloat(s.animationDuration) }
+  })
+  const t = document.querySelector('.text-gradient-move')
+  const ts = t ? getComputedStyle(t) : null
+  const title = ts ? { dur: parseFloat(ts.animationDuration), size: ts.backgroundSize,
+                        clip: ts.webkitBackgroundClip || ts.backgroundClip } : null
+
+  // Count-up: bring the figure into view, then sample its digits until they stop.
+  const figure = document.querySelector('[data-countup]')
+  let firstText = null
+  let lastText = null
+  let ramp = null
+  if (figure) {
+    figure.scrollIntoView({ block: 'center' })
+    let last = figure.textContent
+    let firstChange = null
+    let lastChange = null
+    const until = performance.now() + 4000
+    while (performance.now() < until) {
+      await raf()
+      const now = performance.now()
+      const text = figure.textContent
+      if (text !== last) {
+        if (firstChange === null) { firstChange = now; firstText = text }
+        lastChange = now
+        lastText = text
+        last = text
+      } else if (lastChange !== null && now - lastChange > 260) break
+    }
+    ramp = firstChange === null ? null : Math.round(lastChange - firstChange)
+  }
+  return { aurora, title, ramp, firstText, lastText, hasFigure: !!figure }
+})()`, true)
+
+if (intensity.aurora.length) {
+  const opacities = [...new Set(intensity.aurora.map((a) => a.opacity))].join('/')
+  line(`\n  aurora: ${intensity.aurora.length} blobs · opacity ${opacities} · blur ${intensity.aurora[0].blur}px ` +
+    `· drift ${intensity.aurora.map((a) => a.dur + 's').join('/')}`)
+}
+if (intensity.title) {
+  line(`  hero gradient title: pan ${intensity.title.dur}s · background-size ${intensity.title.size} · clip ${intensity.title.clip}`)
+  if (intensity.title.clip !== 'text') findings.push('    FAIL  the hero gradient title is not clipped to text')
+  if (intensity.title.dur < 5) findings.push(`    NOTE  the title gradient pans in ${intensity.title.dur}s — fast enough to read as a loop`)
+}
+if (intensity.hasFigure) {
+  line(`  count-up ramp ${intensity.ramp === null ? 'did not run (already at value)' : intensity.ramp + 'ms'}` +
+    (intensity.firstText ? ` · ${intensity.firstText} → ${intensity.lastText}` : ''))
+  if (intensity.ramp !== null && intensity.ramp > 2200) {
+    findings.push(`    NOTE  count-up takes ${intensity.ramp}ms to arrive — that reads as waiting, not motion`)
+  }
 }
 
 // --- reduced motion --------------------------------------------------------
@@ -388,8 +840,19 @@ await setReducedMotion(true)
 await navigate(BASE + '/', 2200)
 const reduced = await evaluate(REDUCED_PROBE)
 line(`\n  reduced motion: armed=${reduced.armed} · hero invisible=${reduced.heroInvisible} · aurora dur=${reduced.auroraMaxDuration}ms`)
+line(`    route enter -> ${reduced.routeName} ${reduced.routeDuration}ms · elements still moving ${reduced.movingCount}`)
+line(`    button transition ${reduced.buttonTransitionMs}ms on [${reduced.buttonTransitionProperty}]`)
 if (reduced.armed !== 0) findings.push('    FAIL  reveals still armed under prefers-reduced-motion')
 if (reduced.heroInvisible > 0) findings.push(`    FAIL  ${reduced.heroInvisible} hero items not fully opaque under reduced motion`)
+if (reduced.movingCount > 0) {
+  findings.push(`    FAIL  ${reduced.movingCount} element(s) still animate a transform under prefers-reduced-motion`)
+}
+if (reduced.routeName !== 'fade-in') {
+  findings.push(`    NOTE  the route entrance is ${reduced.routeName} under reduced motion (expected the opacity-only fade-in)`)
+}
+if (/translate|transform|all/.test(reduced.buttonTransitionProperty)) {
+  findings.push(`    FAIL  buttons still transition geometry under reduced motion: ${reduced.buttonTransitionProperty}`)
+}
 await screenshot(path.join(OUT_DIR, 'home-reduced-motion.png'))
 await setReducedMotion(false)
 

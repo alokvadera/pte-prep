@@ -192,22 +192,22 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
       <Disclosure className="mt-8" summary={`Browse the exam reference for all ${ALL_QUESTION_TYPES.length} question types`}>
         <p className="mb-4 text-sm text-ink-500 dark:text-ink-300">See where each type appears, how often it is tested, and a quick strategy before you begin.</p>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-lg border-collapse text-left text-sm">
+          <table className="table-data min-w-lg">
             <caption className="sr-only">All PTE Academic question types by section, skill and count</caption>
-            <thead><tr className="border-ink-200 dark:border-white/10 border-b">{['Type', 'Section', 'Skill', 'Per test', 'Strategy'].map((h) => <th key={h} scope="col" className="text-ink-500 dark:text-ink-400 px-3 py-2 text-xs font-bold tracking-wider uppercase">{h}</th>)}</tr></thead>
+            <thead><tr className="border-ink-200 dark:border-white/10 border-b">{['Type', 'Section', 'Skill', 'Per test', 'Strategy'].map((h) => <th key={h} scope="col">{h}</th>)}</tr></thead>
             <tbody>{ALL_QUESTION_TYPES.map((t) => {
               const meta = QUESTION_META[t]
               return (
                 <tr key={t} className="border-ink-100 align-top last:border-0 dark:border-white/6">
-                  <td className="px-3 py-2.5 font-semibold text-ink-900 dark:text-white">
+                  <td className="font-semibold text-ink-900 dark:text-white">
                     <Link to={`/question-types/${typeSlug(t)}/`} className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 hover:text-brand-600 dark:hover:text-brand-400 hover:underline">
                       {meta.label}
                     </Link>
                   </td>
-                  <td className="px-3 py-2.5 text-ink-500 dark:text-ink-400">{SECTION_META[meta.section].longTitle}</td>
-                  <td className="px-3 py-2.5 capitalize text-ink-500 dark:text-ink-400">{meta.skills.join(' + ')}</td>
-                  <td className="px-3 py-2.5 tabular-nums text-ink-500 dark:text-ink-400">{meta.perTest}</td>
-                  <td className="px-3 py-2.5 text-xs leading-relaxed text-ink-500 dark:text-ink-400">{meta.tip}</td>
+                  <td className="text-ink-500 dark:text-ink-400">{SECTION_META[meta.section].longTitle}</td>
+                  <td className="capitalize text-ink-500 dark:text-ink-400">{meta.skills.join(' + ')}</td>
+                  <td className="tabular-nums text-ink-500 dark:text-ink-400">{meta.perTest}</td>
+                  <td className="text-xs leading-relaxed text-ink-500 dark:text-ink-400">{meta.tip}</td>
                 </tr>
               )
             })}</tbody>

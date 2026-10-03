@@ -583,7 +583,7 @@ function MicChecker() {
 
       {state === 'ready' && audioUrl && (
         <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-ink-100 pt-3 dark:border-white/10">
-          <span className="inline-flex items-center gap-1.5 text-mint-700 dark:text-mint-400 text-xs font-semibold">
+          <span className="inline-flex items-center gap-1.5 text-mint-700 dark:text-mint-300 text-xs font-semibold">
             <svg viewBox="0 0 20 20" fill="currentColor" className="size-4 shrink-0" aria-hidden="true">
               <path
                 fillRule="evenodd"

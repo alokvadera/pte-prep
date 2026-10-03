@@ -1,0 +1,35 @@
+import type { Env } from './types'
+
+export const onRequest: PagesFunction<Env> = async (context) => {
+  if (context.request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Max-Age': '86400',
+      },
+    })
+  }
+
+  try {
+    const response = await context.next()
+    const newHeaders = new Headers(response.headers)
+    newHeaders.set('Access-Control-Allow-Origin', '*')
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: newHeaders,
+    })
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Internal Server Error'
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+    })
+  }
+}

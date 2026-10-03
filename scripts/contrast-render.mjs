@@ -1,22 +1,28 @@
 #!/usr/bin/env node
 // ---------------------------------------------------------------------------
-// Dark-mode visual audit.
+// Rendered contrast audit — both themes.
 //
 // `scripts/contrast.mjs` audits the palette tokens statically, but it cannot
-// see what actually renders: translucent dark surfaces (`white/3`, `white/8`)
-// composite over whatever sits beneath them, and a utility pair that passes on
-// one card can fail on another ground. This script loads every prerendered
-// route in headless Chrome with the dark theme applied, walks the rendered
-// text nodes, composites each foreground through the alpha chain of surfaces
-// behind it, and scores the result against WCAG 1.4.3 (4.5 body, 3 large) and
-// 1.4.11 (focus visibility).
+// see what actually renders: translucent surfaces composite over whatever sits
+// beneath them, and a utility pair that passes on one card can fail on another
+// ground. This script loads every prerendered route in headless Chrome, walks
+// the rendered text nodes, composites each foreground through the alpha chain
+// of surfaces behind it, and scores the result against WCAG 1.4.3 (4.5 body,
+// 3 large) and 1.4.11 (focus visibility).
+//
+// Both themes are audited because they fail differently. The dark audit caught
+// a mint green written for a light ground rendering at 2.95:1 on a dark card —
+// a class of bug that only exists once the surfaces are composited. The light
+// theme has translucent white bands over two different grounds (the page shell
+// and the tinted band), which the token-level check cannot see either.
 //
 // It also writes full-page screenshots of a sample of routes so a human can
 // review the paint, not just the numbers.
 //
 // Usage:
-//   node scripts/dark-audit.mjs [baseUrl]        # audit + screenshots
-//   node scripts/dark-audit.mjs --no-shots       # audit only
+//   node scripts/contrast-render.mjs [baseUrl]              # both themes
+//   node scripts/contrast-render.mjs --theme=light          # one theme
+//   node scripts/contrast-render.mjs --no-shots             # audit only
 // ---------------------------------------------------------------------------
 
 import { spawn } from 'node:child_process'
@@ -27,7 +33,13 @@ import { existsSync } from 'node:fs'
 
 const BASE = (process.argv[2] ?? 'http://localhost:5200').replace(/\/+$/, '')
 const SHOTS = !process.argv.includes('--no-shots')
-const OUT_DIR = path.resolve('design-lab/dark-audit')
+const OUT_DIR = path.resolve('design-lab/contrast-render')
+const THEME = (() => {
+  const hit = process.argv.find((a) => a.startsWith('--theme='))
+  const value = hit ? hit.split('=')[1] : 'both'
+  return ['light', 'dark', 'both'].includes(value) ? value : 'both'
+})()
+const THEMES = THEME === 'both' ? ['dark', 'light'] : [THEME]
 
 const CANDIDATES = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -82,19 +94,21 @@ const ROUTES = [
 ]
 
 // The settings record the pre-paint bootstrap reads. Defaults match
-// useSettings.ts; only the theme differs.
-const DARK_SETTINGS = JSON.stringify({
-  state: {
-    settings: {
-      theme: 'dark', reducedMotion: true, showWordCount: true, speakPrompts: false,
-      countdownBeeps: true, textScale: 1, defaultMode: 'full', autoOpenReview: true,
+// useSettings.ts; only the theme differs. Reduced motion stays on so nothing is
+// sampled mid-transition.
+const settingsFor = (theme) =>
+  JSON.stringify({
+    state: {
+      settings: {
+        theme, reducedMotion: true, showWordCount: true, speakPrompts: false,
+        countdownBeeps: true, textScale: 1, defaultMode: 'full', autoOpenReview: true,
+      },
+      hydrated: true,
     },
-    hydrated: true,
-  },
-  version: 2,
-})
+    version: 2,
+  })
 
-const profile = await mkdtemp(path.join(tmpdir(), 'pte-dark-'))
+const profile = await mkdtemp(path.join(tmpdir(), 'pte-contrast-'))
 const PORT = 9334
 
 const chrome = spawn(
@@ -163,15 +177,15 @@ function send(method, params = {}, sessionId) {
   })
 }
 
-// The in-page audit. Runs after the route has hydrated in dark mode.
+// The in-page audit. Runs after the route has hydrated.
 //
-// Effective background: the dark surfaces are translucent white overlays over
-// the ink ground, so the contrast of a text node depends on the full alpha
-// chain behind it. This composites from the farthest painted ancestor down to
-// the nearest, over the dark body ground.
-const AUDIT_FN = `(() => {
+// Effective background: the surfaces are translucent in both themes — white
+// overlays in dark, tinted white bands in light — so the contrast of a text node
+// depends on the full alpha chain behind it. This composites from the farthest
+// painted ancestor down to the nearest, over the page ground.
+const AUDIT_FN = (theme) => `(() => {
   const out = { fail: [], warn: [], notes: [] }
-  const GROUND = { r: 23, g: 27, b: 32 } // ink-900, the dark body ground
+  const THEME = ${JSON.stringify(theme)}
 
   function parse(c) {
     const m = c.match(/rgba?\\(([-\\d.]+),\\s*([-\\d.]+),\\s*([-\\d.]+)(?:,\\s*([-\\d.]+))?\\)/)
@@ -196,7 +210,7 @@ const AUDIT_FN = `(() => {
       if (c && c.a >= 1) break
       n = n.parentElement
     }
-    let acc = { ...GROUND, a: 1 }
+    let acc = { ...pageGround(), a: 1 }
     for (let i = chain.length - 1; i >= 0; i--) {
       const c = chain[i]
       acc = {
@@ -207,6 +221,17 @@ const AUDIT_FN = `(() => {
       }
     }
     return acc
+  }
+  // The page ground behind everything translucent. Read from the document rather
+  // than hard-coded: the interior routes sit on ink-100 while Home sits on
+  // ink-50, and a hard-coded ground would have scored one of them against a
+  // colour it is never painted on.
+  function pageGround() {
+    for (const el of [document.body, document.documentElement]) {
+      const c = parse(getComputedStyle(el).backgroundColor)
+      if (c && c.a >= 1) return c
+    }
+    return THEME === 'dark' ? { r: 23, g: 27, b: 32 } : { r: 255, g: 255, b: 255 }
   }
   function sig(el) {
     const parts = []
@@ -263,8 +288,8 @@ const AUDIT_FN = `(() => {
     record(seen, el, fg, effectiveBg(el), cs)
   }
 
-  // Placeholders: rendered inside inputs whose field surface is translucent
-  // in dark mode, and easy to get wrong because the input looks fine.
+  // Placeholders: rendered inside inputs whose field surface is translucent,
+  // and easy to get wrong because the input itself looks fine.
   for (const el of document.querySelectorAll('input[placeholder], textarea[placeholder]')) {
     const cs = getComputedStyle(el, '::placeholder')
     const fg = parse(cs.color)
@@ -294,7 +319,12 @@ const AUDIT_FN = `(() => {
     } else {
       const ring = parse(cs.outlineColor)
       if (ring) {
-        const bg = effectiveBg(first)
+        // The ring is drawn *outside* the element, so it is scored against what
+        // surrounds the element rather than against its own fill. Comparing it
+        // to the element's background reported the skip link's blue ring as
+        // 1.00:1 against its own blue pill, which is a measurement artefact and
+        // not a real failure.
+        const bg = effectiveBg(first.parentElement || first)
         const ratio = contrast(ring, bg)
         if (ratio < 3) out.notes.push('focus ring below 3:1 (' + ratio.toFixed(2) + ') on ' + sig(first))
       }
@@ -338,62 +368,78 @@ async function screenshot(file) {
 
 if (SHOTS) await mkdir(OUT_DIR, { recursive: true })
 
-// Seed the dark setting once; the pre-paint bootstrap in <head> then applies
-// the class on every subsequent navigation before the first paint.
-await navigate(BASE + '/', 2500)
-await evaluate(`localStorage.setItem('pte-prep-settings', ${JSON.stringify(DARK_SETTINGS)})`)
-
 let failures = 0
-const routeSummary = []
+const report = [`\n  Rendered contrast audit (WCAG 1.4.3 / 1.4.11) — ${THEMES.join(' + ')}\n`]
 
-for (const route of ROUTES) {
-  await navigate(BASE + route.path)
+for (const theme of THEMES) {
+  const themeDir = path.join(OUT_DIR, theme)
+  if (SHOTS) await mkdir(themeDir, { recursive: true })
 
-  let result
-  try {
-    result = await evaluate(AUDIT_FN)
-  } catch (err) {
-    failures++
-    routeSummary.push(`  FAIL ${route.path} — audit threw: ${err.message}`)
-    continue
+  // Seed the setting once; the pre-paint bootstrap in <head> then applies the
+  // class on every subsequent navigation before the first paint. The value is
+  // stringified twice on purpose: `settingsFor` returns the JSON text, and this
+  // wraps that text as a JS string literal. Interpolating the raw text instead
+  // would hand `setItem` an object literal, which it coerces to "[object
+  // Object]" — and the app would silently fall back to its default theme.
+  await navigate(BASE + '/', 2500)
+  await evaluate(`localStorage.setItem('pte-prep-settings', ${JSON.stringify(settingsFor(theme))})`)
+
+  const routeSummary = []
+  report.push(`\n  ${theme === 'dark' ? 'Dark' : 'Light'} theme`)
+
+  for (const route of ROUTES) {
+    await navigate(BASE + route.path)
+
+    let result
+    try {
+      result = await evaluate(AUDIT_FN(theme))
+    } catch (err) {
+      failures++
+      routeSummary.push(`  FAIL ${route.path} — audit threw: ${err.message}`)
+      continue
+    }
+
+    // The bootstrap must actually have painted the theme before this ran. A
+    // light run that quietly stayed dark would score the wrong palette.
+    const applied = await evaluate(`document.documentElement.classList.contains('dark') === ${theme === 'dark'}`)
+    if (!applied) {
+      failures++
+      routeSummary.push(`  FAIL ${route.path} — the ${theme} theme was not applied on load`)
+      continue
+    }
+
+    const lines = []
+    if (result.fail.length === 0) {
+      lines.push(`  ok   ${route.path} — all rendered text clears WCAG in ${theme} mode`)
+    } else {
+      failures += result.fail.length
+      lines.push(`  FAIL ${route.path}`)
+      for (const f of result.fail) lines.push(`       ${f}`)
+    }
+    for (const w of result.warn) lines.push(`  warn ${route.path} — near threshold: ${w}`)
+    for (const n of result.notes) lines.push(`  warn ${route.path} — ${n}`)
+    routeSummary.push(lines.join('\n'))
+
+    if (SHOTS && route.shot) {
+      await setViewport(1280, 900, false)
+      await sleep(350)
+      await screenshot(path.join(themeDir, `${route.shot}-desktop.png`))
+      await setViewport(390, 844, true)
+      await sleep(350)
+      await screenshot(path.join(themeDir, `${route.shot}-mobile.png`))
+      await setViewport(1280, 900, false)
+    }
   }
 
-  // The bootstrap must actually have painted dark before this script ran.
-  const darkOk = await evaluate("document.documentElement.classList.contains('dark')")
-  if (!darkOk) {
-    failures++
-    routeSummary.push(`  FAIL ${route.path} — dark theme was not applied on load`)
-    continue
-  }
-
-  const lines = []
-  if (result.fail.length === 0) {
-    lines.push(`  ok   ${route.path} — all rendered text clears WCAG in dark mode`)
-  } else {
-    failures += result.fail.length
-    lines.push(`  FAIL ${route.path}`)
-    for (const f of result.fail) lines.push(`       ${f}`)
-  }
-  for (const w of result.warn) lines.push(`  warn ${route.path} — near threshold: ${w}`)
-  for (const n of result.notes) lines.push(`  warn ${route.path} — ${n}`)
-  routeSummary.push(lines.join('\n'))
-
-  if (SHOTS && route.shot) {
-    await setViewport(1280, 900, false)
-    await sleep(350)
-    await screenshot(path.join(OUT_DIR, `${route.shot}-desktop.png`))
-    await setViewport(390, 844, true)
-    await sleep(350)
-    await screenshot(path.join(OUT_DIR, `${route.shot}-mobile.png`))
-    await setViewport(1280, 900, false)
-  }
+  report.push(routeSummary.join('\n'))
 }
 
-console.log('\n  Dark-mode visual audit (WCAG 1.4.3 / 1.4.11, rendered)\n')
-console.log(routeSummary.join('\n'))
+console.log(report.join('\n'))
 
 if (SHOTS) {
-  console.log(`\n  Screenshots written to ${path.relative(process.cwd(), OUT_DIR)}${path.sep}*{desktop,mobile}.png`)
+  console.log(
+    `\n  Screenshots written to ${path.relative(process.cwd(), OUT_DIR)}${path.sep}{dark,light}${path.sep}*{desktop,mobile}.png`,
+  )
 }
 console.log('')
 process.exit(failures === 0 ? 0 : 1)
