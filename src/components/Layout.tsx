@@ -1,12 +1,12 @@
-import { StrictMode, useEffect, type ReactNode } from 'react'
+import { StrictMode, useEffect, useRef, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { cn } from '../lib/cn'
 import { useSettings, type Theme } from '../store/useSettings'
 
 function Logo() {
   return (
-    <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="PTE Prep home">
-      <span className="bg-brand-500 grid size-[30px] place-items-center rounded-full font-display text-micro font-bold tracking-tight text-white">
+    <Link to="/" className="group flex shrink-0 items-center gap-2.5" aria-label="PTE Prep home">
+      <span className="bg-brand-500 grid size-[30px] place-items-center rounded-full font-display text-micro font-bold tracking-tight text-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
         PTE
       </span>
       <span className="text-ink-900 dark:text-ink-50 text-lg font-bold tracking-tight">PTE Prep</span>
@@ -76,6 +76,7 @@ export function Layout() {
             </NavLink>
           </div>
         </div>
+        <ScrollProgress />
       </header>
 
       <main id="main" className="flex-1">
@@ -100,10 +101,61 @@ function ThemeToggle({ theme, onChange }: { theme: Theme; onChange: (t: Theme) =
       aria-label={`Theme: ${theme}. Switch to ${next} theme.`}
       title={`Theme: ${theme}. Switch to ${next}.`}
     >
-      <span className="inline-block transition-transform duration-200 active:scale-90">
+      <span className="inline-block transition-transform duration-200 hover:scale-110 hover:rotate-12 active:scale-90">
         {theme === 'light' ? <SunIcon /> : <MoonIcon />}
       </span>
     </button>
+  )
+}
+
+/**
+ * A hairline that fills with scroll position, pinned to the bottom edge of the
+ * sticky header.
+ *
+ * The width is driven from a rAF-throttled scroll listener rather than React
+ * state, so scrolling never triggers a re-render of the header (or the page
+ * beneath it). The transform is written straight to the node.
+ */
+function ScrollProgress() {
+  const ref = useRef<HTMLSpanElement>(null)
+
+  useEffect(() => {
+    const bar = ref.current
+    if (!bar) return
+    let raf = 0
+
+    const update = () => {
+      const doc = document.documentElement
+      const max = doc.scrollHeight - doc.clientHeight
+      const progress = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0
+      bar.style.transform = `scaleX(${progress})`
+    }
+    const schedule = () => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(update)
+    }
+
+    update()
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    return () => {
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      cancelAnimationFrame(raf)
+    }
+  }, [])
+
+  return (
+    <span
+      className="no-print pointer-events-none absolute inset-x-0 bottom-0 h-0.5 overflow-hidden"
+      aria-hidden="true"
+    >
+      <span
+        ref={ref}
+        className="bg-brand-500 dark:bg-brand-300 block h-full w-full"
+        style={{ transform: 'scaleX(0)', transformOrigin: 'left' }}
+      />
+    </span>
   )
 }
 

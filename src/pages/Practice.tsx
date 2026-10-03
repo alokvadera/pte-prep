@@ -10,6 +10,7 @@ import { Button, ButtonLink, Disclosure, PageWrapper, SectionHeading } from '../
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useTest } from '../store/useTest'
 import { cn } from '../lib/cn'
+import { Reveal } from '../components/ui/motion'
 
 const SKILLS: Array<{ id: Skill; label: string; blurb: string }> = [
   { id: 'speaking', label: 'Speaking', blurb: 'Read aloud, repeat sentence, describe image, re-tell lecture and the two new 2025 types.' },
@@ -27,23 +28,19 @@ const SKILLS: Array<{ id: Skill; label: string; blurb: string }> = [
 const DUAL_SKILL_TYPES = ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].skills.length > 1).length
 
 export default function Practice() {
-  const navigate = useNavigate()
   const [params] = useSearchParams()
-  const start = useTest((s) => s.start)
   const rawType = params.get('type')
   const deepLinkType = rawType && (ALL_QUESTION_TYPES as string[]).includes(rawType) ? (rawType as QuestionType) : null
-  const [prevDeepLink, setPrevDeepLink] = useState(deepLinkType)
+
+  return <PracticeInner key={rawType ?? 'all'} deepLinkType={deepLinkType} />
+}
+
+function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) {
+  const navigate = useNavigate()
+  const start = useTest((s) => s.start)
   const [skill, setSkill] = useState<Skill | null>(() => (deepLinkType ? QUESTION_META[deepLinkType].skills[0] ?? null : null))
   const [selected, setSelected] = useState<Set<QuestionType>>(() => (deepLinkType ? new Set([deepLinkType]) : new Set(ALL_QUESTION_TYPES)))
   const [perType, setPerType] = useState(3)
-
-  if (deepLinkType !== prevDeepLink) {
-    setPrevDeepLink(deepLinkType)
-    if (deepLinkType) {
-      setSelected(new Set([deepLinkType]))
-      setSkill(QUESTION_META[deepLinkType].skills[0] ?? null)
-    }
-  }
 
   const capacity = useMemo(() => capacityByType(), [])
 
@@ -143,28 +140,30 @@ export default function Practice() {
 
         {/* Roomier selection cards: p-5, min-height, and a 4-unit grid gap so a
             dense list of 22 types still reads as calm. */}
-        <div key={skill ?? 'all'} className="mt-4 grid gap-4 sm:grid-cols-2 animate-fade-in">
-          {types.map((t) => {
+        <div key={skill ?? 'all'} className="mt-4 grid gap-4 sm:grid-cols-2">
+          {types.map((t, idx) => {
             const meta = QUESTION_META[t]
             const on = selected.has(t)
             const cap = capacity[t] ?? 0
             return (
-              <label key={t} className={cn('choice-card flex min-h-32 cursor-pointer items-start gap-3 p-5', on ? 'choice-active' : 'choice-idle choice-idle-solid')}>
-                <input
-                  type="checkbox"
-                  aria-label={meta.label}
-                  className="mt-0.5 size-4 shrink-0 accent-brand-500"
-                  checked={on}
-                  onChange={() => toggle(t)}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
-                    <span className="text-ink-900 dark:text-white text-sm font-semibold">{meta.label}</span>
-                    <span className="text-ink-500 dark:text-ink-400 font-mono text-xs">{cap} items</span>
+              <Reveal key={t} delay={Math.min(idx, 5) * 30} variant="up" duration={400}>
+                <label className={cn('choice-card flex min-h-32 cursor-pointer items-start gap-3 p-5', on ? 'choice-active' : 'choice-idle choice-idle-solid')}>
+                  <input
+                    type="checkbox"
+                    aria-label={meta.label}
+                    className="mt-0.5 size-4 shrink-0 accent-brand-500"
+                    checked={on}
+                    onChange={() => toggle(t)}
+                  />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <span className="text-ink-900 dark:text-white text-sm font-semibold">{meta.label}</span>
+                      <span className="text-ink-500 dark:text-ink-400 font-mono text-xs">{cap} items</span>
+                    </span>
+                    <span className="text-ink-500 dark:text-ink-300 mt-1.5 block text-xs leading-relaxed">{meta.tip}</span>
                   </span>
-                  <span className="text-ink-500 dark:text-ink-300 mt-1.5 block text-xs leading-relaxed">{meta.tip}</span>
-                </span>
-              </label>
+                </label>
+              </Reveal>
             )
           })}
         </div>

@@ -5,6 +5,7 @@ import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
 import { Accordion, Button, ButtonLink, CtaBand, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
+import { Reveal, Tilt } from '../components/ui/motion'
 
 const FAQ = [
   {
@@ -233,7 +234,8 @@ export default function Guide() {
               body: 'The clock is part of what the test measures. If every attempt has unlimited time and visible transcripts, you are training the language but not the test. Alternate deliberately.',
             },
           ].map((item, i) => (
-            <li key={item.title} className="card flex gap-4">
+            <Reveal as="li" key={item.title} delay={i * 80} className="flex">
+              <article className="card flex w-full gap-4">
               <span className="bg-mint-500 text-white grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold">
                 {i + 1}
               </span>
@@ -241,7 +243,8 @@ export default function Guide() {
                 <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{item.title}</h3>
                 <p className="text-ink-500 dark:text-ink-300 mt-1.5 text-sm leading-relaxed">{item.body}</p>
               </div>
-            </li>
+              </article>
+            </Reveal>
           ))}
         </ol>
 
@@ -259,8 +262,12 @@ export default function Guide() {
           </div>
 
           <div className="mt-6 space-y-4">
-            {TEMPLATES.map((tmpl) => (
-              <TemplateCard key={tmpl.id} item={tmpl} />
+            {TEMPLATES.map((tmpl, i) => (
+              <Reveal key={tmpl.id} delay={i * 70}>
+                <Tilt max={3} glare={false}>
+                  <TemplateCard item={tmpl} />
+                </Tilt>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -282,14 +289,16 @@ export default function Guide() {
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {COLLOCATIONS.map((c) => (
-              <div key={c.col} className="card-solid p-4">
+            {COLLOCATIONS.map((c, i) => (
+              <Reveal key={c.col} delay={(i % 3) * 70} duration={650} className="h-full">
+              <div className="card-solid h-full p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-ink-900 dark:text-white font-bold text-sm">{c.col}</span>
                   <span className="text-ink-500 dark:text-ink-400 text-micro font-mono">{c.type}</span>
                 </div>
                 <p className="text-ink-600 dark:text-ink-300 mt-2 text-xs italic leading-relaxed">"{c.example}"</p>
               </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -299,10 +308,11 @@ export default function Guide() {
           <section key={key} className="mt-10">
             <h3 className="text-ink-900 dark:text-white text-xl font-bold text-balance">{SECTION_META[key].longTitle}</h3>
             <div className="mt-4 space-y-3">
-              {ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === key).map((t) => {
+              {ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === key).map((t, i) => {
                 const qm = QUESTION_META[t]
                 return (
-                  <article key={t} id={t} className="card scroll-mt-24">
+                  <Reveal as="article" key={t} id={t} delay={Math.min(i, 6) * 50} duration={600} className="scroll-mt-24">
+                    <div className="card">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <h4 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{qm.label}</h4>
                       <span className="pill bg-ink-100 text-ink-500 dark:bg-white/8 dark:text-ink-400">
@@ -324,7 +334,8 @@ export default function Guide() {
                         Practice drill →
                       </Link>
                     </div>
-                  </article>
+                    </div>
+                  </Reveal>
                 )
               })}
             </div>
@@ -370,7 +381,8 @@ export default function Guide() {
         </ul>
 
         <h2 id="study-plan" className="section-title mt-16 scroll-mt-24">A four-week study plan</h2>
-        <div className="card mt-5 overflow-x-auto p-0">
+        <Reveal variant="fade">
+          <div className="card mt-5 overflow-x-auto p-0">
           <table className="w-full min-w-lg border-collapse text-left text-sm">
             <caption className="sr-only">Four week PTE preparation plan</caption>
             <thead>
@@ -398,10 +410,13 @@ export default function Guide() {
               ))}
             </tbody>
           </table>
-        </div>
+          </div>
+        </Reveal>
 
         <h2 id="faqs" className="section-title mt-16 scroll-mt-24">Frequently asked questions</h2>
-        <Accordion className="mt-6" items={FAQ} />
+        <Reveal variant="fade">
+          <Accordion className="mt-6" items={FAQ} />
+        </Reveal>
 
         <CtaBand
           title="Apply it to a real paper"

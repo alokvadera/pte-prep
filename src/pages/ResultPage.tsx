@@ -10,13 +10,14 @@ import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
 import { Badge, Button, ButtonLink, Card, ProgressBar } from '../components/ui/primitives'
 import { ScoreRangeBar, SkillBars } from '../components/charts/ScoreRangeBar'
+import { CountUp } from '../components/ui/motion'
 import { useTest } from '../store/useTest'
 import { useSettings } from '../store/useSettings'
 
 type Tab = 'overview' | 'pace' | 'by-type' | 'review'
 
 export default function ResultPage() {
-  const [params] = useSearchParams()
+  const [params, setSearchParams] = useSearchParams()
   const mock = useTest((s) => s.mock)
   const responses = useTest((s) => s.responses)
   const finish = useTest((s) => s.finish)
@@ -34,6 +35,10 @@ export default function ResultPage() {
       try {
         const existing = params.get('attempt')
         if (existing) {
+          if (attempt?.id === existing) {
+            setLoading(false)
+            return
+          }
           const stored = await getAttempt(existing)
           if (!cancelled) {
             setAttempt(stored ?? null)
@@ -43,9 +48,10 @@ export default function ResultPage() {
         }
         if (mock) {
           const record = await finish()
-          if (!cancelled) {
-            setAttempt(record ?? null)
+          if (!cancelled && record) {
+            setAttempt(record)
             setLoading(false)
+            setSearchParams({ attempt: record.id }, { replace: true })
           }
           return
         }
@@ -61,7 +67,7 @@ export default function ResultPage() {
     return () => {
       cancelled = true
     }
-  }, [mock, params, finish])
+  }, [mock, params, finish, attempt?.id, setSearchParams])
 
   const details = useMemo(() => {
     if (!mock) return []
@@ -148,7 +154,7 @@ export default function ResultPage() {
       </a>
 
       <main id="main-content" className="route-inner min-h-dvh">
-        <div className="page-shell-app">
+        <div className="page-shell-app animate-rise-in">
         {/* Header */}
         <header className="flex flex-wrap items-start justify-between gap-6">
           <div>
@@ -172,7 +178,8 @@ export default function ResultPage() {
               CEFR {attempt.cefr} · {cefrLabel(attempt.cefr)}
             </h1>
             <p className="text-ink-500 dark:text-ink-300 mt-1.5 text-sm">
-              {Math.round(accuracy * 100)}% of the available points. The weakest area is{' '}
+              <CountUp value={Math.round(accuracy * 100)} suffix="%" duration={1100} /> of the available points. The
+              weakest area is{' '}
               <span className="font-semibold capitalize">{weakest?.skill ?? '—'}</span>.
             </p>
           </div>
@@ -180,7 +187,7 @@ export default function ResultPage() {
           <div className="min-w-0 flex-1 basis-64 sm:max-w-sm">
             <div className="flex flex-wrap items-baseline gap-3">
               <p className="text-ink-900 dark:text-white font-mono text-4xl font-bold tabular-nums tracking-[-0.02em]">
-                {attempt.overallScore}
+                <CountUp value={attempt.overallScore} duration={1300} />
               </p>
               <p className="text-ink-500 dark:text-ink-400 text-sm">
                 of 90 · <span className="tabular-nums">{attempt.overallScore60}</span> on the 60–120 scale

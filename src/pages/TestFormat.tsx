@@ -5,6 +5,7 @@ import { Seo } from '../seo/Seo'
 import { Accordion, Badge, ButtonLink, Card, CtaBand, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { ScoreWeightageMatrix } from '../components/ScoreWeightageMatrix'
+import { Reveal, Tilt } from '../components/ui/motion'
 
 const FAQ = [
   {
@@ -71,7 +72,8 @@ export default function TestFormat() {
         </div>
 
         <h2 className="section-title mt-8 scroll-mt-24">The three sections at a glance</h2>
-        <Card flush variant="solid" className="mt-6 overflow-x-auto">
+        <Reveal variant="fade">
+          <Card flush variant="solid" className="mt-6 overflow-x-auto">
           <table className="w-full min-w-lg border-collapse text-left text-sm">
             <caption className="sr-only">PTE Academic sections, durations and scored skill</caption>
             <thead>
@@ -101,13 +103,16 @@ export default function TestFormat() {
               })}
             </tbody>
           </table>
-        </Card>
+          </Card>
+        </Reveal>
         <p className="text-ink-500 dark:text-ink-400 mt-3 text-sm">
           The minimum and maximum times do not add up to a fixed total because each test version is balanced for length.
           No candidate receives either extreme.
         </p>
 
-        <div className="card-solid mt-12 border-brand-500/30 bg-brand-500/5 p-6">
+        <Reveal className="mt-12">
+          <Tilt max={4} glare={false}>
+        <div className="card-solid border-brand-500/30 bg-brand-500/5 p-6">
           <div className="flex items-center gap-2">
             <span className="bg-brand-500 text-white rounded-full px-2.5 py-0.5 font-mono text-micro font-bold uppercase tracking-wider">
               2025 Update
@@ -118,6 +123,8 @@ export default function TestFormat() {
             Pearson added two item types in August 2025, bringing the total to 22. <strong className="text-ink-900 dark:text-white">Summarize Group Discussion</strong> plays a recorded exchange between three or four speakers and asks you to summarise the group's position in your own words. <strong className="text-ink-900 dark:text-white">Respond to a Situation</strong> describes a scenario and asks you to deliver an appropriate spoken response. Both sit in Part 1 and are scored on oral fluency, pronunciation and content.
           </p>
         </div>
+          </Tilt>
+        </Reveal>
 
         <ScoreWeightageMatrix />
 
@@ -143,7 +150,8 @@ export default function TestFormat() {
                   const qm = QUESTION_META[t]
                   const slug = typeSlug(t)
                   return (
-                    <li key={t} id={t} className="card-solid flex flex-col justify-between scroll-mt-24">
+                    <Reveal as="li" key={t} id={t} delay={Math.min(i, 5) * 45} duration={600} className="flex scroll-mt-24">
+                      <article className="card-solid flex w-full flex-col justify-between">
                       <div>
                         <div className="flex flex-wrap items-baseline justify-between gap-2">
                           <h4 className="text-ink-900 dark:text-white text-base font-bold leading-tight text-balance">
@@ -176,7 +184,8 @@ export default function TestFormat() {
                           Full guide & scoring
                         </Link>
                       </div>
-                    </li>
+                      </article>
+                    </Reveal>
                   )
                 })}
               </ol>
@@ -184,7 +193,9 @@ export default function TestFormat() {
           )
         })}
 
-        <div className="card-solid mt-16 p-6">
+        <Reveal className="mt-16">
+          <Tilt max={3} glare={false}>
+        <div className="card-solid p-6">
           <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">How the test is delivered</h2>
           <ul className="mt-4 space-y-3">
             {[
@@ -201,9 +212,13 @@ export default function TestFormat() {
             ))}
           </ul>
         </div>
+          </Tilt>
+        </Reveal>
 
         <h2 className="section-title mt-16">Frequently asked questions</h2>
-        <Accordion className="mt-6" items={FAQ} />
+        <Reveal variant="fade">
+          <Accordion className="mt-6" items={FAQ} />
+        </Reveal>
 
         <CtaBand
           title="Practice the format now"

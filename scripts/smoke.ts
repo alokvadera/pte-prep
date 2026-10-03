@@ -266,6 +266,7 @@ console.log('\n== Pearson rule conformance ==')
   check('SST: 60 words scores Form 2', formBand('summarize-spoken-text', 'word '.repeat(60)).score === 1)
   check('SST: 30 words scores Form 0', formBand('summarize-spoken-text', 'word '.repeat(30)).score === 0)
   check('SWT: one complete sentence scores Form 1', formBand('summarize-written-text', 'This is one complete sentence.').score === 1)
+  check('SWT: sentence with abbreviations scores Form 1', formBand('summarize-written-text', 'Dr. Smith showed that the U.S. economy grew by three percent.').score === 1)
   check('SWT: two sentences score Form 0', formBand('summarize-written-text', 'One sentence. And another.').score === 0)
   check('SWT: no final punctuation scores Form 0', formBand('summarize-written-text', 'This is one complete sentence').score === 0)
 

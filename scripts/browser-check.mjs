@@ -830,6 +830,77 @@ for (const route of ROUTES) {
 }
 
 // ---------------------------------------------------------------------------
+// Pace tab
+//
+// The report only offers Pace when the runner actually recorded per-item time.
+// The regression this guards is subtle: `secondsOnItem` is a declared field that
+// nothing writes, so the tab can silently never appear while every unit test
+// still passes against a hand-built fixture.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+    return r.exceptionDetails ? '' : r.result.value
+  }
+  const click = async (re) =>
+    evaluate(`(() => {
+      const b = [...document.querySelectorAll('button, a')].find((x) => new RegExp(${JSON.stringify(re)}, 'i').test(x.textContent.trim()))
+      if (!b) return 'none'
+      b.click()
+      return 'ok'
+    })()`)
+
+  // Read Aloud is the densest timed type, so a short drill exercises the timer.
+  await send('Page.navigate', { url: `${BASE}/practice?type=read-aloud` }, sessionId)
+  await sleep(2200)
+  await click('Start this practice')
+  await sleep(2000)
+  await click('^Begin')
+  await sleep(2200)
+  for (let i = 0; i < 16; i++) {
+    await click('^(Next|Submit|Finish|See my report|View report|Done)')
+    await sleep(1000)
+    const path = await evaluate('location.pathname')
+    if (path === '/result' || path === '/dashboard') break
+  }
+
+  const onResult = (await evaluate('location.pathname')) === '/result'
+  report(onResult, 'a timed drill reaches the report', await evaluate('location.pathname'))
+
+  if (onResult) {
+    const hasTab = await evaluate("[...document.querySelectorAll('[role=tab]')].some((t) => t.textContent.trim() === 'Pace')")
+    report(hasTab === true, 'the report offers a Pace tab once time has been recorded')
+    if (hasTab) {
+      await click('^Pace$')
+      await sleep(1200)
+      report(
+        await evaluate('/Where your time went/.test(document.body.innerText)'),
+        'the Pace tab explains the comparison against real-test budgets',
+      )
+      report(
+        await evaluate(
+          "[...document.querySelectorAll('main li')].some((l) => / of \\d/.test(l.innerText))",
+        ),
+        'the Pace tab lists a measured row with spent and allowed time',
+      )
+      report(
+        await evaluate("/Under budget is not automatically good/.test(document.body.innerText)"),
+        'the Pace tab warns that being under budget is not automatically good',
+      )
+    }
+  }
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
 // Weak-type recommendation
 //
 // The dashboard offers a "Practise these next" panel and a separate "Drill
@@ -1033,7 +1104,14 @@ for (const route of ROUTES) {
       })()
     `)) ?? '{}',
   )
-  report(pressed.translate === '0px 1px', 'buttons give physical press feedback', `translate=${pressed.translate}`)
+  // The press animates over 700ms, so a literal string compare races the
+  // transition and intermittently reads 0px 0.999292px. Compare numerically.
+  const pressY = Number.parseFloat(String(pressed.translate).split(/\s+/)[1] ?? 'NaN')
+  report(
+    Number.isFinite(pressY) && Math.abs(pressY - 1) < 0.05,
+    'buttons give physical press feedback',
+    `translate=${pressed.translate}`,
+  )
   report(
     pressed.height === box.height && pressed.top === box.top + 1,
     'the press does not resize the tap target',
@@ -1041,8 +1119,18 @@ for (const route of ROUTES) {
   )
   await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }, sessionId)
   await sleep(220)
+  // Park the pointer away from the button first. While it remains over the
+  // element the hover transform is the correct resting state, so asserting
+  // "none" here would be testing the pointer position rather than the press.
+  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 2, y: 2 }, sessionId)
+  await sleep(900)
   const released = await evaluate("getComputedStyle(document.querySelector('main a.btn-primary, a.btn-primary')).translate")
-  report(released === 'none', 'the button returns on release', `translate=${released}`)
+  const restY = Number.parseFloat(String(released).split(/\s+/)[1] ?? 'NaN')
+  report(
+    !Number.isFinite(restY) || Math.abs(restY) < 0.05,
+    'the button returns on release',
+    `translate=${released}`,
+  )
 
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })

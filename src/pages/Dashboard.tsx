@@ -96,21 +96,21 @@ export default function Dashboard() {
             />
 
             <div className="grid gap-6 sm:grid-cols-3">
-              <Link to="/mock" className="card group transition-colors hover:border-brand-500/50">
+              <Link to="/mock" className="card-interactive group">
                 <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro">Full simulation</span>
                 <CardTitle className="mt-2 text-base group-hover:text-brand-600 dark:group-hover:text-brand-400">Timed mock test</CardTitle>
                 <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-sm leading-relaxed">
                   Run through all 22 question types under official test timings with machine scoring.
                 </p>
               </Link>
-              <Link to="/practice" className="card group transition-colors hover:border-brand-500/50">
+              <Link to="/practice" className="card-interactive group">
                 <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro">Targeted drill</span>
                 <CardTitle className="mt-2 text-base group-hover:text-brand-600 dark:group-hover:text-brand-400">Practice by skill</CardTitle>
                 <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-sm leading-relaxed">
                   Select speaking, writing, reading, or listening and drill only the types you need.
                 </p>
               </Link>
-              <Link to="/format" className="card group transition-colors hover:border-brand-500/50">
+              <Link to="/format" className="card-interactive group">
                 <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro">Reference</span>
                 <CardTitle className="mt-2 text-base group-hover:text-brand-600 dark:group-hover:text-brand-400">Understand the test</CardTitle>
                 <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-sm leading-relaxed">
@@ -139,24 +139,24 @@ export default function Dashboard() {
                   {focus.map((f) => (
                     <li key={f.type}>
                       <Link
-                        to={`/practice?type=${f.type}`}
-                        className="card group flex h-full flex-col justify-between gap-3 transition-colors hover:border-brand-500/50"
-                      >
-                        <div>
-                          <p className="text-ink-500 dark:text-ink-400 font-mono text-xs">
-                            {f.untested ? 'Not yet attempted' : `${f.priority}% accuracy`}
-                          </p>
-                          <p className="text-ink-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 mt-1.5 text-base font-bold text-balance">
-                            {f.label}
-                          </p>
-                          <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs">
-                            {f.untested
-                              ? 'No evidence yet'
-                              : `${f.itemsSeen} item${f.itemsSeen === 1 ? '' : 's'} across ${f.attemptsSeen} attempt${f.attemptsSeen === 1 ? '' : 's'}`}
-                          </p>
-                        </div>
-                        <span className="text-brand-600 dark:text-brand-400 text-sm font-semibold">Drill this type →</span>
-                      </Link>
+                          to={`/practice?type=${f.type}`}
+                          className="card group flex h-full flex-col justify-between gap-3 transition-colors hover:border-brand-500/50"
+                        >
+                          <div>
+                            <p className="text-ink-500 dark:text-ink-400 font-mono text-xs">
+                              {f.untested ? 'Not yet attempted' : `${f.priority}% accuracy`}
+                            </p>
+                            <p className="text-ink-900 dark:text-white group-hover:text-brand-600 dark:group-hover:text-brand-400 mt-1.5 text-base font-bold text-balance">
+                              {f.label}
+                            </p>
+                            <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs">
+                              {f.untested
+                                ? 'No evidence yet'
+                                : `${f.itemsSeen} item${f.itemsSeen === 1 ? '' : 's'} across ${f.attemptsSeen} attempt${f.attemptsSeen === 1 ? '' : 's'}`}
+                            </p>
+                          </div>
+                          <span className="text-brand-600 dark:text-brand-400 text-sm font-semibold">Drill this type →</span>
+                        </Link>
                     </li>
                   ))}
                 </ul>

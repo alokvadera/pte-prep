@@ -53,9 +53,11 @@ utility); meta and captions are `text-sm` / `text-xs`; micro labels use the
 
 ### Spacing scale
 
-Only Tailwind steps that land on the 4px grid: `1, 2, 3, 4, 5, 6, 8, 10, 12,
-16, 20` (4px – 80px). Arbitrary values (`mt-[74px]`, `py-3.5` for rhythm) are
-not part of the system. Rhythm rules:
+Tailwind steps on the 4px grid: `1, 2, 3, 4, 5, 6, 8, 10, 12,
+16, 20` (4px – 80px), plus `.5` micro-steps (`1.5, 2.5, 3.5`) only for
+control internals that cannot land on the grid without breaking the 24px tap
+floor: `Button sm` (`px-3.5 py-1.5`), `field` (`px-3.5 py-2.5`), toggle knob
+offsets. Rhythm never uses arbitrary values (`mt-[74px]`). Rhythm rules:
 
 - `mt-3` description under a title, `mt-4`–`mt-6` directly related grid,
   `mt-8`/`mt-12` grouped block, `mt-16`/`mt-20` between major sections.
@@ -63,16 +65,16 @@ not part of the system. Rhythm rules:
 
 ### Page shells
 
-One gutter scale everywhere — `px-4 sm:px-6 lg:px-8` — with a unified `5xl` (1024px)
-measure across all main views so content never jumps sideways between routes. Always
-used through `<PageWrapper>` or the raw utility:
+One gutter scale everywhere — `px-4 sm:px-6 lg:px-8` — so the
+content never jumps sideways between routes; only the measure changes.
+Always used through `<PageWrapper>` or the raw utility:
 
 | Shell | Measure | Use |
 | --- | --- | --- |
-| `page-shell-prose` | 5xl | Longform reference pages (About, Privacy, question-type detail) |
-| `page-shell-content` | 5xl | Informational content (Guide, Test format, Scoring guide) |
-| `page-shell-app` | 5xl | Interactive workflows (Mock setup, Practice, Dashboard, Result) |
-| `page-shell-wide` | 5xl | Home sections, test runner header/footer, site header and footer |
+| `page-shell-prose` | 3xl (768px) | Longform reference pages (About, Privacy, question-type detail) |
+| `page-shell-content` | 4xl (896px) | Informational content (Guide, Test format, Scoring guide) |
+| `page-shell-app` | 5xl (1024px) | Interactive workflows (Mock setup, Practice, Dashboard, Result) |
+| `page-shell-wide` | 5xl (1024px) | Home sections, test runner header/footer, site header and footer |
 | `page-shell-empty` | xl, centred | 404 and recovery screens |
 
 ## Components
@@ -112,6 +114,22 @@ place, so the top of every route lines up pixel-for-pixel.
 
 Section headers are **left-aligned on every interior page**. Centre alignment
 belongs to the Home hero, the CtaBand, and empty states only.
+
+### Shape
+
+Pills for controls, squares for surfaces. `rounded-full` belongs to buttons,
+nav pills, toggles, progress tracks, dots and avatars. Cards, fields and
+disclosures use `sm/md/lg` (3/4/7px) so a surface never mimics a control.
+`card-interactive` and `card-lift` are the only hover-lift patterns; `CtaBand`
+keeps its `rounded-xl + border-t-4` as the single closing-CTA exception.
+
+### Motion
+
+`--ease-settle` (`cubic-bezier(0.32, 0.72, 0, 1)`) is the single curve for
+everything the user operates and for `Reveal`. `--ease-pop` is reserved for
+the hero collage entrance; `--ease-glide` for drifting backgrounds. `Tilt`
+is hero-only (the Home practice collage with glare); interior cards use
+`Reveal` alone so a card never carries two motions at once.
 
 ## Product preview
 

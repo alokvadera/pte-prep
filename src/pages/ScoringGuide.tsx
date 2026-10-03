@@ -2,6 +2,7 @@ import { ADMISSION_TARGETS, rawToPteScale, toCefr } from '../domain/scoring'
 import { Seo } from '../seo/Seo'
 import { Accordion, CtaBand, ButtonLink, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
+import { Reveal, Tilt } from '../components/ui/motion'
 
 const FAQ = [
   {
@@ -70,7 +71,9 @@ export default function ScoringGuide() {
           They are the same number written two ways. Pearson reports 10 to 90; many universities quote 60 to 120. To
           convert, add 50.
         </p>
-        <div className="card mt-5 grid gap-4 sm:grid-cols-3">
+        <Reveal className="mt-5">
+          <Tilt max={3} glare={false}>
+        <div className="card grid gap-4 sm:grid-cols-3">
           {[
             ['10 – 90', 'Pearson’s reported scale', 'Half-point increments'],
             ['60 – 120', 'The same score, shifted', 'What universities publish'],
@@ -83,6 +86,8 @@ export default function ScoringGuide() {
             </div>
           ))}
         </div>
+          </Tilt>
+        </Reveal>
 
         <h2 className="section-title mt-12 sm:mt-14 scroll-mt-24">Score and CEFR band</h2>
         <p className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
@@ -120,14 +125,16 @@ export default function ScoringGuide() {
 
         <h2 className="section-title mt-12 sm:mt-14">What universities require</h2>
         <ul className="mt-5 space-y-3">
-          {ADMISSION_TARGETS.map((t) => (
-            <li key={t.label} className="card">
+          {ADMISSION_TARGETS.map((t, i) => (
+            <Reveal as="li" key={t.label} delay={i * 60} duration={600} className="flex">
+              <article className="card w-full">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{t.label}</h3>
                 <span className="text-ink-500 dark:text-ink-400 text-xs tabular-nums">target {t.range}</span>
               </div>
               <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{t.note}</p>
-            </li>
+              </article>
+            </Reveal>
           ))}
         </ul>
         <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">
@@ -159,7 +166,8 @@ export default function ScoringGuide() {
               body: 'Repeat Sentence, Re-tell Lecture and Summarize Group Discussion each count towards both Listening and Speaking. Summarize Written Text counts towards Reading and Writing; Summarize Spoken Text and Write from Dictation towards Listening and Writing; Highlight Correct Summary and Highlight Incorrect Words towards Listening and Reading. A single-skill model would misstate all four skill scores.',
             },
           ].map((step, i) => (
-            <li key={step.title} className="card flex gap-4">
+            <Reveal as="li" key={step.title} delay={i * 80} className="flex">
+              <article className="card flex w-full gap-4">
               <span className="bg-brand-500 text-white grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold">
                 {i + 1}
               </span>
@@ -167,11 +175,13 @@ export default function ScoringGuide() {
                 <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{step.title}</h3>
                 <p className="text-ink-500 dark:text-ink-300 mt-1.5 text-sm leading-relaxed">{step.body}</p>
               </div>
-            </li>
+              </article>
+            </Reveal>
           ))}
         </ol>
 
-        <div className="card mt-8 overflow-hidden">
+        <Reveal variant="fade" className="mt-8">
+        <div className="card overflow-hidden">
           <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">The conversion curve, illustrated</h3>
           <div className="mt-4 -mx-5 overflow-x-auto px-5">
             <table className="w-full min-w-md border-collapse text-left text-sm">
@@ -198,9 +208,12 @@ export default function ScoringGuide() {
                   )
                 })}
               </tbody>
-            </table>
-          </div>
+            </table>          </div>
         </div>
+        </Reveal>
+
+
+
 
         <h2 className="section-title mt-12 sm:mt-14">How to improve your score fastest</h2>
         <ul className="mt-5 space-y-3">
@@ -218,7 +231,9 @@ export default function ScoringGuide() {
           ))}
         </ul>
 
-        <div className="card-solid mt-8 border-brand-500/30 bg-brand-500/5 p-6">
+        <Reveal className="mt-8">
+          <Tilt max={3} glare={false}>
+        <div className="card-solid border-brand-500/30 bg-brand-500/5 p-6">
           <h3 className="text-ink-900 dark:text-white text-base font-bold">
             Essential High-Yield Preparation Tools
           </h3>
@@ -234,12 +249,18 @@ export default function ScoringGuide() {
             </ButtonLink>
             <ButtonLink to="/guide/#collocations" variant="secondary" size="sm">
               Academic Collocations List →
-            </ButtonLink>
-          </div>
+            </ButtonLink>          </div>
         </div>
+          </Tilt>
+        </Reveal>
+
+
+
 
         <h2 className="section-title mt-12 sm:mt-14">Frequently asked questions</h2>
-        <Accordion className="mt-6" items={FAQ} />
+        <Reveal variant="fade">
+          <Accordion className="mt-6" items={FAQ} />
+        </Reveal>
 
         <CtaBand
           title="Get a scored mock"

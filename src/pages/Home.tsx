@@ -5,6 +5,7 @@ import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
 import { Accordion, CtaBand, ButtonLink } from '../components/ui/primitives'
 import { TaglineReveal } from '../components/ui/TaglineReveal'
+import { CountUp, Reveal, Tilt } from '../components/ui/motion'
 
 const FAQ = [
   {
@@ -50,20 +51,35 @@ export default function Home() {
           the exception that proves the rule: every interior page is
           left-aligned, so the marketing page reads as a distinct register
           rather than a different product. */}
-      <section className="relative overflow-hidden">
-        <div className="page-shell-wide pt-16 sm:pt-20">
+      <section className="relative overflow-hidden bg-mesh-gradient">
+        <div className="hero-aurora" aria-hidden="true">
+          <span className="aurora-1" />
+          <span className="aurora-2" />
+          <span className="aurora-3" />
+        </div>
+        <div className="page-shell-wide relative z-10 pt-16 sm:pt-20">
           <div className="flex flex-col items-center text-center">
             <div className="flex max-w-3xl flex-col items-center">
-              <p className="text-brand-600 dark:text-brand-300 mb-4 text-sm font-semibold">PTE preparation, in one place</p>
-              <h1 className="hero-title">
-                Practice the test.<br />Know what to do next.
+              <p className="text-brand-600 dark:text-brand-300 animate-rise-in mb-4 text-sm font-semibold">
+                PTE preparation, in one place
+              </p>
+              <h1 className="hero-title animate-rise-in" style={{ animationDelay: '60ms' }}>
+                <span className="text-gradient-move">
+                  Practice the test.<br />Know what to do next.
+                </span>
               </h1>
 
-              <p className="text-ink-600 dark:text-ink-200 mt-6 max-w-2xl text-lg leading-relaxed text-pretty">
+              <p
+                className="text-ink-600 dark:text-ink-200 animate-rise-in mt-6 max-w-2xl text-lg leading-relaxed text-pretty"
+                style={{ animationDelay: '140ms' }}
+              >
                 Choose a focused task, take a timed mock, and use your practice history to decide where to spend your next study session.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <div
+                className="animate-rise-in mt-8 flex flex-wrap items-center justify-center gap-3"
+                style={{ animationDelay: '210ms' }}
+              >
                 <ButtonLink to="/mock" size="lg">
                   Start full mock test
                 </ButtonLink>
@@ -71,16 +87,20 @@ export default function Home() {
                   Practice by skill
                 </ButtonLink>
               </div>
-              <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">
+              <p className="text-ink-500 dark:text-ink-400 animate-rise-in mt-4 text-sm" style={{ animationDelay: '280ms' }}>
                 Four skills · {ALL_QUESTION_TYPES.length} task types · free browser-based practice
               </p>
             </div>
 
             {/* The embedded practice-overview mockup. Its CSS lives in index.css
                 and is written entirely against the app's own @theme tokens, so
-                it renders in the exact design language of the real product. */}
-            <div className="relative mt-16 w-full max-w-5xl px-4 sm:px-0">
-              <ScorePreview />
+                it renders in the exact design language of the real product. The
+                Tilt wrapper leans the whole collage toward the pointer — purely
+                decorative, so it changes no layout and no hit area. */}
+            <div className="animate-rise-in w-full max-w-5xl px-4 sm:px-0" style={{ animationDelay: '330ms' }}>
+              <Tilt className="relative" max={5}>
+                <ScorePreview />
+              </Tilt>
             </div>
             <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-12 text-xs">
               Illustrative practice interface. Scores and activity are sample data.
@@ -90,21 +110,27 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="border-ink-200 dark:border-white/10 border-y bg-white/60 dark:bg-white/3">
+      <section className="border-ink-200 dark:border-white/10 border-y bg-gradient-subtle">
         <div className="page-shell-wide py-12">
-          <p className="page-heading-kicker mb-6">The exam, reproduced</p>
+          <Reveal variant="fade">
+            <p className="page-heading-kicker mb-6">The exam, reproduced</p>
+          </Reveal>
           <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
             {[
               { k: SECTION_META['speaking-writing'].weightNote, v: 'Speaking + Writing', d: `Section 1 · ${questionTypesFor('speaking-writing').length} question types` },
               { k: SECTION_META.reading.weightNote, v: 'Reading', d: `Section 2 · ${questionTypesFor('reading').length} question types` },
               { k: SECTION_META.listening.weightNote, v: 'Listening', d: `Section 3 · ${questionTypesFor('listening').length} question types` },
               { k: `${capacity}+`, v: 'distinct items', d: 'Seeded · never repeats early' },
-            ].map((s) => (
-              <div key={s.v} className="border-l-2 border-brand-500/60 pl-4">
-                <dt className="font-mono text-ink-900 dark:text-white text-2xl font-bold tabular-nums tracking-[-0.02em] sm:text-3xl">{s.k}</dt>
-                <dd className="text-ink-700 dark:text-ink-200 mt-1 text-sm font-medium">{s.v}</dd>
-                <dd className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{s.d}</dd>
-              </div>
+            ].map((s, idx) => (
+              <Reveal key={s.v} delay={idx * 80} variant="up">
+                <div className="border-l-2 border-brand-500/60 pl-4">
+                  <dt className="font-mono text-ink-900 dark:text-white text-2xl font-bold tabular-nums tracking-[-0.02em] sm:text-3xl">
+                    {idx === 3 ? <><CountUp value={capacity} duration={1200} />+</> : s.k}
+                  </dt>
+                  <dd className="text-ink-700 dark:text-ink-200 mt-1 text-sm font-medium">{s.v}</dd>
+                  <dd className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{s.d}</dd>
+                </div>
+              </Reveal>
             ))}
           </dl>
         </div>
@@ -125,34 +151,33 @@ export default function Home() {
           {(['speaking-writing', 'reading', 'listening'] as const).map((key, idx) => {
             const meta = SECTION_META[key]
             return (
-              <article
-                key={key}
-                className="card-exam flex h-full flex-col"
-              >
-                <p className="flex items-center justify-between font-mono text-micro tabular-nums">
-                  <span className="text-brand-600 dark:text-brand-300 font-bold">Part {idx + 1}</span>
-                  <span className="text-ink-500 dark:text-ink-400">{meta.weightNote}</span>
-                </p>
-                <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{meta.longTitle}</h3>
-                <p className="text-ink-500 dark:text-ink-300 mt-1 font-mono text-xs tabular-nums">{meta.title}</p>
-                <p className="text-ink-500 dark:text-ink-300 mt-2 flex-1 text-sm leading-relaxed">{meta.blurb}</p>
-                <ul className="mt-4 space-y-1.5 border-t pt-4">
-                  {questionTypesFor(key).map((t) => (
-                    <li key={t}>
-                      <Link
-                        to={`/question-types/${typeSlug(t)}/`}
-                        className="text-ink-600 dark:text-ink-300 hover:text-brand-600 dark:hover:text-brand-400 group -my-1 flex items-center justify-between gap-2 rounded-sm py-1 text-xs transition-colors"
-                      >
-                        <span className="flex min-w-0 items-center gap-2">
-                          <span className="bg-brand-500/70 group-hover:bg-brand-500 size-1 shrink-0 rounded-full transition-colors" />
-                          <span className="truncate group-hover:underline">{QUESTION_META[t].label}</span>
-                        </span>
-                        <span className="shrink-0 font-mono text-micro text-ink-500 dark:text-ink-400">{QUESTION_META[t].short}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </article>
+              <Reveal key={key} delay={idx * 100} variant="up">
+                <article className="card-exam flex h-full flex-col">
+                    <p className="flex items-center justify-between font-mono text-micro tabular-nums">
+                      <span className="text-brand-600 dark:text-brand-300 font-bold">Part {idx + 1}</span>
+                      <span className="text-ink-500 dark:text-ink-400">{meta.weightNote}</span>
+                    </p>
+                    <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{meta.longTitle}</h3>
+                    <p className="text-ink-500 dark:text-ink-300 mt-1 font-mono text-xs tabular-nums">{meta.title}</p>
+                    <p className="text-ink-500 dark:text-ink-300 mt-2 flex-1 text-sm leading-relaxed">{meta.blurb}</p>
+                    <ul className="mt-4 space-y-1.5 border-t pt-4">
+                      {questionTypesFor(key).map((t) => (
+                        <li key={t}>
+                          <Link
+                            to={`/question-types/${typeSlug(t)}/`}
+                            className="text-ink-600 dark:text-ink-300 hover:text-brand-600 dark:hover:text-brand-400 group -my-1 flex items-center justify-between gap-2 rounded-sm py-1 text-xs transition-colors"
+                          >
+                            <span className="flex min-w-0 items-center gap-2">
+                              <span className="bg-brand-500/70 group-hover:bg-brand-500 size-1 shrink-0 rounded-full transition-colors" />
+                              <span className="truncate group-hover:underline">{QUESTION_META[t].label}</span>
+                            </span>
+                            <span className="shrink-0 font-mono text-micro text-ink-500 dark:text-ink-400">{QUESTION_META[t].short}</span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+              </Reveal>
             )
           })}
         </div>
@@ -198,11 +223,13 @@ export default function Home() {
                 title: 'Progress over time',
                 body: 'Every attempt is stored on your own device with a trend line, so you can see whether the last three weeks of practice actually moved anything.',
               },
-            ].map((f) => (
-              <article key={f.title} className="card">
-                <h3 className="text-ink-900 dark:text-white text-lg font-bold leading-tight text-balance">{f.title}</h3>
-                <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{f.body}</p>
-              </article>
+            ].map((f, idx) => (
+              <Reveal key={f.title} delay={idx * 80} variant="scale">
+                <article className="card-interactive">
+                  <h3 className="text-ink-900 dark:text-white text-lg font-bold leading-tight text-balance">{f.title}</h3>
+                  <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{f.body}</p>
+                </article>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -239,13 +266,13 @@ export default function Home() {
               body: 'An overall score on both PTE scales, four skill scores, a CEFR band, and a per item breakdown showing the correct answer against the one you gave.',
             },
           ].map((step, i) => (
-            <li key={step.title}>
+            <Reveal as="li" key={step.title} delay={i * 120} variant="left">
               <p className="text-brand-600 dark:text-brand-300 font-mono text-micro font-bold tabular-nums">
                 Step {i + 1}
               </p>
               <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{step.title}</h3>
               <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{step.body}</p>
-            </li>
+            </Reveal>
           ))}
         </ol>
       </section>

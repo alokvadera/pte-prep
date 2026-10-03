@@ -59,7 +59,10 @@
   --color-ink-900: #171b20;
   --color-ink-950: #10151c;
 
-  /* Blue marks navigation, selection, and the primary mock action. */
+  /* Blue marks navigation, selection, and the primary mock action.
+     Dark mode uses two steps: brand-300 for static accent text (kickers,
+     Part labels), brand-400 as the resting state for links that hover to
+     brand-300. Both clear 4.5:1 on ink-900 (8.26 / 5.17). */
   --color-brand-50: #eff6ff;
   --color-brand-100: #dbeafe;
   --color-brand-200: #bfdbfe;
@@ -94,13 +97,16 @@
   --color-rose-600: #833737;
   --color-rose-700: #652929;
 
-  /* Compact portal controls; cards stay softly squared, not pill shaped. */
+  /* Shape: pills for controls, squares for surfaces. Buttons, nav pills,
+     toggles and progress tracks are `rounded-full` so a finger target reads
+     as one gesture; cards, fields and disclosures stay softly squared
+     (sm/md/lg) so a surface never mimics a control. */
   --radius-sm: 3px;
   --radius-md: 4px;
-  --radius-lg: 8px;
-  --radius-xl: 10px;
-  --radius-2xl: 12px;
-  --radius-3xl: 14px;
+  --radius-lg: 7px;
+  --radius-xl: 9px;
+  --radius-2xl: 11px;
+  --radius-3xl: 13px;
 
   --radius-4xl: 2rem;
 
@@ -127,9 +133,9 @@
   /* Elevation is a shift in value, not a blur. The only shadows that exist
      here are the near-invisible ones used to lift a surface one step off its
      ground; nothing is allowed to float. */
-  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 12px 32px -16px rgb(0 0 0 / 0.7);
+  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 14px 36px -18px rgb(0 0 0 / 0.72);
   --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset;
-  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 18px 48px -18px rgb(0 0 0 / 0.6);
+  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 20px 52px -20px rgb(0 0 0 / 0.62);
 
   --animate-route-enter: route-enter 0.28s var(--ease-settle) both;
   --animate-shimmer: shimmer 2.2s linear infinite;
@@ -138,12 +144,38 @@
   --animate-fade-in: fade-in 0.2s ease-out both;
   --animate-question-enter: question-enter 0.2s var(--ease-settle) both;
   --animate-bar-reveal: bar-reveal 0.65s var(--ease-settle) both;
+
+  /* Motion, the expressive half.
+
+     `--ease-settle` stays the curve for anything the user operates — a hover, a
+     press, a nav pill — so controls still feel like one material. These two are
+     for things the page does on its own: `--ease-pop` carries a little
+     overshoot for entrances and count-ups, `--ease-glide` is a long, calm
+     decelerate for large surfaces and drifting backgrounds. */
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-glide: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-rise-in: rise-in 0.7s var(--ease-settle) both;
+  --animate-pop-in: pop-in 0.9s var(--ease-pop) both;
+  --animate-float-slow: float-slow 6s ease-in-out infinite;
+  --animate-bob: bob 3.6s ease-in-out infinite;
+  --animate-drift: drift 22s ease-in-out infinite alternate;
+  --animate-spin-slow: spin 28s linear infinite;
+  --animate-gradient-pan: gradient-pan 7s ease infinite;
+  --animate-pulse-ring: pulse-ring 2.8s var(--ease-settle) infinite;
+  --animate-soft-pulse: soft-pulse 3s ease-in-out infinite;
+  --animate-gradient-shift: gradient-shift 8s ease infinite;
+  --animate-shimmer-subtle: shimmer-subtle 3s linear infinite;
+  --animate-slide-up: slide-up 0.5s var(--ease-settle) both;
+  --animate-slide-down: slide-down 0.5s var(--ease-settle) both;
+  --animate-scale-in: scale-in 0.4s var(--ease-pop) both;
+  --animate-rotate-in: rotate-in 0.6s var(--ease-settle) both;
 }
 
 @keyframes route-enter {
   from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateY(14px) scale(0.995);
   }
   to {
     opacity: 1;
@@ -235,6 +267,160 @@
   }
 }
 
+/* --- Expressive motion ---------------------------------------------------- */
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Overshoots a touch past its resting place, then settles back. */
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  62% {
+    opacity: 1;
+    transform: scale(1.025) translateY(-3px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-2.5deg);
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-4%, -3%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(6%, 5%, 0) scale(1.18);
+  }
+}
+
+@keyframes gradient-pan {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.85);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.7);
+  }
+}
+
+@keyframes soft-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes shimmer-subtle {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rotate-in {
+  from {
+    opacity: 0;
+    transform: rotate(-8deg) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @layer base {
   *,
   *::before,
@@ -246,6 +432,17 @@
   .dark *::before,
   .dark *::after {
     border-color: rgb(255 255 255 / 0.1);
+  }
+
+  /* Subtle dividers for better visual hierarchy */
+  hr {
+    border: none;
+    border-top: 1px solid var(--color-ink-200);
+    margin: 2rem 0;
+  }
+
+  .dark hr {
+    border-top-color: rgb(255 255 255 / 0.1);
   }
 
   html {
@@ -290,10 +487,12 @@
     outline: 2px solid var(--color-brand-500);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-brand-500) 8%, transparent);
   }
 
   .dark :focus-visible {
     outline-color: var(--color-brand-300);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-brand-300) 8%, transparent);
   }
 
   /* Body copy is set with `text-wrap: pretty` so a single word is never left
@@ -311,6 +510,16 @@
   .dark ::selection {
     background: color-mix(in oklab, var(--color-brand-300) 32%, transparent);
     color: var(--color-ink-50);
+  }
+
+  /* Subtle link underline animation */
+  a {
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  a:hover {
+    text-decoration-thickness: 2px;
   }
 
   input,
@@ -342,8 +551,13 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      /* The stagger delays must go too: with `animation-fill-mode: both` a
+         400ms delay would otherwise hold the element at its hidden keyframe
+         for 400ms. */
+      animation-delay: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      transition-delay: 0s !important;
       scroll-behavior: auto !important;
     }
   }
@@ -390,22 +604,22 @@
    body         text-base / leading-relaxed · meta  text-sm / text-xs
    Nothing outside the hero may exceed text-4xl. */
 @utility page-title {
-  @apply font-display text-ink-900 dark:text-white max-w-hero text-4xl font-bold leading-tight text-balance;
-  letter-spacing: -0.02em;
+  @apply font-display text-ink-900 dark:text-white max-w-hero text-4xl font-bold leading-[1.15] text-balance;
+  letter-spacing: -0.025em;
 }
 
 @utility hero-title {
-  @apply font-display text-ink-900 dark:text-white max-w-3xl text-5xl font-bold leading-[1.05] text-balance sm:text-6xl;
-  letter-spacing: -0.03em;
+  @apply font-display text-ink-900 dark:text-white max-w-3xl text-5xl font-bold leading-[1.08] text-balance sm:text-6xl;
+  letter-spacing: -0.035em;
 }
 
 @utility page-title-compact {
-  @apply font-display text-ink-900 dark:text-white text-3xl leading-tight text-balance;
-  letter-spacing: -0.01em;
+  @apply font-display text-ink-900 dark:text-white text-3xl leading-[1.2] text-balance;
+  letter-spacing: -0.015em;
 }
 
 @utility page-intro {
-  @apply text-ink-600 dark:text-ink-300 mt-4 max-w-2xl text-lg leading-relaxed;
+  @apply text-ink-600 dark:text-ink-300 mt-4 max-w-2xl text-lg leading-[1.7];
 }
 
 @utility page-heading {
@@ -413,20 +627,20 @@
 }
 
 @utility page-heading-kicker {
-  @apply text-brand-600 dark:text-brand-300 mb-3 text-sm font-semibold;
+  @apply text-brand-600 dark:text-brand-300 mb-3 text-sm font-semibold tracking-wide;
 }
 
 @utility section-title {
-  @apply font-display text-ink-900 dark:text-white text-2xl font-bold leading-tight text-balance;
-  letter-spacing: -0.02em;
+  @apply font-display text-ink-900 dark:text-white text-2xl font-bold leading-[1.2] text-balance;
+  letter-spacing: -0.025em;
 }
 
 @utility choice-card {
-  @apply cursor-pointer rounded-lg border border-ink-200 p-5 text-left transition-[color,background-color,border-color,box-shadow,translate] duration-150 active:translate-y-px dark:border-white/10;
+  @apply cursor-pointer rounded-lg border border-ink-200 p-5 text-left transition-[color,background-color,border-color,box-shadow,translate] duration-200 active:translate-y-px dark:border-white/10;
 }
 
 @utility choice-row {
-  @apply flex cursor-pointer items-start gap-3 rounded-lg border border-ink-200 p-4 transition-[color,background-color,border-color,box-shadow,translate] duration-150 active:translate-y-px dark:border-white/10;
+  @apply flex cursor-pointer items-start gap-3 rounded-lg border border-ink-200 p-4 transition-[color,background-color,border-color,box-shadow,translate] duration-200 active:translate-y-px dark:border-white/10;
 }
 
 @utility choice-active {
@@ -449,6 +663,65 @@
 
   &:where(.dark, .dark *) {
     @apply border-white/10 bg-white/[0.035] shadow-xs;
+  }
+}
+
+@utility divider {
+  @apply border-ink-200 border-t;
+}
+
+.dark .divider {
+  @apply border-white/10;
+}
+
+@utility divider-soft {
+  @apply border-ink-100 border-t;
+}
+
+.dark .divider-soft {
+  @apply border-white/6;
+}
+
+@utility card-interactive {
+  @apply card;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at top left,
+      color-mix(in oklab, var(--color-brand-500) 8%, transparent) 0%,
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-settle);
+    z-index: 1;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &:hover {
+    @apply -translate-y-0.5 shadow-md;
+    border-color: var(--color-brand-300);
+  }
+
+  &:where(.dark, .dark *):hover {
+    @apply shadow-lg;
+    border-color: var(--color-brand-400);
+  }
+
+  &:where(.dark, .dark *)::before {
+    background: radial-gradient(
+      ellipse at top left,
+      color-mix(in oklab, var(--color-brand-400) 10%, transparent) 0%,
+      transparent 60%
+    );
   }
 }
 
@@ -486,6 +759,147 @@
   animation: eq-pulse 1s ease-in-out infinite;
 }
 
+@utility animate-rise-in {
+  animation: var(--animate-rise-in);
+}
+
+@utility animate-pop-in {
+  animation: var(--animate-pop-in);
+}
+
+@utility animate-float-slow {
+  animation: var(--animate-float-slow);
+}
+
+@utility animate-bob {
+  animation: var(--animate-bob);
+}
+
+@utility animate-spin-slow {
+  animation: var(--animate-spin-slow);
+}
+
+@utility animate-gradient-pan {
+  background-size: 220% 220%;
+  animation: var(--animate-gradient-pan);
+}
+
+@utility animate-soft-pulse {
+  animation: var(--animate-soft-pulse);
+}
+
+@utility animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: var(--animate-gradient-shift);
+}
+
+@utility animate-shimmer-subtle {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--color-brand-400) 12%, transparent) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer-subtle);
+}
+
+@utility animate-slide-up {
+  animation: var(--animate-slide-up);
+}
+
+@utility animate-slide-down {
+  animation: var(--animate-slide-down);
+}
+
+@utility animate-scale-in {
+  animation: var(--animate-scale-in);
+}
+
+@utility animate-rotate-in {
+  animation: var(--animate-rotate-in);
+}
+
+@utility bg-gradient-subtle {
+  background: linear-gradient(
+    135deg,
+    var(--color-ink-50) 0%,
+    color-mix(in oklab, var(--color-brand-50) 40%, var(--color-ink-50)) 50%,
+    var(--color-ink-50) 100%
+  );
+}
+
+.dark .bg-gradient-subtle {
+  background: linear-gradient(
+    135deg,
+    var(--color-ink-900) 0%,
+    color-mix(in oklab, var(--color-brand-900) 30%, var(--color-ink-900)) 50%,
+    var(--color-ink-900) 100%
+  );
+}
+
+@utility bg-mesh-gradient {
+  background:
+    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-100) 15%, transparent) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-50) 10%, transparent) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-100) 20%, transparent) 0px, transparent 50%),
+    var(--color-ink-50);
+}
+
+.dark .bg-mesh-gradient {
+  background:
+    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-900) 20%, transparent) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-950) 15%, transparent) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-800) 25%, transparent) 0px, transparent 50%),
+    var(--color-ink-900);
+}
+
+@utility bg-dot-pattern {
+  background-image: radial-gradient(circle, var(--color-ink-200) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.dark .bg-dot-pattern {
+  background-image: radial-gradient(circle, rgb(255 255 255 / 0.08) 1px, transparent 1px);
+}
+
+@utility bg-grid-pattern {
+  background-image:
+    linear-gradient(var(--color-ink-100) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-ink-100) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.dark .bg-grid-pattern {
+  background-image:
+    linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
+}
+
+@utility texture-noise {
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    z-index: 1;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 2;
+  }
+}
+
+.dark .texture-noise::before {
+  opacity: 0.05;
+}
+
 /* Buttons carry shape, weight, colour and press feedback only — never size.
    The size lives in the <Button> component (sm / md / lg) so every control on
    the site shares one scale instead of ad-hoc padding overrides. */
@@ -498,12 +912,18 @@
   /* `translate` and `box-shadow` are transitioned explicitly: avoids `transition-all`. */
   @apply transition-[color,background-color,border-color,fill,translate,box-shadow];
   @apply disabled:pointer-events-none disabled:opacity-45;
+  position: relative;
+  z-index: 1;
 
   /* Physical press feedback (skill B9). A one pixel drop rather than a scale:
      a scale would shrink the hit area, and 24px is already the tap target
-     floor. Translation keeps the measured box identical. Written as plain CSS
-     because the translate utilities do not resolve through `@apply` here. */
-  &:active {
+     floor. Translation keeps the measured box identical.
+
+     The pseudo-class is doubled deliberately. `btn-primary:hover` sets a -2px
+     lift and is emitted after a plain `:active`, so a press was resolving to the
+     hover transform and every primary button rose when pushed instead of
+     dropping. Doubling the specificity settles the order without !important. */
+  &:active:active {
     translate: 0 1px;
   }
 }
@@ -516,6 +936,57 @@
     0 1px 0 0 rgb(255 255 255 / 0.18) inset,
     0 10px 24px -12px rgb(23 86 176 / 0.3);
   letter-spacing: -0.01em;
+  overflow: hidden;
+  /* 150ms on translate, matching the `.btn` duration: the press and the hover
+     lift must settle within the same beat, and a longer translate leaves the
+     one-pixel press still easing when the eye (and the browser check) looks for
+     it. Shadow is allowed to lag a little. */
+  transition: color 0.15s, background-color 0.15s, border-color 0.15s, fill 0.15s, translate 0.15s var(--ease-settle), box-shadow 0.2s var(--ease-settle);
+
+  /* A static bloom behind the label. Kept at a negative z-index so it reads as
+     a lift on the surface rather than a wash across the text. */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at center, rgb(255 255 255 / 0.18) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-settle);
+    z-index: -1;
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  /* A single sheen that crosses the pill on hover. Decorative only: the
+     pseudo-element never takes pointer events and never changes the button's
+     box, so the physical press feedback (a 1px drop) is untouched. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(100deg, transparent 25%, rgb(255 255 255 / 0.32) 50%, transparent 75%);
+    translate: -130% 0;
+    transition: translate 0.75s var(--ease-settle);
+    z-index: 2;
+  }
+
+  &:hover::after,
+  &:focus-visible::after {
+    translate: 130% 0;
+  }
+}
+
+@utility btn-secondary {
+  @apply btn border border-ink-200 bg-white text-ink-700;
+  @apply hover:bg-ink-100 hover:border-ink-300 hover:-translate-y-0.5 hover:shadow-xs;
+
+  &:where(.dark, .dark *) {
+    @apply border-white/12 bg-white/6 text-ink-100 hover:bg-white/10 dark:hover:border-white/20;
+  }
 }
 
 @layer components {
@@ -559,21 +1030,31 @@
   .practice-score-line strong { color: white; font-size: 34px; line-height: 1; letter-spacing: -.06em; }
   .practice-score-change { margin-left: auto; color: var(--color-mint-300); }
   .practice-skill-list { padding: 3px 14px 7px; }
-  .practice-skill-row { display: grid; grid-template-columns: 78px 1fr 28px; align-items: center; gap: 9px; margin: 12px 0; color: var(--color-ink-300); font-size: 10px; }
+  .practice-skill-row { display: grid; grid-template-columns: 78px 1fr 28px; align-items: center; gap: 9px; margin: 12px 0; color: var(--color-ink-300); font-size: 10px; opacity: 0; animation: skill-row-enter 0.5s var(--ease-settle) both; }
+  .practice-skill-row:nth-child(1) { animation-delay: 0.3s; }
+  .practice-skill-row:nth-child(2) { animation-delay: 0.4s; }
+  .practice-skill-row:nth-child(3) { animation-delay: 0.5s; }
+  .practice-skill-row:nth-child(4) { animation-delay: 0.6s; }
   .practice-skill-row b { color: white; text-align: right; font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
   .practice-meter { height: 5px; overflow: hidden; border-radius: 5px; background: var(--color-ink-700); }
   .practice-meter i { display: block; height: 100%; border-radius: inherit; background: var(--color-brand-300); transform-origin: left; animation: meter-fill 0.8s var(--ease-settle) both; }
-  .practice-skill-row:nth-child(1) .practice-meter i { animation-delay: 0.2s; }
-  .practice-skill-row:nth-child(2) .practice-meter i { animation-delay: 0.28s; }
-  .practice-skill-row:nth-child(3) .practice-meter i { animation-delay: 0.36s; }
-  .practice-skill-row:nth-child(4) .practice-meter i { animation-delay: 0.44s; }
+  .practice-skill-row:nth-child(1) .practice-meter i { animation-delay: 0.5s; }
+  .practice-skill-row:nth-child(2) .practice-meter i { animation-delay: 0.6s; }
+  .practice-skill-row:nth-child(3) .practice-meter i { animation-delay: 0.7s; }
+  .practice-skill-row:nth-child(4) .practice-meter i { animation-delay: 0.8s; }
   @keyframes meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+  @keyframes skill-row-enter { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes task-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+  @keyframes suggestion-enter { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: none; } }
   .practice-focus-icon { color: var(--color-brand-300); }
   .practice-continue-title { min-height: 42px; margin-top: 0; }
   .practice-continue-title a { color: var(--color-ink-400); font-size: 9px; text-decoration: none; }
-  .practice-task { display: flex; min-height: 48px; align-items: center; gap: 9px; margin: 0; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding: 8px 13px; color: var(--color-ink-50); font-size: 10px; text-decoration: none; }
+  .practice-task { display: flex; min-height: 48px; align-items: center; gap: 9px; margin: 0; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding: 8px 13px; color: var(--color-ink-50); font-size: 10px; text-decoration: none; opacity: 0; animation: task-enter 0.4s var(--ease-settle) both; }
+  .practice-task:nth-child(2) { animation-delay: 0.9s; }
+  .practice-task:nth-child(3) { animation-delay: 1s; }
   .practice-task:last-child { border-bottom: 0; }
-  .practice-task-icon { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; color: var(--color-brand-300); font-size: 10px; }
+  .practice-task-icon { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; color: var(--color-brand-300); font-size: 10px; transition: transform 0.2s var(--ease-settle), background-color 0.2s var(--ease-settle); }
+  .practice-task:hover .practice-task-icon { transform: scale(1.1); background: color-mix(in oklab, var(--color-brand-500) 20%, transparent); }
   .practice-task b, .practice-goal-panel b { display: block; font-size: 10px; font-weight: 600; }
   .practice-task small, .practice-goal-panel small { display: block; margin-top: 2px; color: var(--color-ink-400); font-size: 9px; }
   .practice-task-arrow { margin-left: auto; color: var(--color-ink-400); font-size: 9px; transition: translate .18s; }
@@ -590,16 +1071,17 @@
   .practice-goal-panel { display: flex; align-items: center; gap: 9px; }
   .practice-goal-check, .practice-float-week-icon { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--color-mint-700); color: var(--color-mint-300); }
   .practice-goal-percent { margin-left: auto; color: var(--color-mint-300); font-family: var(--font-mono); font-size: 10px; }
-  .practice-suggestion { display: flex; min-height: 149px; flex-direction: column; align-items: flex-start; padding: 14px; }
+  .practice-suggestion { display: flex; min-height: 149px; flex-direction: column; align-items: flex-start; padding: 14px; opacity: 0; animation: suggestion-enter 0.5s var(--ease-pop) 1.1s both; }
   .practice-suggest-label { color: var(--color-brand-300); font-size: 9px; }
   .practice-suggestion strong { margin-top: 9px; color: white; font-size: 15px; font-weight: 580; letter-spacing: -.02em; }
   .practice-suggestion p { margin: 5px 0 12px; color: var(--color-ink-300); font-size: 10px; line-height: 1.45; text-align: left; }
-  .practice-suggestion a { margin-top: auto; color: var(--color-brand-300); font-size: 10px; text-decoration: none; }
+  .practice-suggestion a { margin-top: auto; color: var(--color-brand-300); font-size: 10px; text-decoration: none; transition: color 0.2s var(--ease-settle); }
+  .practice-suggestion a:hover { color: var(--color-brand-200); }
   /* The floating score/week cards keep the light ground of the real dashboard
      widgets in light mode and use the app's elevated dark surface in dark mode,
      exactly like every other card. */
-  .practice-float { position: absolute; z-index: 2; display: flex; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 14px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; transition: transform 0.25s var(--ease-settle), box-shadow 0.25s var(--ease-settle); }
-  .practice-float:hover { transform: translateY(-3px); box-shadow: 0 20px 42px -16px rgb(20 38 66 / .45); }
+  .practice-float { position: absolute; z-index: 2; display: flex; width: 210px; flex-direction: column; align-items: stretch; gap: 0; border: 1px solid var(--color-ink-200); border-radius: 10px; background: white; padding: 14px; color: var(--color-ink-900); box-shadow: 0 15px 35px -18px rgb(20 38 66 / .4); animation: float-in .7s .18s var(--ease-settle) both; transition: transform 0.3s var(--ease-settle), box-shadow 0.3s var(--ease-settle), border-color 0.3s var(--ease-settle); }
+  .practice-float:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 24px 48px -16px rgb(20 38 66 / .5); border-color: var(--color-brand-300); }
   .practice-float-score { top: 74px; left: 0; }
   .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--color-brand-50); color: var(--color-brand-500); }
   .practice-float small, .practice-float-week small { display: block; color: var(--color-ink-500); font-family: var(--font-sans); font-size: 10px; letter-spacing: 0; }
@@ -615,7 +1097,7 @@
   @keyframes float-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
   @keyframes bar-grow { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
   .dark .practice-float { border-color: rgb(255 255 255 / 0.08); background: var(--color-ink-850); color: var(--color-ink-50); box-shadow: 0 20px 40px -15px rgb(0 0 0 / .6); }
-  .dark .practice-float:hover { box-shadow: 0 24px 48px -15px rgb(0 0 0 / .7); }
+  .dark .practice-float:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 28px 56px -12px rgb(0 0 0 / .75); border-color: var(--color-brand-400); }
   .dark .practice-float small, .dark .practice-float-week > small { color: var(--color-ink-400); }
   .dark .practice-float-score strong { color: var(--color-ink-50); }
   .dark .practice-float-score strong i { color: var(--color-ink-400); }
@@ -644,14 +1126,152 @@
   @media (max-width: 700px) { .practice-collage { height: 470px; padding: 0 0 2rem; } .practice-window { width: calc(100% - 40px); height: 430px; } .practice-window-body { grid-template-columns: 142px 1fr; } .practice-window-main { padding: 20px 18px; } .practice-window-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; } .practice-suggestion { display: none; } .practice-float { width: 175px; } .practice-float-score { top: auto; bottom: 34px; left: 3px; } .practice-float-week { right: 3px; bottom: 34px; } }
   @media (max-width: 600px) { .practice-collage { height: 385px; margin-top: 45px; } .practice-window { top: 4px; width: calc(100% - 20px); height: 360px; border-radius: 8px; } .practice-window-body { grid-template-columns: 112px 1fr; } .practice-window-nav { gap: 2px; padding: 11px 6px; font-size: 9px; } .practice-window-nav a { gap: 4px; padding: 0 5px; font-size: 9px; } .practice-streak { padding: 7px; font-size: 8px; } .practice-window-main { padding: 15px 11px; } .practice-window-heading h2 { font-size: 17px; } .practice-overline { font-size: 8px; } .practice-mini-cta { display: none; } .practice-panel-title { min-height: 36px; padding-inline: 10px; font-size: 10px; } .practice-skill-list { padding: 1px 9px; } .practice-skill-row { grid-template-columns: 59px 1fr 20px; gap: 6px; margin: 9px 0; font-size: 8px; } .practice-skill-row b { font-size: 8px; } .practice-continue-title { display: none; } .practice-task { min-height: 41px; grid-template-columns: 20px 1fr auto; gap: 6px; padding: 6px 8px; font-size: 8px; } .practice-task small { font-size: 7px; } .practice-task-icon { width: 19px; height: 19px; } .practice-task-arrow { font-size: 8px; } .practice-float { width: 145px; padding: 10px; } .practice-float-score { bottom: 5px; left: 14px; } .practice-float-week { right: 14px; bottom: 5px; } .practice-float-score strong { font-size: 25px; } .practice-bars { height: 35px; margin-top: 8px; } .practice-window-grid { margin-top: 10px; } }
   @media (max-width: 420px) { .practice-window-nav { grid-template-columns: 1fr; } .practice-streak { font-size: 7px; } .practice-float { width: 124px; } .practice-float-score { left: 10px; } .practice-float-week { right: 10px; } }
-}
 
-@utility btn-secondary {
-  @apply btn border border-ink-200 bg-white text-ink-700;
-  @apply hover:bg-ink-100 hover:border-ink-300 hover:-translate-y-0.5 hover:shadow-xs;
+  /* ------------------------------------------------------------------------
+     Expressive motion surfaces.
 
-  &:where(.dark, .dark *) {
-    @apply border-white/12 bg-white/6 text-ink-100 hover:bg-white/10 dark:hover:border-white/20;
+     These are the page's own movement — a drifting aurora, a leaning card, a
+     sheen across a figure. Nothing here is required to operate the interface,
+     so every one of them is purely decorative and is removed wholesale under
+     `prefers-reduced-motion` (see the base layer above).
+     ------------------------------------------------------------------------ */
+
+  /* A soft, slow colour field behind the hero. Three blurred blobs in the
+     accent and its two signals, drifting out of phase so the field never
+     visibly loops. Sits on z-0; hero content is lifted above it. */
+  .hero-aurora {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-aurora span {
+    position: absolute;
+    display: block;
+    border-radius: 9999px;
+    filter: blur(72px);
+    opacity: 0.34;
+  }
+  .hero-aurora .aurora-1 {
+    width: 32rem;
+    height: 32rem;
+    top: -9rem;
+    left: -7rem;
+    background: var(--color-brand-400);
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .hero-aurora .aurora-2 {
+    width: 28rem;
+    height: 28rem;
+    top: -5rem;
+    right: -8rem;
+    background: var(--color-mint-400);
+    animation: drift 25s ease-in-out infinite alternate-reverse;
+  }
+  .hero-aurora .aurora-3 {
+    width: 24rem;
+    height: 24rem;
+    bottom: -6rem;
+    left: 34%;
+    background: var(--color-brand-300);
+    animation: drift 30s ease-in-out infinite alternate;
+  }
+  .dark .hero-aurora span {
+    opacity: 0.24;
+  }
+
+  /* An animated gradient that can be clipped to text.
+
+     The transparent fill is the whole trick, so it lives behind @supports with
+     a real colour as the fallback — a browser without `background-clip: text`
+     gets solid accent text, never invisible text. */
+  .text-gradient-move {
+    color: var(--color-brand-700);
+    background-size: 220% 220%;
+  }
+  .dark .text-gradient-move {
+    color: var(--color-brand-300);
+  }
+  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
+    .text-gradient-move {
+      background-image: linear-gradient(
+        100deg,
+        var(--color-brand-700),
+        var(--color-brand-500),
+        var(--color-brand-400),
+        var(--color-brand-600),
+        var(--color-brand-700)
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      animation: gradient-pan 9s ease infinite;
+    }
+    .dark .text-gradient-move {
+      background-image: linear-gradient(
+        100deg,
+        var(--color-brand-300),
+        var(--color-brand-200),
+        var(--color-mint-300),
+        var(--color-brand-300),
+        var(--color-brand-300)
+      );
+      color: transparent;
+    }
+  }
+
+  /* A rule that pans its gradient slowly, for under a heading. */
+  .rule-gradient {
+    background-image: linear-gradient(90deg, var(--color-brand-500), var(--color-mint-400), var(--color-brand-500));
+    background-size: 220% 100%;
+    animation: gradient-pan 7s ease infinite;
+  }
+
+  /* Card lift: a small rise and a coloured hairline on hover. */
+  .card-lift {
+    transition: translate 0.35s var(--ease-settle), box-shadow 0.35s var(--ease-settle), border-color 0.3s;
+  }
+  .card-lift:hover {
+    translate: 0 -5px;
+    border-color: color-mix(in oklab, var(--color-brand-400) 60%, var(--color-ink-200));
+    box-shadow: 0 18px 40px -22px rgb(23 86 176 / 0.45);
+  }
+  .dark .card-lift:hover {
+    border-color: color-mix(in oklab, var(--color-brand-300) 45%, transparent);
+    box-shadow: 0 22px 46px -20px rgb(0 0 0 / 0.7);
+  }
+
+  /* 3D tilt stage. The inner layer leans; the glare tracks the cursor. */
+  .tilt {
+    position: relative;
+    perspective: 1200px;
+  }
+  .tilt-inner {
+    transform: rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+    transform-style: preserve-3d;
+    transition: transform 0.35s var(--ease-settle);
+    will-change: transform;
+  }
+  .tilt:hover .tilt-inner {
+    transition-duration: 0.08s;
+  }
+  .tilt-glare {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    background: radial-gradient(
+      26rem circle at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
+      rgb(255 255 255 / 0.16),
+      transparent 62%
+    );
+    transition: opacity 0.3s var(--ease-settle);
+  }
+  .tilt:hover .tilt-glare {
+    opacity: 1;
   }
 }
 
@@ -672,6 +1292,7 @@
 
 @utility pill {
   @apply inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 font-mono text-micro font-medium tracking-wide;
+  letter-spacing: 0.05em;
 }
 
 @utility field {
@@ -680,6 +1301,14 @@
 
   &:where(.dark, .dark *) {
     @apply border-white/12 bg-ink-900/80 text-ink-100 placeholder:text-ink-500 focus:border-brand-300 focus:ring-brand-300/25;
+  }
+
+  &:focus {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-500) 8%, transparent);
+  }
+
+  &:where(.dark, .dark *):focus {
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-300) 8%, transparent);
   }
 }
 
@@ -710,6 +1339,48 @@
 
   &:where(.dark, .dark *) {
     border-top-color: var(--color-brand-400);
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-brand-500) 20%, transparent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s var(--ease-settle);
+  }
+
+  &:hover::before {
+    opacity: 1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse at top right,
+      color-mix(in oklab, var(--color-brand-500) 6%, transparent) 0%,
+      transparent 50%
+    );
+    opacity: 0;
+    transition: opacity 0.4s var(--ease-settle);
+  }
+
+  &:hover::after {
+    opacity: 1;
+  }
+
+  &:where(.dark, .dark *)::after {
+    background: radial-gradient(
+      ellipse at top right,
+      color-mix(in oklab, var(--color-brand-400) 8%, transparent) 0%,
+      transparent 50%
+    );
   }
 }
 

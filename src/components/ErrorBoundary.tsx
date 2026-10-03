@@ -40,6 +40,7 @@ export class ErrorBoundary extends Component<Props, State> {
   private reset = () => {
     try {
       window.localStorage.removeItem('pte-prep-settings')
+      window.localStorage.removeItem('pte-prep-active-test')
     } catch {
       /* storage unavailable; the reload below still recovers the app */
     }

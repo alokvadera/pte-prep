@@ -158,10 +158,25 @@ function pronunciation(a: ItemResponse['audio'], wordsSpoken: number): { score: 
  * Summarize Spoken Text: 2 = 50–70 · 1 = 40–49 or 71–100 · 0 = outside
  * Summarize Written Text: 1 = a single complete sentence · 0 = otherwise
  */
+/**
+ * Splits text into sentences while protecting standard honorifics, abbreviations,
+ * and acronyms (Dr., Prof., U.S., e.g., i.e., et al.) from false boundary splits.
+ */
+export function splitSentences(text: string): string[] {
+  const protectedText = text.replace(
+    /\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|vs|etc|et al|e\.g|i\.e|U\.S)\./gi,
+    (m) => m.slice(0, -1) + '§',
+  )
+  return protectedText
+    .split(/(?<=[.!?])\s+/)
+    .map((s) => s.replace(/§/g, '.'))
+    .filter((s) => s.trim().length > 0)
+}
+
 export function formBand(type: Item['type'], text: string): { score: number; max: number; note: string } {
   const wc = wordCount(text)
   const hasEndPunctuation = /[.!?"')\]]\s*$/.test(text.trim())
-  const sentenceCount = text.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0).length
+  const sentenceCount = splitSentences(text).length
   const bulletsOnly = text.trim().split('\n').filter((l) => l.trim().length > 0).length > 3 &&
     text.split('\n').filter((l) => /^\s*[-*•]/.test(l)).length >= 3
 
@@ -213,7 +228,7 @@ function writingQuality(text: string, keyTerms: string[]): { grammar: number; vo
   const vocabulary = clamp(softF1(text, keyTerms) * 0.5 + clamp((wc - 20) / 120, 0, 1) * 0.5, 0, 1)
   // A rough structure proxy standing in for grammatical control: sentence
   // completeness and the absence of the most common failure of a single clause.
-  const fragments = text.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0 && !/[A-Za-z]/.test(s)).length
+  const fragments = splitSentences(text).filter((s) => !/[A-Za-z]/.test(s)).length
   const grammar = clamp(1 - rep * 0.6 - fragments * 0.1, 0.25, 1)
 
   const notes: string[] = []
@@ -225,7 +240,7 @@ function writingQuality(text: string, keyTerms: string[]): { grammar: number; vo
 function developmentScore(text: string, isEssay: boolean): { development: number; range: number; note: string } {
   const wc = wordCount(text)
   if (wc === 0) return { development: 0, range: 0, note: '' }
-  const sents = text.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0)
+  const sents = splitSentences(text)
   const connectives = connectiveCount(text)
   const asl = averageSentenceLength(text)
   const variety = sentenceLengthVariety(text)

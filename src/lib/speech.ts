@@ -152,6 +152,7 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
   // Chrome silently stops long utterances after ~15s (crbug 679437) unless the
   // engine is nudged. A periodic resume() is harmless when nothing is paused
   // and keeps the queue alive when it is.
+  stopKeepAlive()
   keepAlive = typeof window !== 'undefined' ? window.setInterval(() => s.resume(), 10000) : null
 
   const cleanup = () => {

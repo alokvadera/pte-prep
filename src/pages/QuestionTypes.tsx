@@ -5,6 +5,7 @@ import { HUB_FAQ, QUESTION_TYPE_DETAIL, typeSlug } from '../content/questionType
 import { Seo } from '../seo/Seo'
 import { CtaBand, ButtonLink, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
+import { Reveal, Tilt } from '../components/ui/motion'
 import { cn } from '../lib/cn'
 
 const SECTION_ORDER: SectionId[] = ['speaking-writing', 'reading', 'listening']
@@ -81,13 +82,14 @@ export default function QuestionTypes() {
               </div>
 
               <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-                {types.map((type) => {
+                {types.map((type, i) => {
                   const q = QUESTION_META[type]
                   const detail = QUESTION_TYPE_DETAIL[type]
                   const slug = typeSlug(type)
 
                   return (
-                    <li key={type} className="card-solid">
+                    <Reveal as="li" key={type} delay={Math.min(i, 5) * 45} duration={600} className="flex">
+                      <article className="card-solid flex w-full flex-col">
                       <div className="flex min-w-0 items-start justify-between gap-3">
                         <h3 className="text-ink-900 dark:text-white min-w-0 text-base font-bold leading-tight text-balance">
                           {/* Padded so the card title is a 24px tap target; the
@@ -133,7 +135,8 @@ export default function QuestionTypes() {
                           Drill →
                         </Link>
                       </div>
-                    </li>
+                      </article>
+                    </Reveal>
                   )
                 })}
               </ul>
@@ -141,7 +144,7 @@ export default function QuestionTypes() {
           )
         })}
 
-        <section className="mt-16">
+        <Reveal as="section" className="mt-16">
           <h2 className="section-title">
             How scoring works across the test
           </h2>
@@ -179,7 +182,7 @@ export default function QuestionTypes() {
             </Link>
             .
           </p>
-        <div className="mt-8">
+        <Tilt className="mt-8" max={3} glare={false}>
             <h3 className="text-ink-900 dark:text-white text-lg font-semibold text-balance">Common questions</h3>
             <div className="mt-3 divide-ink-200 dark:divide-white/10 divide-y border-y">
               {HUB_FAQ.map((f) => (
@@ -189,8 +192,8 @@ export default function QuestionTypes() {
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </Tilt>
+        </Reveal>
 
         <CtaBand
           title="Practice all 22 question types"

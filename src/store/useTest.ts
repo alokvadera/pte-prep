@@ -259,7 +259,7 @@ export const useTest = create<TestStore>()(
           breakdown: report.breakdown,
         }
 
-        set({ status: 'finished' })
+        set({ status: 'finished', attemptId: attempt.id })
         await saveAttempt(attempt)
         return attempt
       },
