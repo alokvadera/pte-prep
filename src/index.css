@@ -131,25 +131,12 @@
   --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset;
   --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 18px 48px -18px rgb(0 0 0 / 0.6);
 
-  --animate-in-up: enter-up 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-route-enter: route-enter 0.28s var(--ease-settle) both;
-  --animate-pulse-ring: pulse-ring 2.4s ease-out infinite;
   --animate-shimmer: shimmer 2.2s linear infinite;
   --animate-drawer-enter: drawer-enter 0.26s var(--ease-settle) both;
   --animate-modal-enter: modal-enter 0.22s var(--ease-settle) both;
   --animate-fade-in: fade-in 0.2s ease-out both;
   --animate-question-enter: question-enter 0.2s var(--ease-settle) both;
-}
-
-@keyframes enter-up {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
 }
 
 @keyframes route-enter {
@@ -220,18 +207,6 @@
   }
   50% {
     transform: scaleY(1);
-  }
-}
-
-@keyframes pulse-ring {
-  0% {
-    box-shadow: 0 0 0 0 rgb(23 86 176 / 0.45);
-  }
-  70% {
-    box-shadow: 0 0 0 14px rgb(23 86 176 / 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgb(23 86 176 / 0);
   }
 }
 
@@ -490,11 +465,6 @@
   animation: eq-pulse 1.2s ease-in-out infinite;
 }
 
-/** A surface a finger actually touches. The only place with real softness. */
-@utility touchable {
-  @apply rounded-md;
-}
-
 /* Buttons carry shape, weight, colour and press feedback only — never size.
    The size lives in the <Button> component (sm / md / lg) so every control on
    the site shares one scale instead of ad-hoc padding overrides. */
@@ -623,7 +593,9 @@
   .dark .practice-float-score strong { color: var(--color-ink-50); }
   .dark .practice-float-score strong i { color: var(--color-ink-400); }
   .dark .practice-float-score em { color: var(--color-brand-300); }
-  .dark .practice-float-up { background: var(--color-mint-700); }
+  .dark .practice-float-icon { background: color-mix(in oklab, var(--color-brand-500) 24%, transparent); color: var(--color-brand-300); }
+  .dark .practice-float-week-icon { background: var(--color-ink-800); }
+  .dark .practice-float-up { background: var(--color-mint-700); color: var(--color-mint-300); }
   .dark .practice-bars { border-bottom-color: rgb(255 255 255 / 0.08); }
   .dark .practice-week-days { color: var(--color-ink-400); }
 
@@ -709,45 +681,6 @@
   animation: var(--animate-shimmer);
 }
 
-@utility hero-rules {
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--color-ink-200) 0 1px,
-    transparent 1px 2rem
-  );
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, transparent 62%);
-  mask-image: linear-gradient(to bottom, black 0%, transparent 62%);
-
-  &:where(.dark, .dark *) {
-    background-image: repeating-linear-gradient(
-      to bottom,
-      rgb(255 255 255 / 0.075) 0 1px,
-      transparent 1px 2rem
-    );
-  }
-}
-
-/* Exam answer-sheet: dotted columns + a single vertical margin rule.
-   Used once, behind the hero score card, to say "exam hall" without an image. */
-@utility exam-sheet {
-  background-image:
-    linear-gradient(to right, var(--color-brand-500) 0 1px, transparent 1px),
-    radial-gradient(circle, var(--color-ink-300) 1px, transparent 1.2px);
-  background-size:
-    100% 100%,
-    22px 22px;
-  background-position:
-    28px 0,
-    0 0;
-  background-repeat: no-repeat, repeat;
-
-  &:where(.dark, .dark *) {
-    background-image:
-      linear-gradient(to right, var(--color-brand-400) 0 1px, transparent 1px),
-      radial-gradient(circle, rgb(255 255 255 / 0.16) 1px, transparent 1.2px);
-  }
-}
-
 /* Score-first cards: content cards stay flat, exam cards earn one hard top rule. */
 @utility card-exam {
   @apply card relative overflow-hidden;
@@ -763,6 +696,10 @@
   scrollbar-width: thin;
   scrollbar-color: var(--color-ink-300) transparent;
 
+  &:where(.dark, .dark *) {
+    scrollbar-color: var(--color-ink-600) transparent;
+  }
+
   &::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -773,6 +710,10 @@
     border-radius: 99px;
   }
 
+  &:where(.dark, .dark *) &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-ink-400) 25%, transparent);
+  }
+
   &::-webkit-scrollbar-track {
     background: transparent;
   }
@@ -780,17 +721,32 @@
 
 /* Print stylesheet: formats mock result into an official PTE Diagnostic Report Card */
 @media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Force light mode regardless of class on html */
+  html {
+    color-scheme: light !important;
+  }
+
   body {
     background: #ffffff !important;
     color: #111827 !important;
     font-size: 11pt;
   }
 
+  /* Strip the dark class so token-based dark: variants don't fire */
+  .dark {
+    color-scheme: light !important;
+  }
+
   nav,
   header.site-header,
   footer,
   .no-print,
-  button:not(.print-show),
+  button:not(.print-show):not(.card button),
   .btn-primary,
   .btn-secondary,
   .btn-ghost {
@@ -802,10 +758,12 @@
     max-width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
+    background: #ffffff !important;
   }
 
   .card,
-  .card-solid {
+  .card-solid,
+  .card-exam {
     border: 1px solid #d1d5db !important;
     background: #ffffff !important;
     color: #111827 !important;
@@ -814,8 +772,59 @@
     margin-top: 1rem !important;
   }
 
+  /* Headings, values, and text inside cards */
+  h1, h2, h3, h4,
+  .page-title, .page-title-compact, .section-title,
+  [class*="text-ink-900"],
+  [class*="text-white"],
+  [class*="font-bold"] {
+    color: #111827 !important;
+  }
+
+  [class*="text-ink-500"],
+  [class*="text-ink-400"],
+  [class*="text-ink-600"],
+  [class*="text-ink-300"] {
+    color: #4b5563 !important;
+  }
+
+  /* Badges and pills */
+  .pill {
+    border: 1px solid #d1d5db !important;
+    background: #f3f4f6 !important;
+    color: #374151 !important;
+  }
+
+  /* Progress bars */
+  [role="progressbar"] {
+    background: #e5e7eb !important;
+  }
+
+  /* Tables */
+  table {
+    border-collapse: collapse !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  th {
+    color: #6b7280 !important;
+  }
+
+  td {
+    color: #374151 !important;
+  }
+
+  tr {
+    border-color: #e5e7eb !important;
+    break-inside: avoid !important;
+  }
+
   @page {
     margin: 12mm 15mm;
     size: A4 portrait;
   }
 }
+

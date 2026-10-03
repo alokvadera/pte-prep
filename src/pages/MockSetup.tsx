@@ -339,10 +339,12 @@ function MicChecker() {
   const streamRef = useRef<MediaStream | null>(null)
   const audioCtxRef = useRef<AudioContext | null>(null)
   const animRef = useRef<number | null>(null)
+  const countTimerRef = useRef<number | null>(null)
   const chunksRef = useRef<Blob[]>([])
 
   useEffect(() => {
     return () => {
+      if (countTimerRef.current !== null) window.clearInterval(countTimerRef.current)
       if (animRef.current) cancelAnimationFrame(animRef.current)
       if (audioUrl) URL.revokeObjectURL(audioUrl)
       streamRef.current?.getTracks().forEach((t) => t.stop())
@@ -427,11 +429,14 @@ function MicChecker() {
       setCountdown(3)
 
       let count = 3
-      const timer = setInterval(() => {
+      countTimerRef.current = window.setInterval(() => {
         count -= 1
         setCountdown(count)
         if (count <= 0) {
-          clearInterval(timer)
+          if (countTimerRef.current !== null) {
+            window.clearInterval(countTimerRef.current)
+            countTimerRef.current = null
+          }
           if (recorder.state === 'recording') {
             recorder.stop()
           }

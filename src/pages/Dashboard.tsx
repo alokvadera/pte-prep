@@ -16,13 +16,15 @@ const SKILL_ORDER: Skill[] = ['reading', 'listening', 'speaking', 'writing']
 export default function Dashboard() {
   const navigate = useNavigate()
   const { settings, set } = useSettings()
+  const [confirmClearAll, setConfirmClearAll] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [attempts, setAttempts] = useState<AttemptRecord[] | null>(null)
 
   useEffect(() => {
     void (async () => {
       setAttempts(await listAttempts(100))
     })()
-  }, [settings.textScale])
+  }, [])
 
   // Only types with evidence behind them, so the panel recommends rather than surveys.
   const focus = useMemo(() => weakestTypes(attempts ?? [], 3, true), [attempts])
@@ -225,7 +227,7 @@ export default function Dashboard() {
                         <span className="text-ink-900 dark:text-white font-semibold tabular-nums">
                           {Math.round(row.ratio * 100)}%
                         </span>
-                        <span className="text-ink-400 tabular-nums">({row.n} items)</span>
+                        <span className="text-ink-500 dark:text-ink-400 tabular-nums">({row.n} items)</span>
                       </div>
                     </div>
                     <ProgressBar
@@ -279,38 +281,80 @@ export default function Dashboard() {
                           {formatDuration(a.durationMs)}
                         </td>
                         <td className="px-3 py-3 text-right whitespace-nowrap">
-                          <span className="inline-flex justify-end gap-1">
-                          <button
-                            type="button"
-                            className="btn-ghost text-xs"
-                            onClick={() => navigate(`/result?attempt=${a.id}`)}
-                          >
-                            View
-                          </button>
-                          <button
-                            type="button"
-                            className="btn-ghost text-rose-brand/80 text-xs"
-                            onClick={() => {
-                              void deleteAttempt(a.id)
-                              void listAttempts(100).then(setAttempts)
-                            }}
-                          >
-                            Delete
-                          </button>
-                          </span>
+                          {deletingId === a.id ? (
+                            <span className="inline-flex items-center gap-2 text-xs">
+                              <span className="text-rose-600 dark:text-rose-400 font-semibold">Delete?</span>
+                              <button
+                                type="button"
+                                className="text-rose-700 dark:text-rose-300 font-bold hover:underline cursor-pointer"
+                                onClick={() => {
+                                  void deleteAttempt(a.id)
+                                  void listAttempts(100).then(setAttempts)
+                                  setDeletingId(null)
+                                }}
+                              >
+                                Yes
+                              </button>
+                              <button
+                                type="button"
+                                className="text-ink-500 dark:text-ink-400 hover:underline cursor-pointer"
+                                onClick={() => setDeletingId(null)}
+                              >
+                                Cancel
+                              </button>
+                            </span>
+                          ) : (
+                            <span className="inline-flex justify-end gap-1">
+                              <button
+                                type="button"
+                                className="btn-ghost text-xs"
+                                onClick={() => navigate(`/result?attempt=${a.id}`)}
+                              >
+                                View
+                              </button>
+                              <button
+                                type="button"
+                                className="btn-ghost text-rose-brand/80 dark:text-rose-300/80 text-xs"
+                                onClick={() => setDeletingId(a.id)}
+                              >
+                                Delete
+                              </button>
+                            </span>
+                          )}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-              <Button variant="danger" className="mt-6" onClick={() => {
-                if (window.confirm('Delete all attempt history? This cannot be undone.')) {
-                  void clearAttempts().then(() => setAttempts([]))
-                }
-              }}>
-                Clear all history
-              </Button>
+              {confirmClearAll ? (
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-rose-brand/30 bg-rose-brand/8 p-3.5 text-sm dark:bg-rose-brand/15">
+                  <p className="text-rose-700 dark:text-rose-300 font-medium">
+                    Delete all attempt history? This cannot be undone.
+                  </p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => {
+                        void clearAttempts().then(() => {
+                          setAttempts([])
+                          setConfirmClearAll(false)
+                        })
+                      }}
+                    >
+                      Yes, clear all
+                    </Button>
+                    <Button variant="secondary" size="sm" onClick={() => setConfirmClearAll(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="danger" className="mt-6" onClick={() => setConfirmClearAll(true)}>
+                  Clear all history
+                </Button>
+              )}
             </Card>
           </>
         ) : null}
@@ -403,7 +447,9 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
         />
       ) : null}
       {points.map((p, i) => (
-        <circle key={i} cx={px(i)} cy={py(p.value)} r={3.5} className="fill-brand-500 dark:fill-brand-300" />
+        <circle key={i} cx={px(i)} cy={py(p.value)} r={3.5} className="fill-brand-500 dark:fill-brand-300 cursor-pointer">
+          <title>{`Attempt ${i + 1}: ${p.value} points (${formatDateTime(p.label)})`}</title>
+        </circle>
       ))}
     </svg>
   )

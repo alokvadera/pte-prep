@@ -85,7 +85,7 @@ export function TestHeader({
           {onExit ? (
             <button
               type="button"
-              className="btn-ghost px-2.5 py-1 text-xs text-ink-500 hover:text-rose-600 dark:hover:text-rose-400"
+              className="btn-ghost px-2.5 py-1 text-xs text-ink-500 dark:text-ink-300 hover:text-rose-600 dark:hover:text-rose-400"
               onClick={onExit}
               title="Exit test and save progress"
             >

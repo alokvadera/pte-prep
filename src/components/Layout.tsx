@@ -26,17 +26,6 @@ export function Layout() {
   const location = useLocation()
 
   useEffect(() => {
-    const dark = settings.theme === 'dark'
-    document.documentElement.classList.toggle('dark', dark)
-    document.documentElement.style.fontSize = `${16 * settings.textScale}px`
-
-    // Keep the browser chrome on the same ground as the page. Without a system
-    // theme to fall back on, this is the only signal the address bar gets.
-    const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', dark ? '#171b20' : '#ffffff')
-  }, [settings.theme, settings.textScale])
-
-  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [location.pathname])
 
@@ -49,7 +38,7 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className="border-ink-200 dark:border-white/10 sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md dark:bg-ink-900/95">
+      <header className="border-ink-200 dark:border-white/10 sticky top-0 z-40 border-b bg-white/95 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] dark:bg-ink-900/95">
         <div className="site-header-row page-shell-wide flex h-[72px] items-center gap-6">
           <Logo />
           <nav aria-label="Main navigation" className="site-nav ml-auto flex items-center gap-1 sm:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">

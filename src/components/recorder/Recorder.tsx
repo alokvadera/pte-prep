@@ -178,7 +178,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
       {phase === 'recording' ? (
         <div>
           <div className="flex items-center justify-between">
-            <span className="pill bg-rose-brand/15 text-rose-brand">
+            <span className="pill bg-rose-brand/15 text-rose-brand dark:bg-rose-brand/18 dark:text-rose-300">
               <span className="bg-rose-brand size-2 animate-pulse rounded-full" />
               Recording
             </span>
@@ -238,7 +238,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
             </div>
           ) : null}
 
-          {error ? <p className="text-rose-brand mt-3 text-xs">{error}</p> : null}
+          {error ? <p className="text-rose-brand dark:text-rose-300 mt-3 text-xs">{error}</p> : null}
 
           {!sttSupported || !transcript ? (
             <div className="mt-3">
@@ -278,6 +278,7 @@ export function TypedAnswer({
   showCount = true,
   rows = 5,
   id,
+  label = 'Your response',
 }: {
   value: string
   onChange: (v: string) => void
@@ -287,6 +288,7 @@ export function TypedAnswer({
   showCount?: boolean
   rows?: number
   id?: string
+  label?: string
 }) {
   const wc = value.trim() ? value.trim().split(/\s+/).length : 0
   const under = minWords !== undefined && wc > 0 && wc < minWords
@@ -296,6 +298,7 @@ export function TypedAnswer({
     <div>
       <textarea
         id={id}
+        aria-label={label}
         className="field min-h-32 resize-y leading-relaxed"
         rows={rows}
         value={value}

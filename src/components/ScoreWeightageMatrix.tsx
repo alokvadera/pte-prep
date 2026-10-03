@@ -417,7 +417,7 @@ export function ScoreWeightageMatrix() {
         </div>
 
         {/* Strategy Detail Card */}
-        <div className="border-ink-100 dark:border-white/8 mt-5 rounded-lg border bg-surface-alt/40 p-4 dark:bg-white/3">
+        <div className="border-ink-100 dark:border-white/8 mt-5 rounded-lg border bg-ink-100/50 p-4 dark:bg-white/3">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h4 className="text-ink-900 dark:text-white text-sm font-bold">{currentStrategy.title}</h4>
             <span className="font-mono text-micro text-ink-500 dark:text-ink-400">

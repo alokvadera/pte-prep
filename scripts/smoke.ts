@@ -4,9 +4,9 @@ import { buildDrillMock, buildFullMock, buildSectionMock } from '../src/domain/a
 import { ALL_QUESTION_TYPES, MOCK_BLUEPRINT, NEGATIVE_MARKING_TYPES, QUESTION_META } from '../src/domain/blueprint'
 import { buildReport, formBand, rawToPteScale, scoreItem, toCefr } from '../src/domain/scoring'
 import { BANK, bankCapacity, capacityByType } from '../src/content/bank'
-import { weakestTypes } from '../src/domain/weakTypes'
+import { formatSeconds, paceReport, paceWarnings } from '../src/domain/pace'
 import { keyTermCoverage } from '../src/lib/text'
-import type { AttemptRecord, ItemResponse } from '../src/domain/types'
+import type { Item, ItemResponse, QuestionType } from '../src/domain/types'
 
 const CONSTRUCTED_TYPES = [
   'write-essay', 'summarize-written-text', 'summarize-spoken-text', 'answer-short-question', 'read-aloud',
@@ -415,102 +415,42 @@ check('breakdown totals match the available points', Math.abs(Object.values(perf
 
 
 // ---------------------------------------------------------------------------
-console.log('\n== Next drill recommendation ==')
+// ---------------------------------------------------------------------------
+console.log('\n== Pace analysis ==')
 {
-  const mk = (id: string, finishedAt: string, perType: Record<string, { e: number; m: number }>): AttemptRecord =>
-    ({
-      id,
-      mockId: id,
-      mockTitle: id,
-      mode: 'full',
-      startedAt: finishedAt,
-      finishedAt,
-      durationMs: 1000,
-      seed: 1,
-      sectionIds: [],
-      responses: {},
-      availablePoints: 10,
-      earnedPoints: 1,
-      skillScores: {},
-      overallIsEstimate: true,
-      overallScore: 50,
-      overallScore60: 70,
-      cefr: 'B2',
-      completedItemIds: [],
-      breakdown: Object.fromEntries(
-        Object.entries(perType).map(([type, v]) => [
-          type,
-          {
-            type: type as never,
-            label: type,
-            skill: 'reading',
-            correct: v.e,
-            partial: 0,
-            incorrect: v.m - v.e,
-            total: v.m,
-            maxPoints: v.m,
-            earnedPoints: v.e,
-            seconds: 60,
-          },
-        ]),
-      ),
-    }) as unknown as AttemptRecord
+  const item = (id: string, type: QuestionType, seconds: number): Item =>
+    ({ id, type, section: 'speaking-writing', responseKind: 'choice', prompt: '', options: [], maxPoints: 1, seconds } as unknown as Item)
+  const resp = (id: string, secondsOnItem: number): ItemResponse =>
+    ({ id, flagged: false, secondsOnItem } as unknown as ItemResponse)
 
-  const history = [
-    mk('a1', '2026-01-01T10:00:00Z', {
-      'read-aloud': { e: 1, m: 1 },
-      'summarize-written-text': { e: 0, m: 2 },
-      'write-essay': { e: 1, m: 2 },
-    }),
-    mk('a2', '2026-01-08T10:00:00Z', {
-      'read-aloud': { e: 1, m: 1 },
-      'summarize-written-text': { e: 0, m: 2 },
-      'write-essay': { e: 2, m: 2 },
-    }),
+  const items = [
+    item('i1', 'read-aloud', 40),
+    item('i2', 'read-aloud', 40),
+    item('i3', 'repeat-sentence', 20),
+    item('i4', 'summarize-written-text', 600),
   ]
+  const responses = {
+    i1: resp('i1', 44),
+    i2: resp('i2', 36),
+    i3: resp('i3', 4),
+    i4: resp('i4', 840),
+  }
 
-  // A limit wide enough that never-attempted types are still visible, which is
-  // what the ordering assertion below needs to observe.
-  const all = weakestTypes(history, 8)
-  check('ranks the weakest type first', all[0]?.type === 'summarize-written-text', all[0]?.label)
-  check('measured types come before never-attempted ones', !all[0]?.untested, all[0]?.label)
-  const practised = weakestTypes(history, 8, true)
-  check(
-    'never puts a flawless type at the top',
-    practised[0]?.type !== 'read-aloud',
-    practised.map((r) => r.label).join(', '),
-  )
-  check('reports how many items were seen', (all[0]?.itemsSeen ?? 0) > 0, String(all[0]?.itemsSeen))
+  const rows = paceReport(items, responses)
+  check('reports one row per timed type answered', rows.length === 3, `${rows.length} rows`)
+  check('averages the time actually spent', (rows.find((r) => r.type === 'read-aloud')?.averageSeconds ?? 0) === 40, String(rows.find((r) => r.type === 'read-aloud')?.averageSeconds))
+  check('flags a type that overran its budget', rows.some((r) => r.type === 'summarize-written-text' && r.verdict === 'over'), rows.map((r) => `${r.short}:${r.ratio}`).join(' '))
+  check('marks a type finished very fast as under, not steady', rows.some((r) => r.type === 'repeat-sentence' && r.verdict === 'under'))
+  check('sorts the worst overrun first', rows[0]?.ratio >= rows[rows.length - 1]!.ratio, rows.map((r) => r.ratio).join('>'))
 
-  check('can restrict to practised types only', practised.every((r) => r.attemptsSeen > 0), JSON.stringify(practised.map((r) => r.type)))
+  check('excludes types with no real-test budget', !rows.some((r) => r.budgetSeconds === 0))
+  check('ignores an item that was never engaged with', paceReport(items, { i1: resp('i1', 40) }).find((r) => r.type === 'read-aloud')?.items === 1)
+  check('returns nothing without timing data', paceReport(items, {}).length === 0)
+  check('surfaces the worst offenders first', paceWarnings(rows, 1)[0]?.type === 'summarize-written-text', paceWarnings(rows, 1)[0]?.short)
 
-  check('returns nothing without history', weakestTypes([]).length === 0)
-
-  // Recency: an old failure should stop dominating once the type is fixed.
-  const improved = [
-    ...history,
-    mk('a3', '2026-01-15T10:00:00Z', {
-      'read-aloud': { e: 1, m: 1 },
-      'summarize-written-text': { e: 2, m: 2 },
-      'write-essay': { e: 2, m: 2 },
-    }),
-  ]
-  const after = weakestTypes(improved, 3, true)
-  const beforePriority = all.find((r) => r.type === 'summarize-written-text')?.priority ?? 0
-  const afterPriority = after.find((r) => r.type === 'summarize-written-text')?.priority ?? 0
-  check(
-    'a recent improvement raises a type out of the bottom',
-    afterPriority > beforePriority,
-    `${beforePriority} -> ${afterPriority}`,
-  )
-  check(
-    'untested types rank after anything measured',
-    all.findIndex((r) => r.untested) > all.findIndex((r) => !r.untested),
-    all.slice(0, 3).map((r) => `${r.label}${r.untested ? ' (untried)' : ''}`).join(', '),
-  )
+  check('formats short durations', formatSeconds(40) === '40s', formatSeconds(40))
+  check('formats whole minutes', formatSeconds(120) === '2m', formatSeconds(120))
+  check('formats mixed durations', formatSeconds(140) === '2m 20s', formatSeconds(140))
 }
 
-
-
-console.log(`\n${failures === 0 ? 'ALL CHECKS PASSED' : `${failures} CHECK(S) FAILED`}\n`)
 process.exit(failures === 0 ? 0 : 1)

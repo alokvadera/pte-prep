@@ -1,9 +1,10 @@
 import { Suspense, lazy, useEffect, type ReactNode } from 'react'
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { RouteFallback } from './components/RouteFallback'
 import { useTest } from './store/useTest'
+import { useSettings } from './store/useSettings'
 
 // ---------------------------------------------------------------------------
 // The indexable routes are imported eagerly, on purpose.
@@ -43,23 +44,32 @@ function FullScreen({ children }: { children?: ReactNode }) {
 function TestRoute({ children }: { children?: ReactNode }) {
   const mock = useTest((s) => s.mock)
   const status = useTest((s) => s.status)
-  const navigate = useNavigate()
 
-  if (!mock) {
-    navigate('/mock', { replace: true })
-    return <FullScreen />
-  }
+  if (!mock) return <Navigate to="/mock" replace />
   if (status === 'finished') return <Navigate to="/result" replace />
   return <FullScreen>{children}</FullScreen>
 }
 
 export default function App() {
+  const { settings } = useSettings()
+
   // Signals that the app is interactive. It runs as an effect so that, under
   // hydration, it fires only after React has taken over the prerendered markup
   // — the outside world (and browser-check) can trust it as "hydrated".
   useEffect(() => {
     document.documentElement.dataset.appReady = 'true'
   }, [])
+
+  useEffect(() => {
+    const dark = settings.theme === 'dark'
+    document.documentElement.classList.toggle('dark', dark)
+    document.documentElement.style.fontSize = `${16 * settings.textScale}px`
+
+    // Keep the browser chrome on the same ground as the page. Without a system
+    // theme to fall back on, this is the only signal the address bar gets.
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', dark ? '#171b20' : '#ffffff')
+  }, [settings.theme, settings.textScale])
 
   return (
     // This boundary is shared by the server render and the client, so its

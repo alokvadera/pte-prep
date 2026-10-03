@@ -150,7 +150,13 @@ export default function Practice() {
             const cap = capacity[t] ?? 0
             return (
               <label key={t} className={cn('choice-card flex min-h-32 cursor-pointer items-start gap-3 p-5', on ? 'choice-active' : 'choice-idle choice-idle-solid')}>
-                <input type="checkbox" className="mt-0.5 size-4 shrink-0 accent-brand-500" checked={on} onChange={() => toggle(t)} />
+                <input
+                  type="checkbox"
+                  aria-label={meta.label}
+                  className="mt-0.5 size-4 shrink-0 accent-brand-500"
+                  checked={on}
+                  onChange={() => toggle(t)}
+                />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
                     <span className="text-ink-900 dark:text-white text-sm font-semibold">{meta.label}</span>

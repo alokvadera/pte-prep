@@ -160,20 +160,9 @@ export const useTest = create<TestStore>()(
       },
 
       prev: () => {
-        const { sectionIndex, itemIndex } = get()
+        const { itemIndex } = get()
         if (itemIndex > 0) {
           set({ itemIndex: itemIndex - 1, timeExpired: false })
-          return
-        }
-        if (sectionIndex > 0) {
-          const { mock } = get()
-          const prevSection = mock?.sections[sectionIndex - 1]
-          set({
-            sectionIndex: sectionIndex - 1,
-            itemIndex: prevSection ? Math.max(0, prevSection.itemIds.length - 1) : 0,
-            status: 'running',
-            timeExpired: false,
-          })
         }
       },
 

@@ -87,10 +87,14 @@ export function AudioPlayer({
 
   useEffect(() => {
     return () => {
-      if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+      if (timerRef.current !== null) {
+        window.clearTimeout(timerRef.current)
+        timerRef.current = null
+      }
       controllerRef.current?.stop()
+      controllerRef.current = null
     }
-  }, [])
+  }, [stimulusKey])
 
   // Countdown, then playback. The play is charged when playback actually
   // starts, not when the button is pressed — cancelling during the countdown

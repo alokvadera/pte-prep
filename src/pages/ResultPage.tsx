@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ADMISSION_TARGETS, buildReport, cefrLabel } from '../domain/scoring'
 import { QUESTION_META } from '../domain/blueprint'
+import { formatSeconds, paceReport, paceWarnings } from '../domain/pace'
 import type { AttemptRecord, ItemResponse, ItemScoreDetail, QuestionType, Skill } from '../domain/types'
 import { getAttempt } from '../db/db'
 import { formatDuration } from '../lib/format'
@@ -12,7 +13,7 @@ import { ScoreRangeBar, SkillBars } from '../components/charts/ScoreRangeBar'
 import { useTest } from '../store/useTest'
 import { useSettings } from '../store/useSettings'
 
-type Tab = 'overview' | 'by-type' | 'review'
+type Tab = 'overview' | 'pace' | 'by-type' | 'review'
 
 export default function ResultPage() {
   const [params] = useSearchParams()
@@ -30,25 +31,31 @@ export default function ResultPage() {
   useEffect(() => {
     let cancelled = false
     void (async () => {
-      const existing = params.get('attempt')
-      if (existing) {
-        const stored = await getAttempt(existing)
+      try {
+        const existing = params.get('attempt')
+        if (existing) {
+          const stored = await getAttempt(existing)
+          if (!cancelled) {
+            setAttempt(stored ?? null)
+            setLoading(false)
+          }
+          return
+        }
+        if (mock) {
+          const record = await finish()
+          if (!cancelled) {
+            setAttempt(record ?? null)
+            setLoading(false)
+          }
+          return
+        }
         if (!cancelled) {
-          setAttempt(stored ?? null)
           setLoading(false)
         }
-        return
-      }
-      if (mock) {
-        const record = await finish()
+      } catch {
         if (!cancelled) {
-          setAttempt(record ?? null)
           setLoading(false)
         }
-        return
-      }
-      if (!cancelled) {
-        setLoading(false)
       }
     })()
     return () => {
@@ -72,6 +79,14 @@ export default function ResultPage() {
     }
     return buildReport(items, mock.answers, responses, metaById).details
   }, [mock, responses])
+
+  // The real-test budget lives on the item, which the attempt record does not
+  // keep, so pace is read from the mock while the attempt is still in memory
+  // and falls back to nothing after a reload rather than to a guess.
+  const paceRows = useMemo(
+    () => (mock && attempt ? paceReport(Object.values(mock.items), attempt.responses ?? {}) : []),
+    [mock, attempt],
+  )
 
   if (loading) {
     return (
@@ -114,6 +129,7 @@ export default function ResultPage() {
   const visibleDetails = filter === 'lost' ? lost : details
 
   const estimatedCount = details.filter((d) => d.maxPoints > 0 && isEstimated(d)).length
+
   const typeRows = Object.values(attempt.breakdown).sort((a, b) => {
     const ra = a.maxPoints > 0 ? a.earnedPoints / a.maxPoints : 0
     const rb = b.maxPoints > 0 ? b.earnedPoints / b.maxPoints : 0
@@ -124,7 +140,14 @@ export default function ResultPage() {
     <>
       <Seo />
 
-      <div className="route-inner min-h-dvh">
+      <a
+        href="#main-content"
+        className="bg-brand-500 focus:ring-brand-300 sr-only rounded-lg px-4 py-2 text-white focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100"
+      >
+        Skip to content
+      </a>
+
+      <main id="main-content" className="route-inner min-h-dvh">
         <div className="page-shell-app">
         {/* Header */}
         <header className="flex flex-wrap items-start justify-between gap-6">
@@ -265,7 +288,7 @@ export default function ResultPage() {
                   <div className="min-w-0">
                     <p className="text-ink-900 dark:text-white text-sm font-semibold">
                       {t.label}{' '}
-                      <span className="text-ink-400 font-normal">· target {t.range}</span>
+                      <span className="text-ink-500 dark:text-ink-400 font-normal">· target {t.range}</span>
                       {state !== 'notMet' ? (
                         <span className="text-mint-700 dark:text-mint-300 ml-2 text-xs font-semibold">
                           {state === 'met' ? 'met' : 'exceeded'}
@@ -351,7 +374,52 @@ export default function ResultPage() {
             </Card>
           ) : null}
 
-          {tab === 'by-type' ? (
+          {tab === 'pace' ? (
+            <Card>
+              <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Where your time went</h2>
+              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
+                Average time per item against what the real test allows. Overruns tend to concentrate in two or three
+                types rather than spread evenly.
+              </p>
+              {paceWarnings(paceRows).length > 0 ? (
+                <div className="border-brand-500/30 bg-brand-500/[0.06] mt-5 rounded-lg border p-4">
+                  <p className="text-ink-900 dark:text-white text-sm font-semibold">Worth fixing first</p>
+                  <p className="text-ink-600 dark:text-ink-200 mt-1.5 text-sm leading-relaxed">
+                    {paceWarnings(paceRows)
+                      .map(
+                        (r) =>
+                          `${r.label} at ${formatSeconds(r.averageSeconds)} against a ${formatSeconds(r.budgetSeconds)} budget`,
+                      )
+                      .join('; ')}
+                    . Each of these is reading or listening time you will not have on the day.
+                  </p>
+                </div>
+              ) : null}
+              <ul className="mt-5 space-y-3">
+                {paceRows.map((row) => (
+                  <li key={row.type} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                    <div className="min-w-0">
+                      <span className="text-ink-900 dark:text-white text-sm font-semibold">{row.label}</span>
+                      <span className="text-ink-500 dark:text-ink-400 ml-2 font-mono text-xs">{row.short}</span>
+                    </div>
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-ink-600 dark:text-ink-200 text-sm tabular-nums">
+                        {formatSeconds(row.averageSeconds)} of {formatSeconds(row.budgetSeconds)}
+                      </span>
+                      <Badge tone={row.verdict === 'over' ? 'rose' : row.verdict === 'under' ? 'amber' : 'mint'}>
+                        {row.verdict === 'over' ? 'over budget' : row.verdict === 'under' ? 'well under' : 'on pace'}
+                      </Badge>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-ink-500 dark:text-ink-400 mt-5 text-xs leading-relaxed">
+                Under budget is not automatically good. A repeat sentence finished in two seconds was probably not
+                understood, which the accuracy column will show. These items are individually timed in the real test,
+                so pace here changes the pressure you feel rather than the marks you earn directly.
+              </p>
+            </Card>
+          ) : tab === 'by-type' ? (
             <div className="space-y-4">
               {skills.map(({ skill, score }) => {
                 const types = typeRows.filter((r) => r.skill === skill)
@@ -389,7 +457,7 @@ export default function ResultPage() {
                                   ? 'text-mint-600 dark:text-mint-300'
                                   : ratio >= 0.5
                                     ? 'text-amber-600 dark:text-amber-300'
-                                    : 'text-rose-brand',
+                                    : 'text-rose-brand dark:text-rose-300',
                               )}
                             >
                               {Math.round(ratio * 100)}%
@@ -409,7 +477,8 @@ export default function ResultPage() {
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  className={cn('btn-secondary text-sm', filter === 'all' && 'border-brand-500 text-brand-600 dark:text-brand-300')}                  onClick={() => setFilter('all')}
+                  className={cn('btn-secondary text-sm', filter === 'all' && 'border-brand-500 text-brand-600 dark:text-brand-300')}
+                  onClick={() => setFilter('all')}
                 >
                   All {details.length}
                 </button>
@@ -470,7 +539,7 @@ export default function ResultPage() {
           </Button>
         </div>
         </div>
-      </div>
+      </main>
     </>
   )
 }
@@ -565,7 +634,7 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
             'grid size-9 shrink-0 place-items-center rounded-lg text-xs font-bold',
             detail.status === 'correct' && 'bg-mint-500/15 text-mint-600 dark:text-mint-300',
             detail.status === 'partial' && 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
-            detail.status === 'incorrect' && 'bg-rose-brand/15 text-rose-brand',
+            detail.status === 'incorrect' && 'bg-rose-brand/15 text-rose-brand dark:text-rose-300',
           )}
           aria-hidden="true"
         >
@@ -586,7 +655,7 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
             <ul className="space-y-1.5">
               {detail.notes.map((n, i) => (
                 <li key={i} className="text-ink-600 dark:text-ink-300 flex gap-2 text-sm leading-relaxed">
-                  <span className="text-amber-500 mt-0.5 shrink-0" aria-hidden="true">
+                  <span className="text-amber-500 dark:text-amber-300 mt-0.5 shrink-0" aria-hidden="true">
                     •
                   </span>
                   {n}
@@ -598,8 +667,8 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
           )}
 
           {detail.gated ? (
-            <p className="rounded-lg border border-rose-brand/40 bg-rose-brand/8 p-3 text-sm">
-              <span className="text-rose-brand font-semibold">Zeroed by the score guide.</span> When Content or Form
+            <p className="rounded-lg border border-rose-brand/40 bg-rose-brand/8 p-3 text-sm dark:bg-rose-brand/15">
+              <span className="text-rose-brand dark:text-rose-300 font-semibold">Zeroed by the score guide.</span> When Content or Form
               scores 0, no points are awarded for the item, however the other traits scored.
             </p>
           ) : null}

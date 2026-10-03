@@ -85,7 +85,7 @@ export function ScoreRangeBar({ score, band, size = 'lg', className, label }: Pr
         {/* A single hard marker rather than a segment, so the value is readable
             without relying on the fill colour. */}
         <div
-          className="absolute inset-y-0 w-0.5 bg-white shadow-[0_0_0_1px_rgb(0_0_0/0.35)] dark:bg-white transition-[left] duration-700 ease-out"
+          className="absolute inset-y-0 w-0.5 bg-white ring-1 ring-black/35 dark:bg-white transition-[left] duration-700 ease-out"
           style={{ left: `calc(${pct}% - 1px)` }}
           aria-hidden="true"
         />

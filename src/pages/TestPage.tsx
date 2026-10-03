@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { TestRunner } from '../components/test/TestRunner'
 import { Seo } from '../seo/Seo'
@@ -10,6 +10,7 @@ export default function TestPage() {
   const restore = useTest((s) => s.restore)
   const tick = useTest((s) => s.tick)
   const [confirmExit, setConfirmExit] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
 
   // A reload mid-test resumes the same item with the same clock. A test that was
   // still at the briefing stage stays there, so the candidate decides when the
@@ -31,12 +32,32 @@ export default function TestPage() {
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [status])
 
+  // Focus trap + Escape dismiss for the exit dialog
   useEffect(() => {
     if (!confirmExit) return
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    // Move focus into the dialog
+    const focusable = dialog.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    focusable[0]?.focus()
+
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
         setConfirmExit(false)
+        return
+      }
+      if (e.key === 'Tab' && focusable.length > 0) {
+        const first = focusable[0]!
+        const last = focusable[focusable.length - 1]!
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
       }
     }
     window.addEventListener('keydown', onKeyDown)
@@ -56,7 +77,7 @@ export default function TestPage() {
       {confirmExit ? (
         <div className="fixed inset-0 z-100 grid place-items-center p-4">
           <button type="button" className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer" onClick={() => setConfirmExit(false)} aria-label="Cancel" />
-          <div role="dialog" aria-modal="true" aria-labelledby="confirm-exit-title" className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl">
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="confirm-exit-title" className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl">
             <h2 id="confirm-exit-title" className="text-ink-900 dark:text-white text-lg font-bold text-balance">Leave the test?</h2>
             <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">
               Your answers are saved, but the section clock will stop and the attempt will not be scored. You can resume

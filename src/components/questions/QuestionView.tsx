@@ -475,6 +475,7 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
       ) : null}
       <TypedAnswer
         id={`text-${item.id}`}
+        label={item.prompt}
         value={response?.text ?? ''}
         onChange={(text) => onChange({ text })}
         placeholder={
@@ -557,6 +558,7 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
 
       <div className="mt-4">
         <Recorder
+          key={item.id}
           seconds={item.seconds}
           prepSeconds={item.prepSeconds ?? 0}
           onRecorded={(analysis, transcript) => onChange({ audio: analysis, transcript })}
