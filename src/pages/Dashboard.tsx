@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { clearAttempts, deleteAttempt, listAttempts } from '../db/db'
 import { QUESTION_META } from '../domain/blueprint'
 import type { AttemptRecord, QuestionType, Skill } from '../domain/types'
-import { formatDateTime, formatDuration } from '../lib/format'
+import { formatDate, formatDateTime, formatDuration } from '../lib/format'
 import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
 import { Badge, Button, ButtonLink, Card, CardTitle, Disclosure, EmptyState, PageWrapper, ProgressBar, Stat, Toggle } from '../components/ui/primitives'
@@ -431,7 +431,7 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
       {[20, 40, 60, 80].map((v) => (
         <g key={v}>
           <line x1={pad} x2={w - pad} y1={py(v)} y2={py(v)} stroke="currentColor" strokeOpacity={0.1} />
-          <text x={pad - 6} y={py(v) + 4} textAnchor="end" className="fill-current text-[10px] opacity-50 tabular-nums">
+          <text x={pad - 6} y={py(v) + 4} textAnchor="end" className="fill-current text-micro opacity-50 tabular-nums">
             {v}
           </text>
         </g>
@@ -451,6 +451,18 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
           <title>{`Attempt ${i + 1}: ${p.value} points (${formatDateTime(p.label)})`}</title>
         </circle>
       ))}
+      {points.length > 0 && points[0] ? (
+        <g className="fill-current font-mono text-micro opacity-50 tabular-nums">
+          <text x={px(0)} y={h - 4} textAnchor="start">
+            {formatDate(points[0].label)}
+          </text>
+          {points.length > 1 && points[points.length - 1] ? (
+            <text x={px(points.length - 1)} y={h - 4} textAnchor="end">
+              {formatDate(points[points.length - 1]!.label)}
+            </text>
+          ) : null}
+        </g>
+      ) : null}
     </svg>
   )
 }

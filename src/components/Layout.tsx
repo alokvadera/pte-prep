@@ -6,10 +6,10 @@ import { useSettings, type Theme } from '../store/useSettings'
 function Logo() {
   return (
     <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="PTE Prep home">
-      <span className="bg-brand-500 grid size-[30px] place-items-center rounded-full font-display text-[10px] font-bold tracking-tight text-white">
+      <span className="bg-brand-500 grid size-[30px] place-items-center rounded-full font-display text-micro font-bold tracking-tight text-white">
         PTE
       </span>
-      <span className="text-ink-900 dark:text-ink-50 text-[19px] font-semibold tracking-[-0.04em]">PTE Prep</span>
+      <span className="text-ink-900 dark:text-ink-50 text-lg font-bold tracking-tight">PTE Prep</span>
     </Link>
   )
 }

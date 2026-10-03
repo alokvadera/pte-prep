@@ -419,9 +419,12 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
             return (
               <span
                 key={i}
+                role="separator"
                 className="bg-brand-500/15 mx-1 inline-block h-6 w-24 rounded-md align-middle"
                 aria-label="blank"
-              />
+              >
+                <span className="sr-only">blank</span>
+              </span>
             )
           }
           return (

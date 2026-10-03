@@ -347,11 +347,11 @@
    --------------------------------------------------------------------------- */
 
 @utility page-shell-prose {
-  @apply mx-auto w-full max-w-5xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-3xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
 }
 
 @utility page-shell-content {
-  @apply mx-auto w-full max-w-5xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-4xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
 }
 
 @utility page-shell-app {
@@ -645,12 +645,6 @@
 
 @utility pill {
   @apply inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 font-mono text-micro font-medium tracking-wide;
-}
-
-/* The single kicker style. Mono micro, tracked, never larger. Sections
-   that need a label above the heading use this — nothing inline. */
-@utility eyebrow {
-  @apply font-mono text-micro tracking-[0.14em];
 }
 
 @utility field {

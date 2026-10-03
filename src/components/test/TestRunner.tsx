@@ -232,6 +232,30 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
 
   const remaining = sectionEndsAt ? Math.max(0, Math.ceil((sectionEndsAt - now) / 1000)) : 0
 
+  /**
+   * Record how long each item is on screen.
+   *
+   * The report compares this against the budget the real test allows, which is
+   * the only way to show a candidate *where* their time went rather than telling
+   * them to manage it better. Time is accumulated on leaving an item and written
+   * once, so navigating back and forth does not overwrite a longer stay with a
+   * shorter one.
+   */
+  useEffect(() => {
+    if (status !== 'running') return
+    const startedAt = Date.now()
+    return () => {
+      if (!mock) return
+      const section = mock.sections[sectionIndex]
+      const id = section?.itemIds[itemIndex]
+      if (!id) return
+      const elapsed = Math.round((Date.now() - startedAt) / 1000)
+      if (elapsed <= 0) return
+      const previous = useTest.getState().responses[id]?.secondsOnItem ?? 0
+      useTest.getState().setResponse(id, { secondsOnItem: previous + elapsed })
+    }
+  }, [status, itemIndex, sectionIndex, mock])
+
   useEffect(() => {
     if (status !== 'running' || !sectionEndsAt || timeExpired) return
     if (Date.now() >= sectionEndsAt) useTest.getState().expireSection()
@@ -433,7 +457,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         <div className="page-shell-wide flex items-center justify-between gap-3 pt-3">
           <button type="button" className="btn-secondary" onClick={prev} disabled={itemIndex === 0}>
             ← Back
-            <kbd className="hidden sm:inline-block ml-1 rounded bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-[10px] font-mono text-ink-500 dark:text-ink-400">Alt+B</kbd>
+            <kbd className="hidden sm:inline-block ml-1 rounded bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-micro font-mono text-ink-500 dark:text-ink-400">Alt+B</kbd>
           </button>
           <button type="button" className="btn-ghost hidden sm:inline-flex" onClick={() => setNavOpen(true)}>
             {answered} of {section.itemIds.length} answered
@@ -450,7 +474,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
             }}
           >
             {isLast ? (isLastSection ? 'Finish test' : 'End section') : 'Next →'}
-            <kbd className="hidden sm:inline-block ml-1.5 rounded bg-white/25 px-1 py-0.5 text-[10px] font-mono text-white">Alt+N</kbd>
+            <kbd className="hidden sm:inline-block ml-1.5 rounded bg-white/25 px-1 py-0.5 text-micro font-mono text-white">Alt+N</kbd>
           </button>
         </div>
       </div>

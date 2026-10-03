@@ -560,7 +560,7 @@ export function ScoreWeightageMatrix() {
                         {item.name}
                       </Link>
                     </h3>
-                    <span className="text-ink-400 dark:text-ink-500 text-xs">
+                    <span className="text-ink-500 dark:text-ink-400 text-xs">
                       ({SECTION_META[item.section].longTitle})
                     </span>
                   </div>

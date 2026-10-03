@@ -309,10 +309,15 @@ export default function ResultPage() {
             {(
               [
                 ['overview', 'By question type'],
+                ['pace', 'Pace'],
                 ['by-type', 'Skill detail'],
                 ['review', 'Answer review'],
               ] as Array<[Tab, string]>
-            ).map(([id, label]) => (
+            )
+              // Pace needs timing data, which only exists while a mock is in
+              // memory, so the tab appears only when there is something to show.
+              .filter(([id]) => id !== 'pace' || paceRows.length > 0)
+              .map(([id, label]) => (
               <button
                 key={id}
                 type="button"

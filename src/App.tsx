@@ -69,6 +69,21 @@ export default function App() {
     // theme to fall back on, this is the only signal the address bar gets.
     const meta = document.querySelector('meta[name="theme-color"]')
     if (meta) meta.setAttribute('content', dark ? '#171b20' : '#ffffff')
+
+    const beforePrint = () => {
+      document.documentElement.classList.remove('dark')
+    }
+    const afterPrint = () => {
+      if (settings.theme === 'dark') {
+        document.documentElement.classList.add('dark')
+      }
+    }
+    window.addEventListener('beforeprint', beforePrint)
+    window.addEventListener('afterprint', afterPrint)
+    return () => {
+      window.removeEventListener('beforeprint', beforePrint)
+      window.removeEventListener('afterprint', afterPrint)
+    }
   }, [settings.theme, settings.textScale])
 
   return (

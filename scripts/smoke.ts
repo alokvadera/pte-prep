@@ -17,7 +17,9 @@ const isConstructed = (t: string) => CONSTRUCTED_TYPES.includes(t)
 const MIC = { durationMs: 8000, wordsPerMinute: 150, speechRatio: 0.82, pauseCount: 1, meanPitchHz: 175, energyVariance: 0.55, reliable: true }
 
 let failures = 0
+let checks = 0
 function check(label: string, condition: boolean, detail = ''): void {
+  checks++
   if (condition) {
     console.log(`  ok   ${label}`)
   } else {
@@ -453,4 +455,9 @@ console.log('\n== Pace analysis ==')
   check('formats mixed durations', formatSeconds(140) === '2m 20s', formatSeconds(140))
 }
 
+console.log(
+  failures === 0
+    ? `\nALL CHECKS PASSED (${checks} assertions)\n`
+    : `\n${failures} CHECK(S) FAILED of ${checks}\n`,
+)
 process.exit(failures === 0 ? 0 : 1)

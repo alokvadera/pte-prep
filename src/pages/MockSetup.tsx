@@ -105,10 +105,54 @@ export default function MockSetup() {
     return { mock, scoredCount: scored.length, minutes: Math.round(mock.totalSeconds / 60) }
   }, [seed, counts, singleSection, timing])
 
+  const [confirmOverwrite, setConfirmOverwrite] = useState(false)
+  const dialogRef = useRef<HTMLDivElement>(null)
+
+  const handleStart = () => {
+    if (activeMock && activeStatus !== 'finished') {
+      setConfirmOverwrite(true)
+      return
+    }
+    begin()
+  }
+
   const begin = () => {
     start(preview.mock, mode)
     navigate('/test')
   }
+
+  // Focus trap + Escape dismiss for the overwrite dialog
+  useEffect(() => {
+    if (!confirmOverwrite) return
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
+    focusable[0]?.focus()
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setConfirmOverwrite(false)
+        return
+      }
+      if (e.key === 'Tab' && focusable.length > 0) {
+        const first = focusable[0]!
+        const last = focusable[focusable.length - 1]!
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [confirmOverwrite])
 
   return (
     <>
@@ -304,7 +348,7 @@ export default function MockSetup() {
                 </p>
               </div>
 
-              <Button size="lg" className="mt-6 w-full" onClick={begin}>
+              <Button size="lg" className="mt-6 w-full" onClick={handleStart}>
                 Start {LENGTHS[length].label.toLowerCase()}
               </Button>
 
@@ -314,6 +358,46 @@ export default function MockSetup() {
             </div>
           </aside>
         </div>
+
+        {confirmOverwrite ? (
+          <div className="fixed inset-0 z-100 grid place-items-center p-4">
+            <button
+              type="button"
+              className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer"
+              onClick={() => setConfirmOverwrite(false)}
+              aria-label="Cancel"
+            />
+            <div
+              ref={dialogRef}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-overwrite-title"
+              className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl"
+            >
+              <h2 id="confirm-overwrite-title" className="text-ink-900 dark:text-white text-lg font-bold text-balance">
+                Discard active test?
+              </h2>
+              <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">
+                You have a test in progress ({activeMock?.title}). Starting a new mock test will discard your current progress.
+              </p>
+              <div className="mt-6 flex justify-end gap-2">
+                <button type="button" className="btn-secondary" onClick={() => setConfirmOverwrite(false)}>
+                  Keep active test
+                </button>
+                <button
+                  type="button"
+                  className="btn-danger"
+                  onClick={() => {
+                    setConfirmOverwrite(false)
+                    begin()
+                  }}
+                >
+                  Discard & Start
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </PageWrapper>
     </>
   )
