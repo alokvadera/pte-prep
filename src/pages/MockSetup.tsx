@@ -172,7 +172,7 @@ export default function MockSetup() {
       >
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            <div className="card relative overflow-hidden bg-white/50 backdrop-blur-xl dark:bg-ink-900/40 dark:backdrop-blur-2xl border-white/20 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+            <div className="card card-glow relative overflow-hidden bg-white/50 backdrop-blur-xl dark:bg-ink-900/40 dark:backdrop-blur-2xl border-white/20 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
               <h2 className="text-xl font-bold tracking-tight text-ink-900 dark:text-white mb-6">Test Length</h2>
               
               <div className="space-y-3">
@@ -238,7 +238,7 @@ export default function MockSetup() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="card sticky top-24 bg-white/80 backdrop-blur-xl dark:bg-ink-900/80">
+            <div className="card card-glow sticky top-24 bg-white/80 backdrop-blur-xl dark:bg-ink-900/80">
               <h2 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mb-4">Summary</h2>
               
               <dl className="space-y-4 mb-8 border-b border-ink-100 dark:border-white/10 pb-6">

@@ -51,7 +51,8 @@ export default function Home() {
           the exception that proves the rule: every interior page is
           left-aligned, so the marketing page reads as a distinct register
           rather than a different product. */}
-      <section className="border-ink-200 dark:border-white/10 border-b py-16 sm:py-20 lg:py-24">
+      <section className="relative border-ink-200 dark:border-white/10 border-b py-16 sm:py-20 lg:py-24 overflow-hidden">
+        <div className="absolute inset-0 bg-grid-pattern opacity-50 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
         <div className="page-shell-wide grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,.95fr)] lg:gap-16">
           <div className="max-w-hero">
             <Reveal variant="up">
@@ -79,7 +80,7 @@ export default function Home() {
           </div>
 
           <Reveal delay={140} variant="up">
-            <aside className="card-solid overflow-hidden p-0" aria-label="Full mock test preview">
+            <aside className="card-solid card-glow overflow-hidden p-0 relative shadow-premium-light dark:shadow-premium-dark" aria-label="Full mock test preview">
               <div className="border-brand-500 bg-brand-500 border-b px-6 py-5 text-white sm:px-8">
                 <p className="text-sm font-semibold">Full mock test</p>
                 <p className="mt-1 text-sm text-white/80">A complete test day in one focused session.</p>
@@ -115,6 +116,7 @@ export default function Home() {
           </Reveal>
         </div>
       </section>
+      <div className="divider-gradient w-full max-w-5xl mx-auto opacity-50" />
 
       {/* ---------------------------------------------------------------- */}
       <section className="py-16 sm:py-20">
