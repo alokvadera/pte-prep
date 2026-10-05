@@ -5,7 +5,7 @@ import { buildFullMock, buildSectionMock } from '../domain/assemble'
 import type { MockMode, QuestionType, SectionId } from '../domain/types'
 import { capacityByType } from '../content/bank'
 import { Seo } from '../seo/Seo'
-import { Button, PageWrapper } from '../components/ui/primitives'
+import { Badge, Button, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useTest } from '../store/useTest'
 
@@ -172,31 +172,89 @@ export default function MockSetup() {
       >
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
-            <div className="card card-glow relative overflow-hidden bg-white/50 backdrop-blur-xl dark:bg-ink-900/40 dark:backdrop-blur-2xl border-white/20 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
-              <h2 className="text-xl font-bold tracking-tight text-ink-900 dark:text-white mb-6">Test Length</h2>
+            <div className="card-solid relative overflow-hidden">
+              <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-4 mb-6">
+                <div className="flex items-center gap-2 font-mono text-[11px] text-ink-500 dark:text-ink-400 uppercase tracking-wider">
+                  <span className="text-brand-600 dark:text-brand-400 font-semibold">[SEC.01]</span>
+                  <span>SIMULATION SCOPE & TIMING</span>
+                </div>
+                <div className="flex items-center gap-1.5 font-mono text-[10px] text-emerald-600 dark:text-emerald-400 uppercase">
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span>READY</span>
+                </div>
+              </div>
+
+              <h2 className="sr-only">Test Length and Scope</h2>
               
               <div className="space-y-3">
                 {(['full', 'half', 'quick'] as const).map((len) => {
                   const isActive = length === len
                   const meta =
                     len === 'full'
-                      ? { label: 'Full mock', desc: 'All 3 sections · Official test pacing · Best for accurate scoring' }
+                      ? {
+                          index: '01 //',
+                          label: 'Full mock',
+                          badge: 'OFFICIAL PACE',
+                          badgeTone: 'mint' as const,
+                          specs: '3 SECTIONS · 22 TYPES · ~120 MINS',
+                          desc: 'Full Pearson Academic simulation with machine scoring across Speaking, Writing, Reading, and Listening.',
+                        }
                       : len === 'half'
-                        ? { label: 'Half mock', desc: 'Shorter duration · Good for focused section testing' }
-                        : { label: 'Quick run', desc: 'A handful of questions to test the platform and your equipment' }
+                        ? {
+                            index: '02 //',
+                            label: 'Half mock',
+                            badge: 'ACCELERATED',
+                            badgeTone: 'brand' as const,
+                            specs: 'REPRESENTATIVE SUBSET · ~60 MINS',
+                            desc: 'Proportional question distribution across all sections. Ideal for mid-week pacing and stamina drills.',
+                          }
+                        : {
+                            index: '03 //',
+                            label: 'Quick run',
+                            badge: 'DIAGNOSTIC',
+                            badgeTone: 'neutral' as const,
+                            specs: '~25 ITEMS · ~35 MINS',
+                            desc: 'Rapid diagnostic run. Validates microphone input, speech recognition latency, and pacing.',
+                          }
 
                   return (
-                    <label key={len} className={`choice-card flex items-start gap-4 p-5 transition-all duration-300 ${isActive ? 'border-brand-500 bg-brand-500/5 dark:bg-brand-500/10 shadow-[0_0_0_1px_rgba(23,86,176,1)]' : 'border-ink-200 bg-white hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]'}`}>
+                    <label
+                      key={len}
+                      className={`group relative flex cursor-pointer items-start gap-4 rounded border p-4 sm:p-5 transition-all duration-200 ${
+                        isActive
+                          ? 'border-brand-500 bg-brand-50/40 shadow-xs dark:border-brand-400 dark:bg-brand-500/10'
+                          : 'border-ink-200 bg-white hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-white/20'
+                      }`}
+                    >
                       <input
                         type="radio"
                         name="length"
-                        className="mt-1 h-5 w-5 accent-brand-500 shrink-0 cursor-pointer"
+                        className="sr-only"
                         checked={isActive}
                         onChange={() => { setLength(len); setSingleSection(null); }}
                       />
-                      <div>
-                        <div className="text-ink-900 dark:text-white font-semibold">{meta.label}</div>
-                        <div className="text-ink-500 dark:text-ink-300 text-sm mt-1">{meta.desc}</div>
+                      
+                      {/* Swiss Technical Radio Pill */}
+                      <div className={`mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full border transition-all ${
+                        isActive
+                          ? 'border-brand-500 bg-brand-500 text-white dark:border-brand-400 dark:bg-brand-400'
+                          : 'border-ink-300 bg-transparent group-hover:border-ink-400 dark:border-white/20 dark:group-hover:border-white/40'
+                      }`}>
+                        {isActive && <div className="size-1.5 rounded-full bg-white dark:bg-ink-950" />}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-xs text-ink-400 dark:text-ink-500">{meta.index}</span>
+                            <span className="text-base font-bold text-ink-900 dark:text-white">{meta.label}</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-mono text-[10px] text-ink-500 dark:text-ink-400 hidden sm:inline">{meta.specs}</span>
+                            <Badge tone={meta.badgeTone}>{meta.badge}</Badge>
+                          </div>
+                        </div>
+                        <p className="mt-1 text-xs text-ink-500 dark:text-ink-400 leading-relaxed">{meta.desc}</p>
                       </div>
                     </label>
                   )
@@ -205,27 +263,42 @@ export default function MockSetup() {
 
               {length !== 'full' && (
                 <div className="mt-6 pt-6 border-t border-ink-100 dark:border-white/10">
-                  <h3 className="text-sm font-semibold text-ink-900 dark:text-white mb-3">Target a specific section (Optional)</h3>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="font-mono text-xs font-semibold text-ink-900 dark:text-white uppercase tracking-wider">
+                      Sub-Section Filter (Optional)
+                    </h3>
+                    <span className="font-mono text-[10px] text-ink-400 dark:text-ink-500">ISOLATE DOMAIN</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     <button
                       type="button"
                       onClick={() => setSingleSection(null)}
-                      className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-200 cursor-pointer ${singleSection === null ? 'border-brand-500 bg-brand-500 text-white shadow-sm' : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-300 dark:hover:border-white/20'}`}
+                      className={`px-3 py-2 rounded text-xs font-mono font-medium border text-center transition-all cursor-pointer ${
+                        singleSection === null
+                          ? 'border-brand-500 bg-brand-500 text-white shadow-xs dark:border-brand-400 dark:bg-brand-400 dark:text-ink-950'
+                          : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-ink-300 dark:hover:border-white/20'
+                      }`}
                     >
-                      All sections
+                      [00 // ALL]
                     </button>
-                    {(['speaking-writing', 'reading', 'listening'] as const).map((sId) => {
+                    {(['speaking-writing', 'reading', 'listening'] as const).map((sId, sIdx) => {
                       const isActive = singleSection === sId
                       const sectionTitle = SECTION_META[sId]?.longTitle || sId
+                      const shortCode = sId === 'speaking-writing' ? 'SPEAK/WRITE' : sId.toUpperCase()
 
                       return (
                         <button
                           key={sId}
                           type="button"
                           onClick={() => setSingleSection(sId)}
-                          className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-200 cursor-pointer ${isActive ? 'border-brand-500 bg-brand-500 text-white shadow-sm' : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-300 dark:hover:border-white/20'}`}
+                          className={`px-3 py-2 rounded text-xs font-mono font-medium border text-center transition-all cursor-pointer truncate ${
+                            isActive
+                              ? 'border-brand-500 bg-brand-500 text-white shadow-xs dark:border-brand-400 dark:bg-brand-400 dark:text-ink-950'
+                              : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-ink-300 dark:hover:border-white/20'
+                          }`}
+                          title={sectionTitle}
                         >
-                          {sectionTitle}
+                          [0{sIdx + 1} // {shortCode}]
                         </button>
                       )
                     })}
@@ -238,28 +311,40 @@ export default function MockSetup() {
           </div>
 
           <div className="lg:col-span-1">
-            <div className="card card-glow sticky top-24 bg-white/80 backdrop-blur-xl dark:bg-ink-900/80">
-              <h2 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mb-4">Summary</h2>
+            <div className="card-solid sticky top-24">
+              <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-3 mb-4">
+                <h2 className="font-mono text-xs font-bold text-ink-900 dark:text-white uppercase tracking-wider">
+                  SESSION MANIFEST
+                </h2>
+                <span className="font-mono text-[10px] text-brand-600 dark:text-brand-300 font-semibold">[STANDBY]</span>
+              </div>
               
-              <dl className="space-y-4 mb-8 border-b border-ink-100 dark:border-white/10 pb-6">
+              <dl className="space-y-3 mb-6 border-b border-ink-100 dark:border-white/10 pb-5">
                 <Row label="Type" value={LENGTHS[length].label} />
                 <Row label="Sections" value={preview.mock.sections.map((s) => SECTION_META[s.id]?.longTitle || s.id).join(' → ')} />
-                <Row label="Scored Items" value={String(preview.scoredCount)} />
+                <Row label="Scored Items" value={`${preview.scoredCount} units`} />
                 <Row label="Estimated Time" value={formatClock(preview.mock.totalSeconds)} />
+                <Row label="Scoring Engine" value="Pearson ML v2.4" />
               </dl>
               
-              <Button size="lg" className="w-full justify-center shadow-premium-light dark:shadow-premium-dark" onClick={handleStart}>
-                Start session →
+              <Button size="lg" className="w-full justify-center shadow-premium-light dark:shadow-premium-dark font-mono text-sm tracking-wide group" onClick={handleStart}>
+                <span>EXECUTE SESSION</span>
+                <span className="ml-1.5 font-sans transition-transform group-hover:translate-x-1">→</span>
               </Button>
 
               <details className="border-ink-200 dark:border-white/10 group mt-5 border-t pt-4">
-                <summary className="text-ink-700 dark:text-ink-200 flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold">
-                  <span>{includedTypes.length} question types included</span>
-                  <span className="text-ink-500 dark:text-ink-400 font-normal group-open:hidden">Show</span>
-                  <span className="text-ink-500 dark:text-ink-400 hidden font-normal group-open:inline">Hide</span>
+                <summary className="text-ink-700 dark:text-ink-200 flex cursor-pointer items-center justify-between gap-3 text-xs font-mono font-semibold">
+                  <span>[TYPES: {includedTypes.length} LOADED]</span>
+                  <span className="text-ink-500 dark:text-ink-400 font-normal group-open:hidden">Inspect ↓</span>
+                  <span className="text-ink-500 dark:text-ink-400 hidden font-normal group-open:inline">Collapse ↑</span>
                 </summary>
-                <ul className="text-ink-600 dark:text-ink-300 mt-3 max-h-48 space-y-1 overflow-y-auto pr-2 text-xs">
-                  {includedTypes.map((type) => <li key={type}>{QUESTION_META[type]?.label || type}</li>)}
+                <ul className="text-ink-600 dark:text-ink-300 mt-3 max-h-48 space-y-1.5 overflow-y-auto pr-2 text-xs font-mono">
+                  {includedTypes.map((type, idx) => (
+                    <li key={type} className="flex items-center justify-between py-0.5 border-b border-ink-100/60 dark:border-white/5">
+                      <span className="truncate">{QUESTION_META[type]?.label || type}</span>
+                      <span className="text-ink-400 dark:text-ink-500 text-[10px] shrink-0 ml-2">#{String(idx + 1).padStart(2, '0')}</span>
+                    </li>
+                  ))}
                 </ul>
               </details>
             </div>
@@ -270,7 +355,7 @@ export default function MockSetup() {
           <div className="fixed inset-0 z-100 grid place-items-center p-4">
             <button
               type="button"
-              className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer backdrop-blur-sm"
+              className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer backdrop-blur-xs"
               onClick={() => setConfirmOverwrite(false)}
               aria-label="Cancel"
             />
@@ -279,18 +364,21 @@ export default function MockSetup() {
               role="dialog"
               aria-modal="true"
               aria-labelledby="confirm-overwrite-title"
-              className="card relative z-10 w-full max-w-sm p-6 shadow-2xl animate-modal-enter"
+              className="card-solid relative z-10 w-full max-w-sm p-6 shadow-2xl animate-modal-enter border border-ink-200 dark:border-white/15"
             >
+              <div className="flex items-center gap-2 font-mono text-[11px] text-amber-600 dark:text-amber-400 uppercase tracking-wider mb-2">
+                <span>[SYS.ALERT // CONFLICT DETECTED]</span>
+              </div>
               <h3 id="confirm-overwrite-title" className="text-lg font-bold text-ink-900 dark:text-white">Discard active mock?</h3>
-              <p className="mt-2 text-sm text-ink-500 dark:text-ink-300">
-                You already have a mock in progress ({activeMock?.title}). Starting a new one will discard it permanently.
+              <p className="mt-2 text-xs text-ink-500 dark:text-ink-400 leading-relaxed font-mono">
+                An active simulation session ({activeMock?.title}) is stored in memory. Initializing a new run will overwrite existing progress.
               </p>
               <div className="mt-6 flex justify-end gap-3">
-                <Button variant="secondary" onClick={() => setConfirmOverwrite(false)}>
+                <Button variant="secondary" size="sm" onClick={() => setConfirmOverwrite(false)}>
                   Cancel
                 </Button>
-                <Button variant="danger" onClick={() => { setConfirmOverwrite(false); begin(); }}>
-                  Discard & Start
+                <Button variant="danger" size="sm" onClick={() => { setConfirmOverwrite(false); begin(); }}>
+                  Discard & Execute
                 </Button>
               </div>
             </div>
@@ -437,70 +525,128 @@ function MicChecker() {
     }
   }
 
+  const activeBars = Math.min(16, Math.max(1, Math.round((Math.max(8, level) / 100) * 16)))
+
   return (
-    <div className="card-solid">
+    <div className="card-solid relative overflow-hidden">
+      <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-4 mb-5">
+        <div className="flex items-center gap-2 font-mono text-[11px] text-ink-500 dark:text-ink-400 uppercase tracking-wider">
+          <span className="text-brand-600 dark:text-brand-400 font-semibold">[SEC.02]</span>
+          <span>AUDIO INPUT TRANSDUCER</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {state === 'idle' && (
+            <span className="font-mono text-[10px] text-ink-400 dark:text-ink-500 uppercase tracking-wider">
+              [STANDBY · 44.1 kHz]
+            </span>
+          )}
+          {state === 'recording' && (
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-rose-600 dark:text-rose-400 uppercase font-bold tracking-wider animate-pulse">
+              <span className="size-2 rounded-full bg-rose-600" />
+              SAMPLING · 0{countdown}S
+            </span>
+          )}
+          {state === 'ready' && (
+            <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-emerald-600 dark:text-emerald-400 uppercase font-semibold tracking-wider">
+              <span className="size-1.5 rounded-full bg-emerald-500" />
+              CALIBRATED
+            </span>
+          )}
+          {state === 'error' && (
+            <span className="font-mono text-[10px] text-rose-600 dark:text-rose-400 uppercase font-semibold tracking-wider">
+              [ERROR]
+            </span>
+          )}
+        </div>
+      </div>
+
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-ink-900 dark:text-white text-sm font-bold">Equipment check · Microphone test</p>
+        <div className="max-w-md">
+          <h3 className="text-sm font-bold text-ink-900 dark:text-white">Microphone Input Calibration</h3>
           <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">
-            Record a 3-second sample to verify your headset microphone and hear playback before launching your test.
+            Record a 3-second sample to verify browser microphone permissions, validate input signal gain, and preview playback.
           </p>
         </div>
 
         {state === 'idle' && (
-          <Button variant="secondary" onClick={startTest} className="shrink-0 text-xs">
-            Test microphone (3s)
+          <Button variant="secondary" onClick={startTest} size="sm" className="shrink-0 text-xs font-mono">
+            Calibrate mic (3s)
           </Button>
         )}
 
-        {state === 'recording' && (
-          <span className="inline-flex items-center gap-1.5 text-rose-600 dark:text-rose-400 font-mono text-xs font-bold animate-pulse">
-            <span className="size-2 rounded-full bg-rose-600" />
-            Recording: {countdown}s
-          </span>
-        )}
-
         {state === 'ready' && (
-          <Button variant="ghost" onClick={startTest} className="shrink-0 text-xs">
-            Test again
+          <Button variant="ghost" onClick={startTest} size="sm" className="shrink-0 text-xs font-mono">
+            Re-calibrate ↺
           </Button>
         )}
       </div>
 
       {state === 'recording' && (
-        <div className="mt-3">
-          <div className="h-2 w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10">
-            <div
-              className="h-full bg-mint-500 transition-all duration-75"
-              style={{ width: `${Math.max(12, level)}%` }}
-            />
+        <div className="mt-5 space-y-3 rounded border border-ink-200 dark:border-white/10 bg-ink-50/50 dark:bg-white/[0.02] p-4">
+          <div className="flex items-center justify-between font-mono text-[9px] text-ink-400 dark:text-ink-500 uppercase tracking-widest px-0.5">
+            <span>-42dB</span>
+            <span>-24dB</span>
+            <span>-12dB</span>
+            <span>-6dB</span>
+            <span>0dB</span>
+            <span className="text-rose-500 dark:text-rose-400 font-bold">PEAK</span>
           </div>
-          <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs">
-            Speak a sentence clearly into your microphone: "The quick brown fox jumps over the lazy dog."
-          </p>
+
+          {/* 16-Segment LED Bar Graph */}
+          <div className="grid grid-cols-[repeat(16,minmax(0,1fr))] gap-1 h-3 p-1 rounded-xs bg-ink-950/10 dark:bg-black/40 border border-ink-200 dark:border-white/10">
+            {Array.from({ length: 16 }).map((_, i) => {
+              const isLit = i < activeBars
+              const isPeak = i >= 14
+              const isMid = i >= 10 && i < 14
+              return (
+                <div
+                  key={i}
+                  className={`h-full rounded-2xs transition-colors duration-75 ${
+                    isLit
+                      ? isPeak
+                        ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.6)]'
+                        : isMid
+                          ? 'bg-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.5)]'
+                          : 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]'
+                      : 'bg-ink-200 dark:bg-white/8'
+                  }`}
+                />
+              )
+            })}
+          </div>
+
+          <div className="pt-2 text-xs font-mono text-ink-600 dark:text-ink-300">
+            <span className="text-ink-400 dark:text-ink-500 text-[10px] block uppercase mb-1">Calibration Phrase:</span>
+            <span className="font-semibold text-ink-900 dark:text-white">"The quick brown fox jumps over the lazy dog."</span>
+          </div>
         </div>
       )}
 
       {state === 'ready' && audioUrl && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-ink-100 pt-3 dark:border-white/10">
-          <span className="inline-flex items-center gap-1.5 text-mint-700 dark:text-mint-300 text-xs font-semibold">
-            <svg viewBox="0 0 20 20" fill="currentColor" className="size-4 shrink-0" aria-hidden="true">
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Microphone verified
-          </span>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded border border-emerald-500/25 bg-emerald-500/5 p-4 dark:border-emerald-400/20 dark:bg-emerald-500/10">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+              <svg viewBox="0 0 20 20" fill="currentColor" className="size-3.5" aria-hidden="true">
+                <path
+                  fillRule="evenodd"
+                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                  clipRule="evenodd"
+                />
+              </svg>
+            </span>
+            <div>
+              <p className="font-mono text-xs font-bold text-ink-900 dark:text-white">Transducer verified</p>
+              <p className="text-[11px] text-ink-500 dark:text-ink-400">Speech gain validated. Listen to verify clarity.</p>
+            </div>
+          </div>
           <audio controls src={audioUrl} className="h-8 max-w-xs" />
         </div>
       )}
 
       {state === 'error' && (
-        <div className="mt-3 flex items-start gap-2 text-rose-600 dark:text-rose-400 text-xs">
+        <div className="mt-4 flex items-start gap-2 rounded border border-rose-500/30 bg-rose-500/5 p-3 text-xs text-rose-600 dark:text-rose-400 font-mono">
           <span>⚠️ {errorMsg}</span>
-          <button type="button" onClick={startTest} className="underline font-semibold ml-1 cursor-pointer">
+          <button type="button" onClick={startTest} className="underline font-bold ml-1 cursor-pointer">
             Retry
           </button>
         </div>

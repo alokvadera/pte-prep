@@ -875,10 +875,12 @@
   /* Elevation is a shift in value, not a blur. Padding lives here so a bare
      `card` can never collapse into a zero-padding strip (FAQ, sidebar, review
      rows all hit that). Override with any padding utility when needed. */
-  @apply bg-white border-ink-200 rounded-xl border p-6 sm:p-8 transition-[border-color,box-shadow,translate,background-color] duration-200;
+  @apply bg-white border-ink-200 rounded-md border p-6 sm:p-8 transition-[border-color,box-shadow,translate,background-color] duration-200;
+  box-shadow: 0 1px 2px rgb(14 17 23 / 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
   &:where(.dark, .dark *) {
-    @apply border-white/10 bg-white/[0.035] shadow-xs;
+    @apply border-white/10 bg-white/[0.035];
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 }
 
@@ -921,7 +923,7 @@
   @apply w-full border-collapse text-left text-sm;
 
   & thead th {
-    @apply text-ink-500 dark:text-ink-400 border-ink-200 dark:border-white/10 border-b px-4 py-3 text-xs font-bold tracking-wider uppercase;
+    @apply text-ink-500 dark:text-ink-400 border-ink-200 dark:border-white/10 border-b px-4 py-3 text-xs font-mono font-bold tracking-wider uppercase;
   }
 
   & tbody td {
@@ -933,7 +935,7 @@
   }
 
   & caption {
-    @apply text-ink-500 dark:text-ink-400 mt-3 text-left text-xs;
+    @apply text-ink-500 dark:text-ink-400 mt-3 text-left text-xs font-mono;
   }
 }
 
@@ -941,9 +943,9 @@
   @apply card relative overflow-hidden;
   
   &:hover {
-    @apply -translate-y-1;
+    @apply -translate-y-0.5;
     border-color: var(--color-brand-300);
-    box-shadow: var(--shadow-premium-light);
+    box-shadow: var(--shadow-premium-light), inset 0 1px 0 rgba(255, 255, 255, 0.9);
   }
 
   &:where(.dark, .dark *):hover {
@@ -953,8 +955,8 @@
 }
 
 @utility card-solid {
-  @apply bg-white border-ink-200 rounded-xl border p-6 sm:p-8 transition-all duration-300;
-  box-shadow: var(--shadow-premium-light);
+  @apply bg-white border-ink-200 rounded-md border p-6 sm:p-8 transition-all duration-300;
+  box-shadow: var(--shadow-premium-light), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 
   &:where(.dark, .dark *) {
     @apply border-white/12;

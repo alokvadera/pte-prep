@@ -133,17 +133,17 @@ export default function Dashboard() {
         actions={attempts && attempts.length > 0 ? <ButtonLink to="/mock" size="lg">Take another mock</ButtonLink> : undefined}
       >
         <div className="mt-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-ink-100 bg-ink-50/70 p-4 sm:p-5 dark:border-white/8 dark:bg-white/4">
+          <div className="card-solid flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5">
             <div className="flex items-center gap-3.5">
               <div
                 className={cn(
-                  'size-10 rounded-xl flex items-center justify-center shrink-0',
+                  'size-9 rounded flex items-center justify-center shrink-0 border',
                   user
-                    ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                    : 'bg-brand-500/10 text-brand-600 dark:text-brand-400',
+                    ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                    : 'border-brand-500/30 bg-brand-500/10 text-brand-600 dark:text-brand-400',
                 )}
               >
-                <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -153,17 +153,17 @@ export default function Dashboard() {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-semibold text-ink-900 dark:text-ink-50">
-                    {user ? user.email : 'Cloud Backup & Sync'}
-                  </p>
+                  <span className="font-mono text-micro text-ink-400 dark:text-ink-500 uppercase tracking-wider">
+                    {user ? 'SYS.SYNC // AUTHENTICATED' : 'SYS.SYNC // LOCAL INSTANCE'}
+                  </span>
                   <Badge tone={user ? 'mint' : 'neutral'}>
-                    {user ? 'Cloud Synced' : 'Device Only'}
+                    {user ? 'Edge Synced' : 'Device Only'}
                   </Badge>
                 </div>
-                <p className="text-xs text-ink-500 dark:text-ink-400 mt-0.5">
+                <p className="text-xs text-ink-600 dark:text-ink-300 font-mono mt-0.5">
                   {user
-                    ? `Target score: ${user.targetScore}. Tests are backed up to Cloudflare D1.`
-                    : 'Sign in with your email to automatically back up tests and sync across devices.'}
+                    ? `Account: ${user.email} · Target: ${user.targetScore} · Cloudflare D1 edge active.`
+                    : 'Sign in to persist your sessions, metrics, and score history across devices.'}
                 </p>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function Dashboard() {
               to={user ? '/login' : hasLoggedInBefore ? '/login' : '/register'}
               variant={user ? 'secondary' : 'primary'}
               size="sm"
-              className="shrink-0"
+              className="shrink-0 font-mono text-xs"
             >
               {user ? 'Manage account' : hasLoggedInBefore ? 'Sign in' : 'Create account'}
             </ButtonLink>
@@ -292,24 +292,36 @@ export default function Dashboard() {
 
               {/* Main Bento Area */}
               {stats.trendAttempts.length > 1 ? (
-                <Card className="md:col-span-2 flex flex-col min-h-[300px]">
-                  <CardTitle>Overall score over time{stats.isFullMockTrend ? ' (Full mocks)' : ''}</CardTitle>
-                  <div className="flex-1 mt-4 relative">
+                <Card className="md:col-span-2 flex flex-col min-h-[320px]">
+                  <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-3 mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-micro text-brand-600 dark:text-brand-400 font-semibold">[CHART.01]</span>
+                      <CardTitle>Overall score trajectory{stats.isFullMockTrend ? ' (Full mocks)' : ''}</CardTitle>
+                    </div>
+                    <span className="font-mono text-[10px] text-ink-400 dark:text-ink-500 uppercase">10-90 PTE Scale</span>
+                  </div>
+                  <div className="flex-1 mt-2 relative">
                     <ScoreTrend points={stats.trendAttempts.map((a) => ({ label: a.finishedAt, value: a.overallScore }))} />
                   </div>
                 </Card>
               ) : null}
 
               <Card className={stats.trendAttempts.length > 1 ? "md:col-span-1" : "md:col-span-3"}>
-                <CardTitle>Average by skill</CardTitle>
-                <div className="mt-6 space-y-5">
+                <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-micro text-brand-600 dark:text-brand-400 font-semibold">[DIAG.01]</span>
+                    <CardTitle>Average by skill</CardTitle>
+                  </div>
+                  <span className="font-mono text-[10px] text-ink-400 dark:text-ink-500 uppercase">4 Axes</span>
+                </div>
+                <div className="mt-4 space-y-4">
                   {SKILL_ORDER.filter((s) => stats.skillAvg[s] !== undefined).map((s) => {
                     const value = stats.skillAvg[s] as number
                     return (
                       <div key={s}>
                         <div className="mb-2 flex items-baseline justify-between gap-3 text-sm">
-                          <span className="text-ink-800 dark:text-ink-100 font-semibold capitalize">{s}</span>
-                          <span className="text-ink-900 dark:text-white font-bold tabular-nums">{Math.round(value * 10) / 10}</span>
+                          <span className="text-ink-800 dark:text-ink-100 font-semibold capitalize font-mono text-xs">{s}</span>
+                          <span className="text-ink-900 dark:text-white font-bold tabular-nums font-mono text-xs">{Math.round(value * 10) / 10} / 90</span>
                         </div>
                         <ProgressBar
                           value={value}
@@ -325,8 +337,14 @@ export default function Dashboard() {
             </div>
 
             <Card className="mt-6">
-              <CardTitle>Question types to work on</CardTitle>
-              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">Weakest first, across all attempts.</p>
+              <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-3 mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-micro text-brand-600 dark:text-brand-400 font-semibold">[PRIORITY.01]</span>
+                  <CardTitle>Question types to work on</CardTitle>
+                </div>
+                <span className="font-mono text-[10px] text-ink-400 dark:text-ink-500 uppercase">Weakest First</span>
+              </div>
+              <p className="text-ink-500 dark:text-ink-400 text-xs font-mono">Ranked by lowest scoring accuracy across all attempts.</p>
               <ul className="mt-6 space-y-4">
                 {stats.typeRows.slice(0, 8).map((row) => (
                   <li key={row.type}>
@@ -337,16 +355,16 @@ export default function Dashboard() {
                         </span>
                         <Link
                           to={`/practice?type=${row.type}`}
-                          className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
+                          className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline font-mono"
                         >
                           Drill →
                         </Link>
                       </div>
                       <div className="flex items-center gap-2 text-xs">
-                        <span className="text-ink-900 dark:text-white font-semibold tabular-nums">
+                        <span className="text-ink-900 dark:text-white font-semibold tabular-nums font-mono">
                           {Math.round(row.ratio * 100)}%
                         </span>
-                        <span className="text-ink-500 dark:text-ink-400 tabular-nums">({row.n} items)</span>
+                        <span className="text-ink-500 dark:text-ink-400 tabular-nums font-mono text-[11px]">({row.n} items)</span>
                       </div>
                     </div>
                     <ProgressBar
@@ -359,18 +377,24 @@ export default function Dashboard() {
                 ))}
               </ul>
               {focus[0] ? (
-                <ButtonLink to={`/practice?type=${focus[0].type}`} variant="secondary" className="mt-6">
+                <ButtonLink to={`/practice?type=${focus[0].type}`} variant="secondary" className="mt-6 font-mono text-xs">
                   Drill weakest type ({QUESTION_META[focus[0].type as QuestionType]?.short ?? focus[0].type.replace(/-/g, ' ')}) →
                 </ButtonLink>
               ) : (
-                <ButtonLink to="/practice" variant="secondary" className="mt-6">
+                <ButtonLink to="/practice" variant="secondary" className="mt-6 font-mono text-xs">
                   Practice by question type →
                 </ButtonLink>
               )}
             </Card>
 
             <Card className="mt-6">
-              <CardTitle>Attempt history</CardTitle>
+              <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-micro text-brand-600 dark:text-brand-400 font-semibold">[LEDGER.01]</span>
+                  <CardTitle>Attempt history</CardTitle>
+                </div>
+                <span className="font-mono text-[10px] text-ink-400 dark:text-ink-500 uppercase">Session Records</span>
+              </div>
               <div className="scrollbar-thin -mx-5 mt-6 overflow-x-auto px-5 sm:-mx-6 sm:px-6">
                 <table className="table-data min-w-lg">
                   <caption className="sr-only">Your PTE mock test attempts</caption>
@@ -570,36 +594,49 @@ export default function Dashboard() {
 
 function ScoreTrend({ points }: { points: Array<{ label: string; value: number }> }) {
   const w = 640
-  const h = 180
-  const pad = 24
+  const h = 200
+  const padX = 36
+  const padY = 28
   const max = 90
   const min = 10
-  const px = (i: number) => pad + ((w - pad * 2) / Math.max(1, points.length - 1)) * i
-  const py = (v: number) => h - pad - ((v - min) / (max - min)) * (h - pad * 2)
+  const px = (i: number) => padX + ((w - padX * 2) / Math.max(1, points.length - 1)) * i
+  const py = (v: number) => h - padY - ((v - min) / (max - min)) * (h - padY * 2)
 
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-6 w-full" role="img" aria-label={`Overall score across ${points.length} attempts`}>
+    <svg viewBox={`0 0 ${w} ${h}`} className="mt-4 w-full" role="img" aria-label={`Overall score across ${points.length} attempts`}>
       <defs>
         <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="currentColor" floodOpacity="0.3" />
         </filter>
         <linearGradient id="trend-grad" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0%" stopColor="currentColor" stopOpacity="0.15" />
-          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0.0" />
         </linearGradient>
       </defs>
+
+      {/* Reference gridlines */}
       {[20, 40, 60, 80].map((v) => (
         <g key={v}>
-          <line x1={pad} x2={w - pad} y1={py(v)} y2={py(v)} stroke="currentColor" strokeOpacity={0.1} />
-          <text x={pad - 6} y={py(v) + 4} textAnchor="end" className="fill-current text-micro opacity-50 tabular-nums">
+          <line x1={padX} x2={w - padX} y1={py(v)} y2={py(v)} stroke="currentColor" strokeOpacity={0.08} strokeDasharray="3 3" />
+          <text x={padX - 8} y={py(v) + 3} textAnchor="end" className="fill-current font-mono text-[10px] opacity-40 tabular-nums">
             {v}
           </text>
         </g>
       ))}
+
+      {/* Target 79+ guideline (Superior English) */}
+      <g>
+        <line x1={padX} x2={w - padX} y1={py(79)} y2={py(79)} stroke="currentColor" strokeOpacity={0.25} strokeDasharray="4 2" strokeWidth={1} className="text-brand-500 dark:text-brand-400" />
+        <text x={w - padX} y={py(79) - 4} textAnchor="end" className="fill-brand-600 dark:fill-brand-400 font-mono text-[9px] font-semibold tracking-wider">
+          TARGET: 79 [SUPERIOR]
+        </text>
+      </g>
+
+      {/* Polyline and Gradient Area */}
       {points.length > 1 ? (
         <>
           <polygon
-            points={`${px(0)},${h - pad} ${points.map((p, i) => `${px(i)},${py(p.value)}`).join(' ')} ${px(points.length - 1)},${h - pad}`}
+            points={`${px(0)},${h - padY} ${points.map((p, i) => `${px(i)},${py(p.value)}`).join(' ')} ${px(points.length - 1)},${h - padY}`}
             fill="url(#trend-grad)"
             className="text-brand-500 dark:text-brand-300 animate-fade-in"
           />
@@ -607,25 +644,53 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
             points={points.map((p, i) => `${px(i)},${py(p.value)}`).join(' ')}
             fill="none"
             stroke="currentColor"
-            strokeWidth={3}
+            strokeWidth={2.5}
             className="text-brand-500 dark:text-brand-300 animate-fade-in"
             strokeLinejoin="round"
             filter="url(#glow)"
           />
         </>
       ) : null}
+
+      {/* Reticle-style vertices */}
       {points.map((p, i) => (
-        <circle key={i} cx={px(i)} cy={py(p.value)} r={4.5} strokeWidth={2} className="fill-brand-500 dark:fill-brand-300 cursor-pointer stroke-white dark:stroke-ink-900">
+        <g key={i} className="cursor-pointer">
+          <circle
+            cx={px(i)}
+            cy={py(p.value)}
+            r={6}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1}
+            strokeOpacity={0.4}
+            className="text-brand-500 dark:text-brand-300"
+          />
+          <circle
+            cx={px(i)}
+            cy={py(p.value)}
+            r={3}
+            className="fill-brand-500 dark:fill-brand-300 stroke-white dark:stroke-ink-950 stroke-[1.5px]"
+          />
+          <text
+            x={px(i)}
+            y={py(p.value) - 10}
+            textAnchor="middle"
+            className="font-mono text-[10px] font-bold fill-ink-900 dark:fill-white tabular-nums opacity-90"
+          >
+            {p.value}
+          </text>
           <title>{`Attempt ${i + 1}: ${p.value} points (${formatDateTime(p.label)})`}</title>
-        </circle>
+        </g>
       ))}
+
+      {/* Date scale */}
       {points.length > 0 && points[0] ? (
-        <g className="fill-current font-mono text-micro opacity-50 tabular-nums">
-          <text x={px(0)} y={h - 4} textAnchor="start">
+        <g className="fill-current font-mono text-[10px] opacity-50 tabular-nums">
+          <text x={px(0)} y={h - 6} textAnchor="start">
             {formatDate(points[0].label)}
           </text>
           {points.length > 1 && points[points.length - 1] ? (
-            <text x={px(points.length - 1)} y={h - 4} textAnchor="end">
+            <text x={px(points.length - 1)} y={h - 6} textAnchor="end">
               {formatDate(points[points.length - 1]!.label)}
             </text>
           ) : null}
