@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ErrorBoundary } from './components/ErrorBoundary'
+import { CommandPalette } from './components/ui/CommandPalette'
 import { RouteFallback } from './components/RouteFallback'
 import { useTest } from './store/useTest'
 import { useSettings } from './store/useSettings'
@@ -145,6 +146,7 @@ export default function App() {
         />
       </Routes>
       </Suspense>
+      <CommandPalette />
     </ErrorBoundary>
   )
 }
