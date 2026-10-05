@@ -202,7 +202,7 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
             const cap = capacity[t] ?? 0
             return (
               <Reveal key={t} delay={Math.min(idx, 5) * 30} variant="up" duration={400}>
-                <label className={cn('choice-card flex min-h-32 cursor-pointer items-start gap-3 p-6 transition-all duration-300', on ? 'border-brand-500 bg-brand-500/5 dark:bg-brand-500/10 shadow-[0_0_0_1px_rgba(23,86,176,1)]' : 'border-ink-200 bg-white hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]')}>
+                <label className={cn('choice-card flex min-h-32 cursor-pointer items-start gap-3.5 p-5 sm:p-6 rounded-md border transition-all duration-200', on ? 'border-brand-500 bg-brand-500/5 dark:bg-brand-500/10 shadow-[0_0_0_1px_var(--color-brand-500)]' : 'border-ink-200/90 bg-white hover:-translate-y-0.5 hover:shadow-sm dark:border-white/10 dark:bg-ink-900/60 dark:hover:border-white/20')}>
                   <input
                     type="checkbox"
                     aria-label={meta.label}

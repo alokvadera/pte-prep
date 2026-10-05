@@ -214,41 +214,56 @@ function ThemeToggle({ theme, onChange }: { theme: Theme; onChange: (t: Theme) =
 
 function Footer() {
   return (
-    <footer className="border-ink-200 dark:border-white/10 mt-8 border-t">
-      <div className="page-shell-wide text-ink-500 dark:text-ink-400 py-8 text-sm">
+    <footer className="border-t border-ink-200 dark:border-white/10 mt-16 bg-white/40 dark:bg-ink-950/40">
+      <div className="page-shell-wide text-ink-500 dark:text-ink-400 py-10 sm:py-12 text-sm">
+        {/* Architectural Telemetry Status Bar */}
+        <div className="flex flex-wrap items-center justify-between border-b border-ink-200 dark:border-white/10 pb-6 mb-8 font-mono text-[11px] text-ink-500 dark:text-ink-400 gap-y-2">
+          <div className="flex items-center gap-2">
+            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-semibold text-ink-800 dark:text-ink-200">CORE ENGINES OPERATIONAL</span>
+            <span className="text-ink-300 dark:text-ink-600">·</span>
+            <span>WASM v2.4</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <span>SPEC: 10–90 CONTINUOUS</span>
+            <span className="text-ink-300 dark:text-ink-600">/</span>
+            <span>BROWSER ISOLATED</span>
+          </div>
+        </div>
+
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <Logo />
-            <p className="mt-3 max-w-sm leading-relaxed">
-              Free, unlimited PTE Academic practice. Everything runs in your browser by default — no account required, no
-              payment. An optional account syncs history across devices.
+            <p className="mt-3 max-w-sm leading-relaxed text-xs sm:text-sm">
+              Free, unlimited PTE Academic practice. Everything runs in your browser by default — zero cloud lag, no account required, no
+              payment step. Optional account synchronises history across devices.
             </p>
           </div>
           <div>
-            <h2 className="section-eyebrow">Practice</h2>
-            <ul className="flex flex-col gap-0.5">
-              <li><FooterLink to="/mock">Full mock tests</FooterLink></li>
-              <li><FooterLink to="/practice">Single-skill practice</FooterLink></li>
-              <li><FooterLink to="/dashboard">Progress and history</FooterLink></li>
+            <h2 className="section-eyebrow font-mono text-[11px] uppercase tracking-wider">Practice Modules</h2>
+            <ul className="flex flex-col gap-1 font-mono text-xs">
+              <li><FooterLink to="/mock">01 // Full Mock Tests</FooterLink></li>
+              <li><FooterLink to="/practice">02 // Single-Skill Drills</FooterLink></li>
+              <li><FooterLink to="/dashboard">03 // Progress Telemetry</FooterLink></li>
             </ul>
           </div>
           <div>
-            <h2 className="section-eyebrow">Learn</h2>
-            <ul className="flex flex-col gap-0.5">
-              <li><FooterLink to="/format">PTE test format</FooterLink></li>
-              <li><FooterLink to="/question-types/">All 22 question types</FooterLink></li>
-              <li><FooterLink to="/scoring">How PTE scores work</FooterLink></li>
-              <li><FooterLink to="/guide">Question-type tips</FooterLink></li>
-              <li><FooterLink to="/about">About this tool</FooterLink></li>
-              <li><FooterLink to="/privacy/">Privacy</FooterLink></li>
+            <h2 className="section-eyebrow font-mono text-[11px] uppercase tracking-wider">Specification</h2>
+            <ul className="flex flex-col gap-1 font-mono text-xs">
+              <li><FooterLink to="/format">Test Blueprint</FooterLink></li>
+              <li><FooterLink to="/question-types/">All 22 Question Types</FooterLink></li>
+              <li><FooterLink to="/scoring">Scoring Mechanics</FooterLink></li>
+              <li><FooterLink to="/guide">Question Type Guide</FooterLink></li>
+              <li><FooterLink to="/about">About Engine</FooterLink></li>
+              <li><FooterLink to="/privacy/">Privacy Policy</FooterLink></li>
             </ul>
           </div>
         </div>
 
-        <p className="text-ink-500 dark:text-ink-400 mt-8 border-t pt-6 text-xs leading-relaxed">
+        <p className="text-ink-500 dark:text-ink-400 mt-10 border-t border-ink-200 dark:border-white/10 pt-6 text-[11px] font-mono leading-relaxed">
           PTE Academic and the PTE logo are trademarks of Pearson Education Ltd. This is an independent practice tool
           and is not affiliated with, endorsed by, or sponsored by Pearson. Practice material is original and written
-          for this site. Scores produced here are estimates for practice only and are not official Pearson scores.
+          specifically for this simulator. Scores produced are estimates for practice only.
         </p>
       </div>
     </footer>

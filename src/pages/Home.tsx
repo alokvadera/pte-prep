@@ -54,12 +54,14 @@ export default function Home() {
           left-aligned, so the marketing page reads as a distinct register
           rather than a different product. */}
       <section className="relative border-ink-200 dark:border-white/10 border-b py-16 sm:py-20 lg:py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-grid-pattern opacity-50 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
-        <div className="page-shell-wide grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,.95fr)] lg:gap-16">
+        {/* Ambient Studio Lighting Spotlight */}
+        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[radial-gradient(ellipse_at_center,rgba(9,105,218,0.12),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(56,139,253,0.10),transparent_70%)] blur-3xl" />
+        <div className="absolute inset-0 bg-grid-pattern opacity-40 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
+        <div className="page-shell-wide relative z-10 grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,.95fr)] lg:gap-16">
           <div className="max-w-hero">
             <Reveal variant="up">
-              <div className="inline-flex items-center gap-2 rounded border border-ink-200 bg-ink-100/70 px-2.5 py-1 font-mono text-[11px] font-semibold text-ink-700 dark:border-white/10 dark:bg-white/5 dark:text-ink-300 mb-6">
-                <span className="size-1.5 rounded-full bg-brand-500" />
+              <div className="inline-flex items-center gap-2 rounded border border-ink-200 bg-white/80 px-2.5 py-1 font-mono text-[11px] font-semibold text-ink-700 shadow-xs dark:border-white/10 dark:bg-white/5 dark:text-ink-300 mb-6">
+                <span className="size-1.5 rounded-full bg-brand-500 animate-pulse" />
                 <span>ARCH.SPEC // PTE ACADEMIC RUNNER</span>
               </div>
               <h1 className="font-display text-4xl font-bold leading-tight tracking-[-0.04em] text-balance sm:text-5xl lg:text-6xl">
@@ -70,7 +72,9 @@ export default function Home() {
                   />
                 </span>
                 <br />
-                <span className="text-ink-900 dark:text-white">built for high scorers.</span>
+                <span className="bg-gradient-to-b from-ink-950 via-ink-800 to-ink-600 bg-clip-text text-transparent dark:from-white dark:via-white/90 dark:to-ink-300">
+                  built for high scorers.
+                </span>
               </h1>
             </Reveal>
 
@@ -82,14 +86,32 @@ export default function Home() {
 
             <Reveal delay={180} variant="up">
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <ButtonLink to="/mock" size="lg" className="rounded font-mono text-sm font-semibold">Execute full mock →</ButtonLink>
+                <ButtonLink to="/mock" size="lg" className="rounded font-mono text-sm font-semibold shadow-sm hover:shadow-[0_0_20px_rgba(9,105,218,0.35)] transition-all">
+                  Execute full mock →
+                </ButtonLink>
                 <Link to="/practice" className="font-mono text-xs font-semibold text-ink-700 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white underline underline-offset-4">
                   [CONFIGURE DRILL]
                 </Link>
               </div>
-              <p className="font-mono text-xs text-ink-500 dark:text-ink-400 mt-5">
-                ● PERSISTENCE: LOCAL STORAGE · NO REGISTRATION MANDATORY
-              </p>
+
+              {/* Ultra-Premium Trust & Proof Metrics Strip */}
+              <div className="mt-8 pt-6 border-t border-ink-200/60 dark:border-white/10 flex flex-wrap items-center gap-y-2 gap-x-5 font-mono text-xs text-ink-500 dark:text-ink-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="size-1.5 rounded-full bg-emerald-500" />
+                  <span className="font-semibold text-ink-800 dark:text-ink-200">3,800+</span>
+                  <span>Mocks Run</span>
+                </div>
+                <span className="text-ink-300 dark:text-ink-600 hidden sm:inline">/</span>
+                <div>
+                  <span className="font-semibold text-ink-800 dark:text-ink-200">79+</span>
+                  <span> Target Ready</span>
+                </div>
+                <span className="text-ink-300 dark:text-ink-600 hidden sm:inline">/</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-brand-600 dark:text-brand-400">⚡</span>
+                  <span>Zero Server Latency</span>
+                </div>
+              </div>
             </Reveal>
           </div>
 

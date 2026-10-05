@@ -197,13 +197,13 @@ export default function ResultPage() {
       <main id="main-content" className="route-inner min-h-dvh">
         <div className="page-shell-app animate-rise-in">
         {/* Header */}
-        <header className="relative overflow-hidden rounded-3xl border border-ink-200 dark:border-white/10 bg-white/50 dark:bg-ink-900/40 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] mb-8">
+        <header className="relative overflow-hidden rounded-md border border-ink-200 dark:border-white/10 bg-white/70 dark:bg-ink-900/60 backdrop-blur-xl shadow-sm mb-8">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-500/5 to-transparent dark:from-brand-500/10" aria-hidden="true" />
           
           <div className="relative z-10 p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
             <div className="flex-1 text-center md:text-left">
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 mb-6">
-                <Badge tone={attempt.overallIsEstimate ? 'mint' : 'brand'} className="shadow-sm">
+                <Badge tone={attempt.overallIsEstimate ? 'mint' : 'brand'}>
                   {attempt.overallIsEstimate ? 'Estimated score' : 'Auto-scored'}
                 </Badge>
                 <Badge tone="neutral">{attempt.mockTitle}</Badge>
@@ -211,7 +211,7 @@ export default function ResultPage() {
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="btn-ghost no-print inline-flex items-center gap-1.5 py-1 px-3 rounded-full text-xs text-brand-600 dark:text-brand-300 font-bold cursor-pointer ml-auto border border-brand-500/20 hover:bg-brand-500/10 transition-colors"
+                  className="btn-ghost no-print inline-flex items-center gap-1.5 py-1 px-3 rounded text-xs font-mono font-bold cursor-pointer ml-auto border border-ink-200 hover:bg-ink-100 dark:border-white/10 dark:hover:bg-white/5 transition-colors"
                   title="Print or Save PDF Diagnostic Score Card"
                 >
                   <svg viewBox="0 0 20 20" fill="currentColor" className="size-3.5" aria-hidden="true">
@@ -230,13 +230,13 @@ export default function ResultPage() {
               </p>
             </div>
 
-            <div className="shrink-0 text-center md:text-right bg-white dark:bg-ink-950 p-8 rounded-3xl shadow-premium-light dark:shadow-[0_12px_40px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)] border border-ink-100 dark:border-white/5 w-full md:w-auto">
-              <div className="text-brand-600 dark:text-brand-400 font-mono text-7xl font-bold tabular-nums tracking-tighter leading-none mb-2 drop-shadow-sm">
+            <div className="shrink-0 text-center md:text-right bg-white dark:bg-[#0d1117] p-8 rounded-md shadow-xs border border-ink-200 dark:border-white/10 w-full md:w-auto">
+              <div className="text-brand-600 dark:text-brand-400 font-mono text-7xl font-bold tabular-nums tracking-tighter leading-none mb-2">
                 <CountUp value={attempt.overallScore} duration={1300} />
               </div>
-              <div className="text-ink-500 dark:text-ink-400 text-sm font-medium uppercase tracking-widest mb-4">Overall Score</div>
-              <div className="h-px bg-gradient-to-r from-transparent via-ink-200 dark:via-white/10 to-transparent w-full my-4"></div>
-              <p className="text-ink-600 dark:text-ink-300 text-xs font-medium">
+              <div className="font-mono text-ink-500 dark:text-ink-400 text-xs font-semibold uppercase tracking-widest mb-3">Overall Score</div>
+              <div className="h-px bg-ink-200 dark:bg-white/10 w-full my-3"></div>
+              <p className="font-mono text-ink-600 dark:text-ink-300 text-xs font-medium">
                 <span className="font-bold text-ink-900 dark:text-white">{attempt.overallScore60}</span> / 120 (TOEFL scale)
               </p>
             </div>
