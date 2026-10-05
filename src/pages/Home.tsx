@@ -97,12 +97,12 @@ export default function Home() {
                 it renders in the exact design language of the real product. The
                 Tilt wrapper leans the whole collage toward the pointer — purely
                 decorative, so it changes no layout and no hit area. */}
-            <div className="home-preview-shell animate-rise-in mt-16 w-full px-4 sm:px-0" style={{ animationDelay: '260ms' }}>
+            <div className="home-preview-shell animate-rise-in mt-12 w-full px-4 sm:px-0" style={{ animationDelay: '260ms' }}>
               <Tilt className="relative" max={4} glare={false}>
                 <ScorePreview />
               </Tilt>
             </div>
-            <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-14 text-xs sm:mb-16">
+            <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-8 text-xs sm:mb-10">
               Illustrative practice interface. Scores and activity are sample data.
             </p>
           </div>
@@ -110,7 +110,7 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="band-flush">
+      <section className="py-8 sm:py-12">
         <div className="page-shell-wide">
           <Reveal variant="fade">
             <p className="page-heading-kicker mb-6">The exam, reproduced</p>
@@ -137,7 +137,7 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide py-16 sm:py-20">
+      <section className="page-shell-wide py-8 sm:py-12">
         <div className="max-w-2xl">
           <SectionHeading
             className="mb-0"
@@ -150,7 +150,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        <div className="mt-8 grid gap-6 md:grid-cols-3">
           {(['speaking-writing', 'reading', 'listening'] as const).map((key, idx) => {
             const meta = SECTION_META[key]
             return (
@@ -162,7 +162,7 @@ export default function Home() {
                     </p>
                     <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{meta.longTitle}</h3>
                     <p className="text-ink-500 dark:text-ink-300 mt-2 flex-1 text-sm leading-relaxed">{meta.blurb}</p>
-                    <ul className="mt-4 space-y-1.5 border-t pt-4">
+                    <ul className="mt-4 space-y-1.5">
                       {questionTypesFor(key).map((t) => (
                         <li key={t}>
                           <Link
@@ -184,7 +184,7 @@ export default function Home() {
           })}
         </div>
 
-        <div className="mt-12 text-center">
+        <div className="mt-8 text-center">
           <ButtonLink to="/format" variant="secondary">
             Read the full PTE test format →
           </ButtonLink>
@@ -192,7 +192,7 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="band-flush-plain">
+      <section className="py-8 sm:py-12">
         <div className="page-shell-wide">
           <SectionHeading
             className="mb-0"
@@ -202,7 +202,7 @@ export default function Home() {
           <p className="text-ink-500 dark:text-ink-300 mt-3 max-w-2xl leading-relaxed">
             Not a single number. Four skills, 22 types, every lost point traced to its rule.
           </p>
-          <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {[
               {
                 title: 'An overall score on both PTE scales',
@@ -241,7 +241,7 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide py-16 sm:py-20">
+      <section className="page-shell-wide py-8 sm:py-12">
         <TaglineReveal
           lines={['Find the one question type that keeps', 'costing you points. Then fix only that one.']}
         />
@@ -250,13 +250,13 @@ export default function Home() {
       {/* A2: how it works, three steps. Sits after the benefits and before the FAQ
           so the page answers "what happens when I press start" at the point
           where the reader has just decided they want to. */}
-      <section className="page-shell-wide py-16 sm:py-20">
+      <section className="page-shell-wide py-8 sm:py-12">
         <SectionHeading className="mb-0" eyebrow="How it works" title="How a mock runs" />
         <p className="text-ink-500 dark:text-ink-300 mt-4 max-w-2xl leading-relaxed">
           Three steps, and nothing to set up. The whole thing runs in this browser tab.
         </p>
 
-        <ol className="border-ink-200 dark:border-white/10 mt-12 grid gap-8 border-t pt-8 md:grid-cols-3 md:gap-6">
+        <ol className="mt-8 grid gap-8 md:grid-cols-3 md:gap-6">
           {[
             {
               title: 'Choose a length',
@@ -283,12 +283,12 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide pt-16 sm:pt-20 pb-0">
+      <section className="page-shell-wide pt-8 sm:pt-12 pb-0">
         <SectionHeading className="mb-0" eyebrow="Questions" title="Frequently asked questions" />
         <Accordion className="mt-6" items={FAQ} />
       </section>
 
-      <section className="page-shell-wide pt-16 pb-20 sm:pb-24">
+      <section className="page-shell-wide pt-8 pb-12 sm:pb-16">
         <CtaBand
           className="mt-0"
           title="Know your score before you pay for the test"
