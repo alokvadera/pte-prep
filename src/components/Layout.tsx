@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { cn } from '../lib/cn'
 import { useSettings, type Theme } from '../store/useSettings'
 import { useAuth } from '../store/useAuth'
+import { openCommandPalette } from './ui/CommandPalette'
 
 function Logo() {
   return (
@@ -76,6 +77,19 @@ export function Layout() {
           </nav>
 
           <div className="ml-auto sm:ml-0 flex shrink-0 items-center gap-1 sm:gap-1.5">
+            <button
+              type="button"
+              onClick={openCommandPalette}
+              className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-ink-200/80 bg-ink-50/70 px-2.5 py-1 text-xs font-medium text-ink-600 transition-all hover:border-brand-500/50 hover:bg-brand-500/5 hover:text-brand-700 dark:border-white/10 dark:bg-white/5 dark:text-ink-300 dark:hover:border-brand-400/50 dark:hover:bg-brand-400/10 dark:hover:text-brand-300 cursor-pointer"
+              title="Open Command Palette (⌘K)"
+              aria-label="Open Command Palette"
+            >
+              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <kbd className="font-mono text-[10px] text-ink-400 dark:text-ink-400 font-semibold">⌘K</kbd>
+            </button>
+
             <NavLink
               to={authTarget}
               className={cn(

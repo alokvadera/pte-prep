@@ -6,6 +6,8 @@ import { Seo } from '../seo/Seo'
 import { Accordion, CtaBand, ButtonLink, SectionHeading } from '../components/ui/primitives'
 import { TaglineReveal } from '../components/ui/TaglineReveal'
 import { CountUp, Reveal } from '../components/ui/motion'
+import { RotatingText } from '../components/ui/RotatingText'
+import { DesktopMockupWindow } from '../components/ui/DesktopMockupWindow'
 
 const FAQ = [
   {
@@ -57,16 +59,21 @@ export default function Home() {
           <div className="max-w-hero">
             <Reveal variant="up">
               <p className="page-heading-kicker">PTE Academic practice, rebuilt</p>
-              <h1 className="font-display text-5xl font-bold leading-none tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl">
-                <span className="bg-gradient-to-r from-ink-900 to-ink-500 bg-clip-text text-transparent dark:from-white dark:to-ink-400">Study with a plan.</span>
+              <h1 className="font-display text-4xl font-bold leading-tight tracking-[-0.04em] text-balance sm:text-5xl lg:text-6xl">
+                <span className="text-ink-900 dark:text-white">
+                  <RotatingText
+                    words={['PTE Academic prep', 'Full timed mocks', 'Live speech scoring', 'Diagnostic drills']}
+                    className="text-brand-600 dark:text-brand-400 font-extrabold"
+                  />
+                </span>
                 <br />
-                <span className="bg-gradient-to-r from-ink-900 to-ink-500 bg-clip-text text-transparent dark:from-white dark:to-ink-400">Walk in ready.</span>
+                <span className="text-ink-900 dark:text-white">that finally feels effortless.</span>
               </h1>
             </Reveal>
 
             <Reveal delay={100} variant="up">
               <p className="text-ink-600 dark:text-ink-300 mt-6 max-w-xl text-lg leading-relaxed">
-                Full timed mocks, targeted drills, and a clear score report that tells you what to practise next.
+                Full timed mocks, targeted drills, and an instant diagnostic report that tells you exactly what to practise next. Runs 100% in your browser.
               </p>
             </Reveal>
 
@@ -80,39 +87,7 @@ export default function Home() {
           </div>
 
           <Reveal delay={140} variant="up">
-            <aside className="card-solid card-glow overflow-hidden p-0 relative shadow-premium-light dark:shadow-premium-dark" aria-label="Full mock test preview">
-              <div className="border-brand-500 bg-brand-500 border-b px-6 py-5 text-white sm:px-8">
-                <p className="text-sm font-semibold">Full mock test</p>
-                <p className="mt-1 text-sm text-white/80">A complete test day in one focused session.</p>
-              </div>
-              <div className="p-6 sm:p-8">
-                <div className="flex items-center justify-between gap-4 border-b border-ink-200 pb-5 dark:border-white/10">
-                  <div>
-                    <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">Your run</p>
-                    <p className="text-ink-900 dark:text-white mt-1 text-lg font-bold">Three sections, one clock</p>
-                  </div>
-                  <span className="rounded-full bg-brand-500/10 px-3 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-400/15 dark:text-brand-300">Ready when you are</span>
-                </div>
-                <ol className="mt-5 space-y-4">
-                  {[
-                    ['01', 'Speaking and writing', 'Communicate under real test timing'],
-                    ['02', 'Reading', 'Work through academic text with care'],
-                    ['03', 'Listening', 'Finish with focused note taking'],
-                  ].map(([number, title, detail]) => (
-                    <li key={number} className="flex items-start gap-4">
-                      <span className="font-mono text-brand-600 dark:text-brand-300 pt-0.5 text-xs font-bold">{number}</span>
-                      <span>
-                        <span className="text-ink-900 dark:text-white block text-sm font-semibold">{title}</span>
-                        <span className="text-ink-500 dark:text-ink-400 mt-0.5 block text-xs">{detail}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ol>
-                <div className="border-ink-200 dark:border-white/10 mt-6 border-t pt-5">
-                  <p className="text-ink-500 dark:text-ink-400 text-xs">Finish with a score report across all four skills and every question type.</p>
-                </div>
-              </div>
-            </aside>
+            <DesktopMockupWindow />
           </Reveal>
         </div>
       </section>
@@ -213,41 +188,110 @@ export default function Home() {
           </p>
           <div className="mt-12 grid gap-6 md:grid-cols-3 md:grid-rows-2">
             <Reveal delay={0} variant="scale" className="md:col-span-2 md:row-span-2">
-              <article className="card-interactive h-full flex flex-col justify-end bg-ink-100 p-8 sm:p-12 dark:bg-ink-850">
-                <div className="mb-auto">
-                  <div className="h-12 w-12 rounded-2xl bg-brand-500/10 flex items-center justify-center mb-6">
-                    <span className="text-brand-600 dark:text-brand-400 text-xl font-bold" aria-hidden="true">01</span>
+              <article className="card-interactive card-glow h-full flex flex-col justify-between bg-ink-100/70 p-8 sm:p-10 dark:bg-ink-850/80 rounded-2xl border border-ink-200/80 dark:border-white/10">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ink-200/60 dark:border-white/10 pb-6 mb-6">
+                  <div>
+                    <span className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400">
+                      OFFICIAL 10–90 CONCORDANCE
+                    </span>
+                    <h3 className="text-2xl font-bold tracking-tight text-ink-900 dark:text-white mt-1">
+                      Complete Diagnostic Report
+                    </h3>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex flex-col items-end">
+                      <span className="text-2xl font-bold font-mono text-ink-900 dark:text-white tabular-nums">79<span className="text-sm font-normal text-ink-500">/90</span></span>
+                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 font-mono">CEFR C1 Qualified</span>
+                    </div>
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold tracking-tight text-ink-900 dark:text-white mb-3">Complete score breakdown</h3>
-                <p className="text-ink-500 dark:text-ink-300 text-base leading-relaxed max-w-md">Reported on the official 10–90 PTE scale and the 60–120 TOEFL scale, including the CEFR band that your score corresponds to and university thresholds.</p>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
+                  {[
+                    { label: 'Speaking', val: '84', band: 'B2+' },
+                    { label: 'Writing', val: '86', band: 'C1' },
+                    { label: 'Reading', val: '79', band: 'B2' },
+                    { label: 'Listening', val: '83', band: 'C1' },
+                  ].map((sk) => (
+                    <div key={sk.label} className="rounded-xl border border-ink-200/60 bg-white/80 p-3.5 dark:border-white/5 dark:bg-ink-900/60">
+                      <p className="text-xs text-ink-500 dark:text-ink-400">{sk.label}</p>
+                      <p className="font-mono text-xl font-bold text-ink-900 dark:text-white mt-1">{sk.val}</p>
+                      <span className="text-[10px] font-mono text-brand-600 dark:text-brand-400 font-semibold">{sk.band} Level</span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed mt-4">
+                  Reported on both the official 10–90 Pearson scale and TOEFL equivalents. Isolates individual item metrics so you never waste hours reviewing questions you already mastered.
+                </p>
               </article>
             </Reveal>
 
             <Reveal delay={70} variant="scale">
-              <article className="card-interactive h-full p-8">
-                <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mb-2">Four skill scores</h3>
-                <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed">Speaking, Writing, Reading and Listening scored independently to isolate weaknesses.</p>
+              <article className="card-interactive card-glow h-full p-6 sm:p-7 rounded-2xl border border-ink-200/80 dark:border-white/10 flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-[10px] font-bold text-brand-600 dark:text-brand-400">SKILL MATRIX</span>
+                  <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mt-0.5 mb-2">Four Skill Balance</h3>
+                </div>
+                <div className="space-y-2.5 my-3">
+                  {[
+                    { name: 'Speaking', p: 84, color: 'bg-emerald-500' },
+                    { name: 'Writing', p: 86, color: 'bg-brand-500' },
+                    { name: 'Reading', p: 79, color: 'bg-brand-500' },
+                    { name: 'Listening', p: 83, color: 'bg-emerald-500' },
+                  ].map((s) => (
+                    <div key={s.name} className="flex items-center gap-2 text-xs">
+                      <span className="w-14 truncate text-ink-600 dark:text-ink-300">{s.name}</span>
+                      <div className="h-1.5 flex-1 rounded-full bg-ink-200 dark:bg-white/10 overflow-hidden">
+                        <div className={`h-full ${s.color}`} style={{ width: `${s.p}%` }} />
+                      </div>
+                      <span className="font-mono text-[11px] font-semibold text-ink-900 dark:text-white tabular-nums">{s.p}</span>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-ink-500 dark:text-ink-300 text-xs">Identify if oral fluency or passage comprehension is pulling down your total score.</p>
               </article>
             </Reveal>
 
             <Reveal delay={140} variant="scale">
-              <article className="card-interactive h-full p-8">
-                <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mb-2">Per item feedback</h3>
-                <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed">See the correct answer, your response, and a plain-English note on the exact rule broken.</p>
+              <article className="card-interactive card-glow h-full p-6 sm:p-7 rounded-2xl border border-ink-200/80 dark:border-white/10 flex flex-col justify-between">
+                <div>
+                  <span className="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">ERROR TRACKING</span>
+                  <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mt-0.5 mb-2">Per-Item Rule Tracing</h3>
+                </div>
+                <div className="rounded-xl border border-ink-200/60 bg-ink-50/80 p-3 text-xs space-y-1.5 font-mono dark:border-white/5 dark:bg-ink-950/60 my-2">
+                  <div className="flex items-center justify-between text-emerald-700 dark:text-emerald-400 text-[11px]">
+                    <span>✓ Content Match</span>
+                    <span>100%</span>
+                  </div>
+                  <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 text-[11px]">
+                    <span>⚠ Word order inverted</span>
+                    <span>-1 pt</span>
+                  </div>
+                </div>
+                <p className="text-ink-500 dark:text-ink-300 text-xs">Plain-English explanation of exactly which scoring rubric rule docked points.</p>
               </article>
             </Reveal>
             
             <Reveal delay={210} variant="scale" className="md:col-span-3">
-               <article className="card-interactive flex flex-col md:flex-row items-center gap-8 p-8 sm:p-10">
+               <article className="card-interactive card-glow flex flex-col md:flex-row items-center justify-between gap-8 p-8 sm:p-10 rounded-2xl border border-ink-200/80 dark:border-white/10">
                  <div className="flex-1">
-                   <h3 className="text-xl font-bold tracking-tight text-ink-900 dark:text-white mb-2">Progress you can act on</h3>
-                   <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed max-w-2xl">Every attempt is stored on your device with an elegant trend line, letting you see whether the last three weeks of practice actually moved the needle.</p>
+                   <span className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400">DEVICE-PERSISTED TRENDS</span>
+                   <h3 className="text-xl font-bold tracking-tight text-ink-900 dark:text-white mt-1 mb-2">Practice That Shows Real Compounding</h3>
+                   <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed max-w-2xl">Every attempt is recorded locally in your browser SQLite/IndexedDB store with zero cloud lag. Track your 4-week trajectory with complete confidence.</p>
                  </div>
-                 <div className="shrink-0 flex items-center gap-3">
-                   <div className="h-16 w-32 rounded-xl bg-brand-500/10 border border-brand-500/20 overflow-hidden relative">
-                      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-brand-500/10"></div>
-                      <svg className="absolute inset-0 h-full w-full stroke-brand-500" viewBox="0 0 100 40" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 30 L30 25 L55 10 L80 15 L95 5" /></svg>
+                 <div className="shrink-0 flex items-center gap-4">
+                   <div className="rounded-xl bg-ink-50/90 dark:bg-ink-950/80 border border-ink-200/80 dark:border-white/10 p-3 px-5 flex items-center gap-4">
+                     <div>
+                       <span className="text-[10px] font-mono text-ink-500 uppercase tracking-wider block">Recent Delta</span>
+                       <span className="font-mono text-lg font-bold text-emerald-600 dark:text-emerald-400">+14 pts</span>
+                     </div>
+                     <div className="h-10 w-28 relative">
+                       <svg className="h-full w-full stroke-emerald-500" viewBox="0 0 100 40" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                         <path d="M5 32 L25 28 L50 20 L75 14 L95 6" />
+                         <circle cx="95" cy="6" r="3" className="fill-emerald-500" />
+                       </svg>
+                     </div>
                    </div>
                  </div>
                </article>

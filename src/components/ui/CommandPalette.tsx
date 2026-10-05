@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { useTest } from '../../store/useTest'
 
 
+export function openCommandPalette() {
+  window.dispatchEvent(new CustomEvent('open-command-palette'))
+}
+
 export function CommandPalette() {
   const [open, setOpen] = useState(false)
   const [query, setQuery] = useState('')
@@ -10,6 +14,7 @@ export function CommandPalette() {
   const hasActiveMock = useTest(s => s.mock !== null)
 
   useEffect(() => {
+    const handleOpen = () => setOpen(true)
     const down = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
@@ -19,8 +24,12 @@ export function CommandPalette() {
         setOpen(false)
       }
     }
+    window.addEventListener('open-command-palette', handleOpen)
     document.addEventListener('keydown', down)
-    return () => document.removeEventListener('keydown', down)
+    return () => {
+      window.removeEventListener('open-command-palette', handleOpen)
+      document.removeEventListener('keydown', down)
+    }
   }, [open])
 
   if (!open) return null
