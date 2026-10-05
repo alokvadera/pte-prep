@@ -1,14 +1,15 @@
 import type { Env } from './types'
 
 export const onRequest: PagesFunction<Env> = async (context) => {
+  const allowedOrigin = context.env.CORS_ORIGIN ?? 'https://pte-prep.pages.dev'
   if (context.request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
       headers: {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': allowedOrigin,
         'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Max-Age': '86400',
+        'Access-Control-Max-Age': '600',
       },
     })
   }
@@ -16,7 +17,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   try {
     const response = await context.next()
     const newHeaders = new Headers(response.headers)
-    newHeaders.set('Access-Control-Allow-Origin', '*')
+    newHeaders.set('Access-Control-Allow-Origin', allowedOrigin)
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -28,7 +29,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': allowedOrigin,
       },
     })
   }
