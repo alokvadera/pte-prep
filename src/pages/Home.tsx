@@ -51,61 +51,47 @@ export default function Home() {
           the exception that proves the rule: every interior page is
           left-aligned, so the marketing page reads as a distinct register
           rather than a different product. */}
-      <section className="home-hero relative overflow-hidden bg-mesh-gradient">
-        <div className="hero-aurora" aria-hidden="true" style={{ opacity: 0.15, filter: 'blur(60px)' }}>
-          <span className="aurora-1" />
-          <span className="aurora-2" />
-          <span className="aurora-3" />
-        </div>
-        <div className="page-shell-wide home-hero-shell relative z-10 pt-16 sm:pt-20">
+      <section className="home-hero relative overflow-hidden py-24 sm:py-32 lg:py-40">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]" aria-hidden="true" />
+        <div className="page-shell-wide home-hero-shell relative z-10">
           <div className="flex flex-col items-center text-center">
-            <div className="flex max-w-3xl flex-col items-center">
-              <p className="text-brand-600 dark:text-brand-300 animate-rise-in mb-4 text-sm font-semibold">
-                PTE preparation, in one place
-              </p>
-              <h1 className="hero-title animate-rise-in" style={{ animationDelay: '50ms' }}>
-                <span className="text-gradient-move">
-                  Practice the test.<br />Know what to do next.
-                </span>
-              </h1>
+            <div className="flex max-w-4xl flex-col items-center">
+              <Reveal variant="up">
+                <a href="/mock" className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-3 py-1 text-xs font-semibold text-brand-600 dark:border-brand-400/30 dark:bg-brand-400/10 dark:text-brand-400 transition-colors hover:bg-brand-500/20 mb-8">
+                  <span className="flex h-2 w-2 rounded-full bg-brand-500 dark:bg-brand-400" />
+                  PTE Prep 2.0 is live
+                </a>
+              </Reveal>
+              
+              <Reveal delay={100} variant="up">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-extrabold tracking-tighter text-ink-900 dark:text-white leading-[1.1]">
+                  Master the PTE with
+                  <br />
+                  <span className="bg-gradient-to-br from-brand-600 to-brand-400 dark:from-brand-300 dark:to-brand-500 bg-clip-text text-transparent">
+                    Precision & Clarity
+                  </span>
+                </h1>
+              </Reveal>
 
-              <p
-                className="text-ink-600 dark:text-ink-200 animate-rise-in mt-6 max-w-2xl text-lg leading-relaxed text-pretty"
-                style={{ animationDelay: '110ms' }}
-              >
-                Choose a focused task, take a timed mock, and use your practice history to decide where to spend your next study session.
-              </p>
+              <Reveal delay={200} variant="up">
+                <p className="mt-6 max-w-2xl text-lg sm:text-xl leading-relaxed text-ink-500 dark:text-ink-300">
+                  Choose a focused task, take a full timed mock, and use intelligent practice history to decide exactly where to spend your next study session.
+                </p>
+              </Reveal>
 
-              <div
-                className="animate-rise-in mt-8 flex flex-wrap items-center justify-center gap-3"
-                style={{ animationDelay: '170ms' }}
-              >
-                <ButtonLink to="/mock" size="lg">
-                  Start full mock test
-                </ButtonLink>
-                <ButtonLink to="/practice" variant="secondary" size="lg">
-                  Practice by skill
-                </ButtonLink>
-              </div>
-              <p className="text-ink-500 dark:text-ink-400 animate-rise-in mt-4 text-sm" style={{ animationDelay: '220ms' }}>
-                Four skills · {ALL_QUESTION_TYPES.length} task types · free browser-based practice
-              </p>
-            </div>
-
-            {/* Simplified hero presentation */}
-            <div className="animate-rise-in mt-12 sm:mt-16 flex flex-wrap items-center justify-center gap-8 sm:gap-16 border-t border-ink-200 dark:border-ink-800 pt-8 w-full max-w-3xl" style={{ animationDelay: '260ms' }}>
-              <div className="flex flex-col items-center">
-                <span className="text-brand-600 dark:text-brand-400 font-mono text-3xl sm:text-4xl font-bold">100%</span>
-                <span className="text-ink-600 dark:text-ink-300 text-sm sm:text-base mt-2 font-medium">Free Practice</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-brand-600 dark:text-brand-400 font-mono text-3xl sm:text-4xl font-bold">22</span>
-                <span className="text-ink-600 dark:text-ink-300 text-sm sm:text-base mt-2 font-medium">Question Types</span>
-              </div>
-              <div className="flex flex-col items-center">
-                <span className="text-brand-600 dark:text-brand-400 font-mono text-3xl sm:text-4xl font-bold">Instant</span>
-                <span className="text-ink-600 dark:text-ink-300 text-sm sm:text-base mt-2 font-medium">AI Feedback</span>
-              </div>
+              <Reveal delay={300} variant="up">
+                <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+                  <ButtonLink to="/mock" size="lg" className="w-full sm:w-auto px-8 py-4 text-base shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+                    Start full mock test
+                  </ButtonLink>
+                  <ButtonLink to="/practice" variant="secondary" size="lg" className="w-full sm:w-auto px-8 py-4 text-base">
+                    Practice by skill
+                  </ButtonLink>
+                </div>
+                <p className="mt-5 text-xs text-ink-400 font-medium">
+                  Four skills · 22 task types · 100% free forever
+                </p>
+              </Reveal>
             </div>
           </div>
         </div>
@@ -204,40 +190,47 @@ export default function Home() {
           <p className="text-ink-500 dark:text-ink-300 mt-3 max-w-2xl leading-relaxed">
             Not a single number. Four skills, 22 types, every lost point traced to its rule.
           </p>
-          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {[
-              {
-                title: 'An overall score on both PTE scales',
-                body: 'Reported on the 10–90 scale and the 60–120 scale, with the CEFR band that score corresponds to and the university thresholds it clears.',
-              },
-              {
-                title: 'Four separate skill scores',
-                body: 'Speaking, Writing, Reading and Listening are scored independently, because a single number hides the thing you actually need to fix.',
-              },
-              {
-                title: 'Accuracy by question type',
-                body: 'Every one of the 22 types broken down, so you can see that Fill in the Blanks is costing you six points while Describe Image is fine.',
-              },
-              {
-                title: 'Per-item feedback',
-                body: 'For each item: the correct answer, what you gave, and a plain-English note on the specific rule that cost the mark.',
-              },
-              {
-                title: 'Fluency and form signals',
-                body: 'Speaking pace, pause count, pitch and energy variation. Written responses get length, structure, linking and repetition analysis.',
-              },
-              {
-                title: 'Progress over time',
-                body: 'Every attempt is stored on your own device with a trend line, so you can see whether the last three weeks of practice actually moved anything.',
-              },
-            ].map((f, idx) => (
-              <Reveal key={f.title} delay={Math.min(idx, 3) * 70} variant="scale">
-                <article className="card-interactive">
-                  <h3 className="text-ink-900 dark:text-white text-lg font-bold leading-tight text-balance">{f.title}</h3>
-                  <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{f.body}</p>
-                </article>
-              </Reveal>
-            ))}
+          <div className="mt-12 grid gap-6 md:grid-cols-3 md:grid-rows-2">
+            <Reveal delay={0} variant="scale" className="md:col-span-2 md:row-span-2">
+              <article className="card-interactive h-full flex flex-col justify-end p-8 sm:p-12 bg-gradient-to-br from-ink-50 to-ink-100 dark:from-ink-850 dark:to-ink-900">
+                <div className="mb-auto">
+                  <div className="h-12 w-12 rounded-2xl bg-brand-500/10 flex items-center justify-center mb-6">
+                    <span className="text-brand-600 dark:text-brand-400 text-xl font-bold">🎯</span>
+                  </div>
+                </div>
+                <h3 className="text-2xl font-extrabold tracking-tight text-ink-900 dark:text-white mb-3">Complete Score Breakdown</h3>
+                <p className="text-ink-500 dark:text-ink-300 text-base leading-relaxed max-w-md">Reported on the official 10–90 PTE scale and the 60–120 TOEFL scale, including the CEFR band that your score corresponds to and university thresholds.</p>
+              </article>
+            </Reveal>
+
+            <Reveal delay={70} variant="scale">
+              <article className="card-interactive h-full p-8">
+                <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mb-2">Four Skill Scores</h3>
+                <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed">Speaking, Writing, Reading and Listening scored independently to isolate weaknesses.</p>
+              </article>
+            </Reveal>
+
+            <Reveal delay={140} variant="scale">
+              <article className="card-interactive h-full p-8">
+                <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mb-2">Per-item Feedback</h3>
+                <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed">See the correct answer, your response, and a plain-English note on the exact rule broken.</p>
+              </article>
+            </Reveal>
+            
+            <Reveal delay={210} variant="scale" className="md:col-span-3">
+               <article className="card-interactive flex flex-col md:flex-row items-center gap-8 p-8 sm:p-10">
+                 <div className="flex-1">
+                   <h3 className="text-xl font-bold tracking-tight text-ink-900 dark:text-white mb-2">Intelligent Progress Tracking</h3>
+                   <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed max-w-2xl">Every attempt is stored on your device with an elegant trend line, letting you see whether the last three weeks of practice actually moved the needle.</p>
+                 </div>
+                 <div className="shrink-0 flex items-center gap-3">
+                   <div className="h-16 w-32 rounded-xl bg-brand-500/10 border border-brand-500/20 overflow-hidden relative">
+                      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-brand-500/20 to-transparent"></div>
+                      <svg className="absolute inset-0 h-full w-full stroke-brand-500" viewBox="0 0 100 40" fill="none" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M5 30 L30 25 L55 10 L80 15 L95 5" /></svg>
+                   </div>
+                 </div>
+               </article>
+            </Reveal>
           </div>
         </div>
       </section>
