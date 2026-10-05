@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useRef, useState, type ReactNode } from 'react'
+import { StrictMode, useEffect, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { cn } from '../lib/cn'
 import { useSettings, type Theme } from '../store/useSettings'
@@ -158,7 +158,6 @@ export function Layout() {
             </NavLink>
           </div>
         )}
-        <ScrollProgress />
       </header>
 
       <main id="main" className="flex-1 pt-24 sm:pt-28">
@@ -190,56 +189,6 @@ function ThemeToggle({ theme, onChange }: { theme: Theme; onChange: (t: Theme) =
   )
 }
 
-/**
- * A hairline that fills with scroll position, pinned to the bottom edge of the
- * sticky header.
- *
- * The width is driven from a rAF-throttled scroll listener rather than React
- * state, so scrolling never triggers a re-render of the header (or the page
- * beneath it). The transform is written straight to the node.
- */
-function ScrollProgress() {
-  const ref = useRef<HTMLSpanElement>(null)
-
-  useEffect(() => {
-    const bar = ref.current
-    if (!bar) return
-    let raf = 0
-
-    const update = () => {
-      const doc = document.documentElement
-      const max = doc.scrollHeight - doc.clientHeight
-      const progress = max > 0 ? Math.min(1, Math.max(0, doc.scrollTop / max)) : 0
-      bar.style.transform = `scaleX(${progress})`
-    }
-    const schedule = () => {
-      cancelAnimationFrame(raf)
-      raf = requestAnimationFrame(update)
-    }
-
-    update()
-    window.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule)
-    return () => {
-      window.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
-      cancelAnimationFrame(raf)
-    }
-  }, [])
-
-  return (
-    <span
-      className="no-print pointer-events-none absolute inset-x-0 bottom-0 h-0.5 overflow-hidden"
-      aria-hidden="true"
-    >
-      <span
-        ref={ref}
-        className="bg-brand-500 dark:bg-brand-300 block h-full w-full"
-        style={{ transform: 'scaleX(0)', transformOrigin: 'left' }}
-      />
-    </span>
-  )
-}
 
 function Footer() {
   return (

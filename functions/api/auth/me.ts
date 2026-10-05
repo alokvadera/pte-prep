@@ -1,5 +1,5 @@
 import type { Env, UserRecord } from '../../types'
-import { extractBearerToken, hashPassword, verifySessionToken } from '../../lib/auth'
+import { extractBearerToken, hashPassword, requireSecret, verifySessionToken } from '../../lib/auth'
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const token = extractBearerToken(context.request)
@@ -10,7 +10,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  const session = await verifySessionToken(token, requireSecret(context.env))
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -55,7 +55,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  const session = await verifySessionToken(token, requireSecret(context.env))
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,

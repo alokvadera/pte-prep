@@ -397,7 +397,7 @@ export function ProgressBar({
   }
   return (
     <div
-      className={cn('bg-ink-200 dark:bg-white/10 h-2 w-full overflow-hidden rounded-full', className)}
+      className={cn('bg-ink-100 dark:bg-white/5 h-1.5 w-full overflow-hidden rounded-full', className)}
       role="progressbar"
       aria-valuenow={Math.round(pct)}
       aria-valuemin={0}

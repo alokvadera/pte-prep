@@ -74,6 +74,27 @@ and sets `BASE_PATH=/<repo>/` automatically so assets, links, the router and
 the PWA manifest keep working under the sub-path (override with a `BASE_PATH`
 repository variable if needed).
 
+### Cloud sync secret (required)
+
+The optional account and cloud-sync features run in `functions/` on Cloudflare
+Pages. They sign session tokens with `JWT_SECRET`, and there is deliberately no
+fallback value: if the secret is missing or shorter than 32 characters, every
+auth request fails with a 500 rather than falling back to something guessable.
+
+```bash
+npx wrangler secret put JWT_SECRET   # paste 32+ random characters
+# e.g. head -c 48 /dev/urandom | base64
+```
+
+Set it before enabling the account UI. Changing it invalidates every existing
+session, which signs everyone out — the intended behaviour after a leak.
+
+The rest of the backend is set up with:
+
+```bash
+npm run d1:migrate          # creates the users and attempts tables
+```
+
 ---
 
 ## SEO

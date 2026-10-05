@@ -1,5 +1,5 @@
 import type { Env, UserRecord } from '../../types'
-import { createSessionToken, hashPassword, verifyPassword } from '../../lib/auth'
+import { createSessionToken, hashPassword, requireSecret, verifyPassword } from '../../lib/auth'
 
 interface ExtendedUserRecord extends UserRecord {
   password_hash: string | null
@@ -42,69 +42,47 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .bind(rawEmail)
     .first<ExtendedUserRecord>()
 
+  // Passwordless sign-in is removed: a login with no password is a 401, and a
+  // login for an unknown email is a 401. Accounts can only be created through
+  // /api/auth/register, which always sets a password.
+
   let user: UserRecord
 
   if (!existing) {
-    // If password provided and user doesn't exist, we don't automatically create on login
-    // unless no password or user explicitly registers
-    if (password) {
-      return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
-
-    const id = `usr_${crypto.randomUUID().replace(/-/g, '')}`
-    await db
-      .prepare('INSERT INTO users (id, email) VALUES (?, ?)')
-      .bind(id, rawEmail)
-      .run()
-
-    user = {
-      id,
-      email: rawEmail,
-      target_score: 65,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    }
-  } else {
-    // Existing user
-    if (existing.password_hash) {
-      if (!password) {
-        return new Response(
-          JSON.stringify({ error: 'Password is required to sign in to this account.' }),
-          { status: 400, headers: { 'Content-Type': 'application/json' } },
-        )
-      }
-
-      const valid = await verifyPassword(
-        password,
-        existing.password_hash,
-        existing.password_salt ?? '',
-      )
-      if (!valid) {
-        return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
-          status: 401,
-          headers: { 'Content-Type': 'application/json' },
-        })
-      }
-    } else if (password) {
-      // User existed without password; set it now
-      const { hash, salt } = await hashPassword(password)
-      await db
-        .prepare(
-          "UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime('now') WHERE id = ?",
-        )
-        .bind(hash, salt, existing.id)
-        .run()
-    }
-
-    user = existing
+    return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
+
+  if (!password) {
+    return new Response(
+      JSON.stringify({ error: 'Password is required to sign in to this account.' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
+  // Existing user
+  if (!existing.password_hash) {
+    return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const valid = await verifyPassword(password, existing.password_hash, existing.password_salt ?? '')
+  if (!valid) {
+    return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  user = existing
 
   const token = await createSessionToken(
     { userId: user.id, email: user.email },
-    context.env.JWT_SECRET,
+    requireSecret(context.env),
   )
 
   return new Response(

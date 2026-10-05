@@ -1,5 +1,5 @@
 import type { Env } from '../../types'
-import { extractBearerToken, verifySessionToken } from '../../lib/auth'
+import { createSessionToken, requireSecret, verifySessionToken } from '../../lib/auth'
 
 interface RawAttemptRow {
   id: string
@@ -21,6 +21,8 @@ interface RawAttemptRow {
   synced_at: string
 }
 
+const ATTEMPT_ID_RE = /^[A-Za-z0-9_-]{8,64}$/
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const token = extractBearerToken(context.request)
   if (!token) {
@@ -30,7 +32,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  const session = await verifySessionToken(token, requireSecret(context.env))
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -39,7 +41,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB
-    const results = await db
+  const results = await db
     .prepare(
       `SELECT id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,
               overall_score, overall_score_60, cefr, earned_points, available_points,
@@ -138,7 +140,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  const session = await verifySessionToken(token, requireSecret(context.env))
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -156,9 +158,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const id = typeof attempt.id === 'string' ? attempt.id : null
-  if (!id) {
-    return new Response(JSON.stringify({ error: 'Attempt ID is required' }), {
+  // The client supplies a short, slug-like label; the server generates the
+  // unique id below. This bounds the write-primitive to a fixed charset and
+  // length, and the primary key keeps rows unique.
+  const label = typeof attempt.id === 'string' ? attempt.id : 'attempt'
+  if (!ATTEMPT_ID_RE.test(label)) {
+    return new Response(JSON.stringify({ error: 'Invalid attempt ID' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
@@ -176,6 +181,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     untimed: attempt.untimed ? true : null,
     timeScale: typeof attempt.timeScale === 'number' ? attempt.timeScale : null,
   })
+
+  const id = `att_${crypto.randomUUID()}`
 
   await db
     .prepare(

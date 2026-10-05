@@ -2,18 +2,7 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-@font-face {
-  font-family: 'Instrument Sans';
-  src: url('/fonts/InstrumentSans-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Instrument Sans';
-  src: url('/fonts/InstrumentSans-Bold.woff2') format('woff2');
-  font-weight: 600 800;
-  font-display: swap;
-}
+
 @font-face {
   font-family: 'IBM Plex Mono';
   src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
@@ -28,8 +17,8 @@
 }
 
 @theme {
-  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* White page ground, cool dividers and slate copy mirror the practice mock. */
@@ -41,10 +30,10 @@
   --color-ink-500: #606b7a;
   --color-ink-600: #4b596c;
   --color-ink-700: #354459;
-  --color-ink-800: #202d40;
-  --color-ink-850: #1c2633;
-  --color-ink-900: #171b20;
-  --color-ink-950: #10151c;
+  --color-ink-800: #21262d;
+  --color-ink-850: #161b22;
+  --color-ink-900: #0e1117;
+  --color-ink-950: #0a0c10;
 
   /* Blue marks navigation, selection, and the primary mock action.
      Dark mode uses two steps: brand-300 for static accent text (kickers,
@@ -160,14 +149,8 @@
 }
 
 @keyframes route-enter {
-  from {
-    opacity: 0;
-    transform: translateY(14px) scale(0.995);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes drawer-enter {
@@ -474,7 +457,7 @@
   }
 
   .route-enter {
-    animation: var(--animate-route-enter);
+    animation: route-enter 0.4s var(--ease-glide) both;
   }
 
   /* Every route except Home sits on this slightly raised ground, so navigating
@@ -1407,7 +1390,7 @@
   @apply placeholder:text-ink-400 focus:border-brand-500 focus:ring-brand-500/20 focus:ring-3 focus:outline-none;
 
   &:where(.dark, .dark *) {
-    @apply border-white/12 bg-ink-900/80 text-ink-100 placeholder:text-ink-500 focus:border-brand-300 focus:ring-brand-300/25;
+    @apply border-white/12 bg-white/5 text-ink-100 placeholder:text-ink-500 shadow-sm focus:border-brand-400 focus:bg-white/10 focus:ring-2 focus:ring-brand-400/50;
   }
 
   &:focus {
@@ -1415,7 +1398,7 @@
   }
 
   &:where(.dark, .dark *):focus {
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-300) 8%, transparent);
+    box-shadow: 0 0 0 2px var(--color-brand-400);
   }
 }
 

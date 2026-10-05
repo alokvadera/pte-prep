@@ -37,7 +37,15 @@ export default function LoginPage() {
     if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
   }, [])
 
-  const redirectUrl = params.get('from') || '/dashboard'
+  // `from` is attacker-controllable, so only same-site paths are allowed.
+  // A protocol-relative value like `//evil.com` is treated as a path by the
+  // router but as an absolute URL by anything that reads it later, so it is
+  // rejected alongside the obvious `https://` and backslash forms.
+  const rawFrom = params.get('from')
+  const redirectUrl =
+    rawFrom && rawFrom.startsWith('/') && !rawFrom.startsWith('//') && !rawFrom.includes('\\')
+      ? rawFrom
+      : '/dashboard'
 
   useEffect(() => {
     clearError()
@@ -188,17 +196,17 @@ export default function LoginPage() {
               </div>
             </Card>
           ) : (
-            <Card variant="solid" className="p-6 sm:p-8">
+            <Card variant="solid" className="p-6 sm:p-8 dark:bg-white/5 dark:backdrop-blur-xl dark:border-white/10 dark:shadow-2xl">
               {/* Tab Selector */}
-              <div className="flex rounded-xl bg-ink-100/80 p-1 dark:bg-white/6 mb-6" role="tablist">
+              <div className="flex rounded-full bg-ink-100/80 p-1 dark:bg-white/5 mb-6" role="tablist">
                 <button
                   type="button"
                   role="tab"
                   aria-selected={mode === 'login'}
                   onClick={() => switchMode('login')}
-                  className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex-1 rounded-full py-2 text-xs font-bold transition-all duration-300 ease-out cursor-pointer ${
                     mode === 'login'
-                      ? 'bg-white text-ink-900 shadow-xs dark:bg-ink-800 dark:text-white'
+                      ? 'bg-white text-ink-900 shadow-sm dark:bg-white/10 dark:text-white'
                       : 'text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-white'
                   }`}
                 >
@@ -209,9 +217,9 @@ export default function LoginPage() {
                   role="tab"
                   aria-selected={mode === 'register'}
                   onClick={() => switchMode('register')}
-                  className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all cursor-pointer ${
+                  className={`flex-1 rounded-full py-2 text-xs font-bold transition-all duration-300 ease-out cursor-pointer ${
                     mode === 'register'
-                      ? 'bg-white text-ink-900 shadow-xs dark:bg-ink-800 dark:text-white'
+                      ? 'bg-white text-ink-900 shadow-sm dark:bg-white/10 dark:text-white'
                       : 'text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-white'
                   }`}
                 >
@@ -219,7 +227,7 @@ export default function LoginPage() {
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <label
                     htmlFor="login-email"

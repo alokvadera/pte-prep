@@ -1,6 +1,21 @@
-import type { AuthSession } from '../types'
+import type { AuthSession, Env } from '../types'
 
-const DEFAULT_SECRET = 'pte-prep-cf-edge-secret-dev-2026'
+/** @internal Used by tests to point the token-verify path at a known key. */
+export const HARDENED_SECRET_PREFIX = 'pte-prep-cf-aided-'
+
+export function requireSecret(env: Env): string {
+  const secret = env.JWT_SECRET
+  if (!secret) {
+    throw new Error(
+      'JWT_SECRET is not set. Add it with `wrangler secret put JWT_SECRET` ' +
+        '(or the equivalent for your host) before serving traffic.',
+    )
+  }
+  if (secret.length < 32) {
+    throw new Error('JWT_SECRET must be at least 32 characters of random data.')
+  }
+  return secret
+}
 
 function base64UrlEncode(data: Uint8Array): string {
   let binary = ''
@@ -18,7 +33,7 @@ function base64UrlDecode(str: string): Uint8Array {
   const binary = atob(base64)
   const bytes = new Uint8Array(binary.length)
   for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
+    bytes[i] = binary.charCodeAt(i)!
   }
   return bytes
 }
@@ -36,7 +51,7 @@ async function getHmacKey(secret: string): Promise<CryptoKey> {
 
 export async function createSessionToken(
   session: Omit<AuthSession, 'exp'>,
-  secret = DEFAULT_SECRET,
+  secret: string,
   expiresInSeconds = 30 * 24 * 60 * 60,
 ): Promise<string> {
   const fullSession: AuthSession = {
@@ -56,7 +71,7 @@ export async function createSessionToken(
 
 export async function verifySessionToken(
   token: string,
-  secret = DEFAULT_SECRET,
+  secret: string,
 ): Promise<AuthSession | null> {
   try {
     const [payloadB64, sigB64] = token.split('.')

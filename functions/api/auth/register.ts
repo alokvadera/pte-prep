@@ -1,5 +1,5 @@
 import type { Env, UserRecord } from '../../types'
-import { createSessionToken, hashPassword } from '../../lib/auth'
+import { createSessionToken, hashPassword, requireSecret } from '../../lib/auth'
 
 interface ExtendedUserRecord extends UserRecord {
   password_hash: string | null
@@ -72,7 +72,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
     const token = await createSessionToken(
       { userId: existing.id, email: existing.email },
-      context.env.JWT_SECRET,
+      requireSecret(context.env),
     )
 
     return new Response(
@@ -94,7 +94,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .bind(userId, email, hash, salt, targetScore)
     .run()
 
-  const token = await createSessionToken({ userId, email }, context.env.JWT_SECRET)
+  const token = await createSessionToken({ userId, email }, requireSecret(context.env))
 
   return new Response(
     JSON.stringify({

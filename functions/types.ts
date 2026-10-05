@@ -1,6 +1,7 @@
 export interface Env {
   DB: D1Database
-  JWT_SECRET?: string
+  JWT_SECRET: string
+  CORS_ORIGIN?: string
 }
 
 export interface UserRecord {

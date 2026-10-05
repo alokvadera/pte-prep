@@ -309,7 +309,7 @@ export default function Dashboard() {
                       <ProgressBar
                         value={value}
                         max={90}
-                        tone={value >= 70 ? 'mint' : value >= 50 ? 'amber' : 'rose'}
+                        tone="brand"
                         label={s}
                       />
                     </div>
@@ -573,6 +573,15 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
 
   return (
     <svg viewBox={`0 0 ${w} ${h}`} className="mt-6 w-full" role="img" aria-label={`Overall score across ${points.length} attempts`}>
+      <defs>
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="currentColor" floodOpacity="0.3" />
+        </filter>
+        <linearGradient id="trend-grad" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.15" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+        </linearGradient>
+      </defs>
       {[20, 40, 60, 80].map((v) => (
         <g key={v}>
           <line x1={pad} x2={w - pad} y1={py(v)} y2={py(v)} stroke="currentColor" strokeOpacity={0.1} />
@@ -582,17 +591,25 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
         </g>
       ))}
       {points.length > 1 ? (
-        <polyline
-          points={points.map((p, i) => `${px(i)},${py(p.value)}`).join(' ')}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={2}
-          className="text-brand-500 dark:text-brand-300 animate-fade-in"
-          strokeLinejoin="round"
-        />
+        <>
+          <polygon
+            points={`${px(0)},${h - pad} ${points.map((p, i) => `${px(i)},${py(p.value)}`).join(' ')} ${px(points.length - 1)},${h - pad}`}
+            fill="url(#trend-grad)"
+            className="text-brand-500 dark:text-brand-300 animate-fade-in"
+          />
+          <polyline
+            points={points.map((p, i) => `${px(i)},${py(p.value)}`).join(' ')}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={3}
+            className="text-brand-500 dark:text-brand-300 animate-fade-in"
+            strokeLinejoin="round"
+            filter="url(#glow)"
+          />
+        </>
       ) : null}
       {points.map((p, i) => (
-        <circle key={i} cx={px(i)} cy={py(p.value)} r={3.5} className="fill-brand-500 dark:fill-brand-300 cursor-pointer">
+        <circle key={i} cx={px(i)} cy={py(p.value)} r={4.5} strokeWidth={2} className="fill-brand-500 dark:fill-brand-300 cursor-pointer stroke-white dark:stroke-ink-900">
           <title>{`Attempt ${i + 1}: ${p.value} points (${formatDateTime(p.label)})`}</title>
         </circle>
       ))}

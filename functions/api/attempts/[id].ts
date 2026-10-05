@@ -1,5 +1,5 @@
 import type { Env } from '../../types'
-import { extractBearerToken, verifySessionToken } from '../../lib/auth'
+import { extractBearerToken, requireSecret, verifySessionToken } from '../../lib/auth'
 
 interface RawAttemptRow {
   id: string
@@ -30,7 +30,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  const session = await verifySessionToken(token, requireSecret(context.env))
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -143,7 +143,7 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, context.env.JWT_SECRET)
+  const session = await verifySessionToken(token, requireSecret(context.env))
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
