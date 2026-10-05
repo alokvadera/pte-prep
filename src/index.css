@@ -1277,7 +1277,7 @@
      of the inset navigation and task links; at tablet widths they move below. */
   .practice-collage { position: relative; width: 100%; margin-inline: auto; padding-block: 2rem; text-align: left; }
   .practice-window { position: relative; z-index: 1; overflow: hidden; width: 76%; height: 32rem; margin-inline: auto; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 12px; background: var(--color-ink-900); color: var(--color-ink-50); box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
-  .practice-window-header { display: flex; height: 46px; align-items: center; justify-content: space-between; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding-inline: 16px; color: var(--color-ink-300); font-size: 11px; font-weight: 600; }
+  .practice-window-header { display: flex; height: 46px; align-items: center; justify-content: space-between; background: color-mix(in oklab, var(--color-ink-850) 55%, var(--color-ink-900)); padding-inline: 16px; color: var(--color-ink-300); font-size: 11px; font-weight: 600; }
   .practice-window-mark { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-brand-300); }
   .practice-window-avatar { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--color-ink-700); color: white; font-size: 10px; font-weight: 700; }
   .practice-window-label, .practice-overline, .practice-nav-caption { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; }
@@ -1298,7 +1298,7 @@
   .practice-mini-cta:hover { border-color: var(--color-brand-300); background: var(--color-ink-850); }
   .practice-window-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(168px, .85fr); gap: 12px; }
   .practice-window-panel { min-width: 0; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 7px; background: color-mix(in oklab, var(--color-ink-850) 70%, var(--color-ink-900)); }
-  .practice-panel-title { display: flex; min-height: 45px; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding: 0 14px; color: var(--color-ink-100); font-size: 11px; font-weight: 550; }
+  .practice-panel-title { display: flex; min-height: 45px; align-items: center; justify-content: space-between; gap: 8px; padding: 0 14px; color: var(--color-ink-100); font-size: 11px; font-weight: 550; }
   .practice-panel-title > span:last-child { color: var(--color-ink-400); font-size: 9px; font-weight: 400; }
   .practice-period { color: var(--color-ink-400); font-family: var(--font-mono); font-size: 8px; letter-spacing: .1em; }
   .practice-score-line { display: flex; align-items: baseline; gap: 4px; margin: 7px 0 11px; color: var(--color-ink-400); font-family: var(--font-mono); font-size: 10px; }
@@ -1322,12 +1322,13 @@
   @keyframes task-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
   @keyframes suggestion-enter { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: none; } }
   .practice-focus-icon { color: var(--color-brand-300); }
-  .practice-continue-title { min-height: 42px; margin-top: 0; }
+  .practice-continue-title { min-height: 32px; margin-top: 8px; }
   .practice-continue-title a { color: var(--color-ink-400); font-size: 9px; text-decoration: none; }
-  .practice-task { display: flex; min-height: 48px; align-items: center; gap: 9px; margin: 0; border-bottom: 1px solid rgb(255 255 255 / 0.08); padding: 8px 13px; color: var(--color-ink-50); font-size: 10px; text-decoration: none; opacity: 0; animation: task-enter 0.4s var(--ease-settle) both; }
+  .practice-task { display: flex; min-height: 48px; align-items: center; gap: 9px; margin: 0; border-radius: 6px; padding: 8px 13px; color: var(--color-ink-50); font-size: 10px; text-decoration: none; opacity: 0; animation: task-enter 0.4s var(--ease-settle) both; transition: background-color .18s; }
+  .practice-task + .practice-task { margin-top: 3px; }
+  .practice-task:hover, .practice-task:focus-visible { background: color-mix(in oklab, var(--color-brand-500) 9%, transparent); }
   .practice-task:nth-child(2) { animation-delay: 0.9s; }
   .practice-task:nth-child(3) { animation-delay: 1s; }
-  .practice-task:last-child { border-bottom: 0; }
   .practice-task-icon { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; color: var(--color-brand-300); font-size: 10px; transition: transform 0.2s var(--ease-settle), background-color 0.2s var(--ease-settle); }
   .practice-task:hover .practice-task-icon { transform: scale(1.1); background: color-mix(in oklab, var(--color-brand-500) 20%, transparent); }
   .practice-task b, .practice-goal-panel b { display: block; font-size: 10px; font-weight: 600; }
@@ -1339,7 +1340,7 @@
   .practice-week-panel .practice-panel-title > span:last-child { color: var(--color-brand-300); font-size: 9px; }
   .practice-week-total { margin-top: 9px; color: white; font-family: var(--font-mono); font-size: 20px; }
   .practice-week-total small { color: var(--color-ink-400); font-family: var(--font-sans); font-size: 9px; }
-  .practice-bars { display: flex; width: 100%; height: 56px; align-items: end; gap: 5px; margin-top: 14px; border-bottom: 1px solid var(--color-ink-200); }
+  .practice-bars { display: flex; width: 100%; height: 56px; align-items: end; gap: 5px; margin-top: 14px; }
   .practice-bars i { flex: 1; min-height: 5px; border-radius: 3px 3px 0 0; background: var(--color-brand-400); opacity: .78; transform-origin: bottom; animation: bar-grow .65s var(--ease-settle) both; }
   .practice-bars i:nth-child(2) { animation-delay: .05s; } .practice-bars i:nth-child(3) { animation-delay: .1s; } .practice-bars i:nth-child(4) { animation-delay: .15s; } .practice-bars i:nth-child(5) { animation-delay: .2s; } .practice-bars i:nth-child(6) { animation-delay: .25s; } .practice-bars i:nth-child(7) { animation-delay: .3s; }
   .practice-week-days { display: flex; justify-content: space-between; margin-top: 5px; color: var(--color-ink-500); font-family: var(--font-mono); font-size: 8px; }
