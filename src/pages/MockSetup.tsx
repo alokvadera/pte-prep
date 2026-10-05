@@ -8,9 +8,9 @@ import { Seo } from '../seo/Seo'
 import { Button, PageWrapper } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useTest } from '../store/useTest'
-import { useSettings } from '../store/useSettings'
+
 import { formatClock } from '../lib/format'
-import { cn } from '../lib/cn'
+
 
 type Length = 'full' | 'half' | 'quick'
 
@@ -59,15 +59,15 @@ export default function MockSetup() {
   const start = useTest((s) => s.start)
   const activeMock = useTest((s) => s.mock)
   const activeStatus = useTest((s) => s.status)
-  const { settings, set } = useSettings()
+  
   const [length, setLength] = useState<Length>('full')
-  const [mode, setMode] = useState<MockMode>('exam')
+  const [mode] = useState<MockMode>('exam')
   // A fixed initial seed keeps the prerendered HTML and the hydrated output identical.
   // A fresh seed is generated on demand by the shuffle control below.
-  const [seed, setSeed] = useState(DEFAULT_SEED)
+  const [seed] = useState(DEFAULT_SEED)
   const [singleSection, setSingleSection] = useState<SectionId | null>(null)
-  const [timing, setTiming] = useState<TimingId>('standard')
-  const [forwardOnly, setForwardOnly] = useState(false)
+  const [timing] = useState<TimingId>('standard')
+  const [forwardOnly] = useState(false)
 
   const capacity = useMemo(() => capacityByType(), [])
 
@@ -164,178 +164,93 @@ export default function MockSetup() {
   return (
     <>
       <Seo />
-
       <PageWrapper
-        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Mock test' }]} />}
-        eyebrow="Mock test setup"
-        title="Build a test around your day."
-        description="Choose the length, conditions and timing that suit your session. Questions and answer order are shuffled from your seed."
+        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Mock Setup' }]} />}
+        eyebrow="Mock configuration"
+        title="Start a new session"
+        description="Pick a length and check your microphone."
       >
+        <div className="mt-8 grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="card relative overflow-hidden bg-white/50 backdrop-blur-xl dark:bg-ink-900/40 dark:backdrop-blur-2xl border-white/20 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+              <h2 className="text-xl font-bold tracking-tight text-ink-900 dark:text-white mb-6">Test Length</h2>
+              
+              <div className="space-y-3">
+                {(['full', 'half', 'quick'] as const).map((len) => {
+                  const isActive = length === len
+                  const meta =
+                    len === 'full'
+                      ? { label: 'Full mock', desc: 'All 3 sections · Official test pacing · Best for accurate scoring' }
+                      : len === 'half'
+                        ? { label: 'Half mock', desc: 'Shorter duration · Good for focused section testing' }
+                        : { label: 'Quick run', desc: 'A handful of questions to test the platform and your equipment' }
 
-        {activeMock && activeStatus !== 'finished' ? (
-          <div className="card-solid mt-8 flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-ink-900 dark:text-white text-sm font-bold">You have a test in progress</p>
-              <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{activeMock.title}</p>
+                  return (
+                    <label key={len} className={`choice-card flex items-start gap-4 p-5 transition-all duration-300 ${isActive ? 'border-brand-500 bg-brand-500/5 dark:bg-brand-500/10 shadow-[0_0_0_1px_rgba(23,86,176,1)]' : 'border-ink-200 bg-white hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]'}`}>
+                      <input
+                        type="radio"
+                        name="length"
+                        className="mt-1 h-5 w-5 accent-brand-500 shrink-0 cursor-pointer"
+                        checked={isActive}
+                        onChange={() => { setLength(len); setSingleSection(null); }}
+                      />
+                      <div>
+                        <div className="text-ink-900 dark:text-white font-semibold">{meta.label}</div>
+                        <div className="text-ink-500 dark:text-ink-300 text-sm mt-1">{meta.desc}</div>
+                      </div>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {length !== 'full' && (
+                <div className="mt-6 pt-6 border-t border-ink-100 dark:border-white/10">
+                  <h3 className="text-sm font-semibold text-ink-900 dark:text-white mb-3">Target a specific section (Optional)</h3>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSingleSection(null)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-200 cursor-pointer ${singleSection === null ? 'border-brand-500 bg-brand-500 text-white shadow-sm' : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-300 dark:hover:border-white/20'}`}
+                    >
+                      All sections
+                    </button>
+                    {(['speaking-writing', 'reading', 'listening'] as const).map((sId) => {
+                      const isActive = singleSection === sId
+                      const sectionTitle = SECTION_META[sId]?.longTitle || sId
+
+                      return (
+                        <button
+                          key={sId}
+                          type="button"
+                          onClick={() => setSingleSection(sId)}
+                          className={`px-4 py-2 rounded-lg text-sm font-semibold border transition-all duration-200 cursor-pointer ${isActive ? 'border-brand-500 bg-brand-500 text-white shadow-sm' : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-300 dark:hover:border-white/20'}`}
+                        >
+                          {sectionTitle}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
-            <Button onClick={() => navigate('/test')}>Resume</Button>
-          </div>
-        ) : null}
-
-        <div className="mt-6 sm:mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-8">
-            <fieldset>
-              <legend className="label">Length</legend>
-              <div className="grid gap-3 sm:grid-cols-3">
-                {(Object.keys(LENGTHS) as Length[]).map((key) => {
-                  const opt = LENGTHS[key]
-                  const active = !singleSection && length === key
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => {
-                        setLength(key)
-                        setSingleSection(null)
-                      }}
-                      className={cn('choice-card', active ? 'choice-active' : 'choice-idle')}
-                      aria-pressed={active}
-                    >
-                      <p className="text-ink-900 dark:text-white text-sm font-bold">{opt.label}</p>
-                      <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">{opt.description}</p>
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend className="label">Single section</legend>
-              <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
-                <button
-                  type="button"
-                  onClick={() => setSingleSection(null)}
-                  className={cn('choice-card', singleSection === null ? 'choice-active' : 'choice-idle')}
-                  aria-pressed={singleSection === null}
-                >
-                  <p className="text-ink-900 dark:text-white text-sm font-bold">All three</p>
-                  <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs">Full test order</p>
-                </button>
-                {(['speaking-writing', 'reading', 'listening'] as const).map((key) => {
-                  const meta = SECTION_META[key]
-                  const active = singleSection === key
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setSingleSection(key)}
-                      className={cn('choice-card', active ? 'choice-active' : 'choice-idle')}
-                      aria-pressed={active}
-                    >
-                      <p className="text-ink-900 dark:text-white text-sm font-bold">{meta.longTitle}</p>
-                      <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs">{meta.weightNote}</p>
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend className="label">Mode</legend>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(
-                  [
-                    { id: 'exam' as MockMode, title: 'Exam conditions', body: 'Full screen runner, section clock, no transcripts and no tips. Answers reveal only at the end.' },
-                    { id: 'practice' as MockMode, title: 'Practice', body: 'Shows transcripts, item tips and replay buttons, so you can learn as you go.' },
-                  ] as const
-                ).map((opt) => {
-                  const active = mode === opt.id
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => {
-                        setMode(opt.id)
-                        set('defaultMode', opt.id === 'exam' ? 'full' : settings.defaultMode)
-                      }}
-                      className={cn('choice-card', active ? 'choice-active' : 'choice-idle')}
-                      aria-pressed={active}
-                    >
-                      <p className="text-ink-900 dark:text-white text-sm font-bold">{opt.title}</p>
-                      <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">{opt.body}</p>
-                    </button>
-                  )
-                })}
-              </div>
-            </fieldset>
-
-            <fieldset>
-              <legend className="label">Navigation</legend>
-              <button
-                type="button"
-                onClick={() => setForwardOnly((v) => !v)}
-                className={cn('choice-card w-full', forwardOnly ? 'choice-active' : 'choice-idle')}
-                aria-pressed={forwardOnly}
-              >
-                <p className="text-ink-900 dark:text-white text-sm font-bold">Test-day mode (no going back)</p>
-                <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">
-                  On test day you cannot return to a previous question. Turn this on to rehearse that: Back,
-                  question jumping and flags are disabled for the run.
-                </p>
-              </button>
-            </fieldset>
-
-            <fieldset>
-              <legend className="label">Time allowed</legend>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(Object.keys(TIMINGS) as TimingId[]).map((id) => {
-                  const opt = TIMINGS[id]
-                  const active = timing === id
-                  return (
-                    <button
-                      key={id}
-                      type="button"
-                      onClick={() => setTiming(id)}
-                      className={cn('choice-card', active ? 'choice-active' : 'choice-idle')}
-                      aria-pressed={active}
-                    >
-                      <p className="text-ink-900 dark:text-white text-sm font-bold">{opt.label}</p>
-                      <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">{opt.detail}</p>
-                    </button>
-                  )
-                })}
-              </div>
-              <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs leading-relaxed">
-                A two-hour mock is genuinely hard. The official timing is the default because that is what you will face,
-                but an untimed run is a better way to learn the question types and a longer clock is a better way to
-                practise pacing. You can also add five minutes mid-section.
-              </p>
-            </fieldset>
-
+            
             <MicChecker />
           </div>
 
-          <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
-            {/* This was `bg-ink-900 text-white` — a near-black slab on a light page,
-                which outweighed the entire left column and read as a different
-                product. It carries no status the rest of the setup screen does
-                not, so it now uses the same card as everything else and keeps
-                its instrument feel from the mono eyebrow instead of from mass. */}
-            <div className="card-solid p-5">
-              <p className="section-eyebrow">Test preview</p>
-              <h2 className="text-ink-900 dark:text-white mt-1 text-xl font-bold tracking-tight text-balance">This run</h2>
-
-              <dl className="mt-4 space-y-3 text-sm">
-                <Row label="Scored items" value={String(preview.scoredCount)} />
-                <Row label="Total points" value={String(preview.mock.totalPoints)} />
-                <Row label="Time allowed" value={formatClock(preview.mock.totalSeconds)} />
-                <div className="border-ink-200 dark:border-white/10 flex flex-col gap-1 border-t pt-2.5">
-                  <dt className="text-ink-500 dark:text-ink-400 text-xs">Sections</dt>
-                  <dd className="text-ink-900 dark:text-white text-xs font-semibold leading-relaxed">
-                    {preview.mock.sections.map((s) => SECTION_META[s.id].longTitle).join(' → ')}
-                  </dd>
-                </div>
+          <div className="lg:col-span-1">
+            <div className="card sticky top-24 bg-white/80 backdrop-blur-xl dark:bg-ink-900/80">
+              <h2 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mb-4">Summary</h2>
+              
+              <dl className="space-y-4 mb-8 border-b border-ink-100 dark:border-white/10 pb-6">
+                <Row label="Type" value={LENGTHS[length].label} />
+                <Row label="Sections" value={preview.mock.sections.map((s) => SECTION_META[s.id]?.longTitle || s.id).join(' → ')} />
+                <Row label="Scored Items" value={String(preview.scoredCount)} />
+                <Row label="Estimated Time" value={formatClock(preview.mock.totalSeconds)} />
               </dl>
+              
+              <Button size="lg" className="w-full justify-center shadow-premium-light dark:shadow-premium-dark" onClick={handleStart}>
+                Start session →
+              </Button>
 
               <details className="border-ink-200 dark:border-white/10 group mt-5 border-t pt-4">
                 <summary className="text-ink-700 dark:text-ink-200 flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold">
@@ -344,52 +259,18 @@ export default function MockSetup() {
                   <span className="text-ink-500 dark:text-ink-400 hidden font-normal group-open:inline">Hide</span>
                 </summary>
                 <ul className="text-ink-600 dark:text-ink-300 mt-3 max-h-48 space-y-1 overflow-y-auto pr-2 text-xs">
-                  {includedTypes.map((type) => <li key={type}>{QUESTION_META[type].label}</li>)}
+                  {includedTypes.map((type) => <li key={type}>{QUESTION_META[type]?.label || type}</li>)}
                 </ul>
               </details>
-
-              <div className="border-ink-200 dark:border-white/10 mt-5 border-t pt-4">
-                <label className="text-ink-500 dark:text-ink-400 mb-1.5 block text-xs font-semibold" htmlFor="seed">
-                  Test seed
-                </label>
-                <div className="flex min-w-0 gap-2">
-                  <input
-                    id="seed"
-                    type="number"
-                    min={1}
-                    step={1}
-                    className="field min-w-0 flex-1 tabular-nums"
-                    value={seed}
-                    onChange={(e) => {
-                      const n = Math.floor(Number(e.target.value))
-                      setSeed(Number.isFinite(n) && n > 0 ? n : DEFAULT_SEED)
-                    }}
-                  />
-                  <Button variant="secondary" className="shrink-0" onClick={() => setSeed(Math.floor(Math.random() * 1_000_000))}>
-                    Shuffle
-                  </Button>
-                </div>
-                <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs leading-relaxed">
-                  Same seed produces the same test. Share it to reproduce a paper.
-                </p>
-              </div>
-
-              <Button size="lg" className="mt-6 w-full" onClick={handleStart}>
-                Start {LENGTHS[length].label.toLowerCase()}
-              </Button>
-
-              <p className="text-ink-500 dark:text-ink-400 mt-3 text-center text-xs leading-relaxed">
-                Allow playback when prompted so the listening items work.
-              </p>
             </div>
-          </aside>
+          </div>
         </div>
 
         {confirmOverwrite ? (
           <div className="fixed inset-0 z-100 grid place-items-center p-4">
             <button
               type="button"
-              className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer"
+              className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer backdrop-blur-sm"
               onClick={() => setConfirmOverwrite(false)}
               aria-label="Cancel"
             />
@@ -398,28 +279,19 @@ export default function MockSetup() {
               role="dialog"
               aria-modal="true"
               aria-labelledby="confirm-overwrite-title"
-              className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl"
+              className="card relative z-10 w-full max-w-sm p-6 shadow-2xl animate-modal-enter"
             >
-              <h2 id="confirm-overwrite-title" className="text-ink-900 dark:text-white text-lg font-bold text-balance">
-                Discard active test?
-              </h2>
-              <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">
-                You have a test in progress ({activeMock?.title}). Starting a new mock test will discard your current progress.
+              <h3 id="confirm-overwrite-title" className="text-lg font-bold text-ink-900 dark:text-white">Discard active mock?</h3>
+              <p className="mt-2 text-sm text-ink-500 dark:text-ink-300">
+                You already have a mock in progress ({activeMock?.title}). Starting a new one will discard it permanently.
               </p>
-              <div className="mt-6 flex justify-end gap-2">
-                <button type="button" className="btn-secondary" onClick={() => setConfirmOverwrite(false)}>
-                  Keep active test
-                </button>
-                <button
-                  type="button"
-                  className="btn-danger"
-                  onClick={() => {
-                    setConfirmOverwrite(false)
-                    begin()
-                  }}
-                >
+              <div className="mt-6 flex justify-end gap-3">
+                <Button variant="secondary" onClick={() => setConfirmOverwrite(false)}>
+                  Cancel
+                </Button>
+                <Button variant="danger" onClick={() => { setConfirmOverwrite(false); begin(); }}>
                   Discard & Start
-                </button>
+                </Button>
               </div>
             </div>
           </div>

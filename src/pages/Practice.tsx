@@ -139,7 +139,7 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
           </Link>
         </div>
 
-        <section className="card-solid mt-6">
+        <section className="card relative overflow-hidden bg-white/50 backdrop-blur-xl dark:bg-ink-900/40 dark:backdrop-blur-2xl border-white/20 dark:border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] mt-6">
         <SectionHeading
           eyebrow={`${skill ? SKILLS.find((s) => s.id === skill)?.label : 'All skills'} · ${buildable.length} ready types`}
           title="Choose your focus"
@@ -202,7 +202,7 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
             const cap = capacity[t] ?? 0
             return (
               <Reveal key={t} delay={Math.min(idx, 5) * 30} variant="up" duration={400}>
-                <label className={cn('choice-card flex min-h-32 cursor-pointer items-start gap-3 p-5', on ? 'choice-active' : 'choice-idle choice-idle-solid')}>
+                <label className={cn('choice-card flex min-h-32 cursor-pointer items-start gap-3 p-6 transition-all duration-300', on ? 'border-brand-500 bg-brand-500/5 dark:bg-brand-500/10 shadow-[0_0_0_1px_rgba(23,86,176,1)]' : 'border-ink-200 bg-white hover:-translate-y-1 hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)] dark:border-white/10 dark:bg-white/5 dark:hover:border-white/20 dark:hover:shadow-[0_4px_12px_rgba(0,0,0,0.3)]')}>
                   <input
                     type="checkbox"
                     aria-label={meta.label}

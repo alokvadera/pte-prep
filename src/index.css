@@ -10,6 +10,18 @@
   font-display: swap;
 }
 @font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Regular.woff2') format('woff2');
+  font-weight: 400 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Sans';
+  src: url('/fonts/InstrumentSans-Bold.woff2') format('woff2');
+  font-weight: 600 800;
+  font-display: swap;
+}
+@font-face {
   font-family: 'IBM Plex Mono';
   src: url('/fonts/IBMPlexMono-Bold.woff2') format('woff2');
   font-weight: 600;
@@ -17,8 +29,8 @@
 }
 
 @theme {
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, -apple-system, sans-serif;
-  --font-display: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
   /* White page ground, cool dividers and slate copy mirror the practice mock. */
@@ -86,8 +98,8 @@
 
   --radius-4xl: 2rem;
   
-  --shadow-premium-light: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.02);
-  --shadow-premium-dark: 0 1px 2px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15);
+  --shadow-premium-light: 0 1px 2px rgb(14 17 23 / 0.04), 0 10px 28px rgb(14 17 23 / 0.04);
+  --shadow-premium-dark: 0 1px 2px rgb(0 0 0 / 0.28), 0 12px 28px rgb(0 0 0 / 0.18);
   --shadow-premium-inset: inset 0 1px 0 rgba(255,255,255,0.08);
   --shadow-premium-inset-light: inset 0 1px 0 rgba(255,255,255,0.7);
 
@@ -443,23 +455,8 @@
      ground, through a 40% brand mix at the midpoint, and back. Declared once as
      a variable so the section band and `bg-gradient-subtle` cannot drift into
      two slightly different tints, which is what had started to happen. */
-  :root {
-    --ground-tint: linear-gradient(
-      135deg,
-      var(--color-ink-50) 0%,
-      color-mix(in oklab, var(--color-brand-50) 40%, var(--color-ink-50)) 50%,
-      var(--color-ink-50) 100%
-    );
-  }
-
-  .dark {
-    --ground-tint: linear-gradient(
-      135deg,
-      var(--color-ink-900) 0%,
-      color-mix(in oklab, var(--color-brand-900) 30%, var(--color-ink-900)) 50%,
-      var(--color-ink-900) 100%
-    );
-  }
+  :root { --ground-tint: var(--color-ink-100); }
+  .dark { --ground-tint: var(--color-ink-950); }
 
   .route-enter {
     animation: route-enter 0.4s var(--ease-glide) both;
@@ -641,7 +638,7 @@
 }
 
 @utility page-shell-app {
-  @apply mx-auto w-full px-4 pt-12 pb-20 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-7xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
 }
 
 @utility page-shell-wide {
@@ -946,12 +943,12 @@
   &:hover {
     @apply -translate-y-1;
     border-color: var(--color-brand-300);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+    box-shadow: var(--shadow-premium-light);
   }
 
   &:where(.dark, .dark *):hover {
     border-color: var(--color-brand-400);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.4), var(--shadow-premium-inset);
+    box-shadow: var(--shadow-premium-dark), var(--shadow-premium-inset);
   }
 }
 
@@ -961,7 +958,7 @@
 
   &:where(.dark, .dark *) {
     @apply border-white/12;
-    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%), var(--color-ink-850);
+    background: var(--color-ink-850);
     box-shadow: var(--shadow-premium-dark), var(--shadow-premium-inset);
   }
 }
@@ -1149,45 +1146,45 @@
 
 @utility btn-primary {
   @apply btn text-white;
-  background: linear-gradient(180deg, var(--color-brand-400) 0%, var(--color-brand-600) 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 2px 5px rgba(0,0,0,0.1), 0 10px 24px -12px rgb(23 86 176 / 0.5);
+  background: var(--color-brand-500);
+  box-shadow: 0 1px 2px rgb(14 17 23 / 0.14);
   letter-spacing: -0.01em;
   overflow: hidden;
-  transition: all 0.2s var(--ease-settle);
+  transition: color 0.2s var(--ease-settle), background-color 0.2s var(--ease-settle), box-shadow 0.2s var(--ease-settle), translate 0.2s var(--ease-settle);
   
   &:hover {
     @apply -translate-y-0.5;
-    background: linear-gradient(180deg, var(--color-brand-300) 0%, var(--color-brand-500) 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 6px 16px rgba(23,86,176,0.3), 0 12px 32px -8px rgb(23 86 176 / 0.6);
+    background: var(--color-brand-600);
+    box-shadow: 0 8px 18px rgb(23 86 176 / 0.2);
   }
   
   &:active {
     background: var(--color-brand-600);
-    box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.2);
   }
 }
 
 @utility btn-secondary {
   @apply btn border border-ink-200 bg-white text-ink-800;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-  transition: all 0.2s var(--ease-settle);
+  box-shadow: none;
+  transition: color 0.2s var(--ease-settle), background-color 0.2s var(--ease-settle), border-color 0.2s var(--ease-settle), translate 0.2s var(--ease-settle);
 
   &:hover {
     @apply -translate-y-0.5;
     background: var(--color-ink-50);
     border-color: var(--color-ink-300);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: none;
   }
 
   &:where(.dark, .dark *) {
     @apply border-white/10 text-white;
-    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 4px rgba(0,0,0,0.2);
+    background: rgb(255 255 255 / 0.04);
+    box-shadow: none;
     
     &:hover {
-      background: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.04) 100%);
+      background: rgb(255 255 255 / 0.08);
       border-color: rgba(255,255,255,0.2);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3);
+      box-shadow: none;
     }
   }
 }
