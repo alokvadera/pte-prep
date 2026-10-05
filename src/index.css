@@ -821,12 +821,12 @@
    the 404, Result and the test runner do not use PageWrapper). Same grounds and
    hairlines, no gutter to escape, because there is nothing above to escape from. */
 @utility band-flush {
-  @apply border-ink-200 dark:border-white/10 border-y py-16 sm:py-20;
+  @apply py-16 sm:py-20;
   background: var(--ground-tint);
 }
 
 @utility band-flush-plain {
-  @apply bg-white/60 border-ink-200 dark:border-white/10 border-y py-16 sm:py-20 dark:bg-white/3;
+  @apply bg-white/60 py-16 sm:py-20 dark:bg-white/3;
 }
 
 /* A key figure: the one number a section exists to state, set in the mono data
