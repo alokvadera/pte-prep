@@ -15,19 +15,6 @@
   font-display: swap;
 }
 @font-face {
-  font-family: 'Instrument Serif';
-  src: url('/fonts/InstrumentSerif-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Instrument Serif';
-  src: url('/fonts/InstrumentSerif-Italic.woff2') format('woff2');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
   font-family: 'IBM Plex Mono';
   src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
   font-weight: 400;
@@ -710,7 +697,7 @@
   /* The hairline under every page header is what makes fourteen routes read as
      one product: it separates "what this page is" from "what is on it" without
      adding a surface, and it is the only furniture the page heading needs. */
-  @apply mb-8 flex flex-wrap items-end justify-between gap-x-5 gap-y-4 border-b pb-6;
+  @apply mb-8 flex flex-wrap items-end justify-between gap-x-5 gap-y-4;
 }
 
 @utility page-heading-kicker {
@@ -903,7 +890,7 @@
   /* Elevation is a shift in value, not a blur. Padding lives here so a bare
      `card` can never collapse into a zero-padding strip (FAQ, sidebar, review
      rows all hit that). Override with any padding utility when needed. */
-  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow,translate,background-color] duration-200;
+  @apply bg-white border-ink-200 rounded-xl border p-6 sm:p-8 transition-[border-color,box-shadow,translate,background-color] duration-200;
 
   &:where(.dark, .dark *) {
     @apply border-white/10 bg-white/[0.035] shadow-xs;
@@ -970,25 +957,6 @@
   position: relative;
   overflow: hidden;
 
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse at top left,
-      color-mix(in oklab, var(--color-brand-500) 8%, transparent) 0%,
-      transparent 60%
-    );
-    opacity: 0;
-    transition: opacity 0.4s var(--ease-settle);
-    z-index: 1;
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
   &:hover {
     @apply -translate-y-0.5 shadow-md;
     border-color: var(--color-brand-300);
@@ -998,18 +966,10 @@
     @apply shadow-lg;
     border-color: var(--color-brand-400);
   }
-
-  &:where(.dark, .dark *)::before {
-    background: radial-gradient(
-      ellipse at top left,
-      color-mix(in oklab, var(--color-brand-400) 10%, transparent) 0%,
-      transparent 60%
-    );
-  }
 }
 
 @utility card-solid {
-  @apply bg-white border-ink-200 rounded-lg border p-5 sm:p-6 transition-[border-color,box-shadow,translate,background-color] duration-200;
+  @apply bg-white border-ink-200 rounded-xl border p-6 sm:p-8 transition-[border-color,box-shadow,translate,background-color] duration-200;
 
   &:where(.dark, .dark *) {
     @apply bg-ink-850 border-white/12 shadow-xs;
@@ -1177,7 +1137,7 @@
   /* Default size (md). Kept here so a bare `btn-*` class is still a complete
      button wherever a component import would be awkward; the <Button> component
      overrides it per size via tailwind-merge. */
-  @apply px-5 py-2.5 text-sm;
+  @apply px-6 py-3 text-sm;
   /* `translate` and `box-shadow` are transitioned explicitly: avoids `transition-all`. */
   @apply transition-[color,background-color,border-color,fill,translate,box-shadow];
   @apply disabled:pointer-events-none disabled:opacity-45;
@@ -1228,25 +1188,6 @@
   &:hover::before {
     opacity: 1;
   }
-
-  /* A single sheen that crosses the pill on hover. Decorative only: the
-     pseudo-element never takes pointer events and never changes the button's
-     box, so the physical press feedback (a 1px drop) is untouched. */
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: linear-gradient(100deg, transparent 25%, rgb(255 255 255 / 0.32) 50%, transparent 75%);
-    translate: -130% 0;
-    transition: translate 0.75s var(--ease-settle);
-    z-index: 2;
-  }
-
-  &:hover::after,
-  &:focus-visible::after {
-    translate: 130% 0;
-  }
 }
 
 @utility btn-secondary {
@@ -1259,146 +1200,6 @@
 }
 
 @layer components {
-  /* ------------------------------------------------------------------------
-     Landing-page mockup (ScorePreview on Home).
-
-     This is the embedded "Practice overview" dashboard. Every value below is
-     written against the same @theme tokens the live app uses — ink for the
-     surfaces, brand for the accent — so the mockup can never drift into its
-     own design language again. Where the old mockup used one-off hexes
-     (#171b20, #1756b0, #79b7ff, #303944...) the token it actually meant is
-     named here instead.
-     ------------------------------------------------------------------------ */
-  .home-preview-shell { margin-inline: auto; }
-
-  /* Keep the dashboard as the hero's main visual, with the two sample cards
-     layered at its outer edges. Their overlap stops at the frame border, clear
-     of the inset navigation and task links; at tablet widths they move below. */
-  .practice-collage { position: relative; width: 100%; margin-inline: auto; padding-block: 2rem; text-align: left; }
-  .practice-window { position: relative; z-index: 1; overflow: hidden; width: 76%; height: 32rem; margin-inline: auto; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 12px; background: var(--color-ink-900); color: var(--color-ink-50); box-shadow: 0 28px 75px -35px rgb(16 39 72 / .45); animation: preview-rise .7s var(--ease-settle) both; }
-  .practice-window-header { display: flex; height: 46px; align-items: center; justify-content: space-between; background: color-mix(in oklab, var(--color-ink-850) 55%, var(--color-ink-900)); padding-inline: 16px; color: var(--color-ink-300); font-size: 11px; font-weight: 600; }
-  .practice-window-mark { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--color-brand-300); }
-  .practice-window-avatar { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; background: var(--color-ink-700); color: white; font-size: 10px; font-weight: 700; }
-  .practice-window-label, .practice-overline, .practice-nav-caption { font-family: var(--font-mono); font-size: 10px; letter-spacing: .12em; }
-  .practice-window-label, .practice-nav-caption { color: var(--color-ink-400); }
-  .practice-window-body { display: grid; height: calc(100% - 46px); grid-template-columns: 150px 1fr; }
-  .practice-window-nav { display: flex; flex-direction: column; gap: 4px; border-right: 1px solid rgb(255 255 255 / 0.08); padding: 16px 10px; }
-  .practice-window-nav a { display: flex; min-height: 34px; align-items: center; gap: 9px; border-radius: 5px; padding: 0 9px; color: var(--color-ink-300); font-size: 11px; text-decoration: none; transition: background-color .18s, color .18s; }
-  .practice-window-nav a:hover, .practice-window-nav .practice-nav-active { background: color-mix(in oklab, var(--color-brand-500) 26%, var(--color-ink-900)); color: var(--color-brand-300); }
-  .practice-nav-caption { margin: 0 9px 5px; padding: 0; font-size: 9px; letter-spacing: .02em; }
-  .practice-nav-learn { margin-top: 0; }
-  .practice-streak { margin-top: auto; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 7px; padding: 11px; color: var(--color-ink-300); font-size: 10px; }
-  .practice-streak b { display: block; margin-bottom: 3px; color: var(--color-brand-300); font-size: 13px; }
-  .practice-window-main { padding: 24px 22px; }
-  .practice-window-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-  .practice-overline { color: var(--color-ink-400); letter-spacing: 0; }
-  .practice-window-heading h2 { margin: 2px 0 0; color: var(--color-ink-50); font-size: 23px; font-weight: 600; letter-spacing: -.04em; }
-  .practice-mini-cta { flex: 0 0 auto; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; padding: 8px 11px; color: var(--color-ink-100); font-size: 10px; font-weight: 400; text-decoration: none; transition: background-color .18s, border-color .18s; }
-  .practice-mini-cta:hover { border-color: var(--color-brand-300); background: var(--color-ink-850); }
-  .practice-window-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(168px, .85fr); gap: 12px; }
-  .practice-window-panel { min-width: 0; border: 1px solid rgb(255 255 255 / 0.08); border-radius: 7px; background: color-mix(in oklab, var(--color-ink-850) 70%, var(--color-ink-900)); }
-  .practice-panel-title { display: flex; min-height: 45px; align-items: center; justify-content: space-between; gap: 8px; padding: 0 14px; color: var(--color-ink-100); font-size: 11px; font-weight: 550; }
-  .practice-panel-title > span:last-child { color: var(--color-ink-400); font-size: 9px; font-weight: 400; }
-  .practice-period { color: var(--color-ink-400); font-family: var(--font-mono); font-size: 8px; letter-spacing: .1em; }
-  .practice-score-line { display: flex; align-items: baseline; gap: 4px; margin: 7px 0 11px; color: var(--color-ink-400); font-family: var(--font-mono); font-size: 10px; }
-  .practice-score-line strong { color: white; font-size: 34px; line-height: 1; letter-spacing: -.06em; }
-  .practice-score-change { margin-left: auto; color: var(--color-mint-300); }
-  .practice-skill-list { padding: 3px 14px 7px; }
-  .practice-skill-row { display: grid; grid-template-columns: 72px 1fr 26px; align-items: center; gap: 9px; margin: 12px 0; color: var(--color-ink-300); font-size: 10px; opacity: 0; animation: skill-row-enter 0.5s var(--ease-settle) both; }
-  .practice-skill-row:nth-child(1) { animation-delay: 0.3s; }
-  .practice-skill-row:nth-child(2) { animation-delay: 0.4s; }
-  .practice-skill-row:nth-child(3) { animation-delay: 0.5s; }
-  .practice-skill-row:nth-child(4) { animation-delay: 0.6s; }
-  .practice-skill-row b { color: white; text-align: right; font-family: var(--font-mono); font-size: 10px; font-weight: 500; }
-  .practice-meter { height: 5px; overflow: hidden; border-radius: 5px; background: var(--color-ink-700); }
-  .practice-meter i { display: block; height: 100%; border-radius: inherit; background: var(--color-brand-300); transform-origin: left; animation: meter-fill 0.8s var(--ease-settle) both; }
-  .practice-skill-row:nth-child(1) .practice-meter i { animation-delay: 0.5s; }
-  .practice-skill-row:nth-child(2) .practice-meter i { animation-delay: 0.6s; }
-  .practice-skill-row:nth-child(3) .practice-meter i { animation-delay: 0.7s; }
-  .practice-skill-row:nth-child(4) .practice-meter i { animation-delay: 0.8s; }
-  @keyframes meter-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
-  @keyframes skill-row-enter { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
-  @keyframes task-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  @keyframes suggestion-enter { from { opacity: 0; transform: scale(0.95) translateY(12px); } to { opacity: 1; transform: none; } }
-  .practice-focus-icon { color: var(--color-brand-300); }
-  .practice-continue-title { min-height: 32px; margin-top: 8px; }
-  .practice-continue-title a { color: var(--color-ink-400); font-size: 9px; text-decoration: none; }
-  .practice-task { display: flex; min-height: 48px; align-items: center; gap: 9px; margin: 0; border-radius: 6px; padding: 8px 13px; color: var(--color-ink-50); font-size: 10px; text-decoration: none; opacity: 0; animation: task-enter 0.4s var(--ease-settle) both; transition: background-color .18s; }
-  .practice-task + .practice-task { margin-top: 3px; }
-  .practice-task:hover, .practice-task:focus-visible { background: color-mix(in oklab, var(--color-brand-500) 9%, transparent); }
-  .practice-task:nth-child(2) { animation-delay: 0.9s; }
-  .practice-task:nth-child(3) { animation-delay: 1s; }
-  .practice-task-icon { display: grid; width: 24px; height: 24px; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-ink-600); border-radius: 5px; background: transparent; color: var(--color-brand-300); font-size: 10px; transition: transform 0.2s var(--ease-settle), background-color 0.2s var(--ease-settle); }
-  .practice-task:hover .practice-task-icon { transform: scale(1.1); background: color-mix(in oklab, var(--color-brand-500) 20%, transparent); }
-  .practice-task b, .practice-goal-panel b { display: block; font-size: 10px; font-weight: 600; }
-  .practice-task small, .practice-goal-panel small { display: block; margin-top: 2px; color: var(--color-ink-400); font-size: 9px; }
-  .practice-task-arrow { margin-left: auto; color: var(--color-ink-400); font-size: 9px; transition: translate .18s; }
-  .practice-task:hover .practice-task-arrow { translate: 3px 0; }
-  .practice-week-panel { display: block; color: inherit; text-decoration: none; transition: border-color .18s; }
-  .practice-week-panel:hover { border-color: var(--color-brand-300); }
-  .practice-week-panel .practice-panel-title > span:last-child { color: var(--color-brand-300); font-size: 9px; }
-  .practice-week-total { margin-top: 9px; color: white; font-family: var(--font-mono); font-size: 20px; }
-  .practice-week-total small { color: var(--color-ink-400); font-family: var(--font-sans); font-size: 9px; }
-  .practice-bars { display: flex; width: 100%; height: 56px; align-items: end; gap: 5px; margin-top: 14px; }
-  .practice-bars i { flex: 1; min-height: 5px; border-radius: 3px 3px 0 0; background: var(--color-brand-400); opacity: .78; transform-origin: bottom; animation: bar-grow .65s var(--ease-settle) both; }
-  .practice-bars i:nth-child(2) { animation-delay: .05s; } .practice-bars i:nth-child(3) { animation-delay: .1s; } .practice-bars i:nth-child(4) { animation-delay: .15s; } .practice-bars i:nth-child(5) { animation-delay: .2s; } .practice-bars i:nth-child(6) { animation-delay: .25s; } .practice-bars i:nth-child(7) { animation-delay: .3s; }
-  .practice-week-days { display: flex; justify-content: space-between; margin-top: 5px; color: var(--color-ink-500); font-family: var(--font-mono); font-size: 8px; }
-  .practice-goal-panel { display: flex; align-items: center; gap: 9px; }
-  .practice-goal-check, .practice-float-week-icon { display: grid; width: 25px; height: 25px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--color-mint-700); color: var(--color-mint-300); }
-  .practice-goal-percent { margin-left: auto; color: var(--color-mint-300); font-family: var(--font-mono); font-size: 10px; }
-  .practice-suggestion { display: flex; min-height: 149px; flex-direction: column; align-items: flex-start; padding: 14px; opacity: 0; animation: suggestion-enter 0.5s var(--ease-pop) 1.1s both; }
-  .practice-suggest-label { color: var(--color-brand-300); font-size: 9px; }
-  .practice-suggestion strong { margin-top: 9px; color: white; font-size: 15px; font-weight: 580; letter-spacing: -.02em; }
-  .practice-suggestion p { margin: 5px 0 12px; color: var(--color-ink-300); font-size: 10px; line-height: 1.45; text-align: left; }
-  .practice-suggestion a { margin-top: auto; color: var(--color-brand-300); font-size: 10px; text-decoration: none; transition: color 0.2s var(--ease-settle); }
-  .practice-suggestion a:hover { color: var(--color-brand-200); }
-  /* Keep the floating cards light in both themes so they read as distinct
-     layers above the dark dashboard preview. */
-  .practice-float { position: absolute; z-index: 3; display: flex; width: min(12.5%, 12rem); flex-direction: column; align-items: stretch; gap: 0; border: 1px solid rgb(255 255 255 / .72); border-radius: 14px; background: rgb(255 255 255 / .96); padding: 16px; color: var(--color-ink-900); box-shadow: 0 24px 52px -22px rgb(20 38 66 / .48), inset 0 1px 0 rgb(255 255 255 / .7); animation: float-in .7s .18s var(--ease-settle) both; transition: transform .3s var(--ease-settle), box-shadow .3s var(--ease-settle), border-color .3s var(--ease-settle); }
-  .practice-float:hover { transform: translateY(-4px); box-shadow: 0 24px 48px -16px rgb(20 38 66 / .5); border-color: var(--color-brand-300); }
-  .practice-float-score { top: 18%; left: 0; }
-  .practice-float-icon { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 9px; background: var(--color-brand-50); color: var(--color-brand-500); }
-  .practice-float small, .practice-float-week small { display: block; color: var(--color-ink-500); font-family: var(--font-sans); font-size: 10px; letter-spacing: 0; }
-  .practice-float-score strong { display: flex; align-items: baseline; gap: 7px; margin-top: 7px; font-family: var(--font-sans); font-size: 32px; line-height: 1; font-weight: 650; letter-spacing: -.07em; }
-  .practice-float-score strong i { color: var(--color-ink-500); font-size: 10px; font-style: normal; font-weight: 400; letter-spacing: 0; }
-  .practice-float-score em { margin-top: 8px; color: var(--color-brand-500); font-size: 10px; font-style: normal; }
-  .practice-float-up { border-radius: 20px; background: var(--color-ink-100); padding: 5px 7px; color: var(--color-mint-600); font-family: var(--font-mono); font-size: 9px; }
-  .practice-float-week { right: 0; bottom: 8%; animation-delay: .3s; }
-  .practice-float-week-icon { background: var(--color-ink-100); }
-  .practice-float-week b { font-family: var(--font-sans); font-size: 11px; font-weight: 600; }
-  .practice-preview-note { position: absolute; right: 28px; bottom: 0; margin: 0; color: var(--color-ink-500); font-family: var(--font-mono); font-size: 9px; }
-  @keyframes preview-rise { from { opacity: 0; transform: translateY(12px) scale(.99); } to { opacity: 1; transform: none; } }
-  @keyframes float-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
-  @keyframes bar-grow { from { transform: scaleY(.2); } to { transform: scaleY(1); } }
-  .dark .practice-float:hover { border-color: var(--color-brand-300); }
-
-  /* Header on narrow screens.
-     The nav is a flex row with the logo and the theme toggle, and as a flex item
-     its default min-width: auto meant it refused to shrink: at 390px the row
-     overflowed the viewport by about 26px. min-width: 0 lets it give way, and
-     items are dropped progressively so the ones that remain are the primary
-     destinations rather than an arbitrary cut. Links also gain block padding so
-     they stay above the 24px tap-target floor without widening. */
-  @media (max-width: 760px) {
-    .site-header-row { gap: 12px; }
-    .site-nav { min-width: 0; overflow: hidden; gap: 8px; }
-  }
-  @media (max-width: 620px) {
-    .site-nav { gap: 6px; font-size: 11px; }
-  }
-  /* The float cards only overlap the outside frame edge on a wide hero. Below
-     this width, put them in their own row so the dashboard remains readable. */
-  @media (max-width: 1080px) {
-    .practice-collage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding-block: 0; }
-    .practice-window { grid-row: 1; grid-column: 1 / -1; width: min(880px, 100%); height: 30rem; justify-self: center; }
-    .practice-float { position: relative; width: 100%; max-width: 340px; justify-self: center; }
-    .practice-float-score { top: auto; left: auto; grid-row: 2; grid-column: 1; }
-    .practice-float-week { right: auto; bottom: auto; grid-row: 2; grid-column: 2; }
-  }
-  @media (max-width: 700px) { .practice-window { height: 430px; } .practice-window-body { grid-template-columns: 142px 1fr; } .practice-window-main { padding: 20px 18px; } .practice-window-grid { grid-template-columns: 1fr; gap: 10px; margin-top: 14px; } .practice-suggestion { display: none; } }
-  @media (max-width: 600px) { .practice-collage { gap: 12px; } .practice-window { height: 360px; border-radius: 8px; } .practice-window-body { grid-template-columns: 112px 1fr; } .practice-window-nav { gap: 2px; padding: 11px 6px; font-size: 9px; } .practice-window-nav a { gap: 4px; padding: 0 5px; font-size: 9px; } .practice-streak { padding: 7px; font-size: 8px; } .practice-window-main { padding: 15px 11px; } .practice-window-heading h2 { font-size: 17px; } .practice-overline { font-size: 8px; } .practice-mini-cta { display: none; } .practice-panel-title { min-height: 36px; padding-inline: 10px; font-size: 10px; } .practice-skill-list { padding: 1px 9px; } .practice-skill-row { grid-template-columns: 59px 1fr 20px; gap: 6px; margin: 9px 0; font-size: 8px; } .practice-skill-row b { font-size: 8px; } .practice-continue-title { display: none; } .practice-task { min-height: 41px; grid-template-columns: 20px 1fr auto; gap: 6px; padding: 6px 8px; font-size: 8px; } .practice-task small { font-size: 7px; } .practice-task-icon { width: 19px; height: 19px; } .practice-task-arrow { font-size: 8px; } .practice-float { padding: 11px; } .practice-float-score strong { font-size: 24px; } .practice-bars { height: 35px; margin-top: 8px; } .practice-window-grid { margin-top: 10px; } }
-  @media (max-width: 420px) { .practice-window-nav { grid-template-columns: 1fr; } .practice-streak { font-size: 7px; } .practice-float-score strong { font-size: 20px; } .practice-bars { gap: 3px; } }
-
   /* ------------------------------------------------------------------------
      Expressive motion surfaces.
 

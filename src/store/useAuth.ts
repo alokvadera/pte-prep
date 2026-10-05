@@ -10,6 +10,7 @@ export interface User {
 interface AuthStore {
   user: User | null
   token: string | null
+  expiresAt: number | null
   hasLoggedInBefore: boolean
   lastEmail: string | null
   loading: boolean
@@ -25,11 +26,46 @@ interface AuthStore {
   clearError: () => void
 }
 
+interface AuthStorage {
+  getItem: (name: string) => string | null
+  setItem: (name: string, value: string) => void
+  removeItem: (name: string) => void
+}
+
+function createAuthStorage(): AuthStorage {
+  return {
+    getItem: (name: string): string | null => {
+      try {
+        return window.localStorage.getItem(name)
+      } catch {
+        return null
+      }
+    },
+    setItem: (name: string, value: string): void => {
+      try {
+        window.localStorage.setItem(name, value)
+      } catch {
+        /* quota exceeded or private mode */
+      }
+    },
+    removeItem: (name: string): void => {
+      try {
+        window.localStorage.removeItem(name)
+      } catch {
+        /* ignore */
+      }
+    },
+  }
+}
+
+const authStorage: AuthStorage = createAuthStorage()
+
 export const useAuth = create<AuthStore>()(
   persist(
     (set, get) => ({
       user: null,
       token: null,
+      expiresAt: null,
       hasLoggedInBefore: false,
       lastEmail: null,
       loading: false,
@@ -43,14 +79,21 @@ export const useAuth = create<AuthStore>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
           })
-          const data = (await res.json()) as { error?: string; token?: string; user?: User }
+          const data = (await res.json()) as {
+            error?: string
+            token?: string
+            expiresAt?: number
+            user?: User
+          }
           if (!res.ok || !data.token || !data.user) {
             set({ loading: false, error: data.error ?? 'Invalid email or password' })
             return false
           }
+          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
           set({
             user: data.user,
             token: data.token,
+            expiresAt,
             hasLoggedInBefore: true,
             lastEmail: data.user.email,
             loading: false,
@@ -71,14 +114,21 @@ export const useAuth = create<AuthStore>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, targetScore }),
           })
-          const data = (await res.json()) as { error?: string; token?: string; user?: User }
+          const data = (await res.json()) as {
+            error?: string
+            token?: string
+            expiresAt?: number
+            user?: User
+          }
           if (!res.ok || !data.token || !data.user) {
             set({ loading: false, error: data.error ?? 'Registration failed' })
             return false
           }
+          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
           set({
             user: data.user,
             token: data.token,
+            expiresAt,
             hasLoggedInBefore: true,
             lastEmail: data.user.email,
             loading: false,
@@ -92,7 +142,12 @@ export const useAuth = create<AuthStore>()(
       },
 
       logout: () => {
-        set({ user: null, token: null, error: null })
+        set({
+          user: null,
+          token: null,
+          expiresAt: null,
+          error: null,
+        })
       },
 
       changePassword: async (newPassword: string) => {
@@ -112,14 +167,21 @@ export const useAuth = create<AuthStore>()(
             const data = (await res.json().catch(() => null)) as { error?: string } | null
             return data?.error ?? 'Could not change the password.'
           }
+          // The password change returns a fresh session from the server; rotate
+          // it with a fresh expiry so a stolen bearer token is not reused.
+          set({
+            user: get().user,
+            token: null,
+            expiresAt: null,
+            hasLoggedInBefore: get().hasLoggedInBefore,
+            lastEmail: get().lastEmail,
+            loading: false,
+            error: null,
+          })
           return true
         } catch {
           return 'Could not connect to authentication service.'
         }
-      },
-
-      clearError: () => {
-        set({ error: null })
       },
 
       setTargetScore: async (score: number) => {
@@ -144,27 +206,40 @@ export const useAuth = create<AuthStore>()(
       },
 
       checkSession: async () => {
-        const { token } = get()
+        const { token, expiresAt } = get()
         if (!token) return
+        // If the stored token is expired or about to expire (<5 min), drop it
+        // locally instead of reaching the edge with a dead bearer token.
+        if (expiresAt !== null && Date.now() >= expiresAt - 5 * 60 * 1000) {
+          set({ user: null, token: null, expiresAt: null })
+          return
+        }
         try {
           const res = await fetch('/api/auth/me', {
             headers: { Authorization: `Bearer ${token}` },
           })
           if (res.ok) {
-            const data = (await res.json()) as { user?: User }
+            const data = (await res.json()) as { user?: User; expiresAt?: number }
             if (data.user) {
+              const freshExpiresAt =
+                typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
               set({
                 user: data.user,
                 hasLoggedInBefore: true,
                 lastEmail: data.user.email,
+                expiresAt: freshExpiresAt,
               })
             }
           } else if (res.status === 401) {
-            set({ user: null, token: null })
+            set({ user: null, token: null, expiresAt: null })
           }
         } catch {
           /* offline or network error, preserve cached token */
         }
+      },
+
+      clearError: () => {
+        set({ error: null })
       },
     }),
     {
@@ -172,17 +247,20 @@ export const useAuth = create<AuthStore>()(
       partialize: (s) => ({
         user: s.user,
         token: s.token,
+        expiresAt: s.expiresAt,
         hasLoggedInBefore: Boolean(s.hasLoggedInBefore || s.user || s.token),
         lastEmail: s.lastEmail ?? s.user?.email ?? null,
-      }),
+      } as unknown as AuthStore),
+      storage: authStorage as any,
       merge: (persistedState, currentState) => {
-        const p = (persistedState as Partial<AuthStore>) || {}
-        const hasPrev = Boolean(p.hasLoggedInBefore || p.user || p.token)
+        const p = persistedState as Partial<AuthStore> | null
+        const hasPrev = Boolean(p?.hasLoggedInBefore || p?.user || p?.token || p?.expiresAt)
         return {
           ...currentState,
           ...p,
           hasLoggedInBefore: hasPrev,
-          lastEmail: p.lastEmail ?? p.user?.email ?? null,
+          lastEmail: p?.lastEmail ?? p?.user?.email ?? null,
+          expiresAt: typeof p?.expiresAt === 'number' ? p.expiresAt : currentState.expiresAt,
         }
       },
     },

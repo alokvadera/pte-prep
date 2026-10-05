@@ -5,7 +5,7 @@ import { typeSlug } from '../content/questionTypeDetail'
 import { Seo } from '../seo/Seo'
 import { Accordion, CtaBand, ButtonLink, SectionHeading } from '../components/ui/primitives'
 import { TaglineReveal } from '../components/ui/TaglineReveal'
-import { CountUp, Reveal, Tilt } from '../components/ui/motion'
+import { CountUp, Reveal } from '../components/ui/motion'
 
 const FAQ = [
   {
@@ -52,7 +52,7 @@ export default function Home() {
           left-aligned, so the marketing page reads as a distinct register
           rather than a different product. */}
       <section className="home-hero relative overflow-hidden bg-mesh-gradient">
-        <div className="hero-aurora" aria-hidden="true">
+        <div className="hero-aurora" aria-hidden="true" style={{ opacity: 0.15, filter: 'blur(60px)' }}>
           <span className="aurora-1" />
           <span className="aurora-2" />
           <span className="aurora-3" />
@@ -92,25 +92,27 @@ export default function Home() {
               </p>
             </div>
 
-            {/* The embedded practice-overview mockup. Its CSS lives in index.css
-                and is written entirely against the app's own @theme tokens, so
-                it renders in the exact design language of the real product. The
-                Tilt wrapper leans the whole collage toward the pointer — purely
-                decorative, so it changes no layout and no hit area. */}
-            <div className="home-preview-shell animate-rise-in mt-12 w-full px-4 sm:px-0" style={{ animationDelay: '260ms' }}>
-              <Tilt className="relative" max={4} glare={false}>
-                <ScorePreview />
-              </Tilt>
+            {/* Simplified hero presentation */}
+            <div className="animate-rise-in mt-12 sm:mt-16 flex flex-wrap items-center justify-center gap-8 sm:gap-16 border-t border-ink-200 dark:border-ink-800 pt-8 w-full max-w-3xl" style={{ animationDelay: '260ms' }}>
+              <div className="flex flex-col items-center">
+                <span className="text-brand-600 dark:text-brand-400 font-mono text-3xl sm:text-4xl font-bold">100%</span>
+                <span className="text-ink-600 dark:text-ink-300 text-sm sm:text-base mt-2 font-medium">Free Practice</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-brand-600 dark:text-brand-400 font-mono text-3xl sm:text-4xl font-bold">22</span>
+                <span className="text-ink-600 dark:text-ink-300 text-sm sm:text-base mt-2 font-medium">Question Types</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-brand-600 dark:text-brand-400 font-mono text-3xl sm:text-4xl font-bold">Instant</span>
+                <span className="text-ink-600 dark:text-ink-300 text-sm sm:text-base mt-2 font-medium">AI Feedback</span>
+              </div>
             </div>
-            <p className="text-ink-500 dark:text-ink-400 -mt-2 mb-8 text-xs sm:mb-10">
-              Illustrative practice interface. Scores and activity are sample data.
-            </p>
           </div>
         </div>
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="py-8 sm:py-12">
+      <section className="py-16 sm:py-20">
         <div className="page-shell-wide">
           <Reveal variant="fade">
             <p className="page-heading-kicker mb-6">The exam, reproduced</p>
@@ -137,7 +139,7 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide py-8 sm:py-12">
+      <section className="page-shell-wide py-16 sm:py-20">
         <div className="max-w-2xl">
           <SectionHeading
             className="mb-0"
@@ -192,7 +194,7 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="py-8 sm:py-12">
+      <section className="py-16 sm:py-20">
         <div className="page-shell-wide">
           <SectionHeading
             className="mb-0"
@@ -241,7 +243,7 @@ export default function Home() {
       </section>
 
       {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide py-8 sm:py-12">
+      <section className="page-shell-wide py-16 sm:py-20">
         <TaglineReveal
           lines={['Find the one question type that keeps', 'costing you points. Then fix only that one.']}
         />
@@ -250,7 +252,7 @@ export default function Home() {
       {/* A2: how it works, three steps. Sits after the benefits and before the FAQ
           so the page answers "what happens when I press start" at the point
           where the reader has just decided they want to. */}
-      <section className="page-shell-wide py-8 sm:py-12">
+      <section className="page-shell-wide py-16 sm:py-20">
         <SectionHeading className="mb-0" eyebrow="How it works" title="How a mock runs" />
         <p className="text-ink-500 dark:text-ink-300 mt-4 max-w-2xl leading-relaxed">
           Three steps, and nothing to set up. The whole thing runs in this browser tab.
@@ -313,26 +315,3 @@ function questionTypesFor(section: 'speaking-writing' | 'reading' | 'listening')
   return ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === section)
 }
 
-function ScorePreview() {
-  return (
-    <div className="practice-collage" role="group" aria-label="Preview of the PTE practice dashboard">
-      <div className="practice-float practice-float-score"><small>Last mock estimate</small><strong>63 <i>out of 90</i></strong><em>Speaking improved by 4 points</em></div>
-      <div className="practice-window">
-        <div className="practice-window-header"><div className="flex items-center gap-2"><span className="practice-window-mark" /><span>PTE Prep</span></div><div className="flex items-center gap-5"><span>Practice hub</span><span>Help</span><span className="practice-window-avatar">AV</span></div></div>
-        <div className="practice-window-body">
-          <nav className="practice-window-nav" aria-label="Preview navigation">
-            <span className="practice-nav-caption">LEARN</span><Link className="practice-nav-active" to="/">⌂ <span>Overview</span></Link><Link to="/practice">◖ <span>Practice</span></Link><Link to="/mock">▤ <span>Mock tests</span></Link><Link to="/dashboard">⌁ <span>Progress</span></Link><div className="practice-streak"><b>3 sessions</b>This week so far</div>
-          </nav>
-          <div className="practice-window-main">
-            <div className="practice-window-heading"><div><span className="practice-overline">WEDNESDAY · SEPTEMBER 30</span><h2>Your practice overview</h2></div><Link to="/practice" className="practice-mini-cta">Choose a task</Link></div>
-            <div className="practice-window-grid">
-              <section className="practice-window-panel practice-focus-panel" aria-label="Sample skill estimates and practice tasks"><div className="practice-panel-title"><span>Skill estimates</span><span>Sample results</span></div><div className="practice-skill-list">{([['Speaking', '72%', '65'], ['Writing', '64%', '58'], ['Reading', '79%', '71'], ['Listening', '70%', '63']] as const).map(([skill, percent, score]) => <div key={skill} className="practice-skill-row"><span>{skill}</span><span className="practice-meter"><i style={{ width: percent }} /></span><b>{score}</b></div>)}</div><div className="practice-panel-title practice-continue-title"><span>Continue practice</span><Link to="/practice">View all</Link></div><Link to="/practice" className="practice-task"><span className="practice-task-icon">◖</span><span>Read Aloud<small>Speaking · 5 questions</small></span><span className="practice-task-arrow">8 min</span></Link><Link to="/practice" className="practice-task"><span className="practice-task-icon">▱</span><span>Summarize Written Text<small>Writing · 3 questions</small></span><span className="practice-task-arrow">12 min</span></Link></section>
-              <section className="practice-window-panel practice-suggestion"><span className="practice-suggest-label">SUGGESTED NEXT</span><strong>Give writing a little time.</strong><p>Try one short response, then review structure and grammar in your feedback.</p><Link to="/practice">Choose a writing task&nbsp; ↗</Link></section>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Link to="/dashboard" className="practice-float practice-float-week" aria-label="See weekly practice progress"><small>Practice this week</small><span className="practice-bars">{['38%', '70%', '48%', '84%', '57%', '28%', '18%'].map((height, i) => <i key={i} style={{ height }} />)}</span><span className="practice-week-days"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></span></Link>
-    </div>
-  )
-}

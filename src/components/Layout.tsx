@@ -1,4 +1,4 @@
-import { StrictMode, useEffect, useRef, type ReactNode } from 'react'
+import { StrictMode, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
 import { cn } from '../lib/cn'
 import { useSettings, type Theme } from '../store/useSettings'
@@ -23,6 +23,7 @@ const NAV = [
 ]
 
 export function Layout() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const { settings, set } = useSettings()
   const location = useLocation()
   const user = useAuth((s) => s.user)
@@ -32,6 +33,7 @@ export function Layout() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+    setIsMenuOpen(false)
   }, [location.pathname])
 
   return (
@@ -43,10 +45,10 @@ export function Layout() {
         Skip to content
       </a>
 
-      <header className="border-ink-200 dark:border-white/10 sticky top-0 z-40 border-b bg-white/85 backdrop-blur-md pt-[env(safe-area-inset-top,0px)] dark:bg-ink-900/80">
-        <div className="site-header-row page-shell-wide flex h-[72px] items-center gap-2 sm:gap-4 md:gap-6">
+      <header className="border-ink-200 dark:border-white/10 fixed top-4 left-4 right-4 z-40 bg-white/85 backdrop-blur-md dark:bg-ink-900/80 sm:left-1/2 sm:right-auto sm:w-[calc(100%-2rem)] sm:max-w-5xl sm:-translate-x-1/2 rounded-full border shadow-sm">
+        <div className="flex h-[72px] items-center gap-2 sm:gap-4 md:gap-6 px-4 sm:px-6">
           <Logo />
-          <nav aria-label="Main navigation" className="site-nav ml-auto flex items-center gap-1 sm:gap-1.5 md:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">
+          <nav aria-label="Main navigation" className="site-nav ml-auto hidden sm:flex items-center gap-1 sm:gap-1.5 md:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">
             {NAV.map((item) => {
               const isMatch = item.to === '/format'
                 ? location.pathname === '/format' || location.pathname.startsWith('/question-types')
@@ -61,7 +63,6 @@ export function Layout() {
                   className={
                     cn(
                       'flex items-center whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium transition-all sm:px-3 sm:text-sm',
-                      item.label === 'Test format' && 'hidden sm:flex',
                       isMatch
                         ? 'bg-brand-500/10 text-brand-600 font-semibold dark:bg-brand-400/15 dark:text-brand-300'
                         : 'text-ink-700 hover:bg-ink-100/70 hover:text-brand-600 dark:text-ink-200 dark:hover:bg-white/6 dark:hover:text-brand-300',
@@ -74,7 +75,7 @@ export function Layout() {
             })}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
+          <div className="ml-auto sm:ml-0 flex shrink-0 items-center gap-1 sm:gap-1.5">
             <NavLink
               to={authTarget}
               className={cn(
@@ -110,12 +111,57 @@ export function Layout() {
             <NavLink to="/mock" className="btn-primary px-4 py-2 text-xs sm:px-5 sm:text-sm hidden sm:inline-flex">
               Start mock
             </NavLink>
+            <button 
+              className="sm:hidden btn-ghost rounded-full p-2 text-ink-600 dark:text-ink-300"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                {isMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
           </div>
         </div>
+
+        {isMenuOpen && (
+          <div className="sm:hidden border-t border-ink-200 dark:border-white/10 px-4 py-4 flex flex-col gap-2">
+            {NAV.map((item) => {
+              const isMatch = item.to === '/format'
+                ? location.pathname === '/format' || location.pathname.startsWith('/question-types')
+                : item.to === '/practice'
+                  ? location.pathname.startsWith('/practice')
+                  : location.pathname === item.to
+
+              return (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  className={
+                    cn(
+                      'flex items-center rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                      isMatch
+                        ? 'bg-brand-500/10 text-brand-600 font-semibold dark:bg-brand-400/15 dark:text-brand-300'
+                        : 'text-ink-700 hover:bg-ink-100/70 dark:text-ink-200 dark:hover:bg-white/6',
+                    )
+                  }
+                >
+                  {item.label}
+                </NavLink>
+              )
+            })}
+            <NavLink to="/mock" className="btn-primary w-full justify-center px-4 py-2 mt-2 text-sm inline-flex">
+              Start mock
+            </NavLink>
+          </div>
+        )}
         <ScrollProgress />
       </header>
 
-      <main id="main" className="flex-1">
+      <main id="main" className="flex-1 pt-24 sm:pt-28">
         <div key={location.pathname} className={cn('route-enter', location.pathname === '/' ? '' : 'route-inner')}>
           <Outlet />
         </div>
@@ -197,8 +243,8 @@ function ScrollProgress() {
 
 function Footer() {
   return (
-    <footer className="border-ink-200 dark:border-white/10 mt-12 border-t">
-      <div className="page-shell-wide text-ink-500 dark:text-ink-400 py-10 text-sm">
+    <footer className="border-ink-200 dark:border-white/10 mt-8 border-t">
+      <div className="page-shell-wide text-ink-500 dark:text-ink-400 py-8 text-sm">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="lg:col-span-2">
             <Logo />
