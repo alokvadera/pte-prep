@@ -58,31 +58,38 @@ export default function Home() {
         <div className="page-shell-wide grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,.95fr)] lg:gap-16">
           <div className="max-w-hero">
             <Reveal variant="up">
-              <p className="page-heading-kicker">PTE Academic practice, rebuilt</p>
+              <div className="inline-flex items-center gap-2 rounded border border-ink-200 bg-ink-100/70 px-2.5 py-1 font-mono text-[11px] font-semibold text-ink-700 dark:border-white/10 dark:bg-white/5 dark:text-ink-300 mb-6">
+                <span className="size-1.5 rounded-full bg-brand-500" />
+                <span>ARCH.SPEC // PTE ACADEMIC RUNNER</span>
+              </div>
               <h1 className="font-display text-4xl font-bold leading-tight tracking-[-0.04em] text-balance sm:text-5xl lg:text-6xl">
                 <span className="text-ink-900 dark:text-white">
                   <RotatingText
-                    words={['PTE Academic prep', 'Full timed mocks', 'Live speech scoring', 'Diagnostic drills']}
+                    words={['Precision timed mocks', 'Acoustic speech telemetry', 'Official rubric scoring', 'Targeted section drills']}
                     className="text-brand-600 dark:text-brand-400 font-extrabold"
                   />
                 </span>
                 <br />
-                <span className="text-ink-900 dark:text-white">that finally feels effortless.</span>
+                <span className="text-ink-900 dark:text-white">built for high scorers.</span>
               </h1>
             </Reveal>
 
             <Reveal delay={100} variant="up">
               <p className="text-ink-600 dark:text-ink-300 mt-6 max-w-xl text-lg leading-relaxed">
-                Full timed mocks, targeted drills, and an instant diagnostic report that tells you exactly what to practise next. Runs 100% in your browser.
+                Full Pearson-concordant mock tests, real-time speech telemetry, and an instant diagnostic breakdown. Zero latency, 100% browser-native engine.
               </p>
             </Reveal>
 
             <Reveal delay={180} variant="up">
               <div className="mt-8 flex flex-wrap items-center gap-4">
-                <ButtonLink to="/mock" size="lg">Start a full mock</ButtonLink>
-                <Link to="/practice" className="link-inline text-sm font-semibold">Build a practice session</Link>
+                <ButtonLink to="/mock" size="lg" className="rounded font-mono text-sm font-semibold">Execute full mock →</ButtonLink>
+                <Link to="/practice" className="font-mono text-xs font-semibold text-ink-700 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white underline underline-offset-4">
+                  [CONFIGURE DRILL]
+                </Link>
               </div>
-              <p className="text-ink-500 dark:text-ink-400 mt-5 text-sm">No account, payment card, or upload required.</p>
+              <p className="font-mono text-xs text-ink-500 dark:text-ink-400 mt-5">
+                ● PERSISTENCE: LOCAL STORAGE · NO REGISTRATION MANDATORY
+              </p>
             </Reveal>
           </div>
 
@@ -91,32 +98,36 @@ export default function Home() {
           </Reveal>
         </div>
       </section>
-      <div className="divider-gradient w-full max-w-5xl mx-auto opacity-50" />
 
       {/* ---------------------------------------------------------------- */}
-      <section className="py-16 sm:py-20">
+      {/* Precision Blueprint Telemetry Strip */}
+      <section className="border-b border-ink-200 dark:border-white/10 bg-white/60 dark:bg-ink-950/40 py-10 sm:py-12">
         <div className="page-shell-wide">
-          <Reveal variant="fade">
-            <p className="page-heading-kicker mb-6">The exam, reproduced</p>
-          </Reveal>
-          <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4 sm:gap-8">
+          <div className="flex items-center justify-between mb-4 font-mono text-[11px] text-ink-500 dark:text-ink-400">
+            <span>+ TELEMETRY // BLUEPRINT SPECIFICATION +</span>
+            <span className="hidden sm:inline-block">OFFICIAL 10–90 CONTINUOUS SCALE</span>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 rounded border border-ink-200 divide-y lg:divide-y-0 lg:divide-x divide-ink-200 bg-white dark:border-white/10 dark:divide-white/10 dark:bg-[#0d1117] shadow-xs">
             {[
-              { k: SECTION_META['speaking-writing'].weightNote, v: 'Speaking + Writing', d: `Section 1 · ${questionTypesFor('speaking-writing').length} question types` },
-              { k: SECTION_META.reading.weightNote, v: 'Reading', d: `Section 2 · ${questionTypesFor('reading').length} question types` },
-              { k: SECTION_META.listening.weightNote, v: 'Listening', d: `Section 3 · ${questionTypesFor('listening').length} question types` },
-              { k: `${capacity}+`, v: 'distinct items', d: 'Seeded · never repeats early' },
+              { code: 'SEC.01', k: SECTION_META['speaking-writing'].weightNote, v: 'Speaking + Writing', d: `${questionTypesFor('speaking-writing').length} question types · 54-67 min` },
+              { code: 'SEC.02', k: SECTION_META.reading.weightNote, v: 'Reading Comprehension', d: `${questionTypesFor('reading').length} question types · 29-30 min` },
+              { code: 'SEC.03', k: SECTION_META.listening.weightNote, v: 'Listening & Audio', d: `${questionTypesFor('listening').length} question types · 30-43 min` },
+              { code: 'BANK.04', k: `${capacity}+`, v: 'Deterministic Items', d: 'Seeded pseudo-random corpus' },
             ].map((s, idx) => (
-              <Reveal key={s.v} delay={Math.min(idx, 3) * 70} variant="up">
-                <div className="border-l-2 border-brand-500/60 pl-4">
-                  <dt className="font-mono text-ink-900 dark:text-white text-2xl font-bold tabular-nums tracking-[-0.02em] sm:text-3xl">
-                    {idx === 3 ? <><CountUp value={capacity} duration={1200} />+</> : s.k}
-                  </dt>
-                  <dd className="text-ink-700 dark:text-ink-200 mt-1 text-sm font-medium">{s.v}</dd>
-                  <dd className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{s.d}</dd>
+              <div key={s.v} className="p-5 sm:p-6">
+                <div className="flex items-center justify-between font-mono text-[10px] text-brand-600 dark:text-brand-400 mb-2">
+                  <span>[{s.code}]</span>
+                  <span className="text-ink-400">PTE-2026</span>
                 </div>
-              </Reveal>
+                <div className="font-mono text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white tabular-nums tracking-tight">
+                  {idx === 3 ? <><CountUp value={capacity} duration={1200} />+</> : s.k}
+                </div>
+                <div className="font-semibold text-xs sm:text-sm text-ink-800 dark:text-ink-200 mt-1">{s.v}</div>
+                <div className="font-mono text-[11px] text-ink-500 dark:text-ink-400 mt-0.5">{s.d}</div>
+              </div>
             ))}
-          </dl>
+          </div>
         </div>
       </section>
 

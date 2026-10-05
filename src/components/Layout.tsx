@@ -7,20 +7,27 @@ import { openCommandPalette } from './ui/CommandPalette'
 
 function Logo() {
   return (
-    <Link to="/" className="group flex shrink-0 items-center gap-2.5" aria-label="PTE Prep home">
-      <span className="bg-brand-500 grid size-[30px] place-items-center rounded-full font-display text-micro font-bold tracking-tight text-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+    <Link to="/" className="group flex shrink-0 items-center gap-3" aria-label="PTE Prep home">
+      <span className="bg-ink-900 dark:bg-white text-white dark:text-ink-900 grid size-7 place-items-center rounded-sm font-mono text-[11px] font-bold tracking-tight shadow-sm transition-transform duration-200 group-hover:scale-105">
         PTE
       </span>
-      <span className="text-ink-900 dark:text-ink-50 text-lg font-bold tracking-tight">PTE Prep</span>
+      <div className="flex flex-col">
+        <span className="text-ink-900 dark:text-white text-sm font-bold tracking-tight leading-none">
+          PTE Prep
+        </span>
+        <span className="font-mono text-[9px] uppercase tracking-widest text-ink-500 dark:text-ink-400 leading-none mt-1">
+          SYS // 01
+        </span>
+      </div>
     </Link>
   )
 }
 
 const NAV = [
-  { to: '/practice', label: 'Practice' },
-  { to: '/mock', label: 'Mock test' },
-  { to: '/format', label: 'Test format' },
-  { to: '/dashboard', label: 'Progress' },
+  { to: '/practice', label: 'Practice', code: '01' },
+  { to: '/mock', label: 'Mock Test', code: '02' },
+  { to: '/format', label: 'Test Format', code: '03' },
+  { to: '/dashboard', label: 'Telemetry', code: '04' },
 ]
 
 export function Layout() {
@@ -38,18 +45,18 @@ export function Layout() {
   }, [location.pathname])
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="flex min-h-dvh flex-col bg-ink-50 dark:bg-ink-900">
       <a
         href="#main"
-        className="bg-brand-500 focus:ring-brand-300 sr-only rounded-lg px-4 py-2 text-white focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100"
+        className="bg-brand-500 focus:ring-brand-300 sr-only rounded px-4 py-2 text-white focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100"
       >
         Skip to content
       </a>
 
-      <header className="border-ink-200 dark:border-white/10 fixed top-4 left-4 right-4 z-40 bg-white/85 backdrop-blur-md dark:bg-ink-900/80 sm:left-1/2 sm:right-auto sm:w-[calc(100%-2rem)] sm:max-w-5xl sm:-translate-x-1/2 rounded-full border shadow-sm">
-        <div className="flex h-[72px] items-center gap-2 sm:gap-4 md:gap-6 px-4 sm:px-6">
+      <header className="fixed top-3 left-3 right-3 z-40 bg-white/92 backdrop-blur-md dark:bg-ink-900/92 sm:left-1/2 sm:right-auto sm:w-[calc(100%-1.5rem)] sm:max-w-5xl sm:-translate-x-1/2 rounded-md border border-ink-200 dark:border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.04)] dark:shadow-[0_2px_12px_rgba(0,0,0,0.4)]">
+        <div className="flex h-14 items-center gap-2 sm:gap-4 md:gap-6 px-4 sm:px-5">
           <Logo />
-          <nav aria-label="Main navigation" className="site-nav ml-auto hidden sm:flex items-center gap-1 sm:gap-1.5 md:gap-2 text-xs text-ink-700 dark:text-ink-200 sm:text-sm">
+          <nav aria-label="Main navigation" className="site-nav ml-auto hidden sm:flex items-center gap-1 text-xs text-ink-700 dark:text-ink-200">
             {NAV.map((item) => {
               const isMatch = item.to === '/format'
                 ? location.pathname === '/format' || location.pathname.startsWith('/question-types')
@@ -63,39 +70,40 @@ export function Layout() {
                   to={item.to}
                   className={
                     cn(
-                      'flex items-center whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium transition-all sm:px-3 sm:text-sm',
+                      'flex items-center gap-1.5 whitespace-nowrap rounded px-2.5 py-1 text-xs font-medium transition-all',
                       isMatch
-                        ? 'bg-brand-500/10 text-brand-600 font-semibold dark:bg-brand-400/15 dark:text-brand-300'
-                        : 'text-ink-700 hover:bg-ink-100/70 hover:text-brand-600 dark:text-ink-200 dark:hover:bg-white/6 dark:hover:text-brand-300',
+                        ? 'bg-ink-900 text-white font-semibold shadow-xs dark:bg-white dark:text-ink-900'
+                        : 'text-ink-600 hover:text-ink-900 hover:bg-ink-100/80 dark:text-ink-300 dark:hover:text-white dark:hover:bg-white/5',
                     )
                   }
                 >
-                  {item.label}
+                  <span className={cn('font-mono text-[10px]', isMatch ? 'opacity-80' : 'text-ink-400')}>{item.code}</span>
+                  <span>{item.label}</span>
                 </NavLink>
               )
             })}
           </nav>
 
-          <div className="ml-auto sm:ml-0 flex shrink-0 items-center gap-1 sm:gap-1.5">
+          <div className="ml-auto sm:ml-0 flex shrink-0 items-center gap-1.5">
             <button
               type="button"
               onClick={openCommandPalette}
-              className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-ink-200/80 bg-ink-50/70 px-2.5 py-1 text-xs font-medium text-ink-600 transition-all hover:border-brand-500/50 hover:bg-brand-500/5 hover:text-brand-700 dark:border-white/10 dark:bg-white/5 dark:text-ink-300 dark:hover:border-brand-400/50 dark:hover:bg-brand-400/10 dark:hover:text-brand-300 cursor-pointer"
+              className="hidden md:inline-flex items-center gap-1.5 rounded border border-ink-200/90 bg-ink-100/60 px-2.5 py-1 text-xs font-mono font-medium text-ink-600 transition-all hover:border-ink-400 hover:bg-ink-200/60 hover:text-ink-900 dark:border-white/10 dark:bg-white/5 dark:text-ink-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white cursor-pointer"
               title="Open Command Palette (⌘K)"
               aria-label="Open Command Palette"
             >
-              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="size-3 text-ink-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <kbd className="font-mono text-[10px] text-ink-400 dark:text-ink-400 font-semibold">⌘K</kbd>
+              <span className="text-[10px] text-ink-500 dark:text-ink-400">⌘K</span>
             </button>
 
             <NavLink
               to={authTarget}
               className={cn(
-                'btn-ghost rounded-full p-2 transition-colors cursor-pointer',
+                'btn-ghost rounded p-1.5 transition-colors cursor-pointer',
                 user
-                  ? 'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400'
+                  ? 'text-brand-600 hover:text-brand-700 dark:text-brand-400'
                   : 'text-ink-600 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white',
               )}
               title={
@@ -113,7 +121,7 @@ export function Layout() {
                     : 'Create account'
               }
             >
-              <svg className="size-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -122,8 +130,8 @@ export function Layout() {
               </svg>
             </NavLink>
             <ThemeToggle theme={settings.theme} onChange={(t) => set('theme', t)} />
-            <NavLink to="/mock" className="btn-primary px-4 py-2 text-xs sm:px-5 sm:text-sm hidden sm:inline-flex">
-              Start mock
+            <NavLink to="/mock" className="btn-primary rounded px-3 py-1.5 text-xs hidden sm:inline-flex">
+              Run Mock
             </NavLink>
             <button 
               className="sm:hidden btn-ghost rounded-full p-2 text-ink-600 dark:text-ink-300"

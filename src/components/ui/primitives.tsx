@@ -325,11 +325,11 @@ export function SectionHeading({
 type Tone = 'neutral' | 'brand' | 'mint' | 'amber' | 'rose'
 
 const TONES: Record<Tone, string> = {
-  neutral: 'bg-ink-100 text-ink-600 dark:bg-white/8 dark:text-ink-200',
-  brand: 'bg-brand-500/12 text-brand-700 dark:text-brand-300 dark:bg-brand-500/18',
-  mint: 'bg-mint-500/14 text-mint-700 dark:text-mint-300 dark:bg-mint-500/16',
-  amber: 'bg-amber-500/14 text-amber-700 dark:text-amber-300 dark:bg-amber-500/16',
-  rose: 'bg-rose-brand/14 text-rose-600 dark:text-rose-300 dark:bg-rose-brand/18',
+  neutral: 'bg-ink-100/90 border-ink-200 text-ink-700 dark:bg-white/5 dark:border-white/10 dark:text-ink-300',
+  brand: 'bg-brand-500/10 border-brand-500/30 text-brand-700 dark:text-brand-300 dark:bg-brand-500/15 dark:border-brand-400/30',
+  mint: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300 dark:bg-emerald-500/15 dark:border-emerald-400/30',
+  amber: 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 dark:bg-amber-500/15 dark:border-amber-400/30',
+  rose: 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-300 dark:bg-rose-500/15 dark:border-rose-400/30',
 }
 
 export function Badge({
@@ -341,7 +341,17 @@ export function Badge({
   className?: string
   children: ReactNode
 }) {
-  return <span className={cn('pill', TONES[tone], className)}>{children}</span>
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-xs border px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider uppercase',
+        TONES[tone],
+        className,
+      )}
+    >
+      {children}
+    </span>
+  )
 }
 
 export function Stat({
@@ -356,21 +366,24 @@ export function Stat({
   tone?: Tone
 }) {
   return (
-    <div className="card-solid p-4 sm:p-5">
-      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">{label}</p>
+    <div className="card-solid rounded border border-ink-200/90 dark:border-white/10 p-4 sm:p-5 relative overflow-hidden">
+      <div className="flex items-center justify-between font-mono text-[10px] text-ink-400 dark:text-ink-500 uppercase tracking-widest mb-1">
+        <span>{label}</span>
+        <span>+</span>
+      </div>
       <p
         className={cn(
-          'mt-1.5 font-bold tabular-nums',
-          tone === 'mint' && 'text-mint-600 dark:text-mint-300',
-          tone === 'brand' && 'text-brand-600 dark:text-brand-300',
-          tone === 'amber' && 'text-amber-600 dark:text-amber-300',
-          tone === 'rose' && 'text-rose-600 dark:text-rose-300',
+          'mt-1 font-mono font-bold text-2xl tracking-tight tabular-nums',
+          tone === 'mint' && 'text-emerald-600 dark:text-emerald-400',
+          tone === 'brand' && 'text-brand-600 dark:text-brand-400',
+          tone === 'amber' && 'text-amber-600 dark:text-amber-400',
+          tone === 'rose' && 'text-rose-600 dark:text-rose-400',
           tone === 'neutral' && 'text-ink-900 dark:text-white',
         )}
       >
         {value}
       </p>
-      {sub ? <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{sub}</p> : null}
+      {sub ? <p className="font-mono text-ink-500 dark:text-ink-400 mt-1 text-[11px]">{sub}</p> : null}
     </div>
   )
 }
@@ -388,23 +401,26 @@ export function ProgressBar({
   className?: string
   label?: string
 }) {
-  const pct = max <= 0 ? 0 : Math.max(0, Math.min(100, (value / max) * 100))
-  const colors = {
-    brand: 'bg-brand-500',
-    mint: 'bg-mint-500',
-    amber: 'bg-amber-500',
-    rose: 'bg-rose-brand',
-  }
+  const p = Math.min(100, Math.max(0, (value / max) * 100))
   return (
     <div
-      className={cn('bg-ink-100 dark:bg-white/5 h-1.5 w-full overflow-hidden rounded-full', className)}
       role="progressbar"
-      aria-valuenow={Math.round(pct)}
+      aria-valuenow={Math.round(p)}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label}
+      className={cn('h-1.5 w-full overflow-hidden rounded-xs bg-ink-200 dark:bg-white/10', className)}
     >
-      <div className={cn('h-full rounded-full origin-left animate-bar-reveal transition-[width] duration-500 ease-out', colors[tone])} style={{ width: `${pct}%` }} />
+      <div
+        className={cn(
+          'h-full transition-all duration-300',
+          tone === 'brand' && 'bg-brand-500',
+          tone === 'mint' && 'bg-emerald-500',
+          tone === 'amber' && 'bg-amber-500',
+          tone === 'rose' && 'bg-rose-500',
+        )}
+        style={{ width: `${p}%` }}
+      />
     </div>
   )
 }
