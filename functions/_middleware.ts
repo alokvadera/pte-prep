@@ -1,7 +1,15 @@
 import type { Env } from './types'
 
 export const onRequest: PagesFunction<Env> = async (context) => {
-  const allowedOrigin = context.env.CORS_ORIGIN ?? 'https://pte-prep.pages.dev'
+  const origin = context.request.headers.get('Origin')
+  const allowedOrigin =
+    context.env.CORS_ORIGIN ??
+    (origin &&
+    (origin === 'https://pte-prep.pages.dev' ||
+      origin.endsWith('.pte-prep.pages.dev') ||
+      origin.startsWith('http://localhost:'))
+      ? origin
+      : 'https://pte-prep.pages.dev')
   if (context.request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,

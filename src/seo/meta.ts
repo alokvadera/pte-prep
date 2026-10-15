@@ -412,10 +412,17 @@ export const PAGE_META: Record<string, PageMeta> = {
     noindex: true,
   },
 
-  '/result': {
-    title: 'Your PTE Mock Test Result',
-    description: 'Score report for your PTE Academic practice test.',
-    path: '/result',
+  '/reset-password': {
+    title: 'Reset Your PTE Prep Password',
+    description: 'Enter your new password to reset your PTE Prep account password.',
+    path: '/reset-password/',
+    noindex: true,
+  },
+
+  '/ui-elements': {
+    title: 'UI Design System & Components',
+    description: 'Component showcase and design tokens for PTE Prep.',
+    path: '/ui-elements/',
     noindex: true,
   },
 }

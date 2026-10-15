@@ -19,6 +19,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
   const user = await db
     .prepare('SELECT id, email, target_score, created_at, updated_at FROM users WHERE id = ?')
     .bind(session.userId)
@@ -74,6 +80,12 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
   if (typeof body.targetScore === 'number') {
     const score = Math.max(10, Math.min(90, Math.round(body.targetScore)))
     await db

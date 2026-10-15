@@ -261,6 +261,7 @@ async function main() {
 Allow: /
 Disallow: /test
 Disallow: /result
+Disallow: /reset-password
 
 ${sitemapLine}
 `,
@@ -291,6 +292,7 @@ ${sitemapLine}
   for (const shell of [
     { path: '/test/', file: 'test/index.html', title: 'Sit a mock test — PTE Prep', h1: 'Sit a PTE Academic mock test' },
     { path: '/result/', file: 'result/index.html', title: 'Your mock score — PTE Prep', h1: 'Your PTE Academic mock score' },
+    { path: '/reset-password/', file: 'reset-password/index.html', title: 'Reset Your PTE Prep Password', h1: 'Reset your PTE Prep password' },
   ]) {
     const shellHtml = buildPage(template, {
       html: `<h1 class="sr-only">${shell.h1}</h1>`,
