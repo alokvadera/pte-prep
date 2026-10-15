@@ -58,17 +58,15 @@ export function RenderType({
   const shouldLoop = loop ?? phrases.length > 1
 
   const [phraseIndex, setPhraseIndex] = useState(0)
-  const [displayText, setDisplayText] = useState('')
+  const [displayText, setDisplayText] = useState(() => (prefersReducedMotion() ? (phrases[0] ?? '') : ''))
   const [isDeleting, setIsDeleting] = useState(false)
-  const [isTypingActive, setIsTypingActive] = useState(false)
 
   const currentPhrase = phrases[phraseIndex] ?? ''
+  const isTypingActive = displayText.length > 0 && displayText.length < currentPhrase.length
 
   useEffect(() => {
     // If the candidate prefers reduced motion, render the full text immediately
     if (prefersReducedMotion()) {
-      setDisplayText(currentPhrase)
-      setIsTypingActive(false)
       onComplete?.()
       return
     }
@@ -78,7 +76,6 @@ export function RenderType({
     // Starting or in-progress
     if (!isDeleting) {
       if (displayText.length < currentPhrase.length) {
-        setIsTypingActive(true)
         const nextChar = currentPhrase[displayText.length] ?? ''
         // Add natural human micro-pause after punctuation
         const isPunctuation = [',', '.', '!', '?', ';', ':'].includes(nextChar)
@@ -89,7 +86,6 @@ export function RenderType({
         }, delay)
       } else {
         // Phrase is fully typed
-        setIsTypingActive(false)
         onComplete?.()
 
         if (shouldLoop && phrases.length > 1) {
@@ -100,15 +96,15 @@ export function RenderType({
       }
     } else {
       // Deleting back
-      setIsTypingActive(true)
       if (displayText.length > 0) {
         timer = setTimeout(() => {
           setDisplayText(displayText.slice(0, -1))
         }, deleteSpeed)
       } else {
-        setIsDeleting(false)
-        setIsTypingActive(false)
-        setPhraseIndex((prev) => (prev + 1) % phrases.length)
+        timer = setTimeout(() => {
+          setIsDeleting(false)
+          setPhraseIndex((prev) => (prev + 1) % phrases.length)
+        }, 80)
       }
     }
 

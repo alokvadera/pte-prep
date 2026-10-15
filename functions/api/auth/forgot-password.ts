@@ -58,6 +58,18 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     return genericSuccess
   }
 
+  // Rate limit: throttle repeated reset emails to once per 2 minutes
+  const recent = await db
+    .prepare(
+      "SELECT id FROM password_resets WHERE user_id = ? AND datetime(created_at) > datetime('now', '-2 minutes') LIMIT 1",
+    )
+    .bind(user.id)
+    .first<{ id: string }>()
+
+  if (recent) {
+    return genericSuccess
+  }
+
   // Generate random 64-char token & hash it
   const rawToken = `${crypto.randomUUID().replace(/-/g, '')}${crypto.randomUUID().replace(/-/g, '')}`
   const tokenHash = await sha256Hex(rawToken)

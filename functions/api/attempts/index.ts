@@ -41,6 +41,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
   const results = await db
     .prepare(
       `SELECT id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,

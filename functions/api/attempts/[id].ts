@@ -40,6 +40,12 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   const id = context.params.id as string
   const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   const row = await db
     .prepare(
@@ -153,6 +159,12 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
 
   const id = context.params.id as string
   const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
   await db
     .prepare('DELETE FROM attempts WHERE id = ? AND user_id = ?')

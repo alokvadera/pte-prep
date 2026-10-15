@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState, type ComponentPropsWithoutRef } from 'react'
+import { useEffect, useRef, type ComponentPropsWithoutRef } from 'react'
 import { useInView, useMotionValue, useSpring } from 'motion/react'
 import { cn } from '../../lib/cn'
 import { prefersReducedMotion } from '../../lib/motion'
+import { useClientReady } from '../../lib/useClientReady'
 
 /* ---------------------------------------------------------------------------
    NumberTicker (from Magic UI).
@@ -28,17 +29,13 @@ export function NumberTicker({
   ...props
 }: NumberTickerProps) {
   const ref = useRef<HTMLSpanElement>(null)
-  const [mounted, setMounted] = useState(false)
+  const mounted = useClientReady()
   const motionValue = useMotionValue(direction === 'down' ? value : startValue)
   const springValue = useSpring(motionValue, {
     damping: 60,
     stiffness: 100,
   })
   const isInView = useInView(ref, { once: true, margin: '0px' })
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   useEffect(() => {
     if (!mounted || prefersReducedMotion()) return

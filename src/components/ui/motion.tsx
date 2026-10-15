@@ -162,7 +162,6 @@ export function CountUp({
     const el = ref.current
     if (!el) return
     if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') {
-      setDisplay(value)
       return
     }
 

@@ -171,7 +171,7 @@ export default function QuestionTypes() {
                       <div className="border-ink-100 dark:border-white/6 mt-4 flex items-center justify-between border-t pt-3 text-xs">
                         <Link
                           to={`/practice?type=${type}`}
-                          className="inline-flex items-center gap-1 font-bold text-mark-600 hover:text-mark-700 dark:text-mark-300 dark:hover:text-mark-200 transition-colors"
+                          className="inline-flex min-h-[32px] items-center gap-1 py-1.5 font-bold text-mark-600 hover:text-mark-700 dark:text-mark-300 dark:hover:text-mark-200 transition-colors"
                         >
                           <span>Drill this type</span>
                           <span aria-hidden="true">→</span>

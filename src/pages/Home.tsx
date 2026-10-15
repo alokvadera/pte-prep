@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { manifestBankCapacity } from '../content/manifest'
 import { Seo } from '../seo/Seo'
+import { listAttempts } from '../db/db'
+import type { AttemptRecord } from '../domain/types'
 import { ButtonLink, CtaBand } from '../components/ui/primitives'
 import { CountUp, Reveal } from '../components/ui/motion'
 import { DottedGlowBackground } from '../components/ui/dotted-glow-background'
@@ -103,6 +106,16 @@ const COMPARISON: Array<{ label: string; prep: string; coaching: string; packs: 
 
 export default function Home() {
   const capacity = manifestBankCapacity()
+  const [latestAttempt, setLatestAttempt] = useState<AttemptRecord | null>(null)
+
+  useEffect(() => {
+    void listAttempts(1).then((attempts) => {
+      const first = attempts[0]
+      if (first) {
+        setLatestAttempt(first)
+      }
+    })
+  }, [])
 
   const STEPS = [
     {
@@ -181,8 +194,23 @@ export default function Home() {
                 </span>
               </p>
               <h1 className="hero-title">
-                Know your <span className="ticket" aria-hidden="true">76/90</span> PTE score before you pay for the test.
+                Know your{' '}
+                <span className="ticket" aria-hidden="true">
+                  {latestAttempt ? latestAttempt.overallScore : 76}/90
+                </span>{' '}
+                PTE score before you pay for the test.
               </h1>
+              {latestAttempt ? (
+                <p className="mt-3 text-sm font-medium text-ink-600 dark:text-ink-on-dark-muted">
+                  Practice estimate ·{' '}
+                  <Link
+                    to={`/result?attempt=${latestAttempt.id}`}
+                    className="font-bold text-mark-600 hover:underline dark:text-mark-300"
+                  >
+                    View latest report →
+                  </Link>
+                </p>
+              ) : null}
             </Reveal>
 
             <Reveal delay={140} variant="blur-up">

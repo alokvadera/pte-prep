@@ -163,7 +163,7 @@ export default function QuestionTypePage() {
                 <li className="card-solid p-5 hover:border-mark-500/50 transition-all group">
                   <Link
                     to={`/question-types/${typeSlug(r)}/`}
-                    className="text-ink-900 dark:text-white group-hover:text-mark-600 dark:group-hover:text-mark-300 font-bold text-sm inline-block transition-colors"
+                    className="text-ink-900 dark:text-white group-hover:text-mark-600 dark:group-hover:text-mark-300 font-bold text-sm inline-flex min-h-[32px] items-center py-1 transition-colors"
                   >
                     {QUESTION_META[r].label} →
                   </Link>

@@ -47,6 +47,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   const existing = await db
     .prepare('SELECT id, email, target_score, password_hash, password_salt FROM users WHERE email = ?')
     .bind(email)
