@@ -871,6 +871,9 @@
     font: inherit;
   }
 
+  dialog {
+    margin: auto;
+  }
   dialog[open] {
     animation: var(--animate-modal-enter);
   }

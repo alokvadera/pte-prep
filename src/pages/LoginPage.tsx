@@ -478,70 +478,68 @@ export default function LoginPage() {
           onClose={() => setShowForgotModal(false)}
           title="Reset your password"
         >
-          <div className="p-6">
-            <p className="text-sm text-ink-600 dark:text-ink-on-dark-muted mb-4">
-              Enter your email address, and we will send you a secure link to reset your password.
-            </p>
+          <p className="text-sm text-ink-600 dark:text-ink-on-dark-muted mb-4">
+            Enter your email address, and we will send you a secure link to reset your password.
+          </p>
 
-            {forgotStatus && (
-              <div
-                className={`mb-4 rounded-lg p-3.5 text-xs font-medium ${
-                  forgotStatus.ok
-                    ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'
-                    : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200'
-                }`}
-              >
-                {forgotStatus.message}
+          {forgotStatus && (
+            <div
+              className={`mb-4 rounded-lg p-3.5 text-xs font-medium ${
+                forgotStatus.ok
+                  ? 'bg-emerald-50 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'
+                  : 'bg-rose-50 text-rose-800 dark:bg-rose-950/40 dark:text-rose-200'
+              }`}
+            >
+              {forgotStatus.message}
+            </div>
+          )}
+
+          {!forgotStatus?.ok ? (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="forgot-email"
+                  className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
+                >
+                  Email address
+                </label>
+                <input
+                  id="forgot-email"
+                  type="email"
+                  required
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
+                />
               </div>
-            )}
 
-            {!forgotStatus?.ok ? (
-              <form onSubmit={handleForgotPassword} className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="forgot-email"
-                    className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
-                  >
-                    Email address
-                  </label>
-                  <input
-                    id="forgot-email"
-                    type="email"
-                    required
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => setShowForgotModal(false)}
-                    disabled={forgotLoading}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" variant="primary" disabled={forgotLoading}>
-                    {forgotLoading ? 'Sending link...' : 'Send reset link'}
-                  </Button>
-                </div>
-              </form>
-            ) : (
-              <div className="pt-2">
+              <div className="flex items-center justify-end gap-3 pt-3">
                 <Button
                   type="button"
-                  variant="primary"
-                  className="w-full"
+                  variant="secondary"
                   onClick={() => setShowForgotModal(false)}
+                  disabled={forgotLoading}
                 >
-                  Done
+                  Cancel
+                </Button>
+                <Button type="submit" variant="primary" disabled={forgotLoading}>
+                  {forgotLoading ? 'Sending link...' : 'Send reset link'}
                 </Button>
               </div>
-            )}
-          </div>
+            </form>
+          ) : (
+            <div className="pt-2">
+              <Button
+                type="button"
+                variant="primary"
+                className="w-full"
+                onClick={() => setShowForgotModal(false)}
+              >
+                Done
+              </Button>
+            </div>
+          )}
         </Dialog>
       </PageWrapper>
     </>
