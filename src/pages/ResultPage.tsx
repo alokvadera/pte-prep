@@ -294,9 +294,6 @@ export default function ResultPage() {
               </div>
               <div className="text-ink-500 dark:text-ink-on-dark-muted mb-3 text-xs font-bold">Overall score, 10 to 90</div>
               <div className="h-px bg-ink-200 dark:bg-white/10 w-full my-3"></div>
-              <p className="text-ink-600 dark:text-ink-on-dark text-xs font-medium">
-                <span className="text-ink-900 dark:text-white font-bold">{attempt.overallScore60}</span> of 120 (TOEFL scale)
-              </p>
             </div>
           </div>
         </header>
@@ -364,7 +361,7 @@ export default function ResultPage() {
               const match = t.range.match(/(\d+)(?:–(\d+))?/)
               const lo = Number(match?.[1] ?? 0)
               const hi = match?.[2] ? Number(match[2]) : null
-              const score = attempt.overallScore60
+              const score = attempt.overallScore
               const inside = hi === null ? score >= lo : score >= lo && score <= hi
               const exceeds = hi !== null && score > hi
               const state = inside ? 'met' : exceeds ? 'exceeded' : 'notMet'

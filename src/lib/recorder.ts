@@ -283,15 +283,15 @@ export class VoiceRecorder {
 
     if (speechiness > 0.25) {
       this.speechFrames += 1
+      if (this.inPause && this.silentFrames > 8) {
+        this.pauses += 1
+        this.inPause = false
+      }
       this.silentFrames = 0
       const pitch = detectPitch(buffer)
       if (pitch !== null) {
         this.pitchSum += pitch
         this.pitchCount += 1
-      }
-      if (this.inPause && this.silentFrames > 8) {
-        this.pauses += 1
-        this.inPause = false
       }
     } else {
       this.silentFrames += 1

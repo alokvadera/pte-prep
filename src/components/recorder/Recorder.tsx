@@ -350,7 +350,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
           {!sttSupported || !transcript ? (
             <div className="mt-3">
               <label className="label" htmlFor={`typed-${seconds}`}>
-                Type what you said (optional, improves the estimate)
+                Type what you said (required for content scoring when speech-to-text isn't available)
               </label>
               <textarea
                 id={`typed-${seconds}`}
@@ -361,6 +361,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
                   setTyped(e.target.value)
                   onTyped?.(e.target.value)
                 }}
+                aria-required={!sttSupported || !transcript}
               />
               {typed.trim() ? (
                 <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs">

@@ -17,8 +17,17 @@ export interface AiEvaluationResult {
   maxScore: number
 }
 
-// In-memory cache for deterministic instant recall of identical answers
 const evaluationCache = new Map<string, AiEvaluationResult>()
+const MAX_EVAL_CACHE = 500
+
+function evictOldestCache() {
+  if (evaluationCache.size >= MAX_EVAL_CACHE) {
+    const first = evaluationCache.keys().next().value
+    if (first !== undefined) {
+      evaluationCache.delete(first)
+    }
+  }
+}
 
 function hashAnswer(itemId: string, text: string): string {
   let hash = 5381
@@ -219,6 +228,7 @@ Output ONLY a JSON object with this exact format:
       maxScore,
     }
 
+    evictOldestCache()
     evaluationCache.set(cacheKey, result)
     return result
   } catch (err) {

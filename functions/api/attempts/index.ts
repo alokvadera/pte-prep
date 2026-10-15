@@ -154,6 +154,14 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
+  const cl = context.request.headers.get('content-length')
+  if (cl && Number(cl) > 1_000_000) {
+    return new Response(JSON.stringify({ error: 'Attempt payload too large' }), {
+      status: 413,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   let attempt: Record<string, unknown>
   try {
     attempt = (await context.request.json()) as Record<string, unknown>

@@ -42,25 +42,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .bind(rawEmail)
     .first<ExtendedUserRecord>()
 
-  // Passwordless sign-in is removed: a login with no password is a 401, and a
-  // login for an unknown email is a 401. Accounts can only be created through
-  // /api/auth/register, which always sets a password.
-
-  let user: UserRecord
-
+  // Timing equalization: always do a comparable work if needed? but we already verify password
+  // For unknown user, do a quick dummy check to avoid timing leak
   if (!existing) {
+    try {
+      await verifyPassword(password, 'dummyhash', 'dummysalt')
+    } catch {
+      // ignore
+    }
     return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     })
   }
 
-  if (!password) {
-    return new Response(
-      JSON.stringify({ error: 'Password is required to sign in to this account.' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } },
-    )
-  }
+  let user: UserRecord
 
   // Existing user
   if (!existing.password_hash) {

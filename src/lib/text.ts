@@ -95,7 +95,11 @@ export function diceCoefficient(a: string, b: string): number {
     }
   }
 
-  return (2 * matches) / (normA.length - 1 + (normB.length - 1))
+  const denom = (normA.length - 1) + (normB.length - 1)
+  if (denom <= 0) {
+    return normA === normB ? 1 : 0
+  }
+  return (2 * matches) / denom
 }
 
 /** Token-level F1 of content words — used to score spoken/written summaries.

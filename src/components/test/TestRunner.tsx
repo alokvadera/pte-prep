@@ -138,11 +138,11 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="nav-drawer-title">
-      <button type="button" className="bg-ink-950/60 animate-fade-in absolute inset-0 cursor-pointer" onClick={onClose} aria-label="Close question overview" />
+      <button type="button" className="bg-ink-950/60 animate-fade-in absolute inset-0 cursor-pointer" onClick={onCloseNav} aria-label="Close question overview" />
       <div ref={panelRef} className="scrollbar-thin border-ink-200 dark:border-white/10 animate-drawer-enter relative h-full w-full max-w-sm overflow-y-auto border-l bg-white p-5 dark:bg-ink-850">
         <div className="mb-4 flex items-center justify-between">
           <h2 id="nav-drawer-title" className="text-ink-900 dark:text-white font-bold text-balance">{section.title}</h2>
-          <button type="button" className="btn-ghost" onClick={onClose}>
+          <button type="button" className="btn-ghost" onClick={onCloseNav}>
             Close
           </button>
         </div>
@@ -158,7 +158,7 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
                 type="button"
                 onClick={() => {
                   goTo(sectionIndex, i)
-                  onClose()
+                  onCloseNav()
                 }}
                 className={cn(
                   'relative grid aspect-square place-items-center rounded-sm text-xs font-bold tabular-nums transition-colors',
@@ -223,6 +223,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
   const examMode = mode === 'exam'
   const forwardOnly = Boolean(mock?.forwardOnly)
   const [navOpen, setNavOpen] = useState(false)
+  const onCloseNav = useCallback(() => setNavOpen(false), [])
   // SC 4.1.3: question advanced, flag toggled, section changed.
   const [announcement, setAnnouncement] = useState('')
 
@@ -505,7 +506,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         </div>
       </div>
 
-      <Navigator open={navOpen} onClose={() => setNavOpen(false)} />
+      <Navigator open={navOpen} onClose={onCloseNav} />
       <button type="button" className="sr-only" onClick={onExit}>
         Exit test
       </button>

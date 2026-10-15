@@ -62,33 +62,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const { hash, salt } = await hashPassword(password)
 
   if (existing) {
-    if (existing.password_hash) {
-      return new Response(
-        JSON.stringify({ error: 'An account with this email already exists. Please sign in.' }),
-        { status: 409, headers: { 'Content-Type': 'application/json' } },
-      )
-    }
-
-    // Existing user from passwordless email sync — set password
-    await db
-      .prepare(
-        "UPDATE users SET password_hash = ?, password_salt = ?, target_score = ?, updated_at = datetime('now') WHERE id = ?",
-      )
-      .bind(hash, salt, targetScore, existing.id)
-      .run()
-
-    const token = await createSessionToken(
-      { userId: existing.id, email: existing.email },
-      requireSecret(context.env),
-    )
-
     return new Response(
-      JSON.stringify({
-        ok: true,
-        token,
-        user: { id: existing.id, email: existing.email, targetScore },
-      }),
-      { status: 200, headers: { 'Content-Type': 'application/json' } },
+      JSON.stringify({ error: 'An account with this email already exists. Please sign in.' }),
+      { status: 409, headers: { 'Content-Type': 'application/json' } },
     )
   }
 

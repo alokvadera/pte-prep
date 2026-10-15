@@ -86,10 +86,14 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const origin = context.env.SITE_ORIGIN || new URL(context.request.url).origin
   const resetLink = `${origin}/reset-password?token=${rawToken}`
 
-  // Brevo configuration
+    // Brevo configuration
   const brevoKey = context.env.BREVO_API_KEY
   const senderEmail = context.env.BREVO_SENDER_EMAIL || 'alokvadera123@gmail.com'
   const senderName = context.env.BREVO_SENDER_NAME || 'PTE Prep'
+
+  const escHtml = (s: string): string => {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+  }
 
   if (brevoKey) {
     const htmlContent = `
@@ -97,7 +101,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
         <div style="margin-bottom: 24px;">
           <h2 style="font-size: 22px; font-weight: 700; margin: 0 0 8px 0; color: #18181b;">Reset your PTE Prep password</h2>
           <p style="font-size: 15px; line-height: 1.5; color: #52525b; margin: 0;">
-            We received a request to reset the password for your account (<strong>${user.email}</strong>).
+            We received a request to reset the password for your account (<strong>${escHtml(user.email)}</strong>).
           </p>
         </div>
         
@@ -124,7 +128,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       apiKey: brevoKey,
       senderEmail,
       senderName,
-      to: user.email,
+      to: escHtml(user.email),
       subject: 'Reset your PTE Prep password',
       htmlContent,
       textContent: `Reset your PTE Prep password by visiting: ${resetLink} (Expires in 15 minutes).`,
