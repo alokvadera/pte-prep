@@ -66,7 +66,7 @@ export class ErrorBoundary extends Component<Props, State> {
             the local data below starts the app fresh. Anything already saved on this device will be lost.
           </p>
 
-          <pre className="border-ink-200 dark:border-white/10 text-ink-500 dark:text-ink-400 mt-6 overflow-x-auto border p-3 font-mono text-xs leading-relaxed">
+          <pre className="border-ink-200 dark:border-white/10 text-ink-500 dark:text-ink-on-dark-muted mt-6 overflow-x-auto border p-3 font-mono text-xs leading-relaxed">
             {error.message}
           </pre>
 
@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
             </button>
           </div>
 
-          <p className="text-ink-500 dark:text-ink-400 mt-6 text-sm">
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-6 text-sm">
             Or go back to{' '}
             <Link to="/" className="link-inline">
               the home page

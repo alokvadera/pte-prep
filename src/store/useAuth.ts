@@ -19,6 +19,7 @@ interface AuthStore {
   register: (email: string, password: string, targetScore?: number) => Promise<boolean>
   logout: () => void
   setTargetScore: (score: number) => Promise<void>
+  setSession: (user: User, token: string, expiresAt?: number) => void
   /** Session-authenticated reset for users who forgot the password on a
       signed-in device. Returns true on success, else an error message. */
   changePassword: (newPassword: string) => Promise<true | string>
@@ -150,6 +151,19 @@ export const useAuth = create<AuthStore>()(
         })
       },
 
+      setSession: (user: User, token: string, expiresAt?: number) => {
+        const exp = typeof expiresAt === 'number' && expiresAt > 0 ? expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
+        set({
+          user,
+          token,
+          expiresAt: exp,
+          hasLoggedInBefore: true,
+          lastEmail: user.email,
+          loading: false,
+          error: null,
+        })
+      },
+
       changePassword: async (newPassword: string) => {
         const { token } = get()
         if (!token) return 'You are not signed in.'
@@ -167,17 +181,9 @@ export const useAuth = create<AuthStore>()(
             const data = (await res.json().catch(() => null)) as { error?: string } | null
             return data?.error ?? 'Could not change the password.'
           }
-          // The password change returns a fresh session from the server; rotate
-          // it with a fresh expiry so a stolen bearer token is not reused.
-          set({
-            user: get().user,
-            token: null,
-            expiresAt: null,
-            hasLoggedInBefore: get().hasLoggedInBefore,
-            lastEmail: get().lastEmail,
-            loading: false,
-            error: null,
-          })
+          // The server keeps the current session valid after a password
+          // change (no token versioning yet), so keep the local session
+          // intact. Other devices stay signed in until their tokens expire.
           return true
         } catch {
           return 'Could not connect to authentication service.'

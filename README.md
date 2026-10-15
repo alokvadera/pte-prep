@@ -199,21 +199,65 @@ built in.
 ## Design
 
 The visual language is written down in
-[`docs/design/Calibrated-Silence.md`](docs/design/Calibrated-Silence.md) and
-expressed both on canvas (`docs/design/plate-01.png`, rendered by
-`npm run plates`) and in the app itself.
+[`docs/design/spacing-system.md`](docs/design/spacing-system.md). Its short name
+is Marked Paper: the interface is a marked exam paper, because the two real
+artefacts of this product are the answer sheet a candidate fills in and the result
+they get back.
 
-Its short form: this is an instrument, not a brochure. Space, rule and mark
-carry the information; shadow and chip do not. The palette is a printed sheet —
-a cool mineral ground, one deep ink, and exactly one accent — plus three signal
-colours that mean only one thing each. Type has three voices: Instrument Serif
-for the single large moment, Instrument Sans for everything the reader has to
-process, IBM Plex Mono for anything a machine would have written. All three are
-self-hosted, so there is no third-party request and the app works offline.
+Separation is a hairline or a shift in value — there are no shadows, no resting
+blurs and no gradients, and a surface is square because a form is square. The
+palette is paper white, a graphite ink, and exactly one colour that means
+something: vermilion, for a lost point, attention and the focus ring. Type has
+three voices, all self-hosted so there is no third-party request and the app works
+offline: Instrument Sans for everything structural, Instrument Serif only for
+measured figures set large, IBM Plex Mono only for machine values. There are no
+all-caps tracked labels, and the interface speaks plain English: the progress page
+is called Progress, not Telemetry.
 
-Accessibility is part of the design rather than a pass over it: the audit in
-`scripts/contrast.mjs` is part of `npm run verify`, and the design research that
-motivated the accessibility work is in `docs/DESIGN_RESEARCH.md`.
+Accessibility is part of the design rather than a pass over it: `scripts/contrast.mjs`
+audits 71 token pairs and is part of `npm run verify`, `scripts/contrast-render.mjs`
+audits what actually renders, and the design research that motivated the work is in
+`docs/DESIGN_RESEARCH.md`. The earlier directions are archived in
+`docs/design/Calibrated-Silence.md` and its companion plate.
+
+---
+
+## Aceternity UI components
+
+The project is wired for the official Aceternity shadcn registry.
+`components.json` maps the `@aceternity` namespace to
+`https://ui.aceternity.com/registry/{name}.json`, so any registry
+component installs with the normal shadcn command:
+
+```bash
+npx shadcn@latest add @aceternity/spotlight
+# or ask the agent: "install the Aceternity aurora background"
+```
+
+Registry components import `cn` from `@/lib/utils` (provided) and
+animate with `motion/react` — `motion`, `lucide-react`, `clsx` and
+`tailwind-merge` are installed as prerequisites.
+
+Three MCP servers are configured for component discovery and install,
+in `.mcp.json` (Claude Code / Command Code, project scope) and
+`.cursor/mcp.json` (Cursor). Restart the client after changing them.
+
+| Server | Command | Role |
+| --- | --- | --- |
+| `shadcn` | `npx shadcn@latest mcp` | Official. Search, view and install across the shadcn and `@aceternity` registries |
+| `aceternityui` | `npx aceternityui-mcp` | Aceternity search, component info, install commands, categories |
+| `aceternity-ui` | `aceternity-ui-mcp-server` | Aceternity component browse/search plus usage prompts |
+
+The setup guide's first server (`aceternity-mcp` by devinoldenburg,
+installed via pipx) no longer exists: PyPI returns 404, the GitHub
+repo is gone, and the npm package was unpublished on 2026-08-06.
+`aceternity-ui-mcp-server` (yeshsurya) fills the same discovery role
+and is the one configured here. Install it with
+`npm install -g aceternity-ui-mcp-server`.
+
+The full registry catalogue (295 items), the designs that fit each of
+the nine pages, and the hand-built → official swap map are in
+[`docs/ACETERNITY-DESIGNS.md`](docs/ACETERNITY-DESIGNS.md).
 
 ## Project layout
 
@@ -239,6 +283,9 @@ scripts/
   smoke.ts           Engine test: 111 assertions, 33 from the Score Guide
   browser-check.mjs  Headless Chrome: hydration, SEO, and a full test run
   serve.mjs          Host-accurate static server for local verification
+components.json    shadcn config with the @aceternity registry
+.mcp.json          MCP servers (Claude Code / Command Code)
+.cursor/mcp.json   MCP servers (Cursor)
 ```
 
 ---

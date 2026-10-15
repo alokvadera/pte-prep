@@ -152,33 +152,48 @@ class Canvas {
   }
 }
 
-// The same tokens as src/index.css, so the marks and the site are one system.
-const BRAND_TEAL = [47, 110, 104]
-const BRAND_TEAL_DEEP = [36, 84, 79]
-const OXIDE = [140, 58, 58]
-const PAPER = [231, 233, 227]
-const INK_DEEP = [8, 12, 11]
+// The palette mirrors src/index.css, so the marks and the site are one system:
+// graphite ink on paper, with one vermilion that only ever means "a mark".
+const INK = [16, 21, 24]          // --color-ink-900
+const INK_DEEP = [10, 14, 16]     // --color-ink-950
+const PAPER = [255, 255, 255]     // --color-ink-50
+const WASH = [244, 246, 247]      // --color-ink-100
+const RULE = [223, 227, 230]      // --color-ink-200
+const MARK = [212, 42, 30]        // --color-mark-500
 const WHITE = [255, 255, 255]
 
 // --- icon ------------------------------------------------------------------
 
+/**
+ * A white plate on ink, carrying the monogram and one red corner mark. No
+ * gradient and no glow: the system separated surfaces with a hairline, and an
+ * icon is the one place there is no room for a hairline, so the separation is
+ * the plate against the ground.
+ */
 function appIcon(size, { maskable = false } = {}) {
   const c = new Canvas(size, size)
-  c.background(BRAND_TEAL_DEEP, [14, 30, 32], INK_DEEP)
-  c.glow(size * 0.3, size * 0.22, size * 0.75, BRAND_TEAL, 0.55)
-  c.glow(size * 0.82, size * 0.85, size * 0.65, OXIDE, 0.26)
+  c.background(INK_DEEP, INK_DEEP, INK)
 
   // Maskable icons must keep their content inside the safe zone (80% of the
   // canvas) or platform masks will clip it.
-  const inset = maskable ? 0.2 : 0.13
+  const inset = maskable ? 0.2 : 0.12
   const box = size * (1 - inset * 2)
-  const radius = maskable ? box * 0.5 : box * 0.26
+  const radius = box * 0.08
 
-  // Card plate
-  c.roundRect(size * inset, size * inset, box, box, radius, [255, 255, 255], 0.1)
-  c.roundRect(size * inset, size * inset, box, box, radius, BRAND_TEAL, 0.26)
+  c.roundRect(size * inset, size * inset, box, box, radius, WHITE, 1)
+  c.monogram(size / 2, size / 2 - box * 0.03, box * 0.58, INK)
 
-  c.monogram(size / 2, size / 2, box * 0.62, WHITE)
+  // The mark: a red square in the corner of the plate.
+  const markSize = box * 0.18
+  c.roundRect(
+    size * inset + box - markSize - box * 0.08,
+    size * inset + box - markSize - box * 0.08,
+    markSize,
+    markSize,
+    markSize * 0.1,
+    MARK,
+    1,
+  )
   return c.toPng()
 }
 
@@ -188,22 +203,20 @@ function ogImage() {
   const W = 1200
   const H = 630
   const c = new Canvas(W, H)
-  c.background([20, 52, 50], [16, 28, 30], INK_DEEP)
-  c.glow(W * 0.16, H * 0.1, W * 0.6, BRAND_TEAL, 0.5)
-  c.glow(W * 0.92, H * 0.95, W * 0.55, OXIDE, 0.26)
+  c.background(WASH, WASH, PAPER)
 
-  // Left accent bar standing in for the progress bar in the app.
-  c.roundRect(72, 96, 12, 438, 6, PAPER, 0.9)
+  // A heavy top rule, the same device the site opens its sections with.
+  c.roundRect(0, 0, W, 8, 0, INK, 1)
 
-  // Mark
-  c.roundRect(72, 96, 116, 116, 30, WHITE, 0.14)
-  c.monogram(130, 154, 74, WHITE)
+  // Mark plate and monogram.
+  c.roundRect(72, 84, 104, 104, 8, INK, 1)
+  c.monogram(124, 136, 66, WHITE)
 
-  // Question navigator motif: a grid of item cells, some answered and some not,
-  // which is what the test runner actually looks like.
-  const gridX = 232
-  const gridY = 250
-  const cell = 56
+  // Question navigator: the grid of item cells the test runner actually shows,
+  // answered cells in ink, one flagged in the mark colour.
+  const gridX = 236
+  const gridY = 132
+  const cell = 52
   const gap = 12
   const cols = 6
   for (let r = 0; r < 3; r++) {
@@ -213,71 +226,31 @@ function ogImage() {
       const flagged = i === 8
       const x = gridX + col * (cell + gap)
       const y = gridY + r * (cell + gap)
-      if (answered) {
-        c.roundRect(x, y, cell, cell, 12, BRAND_TEAL, 0.8)
-      } else {
-        c.roundRect(x, y, cell, cell, 12, WHITE, 0.12)
-      }
-      if (flagged) c.roundRect(x + cell - 12, y - 4, 16, 16, 8, OXIDE, 0.95)
+      c.roundRect(x, y, cell, cell, 3, answered ? INK : RULE, answered ? 0.92 : 1)
+      if (flagged) c.roundRect(x + cell - 10, y - 6, 14, 14, 2, MARK, 1)
     }
   }
 
-  // Answer lines beneath the grid, echoing a reading passage.
+  // Answer rules beneath the grid, echoing a printed answer sheet.
   for (let i = 0; i < 3; i++) {
-    const y = gridY + 3 * (cell + gap) + 14 + i * 30
-    const w = 420 - i * 96
-    c.roundRect(gridX, y, w, 12, 6, WHITE, 0.12)
+    const y = gridY + 3 * (cell + gap) + 26 + i * 26
+    const w = 360 - i * 84
+    c.roundRect(gridX, y, w, 6, 0, RULE, 1)
   }
 
-  // Progress mock, mirroring the score card in the app.
-  const panelX = 720
-  const panelY = 96
-  const panelW = 408
-  const panelH = 438
-  c.roundRect(panelX, panelY, panelW, panelH, 28, WHITE, 0.08)
-  c.roundRect(panelX, panelY, panelW, panelH, 28, BRAND_TEAL, 0.2)
-
-  // A linear range bar rather than a donut: length carries magnitude, and it
-  // can show where the score sits against its band, which an arc cannot.
-  const ax = panelX + 44
-  const ay = panelY + 66
-  const aw = panelW - 88
-  const BANDS = [
-    [10, 29],
-    [30, 42],
-    [43, 58],
-    [59, 75],
-    [76, 84],
-    [85, 90],
-  ]
-  for (const [from, to] of BANDS) {
-    const x0 = ax + ((from - 10) / 80) * aw
-    const w = ((to - from + 1) / 80) * aw
-    c.roundRect(x0, ay, w, 12, 3, WHITE, 0.09)
-  }
+  // The score scale: one axis, the value drawn in ink, the marker in the mark.
+  const ax = 72
+  const ay = 452
+  const aw = W - 144
+  c.roundRect(ax, ay, aw, 1, 0, RULE, 1)
   const score = 61
   const scoreW = ((score - 10) / 80) * aw
-  c.roundRect(ax, ay, scoreW, 12, 3, PAPER, 0.92)
-  // The marker, so the value reads without relying on fill colour.
-  c.roundRect(ax + scoreW - 2, ay - 8, 4, 28, 2, WHITE, 0.95)
-  c.roundRect(ax, ay + 26, aw, 3, 1, WHITE, 0.12)
-
-  // Skill bars
-  // One dimension, one hue: the accent carries the value, the oxide marks the
-  // one that needs work.
-  const skills = [
-    { w: 0.78, colour: BRAND_TEAL },
-    { w: 0.7, colour: BRAND_TEAL },
-    { w: 0.62, colour: BRAND_TEAL },
-    { w: 0.58, colour: OXIDE },
-  ]
-  const barX = panelX + 44
-  const barW = panelW - 88
-  skills.forEach((s, i) => {
-    const y = panelY + 172 + i * 46
-    c.roundRect(barX, y, barW, 12, 3, WHITE, 0.11)
-    c.roundRect(barX, y, barW * s.w, 12, 3, s.colour, 0.95)
-  })
+  c.roundRect(ax, ay - 3, scoreW, 7, 0, INK, 1)
+  for (const t of [10, 30, 50, 65, 79, 90]) {
+    const x = ax + ((t - 10) / 80) * aw
+    c.roundRect(x, ay - 6, 1, 13, 0, RULE, 1)
+  }
+  c.roundRect(ax + scoreW - 2, ay - 30, 4, 34, 0, MARK, 1)
 
   return c.toPng()
 }

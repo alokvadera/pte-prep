@@ -1,7 +1,7 @@
 # Archived direction: Calibrated Silence
 
-This was the previous visual direction. The current site uses the Practice Hub
-system documented in `spacing-system.md`.
+This was one of two earlier visual directions, kept for reference. The current
+site uses the Marked Paper system documented in `spacing-system.md`.
 
 A visual philosophy for work whose subject is measurement.
 

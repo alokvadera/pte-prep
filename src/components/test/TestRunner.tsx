@@ -3,6 +3,7 @@ import { QUESTION_META, SECTION_META } from '../../domain/blueprint'
 import { cn } from '../../lib/cn'
 import { hasResponse, useTest } from '../../store/useTest'
 import { PageHeading } from '../ui/primitives'
+import { Reveal } from '../ui/motion'
 import { QuestionView } from '../questions/QuestionView'
 import { TestHeader } from './TestHeader'
 
@@ -25,7 +26,7 @@ function SectionBriefing({ onStart }: { onStart: () => void }) {
   return (
     <div className="page-shell-app">
       <PageHeading
-        eyebrow={`Section ${sectionIndex + 1} of ${mock.sections.length} · ${meta.title}`}
+        eyebrow={`Section ${sectionIndex + 1} of ${mock.sections.length}, ${meta.title}`}
         title={meta.longTitle}
         description={meta.blurb}
       />
@@ -33,45 +34,47 @@ function SectionBriefing({ onStart }: { onStart: () => void }) {
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section aria-labelledby="section-question-types">
           <div className="flex items-baseline justify-between gap-4 border-b border-ink-200 pb-3 dark:border-white/10">
-            <h2 id="section-question-types" className="text-ink-900 dark:text-white text-lg font-bold text-balance">
+            <h2 id="section-question-types" className="text-lg leading-[1.3] text-balance text-ink-900 dark:text-white">
               In this section
             </h2>
-            <span className="text-ink-500 dark:text-ink-400 text-xs tabular-nums">
+            <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs tabular-nums">
               {section.itemIds.length} questions
             </span>
           </div>
           <ul className="divide-y divide-ink-200 dark:divide-white/10">
-            {[...typeCounts.entries()].map(([type, count]) => {
+            {[...typeCounts.entries()].map(([type, count], i) => {
               const qm = QUESTION_META[type as keyof typeof QUESTION_META]
               return (
-                <li key={type} className="flex items-start justify-between gap-5 py-4">
+                <Reveal key={type} variant="up" delay={Math.min(i, 5) * 25} duration={500}>
+                  <li className="flex items-start justify-between gap-5 py-4">
                   <div className="min-w-0">
                     <p className="text-ink-900 dark:text-white text-sm font-semibold">{qm?.label ?? type}</p>
-                    {qm?.tip ? <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm leading-relaxed">{qm.tip}</p> : null}
+                    {qm?.tip ? <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm leading-relaxed">{qm.tip}</p> : null}
                   </div>
-                  <span className="text-ink-500 dark:text-ink-300 shrink-0 pt-0.5 text-sm font-semibold tabular-nums">×{count}</span>
+                  <span className="text-ink-500 dark:text-ink-on-dark shrink-0 pt-0.5 text-sm font-semibold tabular-nums">×{count}</span>
                 </li>
+              </Reveal>
               )
             })}
           </ul>
         </section>
 
-        <aside className="rounded-xl bg-ink-900 p-6 text-white shadow-card lg:sticky lg:top-24">
-          <p className="font-mono text-micro text-brand-300">READY WHEN YOU ARE</p>
+        <aside className="rounded-md bg-ink-900 p-6 text-white lg:sticky lg:top-24 dark:border dark:border-white/10 dark:bg-ink-850">
+          <p className="text-xs font-bold text-brand-300">Ready when you are</p>
           <p className="mt-3 text-3xl font-bold tracking-tight tabular-nums">
-            {section.itemIds.length}<span className="ml-2 text-sm font-medium text-ink-400">questions</span>
+            {section.itemIds.length}<span className="ml-2 text-sm font-medium text-ink-on-dark-muted">questions</span>
           </p>
           <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-5">
             <div>
-              <dt className="text-xs text-ink-400">Time</dt>
+              <dt className="text-xs text-ink-on-dark-muted">Time</dt>
               <dd className="mt-1 text-sm font-semibold tabular-nums">{mock.untimed ? 'No limit' : `${Math.round(section.seconds / 60)} min`}</dd>
             </div>
             <div>
-              <dt className="text-xs text-ink-400">Scored skill</dt>
+              <dt className="text-xs text-ink-on-dark-muted">Scored skill</dt>
               <dd className="mt-1 text-sm font-semibold capitalize">{meta.skill}</dd>
             </div>
           </dl>
-          <p className="mt-5 text-xs leading-relaxed text-ink-400">
+          <p className="mt-5 text-xs leading-relaxed text-ink-on-dark-muted">
             {mock.untimed ? 'Take your time. Your answers are saved as you go.' : 'The clock starts when you begin and continues through every question.'}
           </p>
           <button type="button" className="btn-primary mt-6 w-full px-7 py-3 text-base" onClick={onStart}>
@@ -158,12 +161,12 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
                   onClose()
                 }}
                 className={cn(
-                  'relative grid aspect-square place-items-center rounded-lg text-xs font-bold tabular-nums transition-colors',
+                  'relative grid aspect-square place-items-center rounded-sm text-xs font-bold tabular-nums transition-colors',
                   current && 'ring-brand-500 ring-2 ring-offset-1 dark:ring-offset-ink-850',
                   item?.maxPoints === 0
-                    ? 'bg-ink-100 text-ink-500 dark:bg-white/6 dark:text-ink-400'
+                    ? 'bg-ink-100 text-ink-500 dark:bg-white/6 dark:text-ink-on-dark-muted'
                     : answered
-                      ? 'bg-mint-500 text-white'
+                      ? 'bg-mint-500 text-ink-900 dark:bg-emerald-600 dark:text-white'
                       : 'bg-ink-200 text-ink-600 dark:bg-white/12 dark:text-ink-200',
                 )}
                 aria-label={`Question ${i + 1}${answered ? ', answered' : ', not answered'}${flagged ? ', flagged' : ''}`}
@@ -180,16 +183,16 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
           })}
         </div>
         <div className="mt-6 space-y-2 text-xs">
-          <p className="text-ink-500 dark:text-ink-400 flex items-center gap-2">
-            <span className="bg-mint-500 relative flex size-3 items-center justify-center rounded">
+          <p className="text-ink-500 dark:text-ink-on-dark-muted flex items-center gap-2">
+            <span className="bg-mint-500 dark:bg-emerald-600 relative flex size-3 items-center justify-center rounded-sm">
               <span className="size-1 rounded-full bg-white/80" />
             </span>{' '}
             Answered
           </p>
-          <p className="text-ink-500 dark:text-ink-400 flex items-center gap-2">
-            <span className="bg-ink-200 dark:bg-white/12 size-3 rounded" /> Not answered
+          <p className="text-ink-500 dark:text-ink-on-dark-muted flex items-center gap-2">
+            <span className="bg-ink-200 dark:bg-white/12 size-3 rounded-sm" /> Not answered
           </p>
-          <p className="text-ink-500 dark:text-ink-400 flex items-center gap-2">
+          <p className="text-ink-500 dark:text-ink-on-dark-muted flex items-center gap-2">
             <span className="bg-amber-500 size-3 rounded-full" /> Flagged for review
           </p>
         </div>
@@ -324,12 +327,12 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         <p className="text-brand-600 dark:text-brand-300 text-sm font-semibold">
           {timeExpired ? 'Time' : 'Section complete'}
         </p>
-        <h1 className="text-ink-900 dark:text-white mt-2 text-2xl font-bold text-balance">
+        <h1 className="mt-2 text-2xl leading-[1.2] text-balance text-ink-900 dark:text-white">
           {timeExpired
             ? `Time is up for ${completedSection?.title ?? 'this section'}`
             : `${completedSection?.title ?? 'Section'} complete`}
         </h1>
-        <p className="text-ink-500 dark:text-ink-300 mt-3 leading-relaxed">
+        <p className="text-ink-500 dark:text-ink-on-dark mt-3 leading-relaxed">
           {meta
             ? `Next: ${meta.longTitle} — ${meta.weightNote}, ${nextSection?.itemIds.length ?? 0} items.`
             : 'You have reached the end of the test.'}
@@ -378,11 +381,11 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         onExit={onExit}
       />
 
-      <main className="page-shell-wide pt-7 pb-24">
+      <main id="test-main" tabIndex={-1} className="page-shell-wide pt-7 pb-24 outline-none">
         {group?.stimulus.passageParagraphs && group.type !== 'summarize-written-text' ? (
           <article className="card mb-6">
             {group.stimulus.passageTitle ? (
-              <h2 className="text-ink-900 dark:text-white border-ink-200 dark:border-white/10 border-b pb-3 text-lg font-bold text-balance">
+              <h2 className="border-ink-200 dark:border-white/10 border-b pb-3 text-lg leading-[1.3] text-balance text-ink-900 dark:text-white">
                 {group.stimulus.passageTitle}
               </h2>
             ) : null}
@@ -394,7 +397,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
               ))}
             </div>
             {group.stimulus.note ? (
-              <p className="text-ink-500 dark:text-ink-400 mt-4 border-t pt-3 text-xs italic">{group.stimulus.note}</p>
+              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 border-t pt-3 text-xs italic">{group.stimulus.note}</p>
             ) : null}
           </article>
         ) : null}
@@ -415,7 +418,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         ) : null}
 
         {group?.stimulus.note && !group.stimulus.passageParagraphs ? (
-          <p className="text-ink-500 dark:text-ink-400 mb-5 text-sm italic">{group.stimulus.note}</p>
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mb-5 text-sm italic">{group.stimulus.note}</p>
         ) : null}
 
         <section key={item.id} className="card animate-question-enter p-6 sm:p-8">
@@ -425,7 +428,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
             </span>
             <div className="flex items-center gap-2">
               {forwardOnly ? (
-                <span className="text-ink-500 dark:text-ink-400 text-xs font-semibold">Test-day mode · forward only</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">Test-day mode, forward only</span>
               ) : (
                 <button
                   type="button"
@@ -458,7 +461,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
 
           {!examMode && item.tip ? (
             <p className="text-brand-500 dark:text-brand-300 border-brand-500/25 mt-6 border-t pt-4 text-sm leading-relaxed">
-              <span className="font-bold">Tip · </span>
+              <span className="font-bold">Tip, </span>
               {item.tip}
             </p>
           ) : null}
@@ -468,20 +471,21 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
       <div className="border-ink-200 dark:border-white/10 fixed inset-x-0 bottom-0 z-30 border-t bg-white/90 backdrop-blur-md pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] dark:bg-ink-900/90">
         <div className="page-shell-wide flex items-center justify-between gap-3 pt-3">
           {forwardOnly ? (
-            <span className="text-ink-500 dark:text-ink-400 text-xs">Test-day mode · no going back</span>
+            <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">Test-day mode, no going back</span>
           ) : (
             <button type="button" className="btn-secondary" onClick={prev} disabled={itemIndex === 0}>
               ← Back
-              <kbd className="hidden sm:inline-block ml-1 rounded bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-micro font-mono text-ink-500 dark:text-ink-400">Alt+B</kbd>
+              <kbd className="hidden sm:inline-block ml-1 rounded-sm bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-xs font-mono text-ink-500 dark:text-ink-on-dark-muted">Alt+B</kbd>
             </button>
           )}
           {forwardOnly ? (
-            <span className="text-ink-500 dark:text-ink-400 hidden text-xs tabular-nums sm:inline">
+            <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs tabular-nums">
               {answered} of {section.itemIds.length} answered
             </span>
           ) : (
-            <button type="button" className="btn-ghost hidden sm:inline-flex" onClick={() => setNavOpen(true)}>
-              {answered} of {section.itemIds.length} answered
+            <button type="button" className="btn-ghost inline-flex" onClick={() => setNavOpen(true)}>
+              <span className="hidden sm:inline">{answered} of {section.itemIds.length} answered</span>
+              <span className="sm:hidden tabular-nums">{answered}/{section.itemIds.length}</span>
             </button>
           )}
           <button
@@ -495,8 +499,8 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
               next()
             }}
           >
-            {isLast ? (isLastSection ? 'Finish test' : 'End section') : 'Next →'}
-            <kbd className="hidden sm:inline-block ml-1.5 rounded bg-white/25 px-1 py-0.5 text-micro font-mono text-white">Alt+N</kbd>
+            {isLast ? (isLastSection ? 'Finish test' : 'End section') : 'Next'}
+            <kbd className="hidden sm:inline-block ml-1.5 rounded-sm bg-white/25 px-1 py-0.5 text-xs font-mono text-white">Alt+N</kbd>
           </button>
         </div>
       </div>

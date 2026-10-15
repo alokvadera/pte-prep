@@ -45,52 +45,7 @@ function flatItems(mock: MockTest | null): string[] {
 }
 
 
-/**
- * Persistence storage that is inert outside the browser.
- *
- * `zustand/middleware` touches `localStorage` when the store is created, which
- * would throw during prerendering. This keeps the store module importable on the
- * server while preserving exactly the same behaviour in the browser.
- */
-function safeStateStorage() {
-  const memory = new Map<string, string>()
-  const hasLs = () => typeof window !== 'undefined' && (() => {
-    try {
-      return window.localStorage !== null
-    } catch {
-      return false
-    }
-  })()
-
-  return {
-    getItem: (name: string): string | null => {
-      if (!hasLs()) return memory.get(name) ?? null
-      try {
-        return window.localStorage.getItem(name)
-      } catch {
-        return memory.get(name) ?? null
-      }
-    },
-    setItem: (name: string, value: string): void => {
-      memory.set(name, value)
-      if (!hasLs()) return
-      try {
-        window.localStorage.setItem(name, value)
-      } catch {
-        /* quota exceeded or private mode */
-      }
-    },
-    removeItem: (name: string): void => {
-      memory.delete(name)
-      if (!hasLs()) return
-      try {
-        window.localStorage.removeItem(name)
-      } catch {
-        /* ignore */
-      }
-    },
-  }
-}
+import { safeStateStorage } from '../lib/storage'
 
 const safeJsonStorage = () => createJSONStorage(() => safeStateStorage())
 
@@ -263,7 +218,7 @@ export const useTest = create<TestStore>()(
           mode,
           startedAt: startedAt ?? new Date().toISOString(),
           finishedAt: new Date().toISOString(),
-          durationMs: elapsedMs,
+          durationMs: startedAt ? Date.now() - new Date(startedAt).getTime() : elapsedMs,
           seed: mock.seed,
           sectionIds: mock.sections.map((s) => s.id) as SectionId[],
           responses,
@@ -283,7 +238,12 @@ export const useTest = create<TestStore>()(
         }
 
         set({ status: 'finished', attemptId: attempt.id })
-        await saveAttempt(attempt)
+        try {
+          await saveAttempt(attempt)
+        } catch {
+          /* IndexedDB unavailable (private mode, quota): report still renders
+             from memory, the attempt just will not persist. */
+        }
         return attempt
       },
 

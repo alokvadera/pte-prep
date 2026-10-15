@@ -32,6 +32,13 @@ export default function TestPage() {
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [status])
 
+  // The runner renders outside the app shell, so the route change
+  // is announced by hand: focus moves to the test's main landmark
+  // when the page mounts.
+  useEffect(() => {
+    document.getElementById('test-main')?.focus({ preventScroll: true })
+  }, [])
+
   // Focus trap + Escape dismiss for the exit dialog
   useEffect(() => {
     if (!confirmExit) return
@@ -77,11 +84,11 @@ export default function TestPage() {
       {confirmExit ? (
         <div className="fixed inset-0 z-100 grid place-items-center p-4">
           <button type="button" className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer" onClick={() => setConfirmExit(false)} aria-label="Cancel" />
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="confirm-exit-title" className="card-solid animate-modal-enter relative w-full max-w-sm shadow-xl">
-            <h2 id="confirm-exit-title" className="text-ink-900 dark:text-white text-lg font-bold text-balance">Leave the test?</h2>
-            <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">
-              Your answers are saved, but the section clock will stop and the attempt will not be scored. You can resume
-              from the mock test page.
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="confirm-exit-title" className="card-solid animate-modal-enter relative w-full max-w-sm">
+            <h2 id="confirm-exit-title" className="section-title">Leave the test?</h2>
+            <p className="text-ink-500 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">
+              Your answers are saved. If this is a timed section, its clock will keep running while you are away.
+              Resume from the mock setup or practice page to keep going.
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <button type="button" className="btn-secondary" onClick={() => setConfirmExit(false)}>

@@ -1,8 +1,13 @@
 import { Suspense, lazy, useEffect, type ReactNode } from 'react'
+import { MotionConfig } from 'motion/react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { CommandPalette } from './components/ui/CommandPalette'
+import { ToastProvider } from './components/ui/toast'
+import { CursorGlow } from './components/ui/cursor-glow'
+import { GrainOverlay } from './components/ui/grain-overlay'
+import { useMagneticControls } from './components/ui/useMagneticControls'
 import { RouteFallback } from './components/RouteFallback'
 import { useTest } from './store/useTest'
 import { useSettings } from './store/useSettings'
@@ -35,6 +40,8 @@ import Privacy from './pages/Privacy'
 import QuestionTypes from './pages/QuestionTypes'
 import QuestionTypePage from './pages/QuestionTypePage'
 import NotFound from './pages/NotFound'
+import UiElements from './pages/UiElements'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 const TestPage = lazy(() => import('./pages/TestPage'))
 const ResultPage = lazy(() => import('./pages/ResultPage'))
@@ -50,10 +57,11 @@ function TestRoute({ children }: { children?: ReactNode }) {
 
   if (!mock) return <Navigate to="/mock" replace />
   if (status === 'finished') return <Navigate to="/result" replace />
-  return <FullScreen>{children}</FullScreen>
+  return <div className="test-route min-h-dvh">{children}</div>
 }
 
 export default function App() {
+  useMagneticControls()
   const { settings } = useSettings()
   const checkSession = useAuth((s) => s.checkSession)
 
@@ -82,8 +90,32 @@ export default function App() {
 
     // Keep the browser chrome on the same ground as the page. Without a system
     // theme to fall back on, this is the only signal the address bar gets.
+    //
+    // Read the value off the rendered element rather than hardcoding it. This
+    // had drifted three ways: the inline script in index.html set #0d1117, this
+    // effect set #171b20, and the actual dark ground is --color-ink-900. Any of
+    // them being wrong paints an address bar that does not match the page, and
+    // the value changes whenever the palette does. Reading it means the theme
+    // colour is correct by construction.
+    //
+    // Emitted as hex rather than `rgb()`: the computed value is serialised as
+    // `rgb(r, g, b)`, which is a valid theme-color, but hex is what the
+    // pre-paint script in index.html writes and what the browser-check asserts
+    // against, so keeping the format identical avoids a spurious mismatch at
+    // the hydration boundary.
     const meta = document.querySelector('meta[name="theme-color"]')
-    if (meta) meta.setAttribute('content', dark ? '#171b20' : '#ffffff')
+    if (meta) {
+      const computed = getComputedStyle(document.body).backgroundColor
+      const asHex = computed.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/)
+      meta.setAttribute(
+        'content',
+        dark && asHex
+          ? `#${[asHex[1], asHex[2], asHex[3]]
+              .map((c) => Number(c).toString(16).padStart(2, '0'))
+              .join('')}`
+          : '#ffffff',
+      )
+    }
 
     const beforePrint = () => {
       document.documentElement.classList.remove('dark')
@@ -109,7 +141,20 @@ export default function App() {
     // in the tree — including a lazily loaded test route — resolves to a working
     // recovery page instead of a blank document.
     <ErrorBoundary>
-      <Suspense fallback={<RouteFallback />}>
+      {/* `reducedMotion="user"` is the JS-side half of the
+          reduced-motion story: the CSS blanket reset already
+          stills every CSS animation, and this stills the
+          transform/opacity animations that motion libraries
+          drive from JavaScript. */}
+      <MotionConfig reducedMotion="user">
+      <ToastProvider>
+        {/* Ambient layers: the cursor's pool of light and
+            the whisper of grain. Both are fixed, both are
+            decorative, and both sit under every interactive
+            layer (dialogs, toasts, the palette). */}
+        <CursorGlow />
+        <GrainOverlay />
+        <Suspense fallback={<RouteFallback />}>
         <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
@@ -125,6 +170,8 @@ export default function App() {
           <Route path="/privacy/" element={<Privacy />} />
           <Route path="/question-types/" element={<QuestionTypes />} />
           <Route path="/question-types/:slug/" element={<QuestionTypePage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
+          <Route path="/ui-elements" element={<UiElements />} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
@@ -147,6 +194,8 @@ export default function App() {
       </Routes>
       </Suspense>
       <CommandPalette />
+      </ToastProvider>
+      </MotionConfig>
     </ErrorBoundary>
   )
 }

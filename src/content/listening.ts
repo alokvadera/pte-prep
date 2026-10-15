@@ -56,6 +56,28 @@ import {
   EXTRA_MISSING_WORD_5,
   EXTRA_SITUATIONS_5,
 } from './listeningExtra5'
+import {
+  EXTRA_DICTATION_6,
+  EXTRA_MISSING_WORD_6,
+  EXTRA_HIGHLIGHT_INCORRECT_6,
+  EXTRA_LISTENING_FIB_6,
+  EXTRA_HIGHLIGHT_SUMMARY_6,
+  EXTRA_LISTENING_MCQ_SINGLE_6,
+  EXTRA_LISTENING_MCQ_MULTIPLE_6,
+  EXTRA_SITUATIONS_6,
+} from './listeningExtra6'
+import { EXTRA_CONVERSATIONS_6 } from './audioExtra4'
+import { EXTRA_CONVERSATIONS_7 } from './listeningExtra7'
+import {
+  EXTRA_DICTATION_8,
+  EXTRA_MISSING_WORD_8,
+  EXTRA_HIGHLIGHT_INCORRECT_8,
+  EXTRA_LISTENING_FIB_8,
+  EXTRA_HIGHLIGHT_SUMMARY_8,
+  EXTRA_LISTENING_MCQ_SINGLE_8,
+  EXTRA_LISTENING_MCQ_MULTI_8,
+  EXTRA_SITUATIONS_8,
+} from './listeningExtra8'
 
 // ---------------------------------------------------------------------------
 // Listening stimuli. Each conversation supports several item types, exactly as
@@ -269,6 +291,8 @@ export const CONVERSATIONS: AudioScript[] = [
   ...EXTRA_CONVERSATIONS_3,
   ...EXTRA_CONVERSATIONS_4,
   ...EXTRA_CONVERSATIONS_5,
+  ...EXTRA_CONVERSATIONS_6,
+  ...EXTRA_CONVERSATIONS_7,
 ]
 
 // ---------------------------------------------------------------------------
@@ -508,9 +532,18 @@ export const LISTENING_FIB: ListeningFibItem[] = [
   ...EXTRA_LISTENING_FIB,
   ...EXTRA_LISTENING_FIB_4,
   ...EXTRA_LISTENING_FIB_5,
+  ...EXTRA_LISTENING_FIB_6,
+  ...EXTRA_LISTENING_FIB_8,
 ]
 
-export const HIGHLIGHT_SUMMARY: HighlightSummaryItem[] = [...REBALANCED_HIGHLIGHT_SUMMARY, ...EXTRA_HIGHLIGHT_SUMMARY_3, ...EXTRA_HIGHLIGHT_SUMMARY_4, ...EXTRA_HIGHLIGHT_SUMMARY_5]
+export const HIGHLIGHT_SUMMARY: HighlightSummaryItem[] = [
+  ...REBALANCED_HIGHLIGHT_SUMMARY,
+  ...EXTRA_HIGHLIGHT_SUMMARY_3,
+  ...EXTRA_HIGHLIGHT_SUMMARY_4,
+  ...EXTRA_HIGHLIGHT_SUMMARY_5,
+  ...EXTRA_HIGHLIGHT_SUMMARY_6,
+  ...EXTRA_HIGHLIGHT_SUMMARY_8,
+]
 
 
 export const LISTENING_MCQ_SINGLE: ListeningMcqItem[] = [
@@ -575,6 +608,8 @@ export const LISTENING_MCQ_SINGLE: ListeningMcqItem[] = [
   ...EXTRA_LISTENING_MCQ_SINGLE_3,
   ...EXTRA_LISTENING_MCQ_SINGLE_4,
   ...EXTRA_LISTENING_MCQ_SINGLE_5,
+  ...EXTRA_LISTENING_MCQ_SINGLE_6,
+  ...EXTRA_LISTENING_MCQ_SINGLE_8,
 ]
 
 export const LISTENING_MCQ_MULTI: ListeningMcqItem[] = [
@@ -660,6 +695,8 @@ export const LISTENING_MCQ_MULTI: ListeningMcqItem[] = [
   ...EXTRA_LISTENING_MCQ_MULTI_3,
   ...EXTRA_LISTENING_MCQ_MULTI_4,
   ...EXTRA_LISTENING_MCQ_MULTI_5,
+  ...EXTRA_LISTENING_MCQ_MULTIPLE_6,
+  ...EXTRA_LISTENING_MCQ_MULTI_8,
 ]
 
 export const MISSING_WORD: MissingWordItem[] = [
@@ -719,6 +756,8 @@ export const MISSING_WORD: MissingWordItem[] = [
   ...EXTRA_MISSING_WORD_3,
   ...EXTRA_MISSING_WORD_4,
   ...EXTRA_MISSING_WORD_5,
+  ...EXTRA_MISSING_WORD_6,
+  ...EXTRA_MISSING_WORD_8,
 ]
 
 /**
@@ -784,6 +823,8 @@ export const HIGHLIGHT_INCORRECT: HighlightIncorrectItem[] = [
   ...EXTRA_HIGHLIGHT_INCORRECT_3,
   ...EXTRA_HIGHLIGHT_INCORRECT_4,
   ...EXTRA_HIGHLIGHT_INCORRECT_5,
+  ...EXTRA_HIGHLIGHT_INCORRECT_6,
+  ...EXTRA_HIGHLIGHT_INCORRECT_8,
 ]
 
 export const DICTATION: DictationItem[] = [
@@ -827,6 +868,8 @@ export const DICTATION: DictationItem[] = [
   ...EXTRA_DICTATION_3,
   ...EXTRA_DICTATION_4,
   ...EXTRA_DICTATION_5,
+  ...EXTRA_DICTATION_6,
+  ...EXTRA_DICTATION_8,
 ]
 
 // ---------------------------------------------------------------------------
@@ -883,4 +926,6 @@ export const SITUATIONS: SituationItem[] = [
   ...EXTRA_SITUATIONS_3,
   ...EXTRA_SITUATIONS_4,
   ...EXTRA_SITUATIONS_5,
+  ...EXTRA_SITUATIONS_6,
+  ...EXTRA_SITUATIONS_8,
 ]

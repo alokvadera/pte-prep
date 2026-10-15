@@ -636,10 +636,10 @@ for (const theme of ['light', 'dark']) {
   })()`)
   await sleep(80)
   const withText = await shootPng()
-  await evaluate("document.querySelector('main h1').style.visibility = 'hidden'; 1")
+  await evaluate("document.querySelector('main h1').style.color = 'transparent'; document.querySelectorAll('main h1 *').forEach(e => { e.style.color = 'transparent'; e.style.webkitTextFillColor = 'transparent'; }); 1")
   await sleep(80)
   const withoutText = await shootPng()
-  await evaluate("document.querySelector('main h1').style.visibility = ''; document.getElementById('motion-freeze')?.remove(); 1")
+  await evaluate("document.querySelector('main h1').style.color = ''; document.querySelectorAll('main h1 *').forEach(e => { e.style.color = ''; e.style.webkitTextFillColor = ''; }); document.getElementById('motion-freeze')?.remove(); 1")
 
   const c = glyphContrast(withText, withoutText, box)
   const label = c.min === Infinity ? 'n/a' : c.min.toFixed(2) + ':1'

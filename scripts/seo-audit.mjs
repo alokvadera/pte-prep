@@ -294,20 +294,15 @@ else if (!/width=device-width/.test(anyRecord.viewport)) add('Technical', 'Viewp
 }
 
 // --- 13. Progressive enhancement of animated content -----------------------
-// The tagline reveal mutates its own state in an effect, which never runs during
-// prerendering. If the server markup shipped the pre-animation state, crawlers
-// and anyone without JavaScript would read 25% opacity text.
+// The mockup's tagline is static highlighted text (no JS animation), so the
+// server markup ships the fully resolved state. Verify the hl highlight
+// pattern exists instead of the old word-reveal nodes.
 {
   const home = records.find((r) => r.route === '/')
   if (home) {
-    const words = [...home.html.matchAll(/data-reveal-word="\d+"[^>]*>/g)].map((m) => m[0])
-    if (words.length === 0) {
-      add('Progressive Enhancement', '/ has no tagline reveal words', 'Medium', '0 data-reveal-word nodes', 'Keep the B11 section on the home page')
-    } else {
-      const unresolved = words.filter((w) => !/data-active="true"/.test(w)).length
-      if (unresolved > 0) {
-        add('Progressive Enhancement', `${unresolved}/${words.length} tagline words ship un-resolved in the prerendered HTML`, 'High', 'data-active is not "true" in the built file', 'Render the resolved state in markup and mute only after mount')
-      }
+    const hasHighlight = home.html.includes('tagline-text') && home.html.includes('hl"')
+    if (!hasHighlight) {
+      add('Progressive Enhancement', '/ has no tagline highlight', 'Medium', '0 tagline-text/hl nodes', 'Keep the B11 section on the home page')
     }
   }
 }

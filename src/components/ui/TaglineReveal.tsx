@@ -72,7 +72,7 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
 
   return (
     <div ref={rootRef} className={cn('group relative', className)}>
-      <p className="font-display text-ink-900 dark:text-ink-50 max-w-[42rem] text-4xl leading-[1.2] tracking-[-0.015em] sm:text-5xl">
+      <p className="font-display text-ink-900 dark:text-ink-50 max-w-[42rem] text-4xl leading-[1.14] tracking-[-0.015em] sm:text-5xl">
         {lines.map((line) => (
           <span key={line} className="block">
             {line.split(' ').map((word) => {
@@ -82,7 +82,7 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
                   key={`${word}-${i}`}
                   data-reveal-word={i}
                   data-active="true"
-                  className="transition-[color] duration-700 ease-[cubic-bezier(0.32,0.72,0,1)] data-[active=false]:text-ink-900/25 dark:text-ink-50 data-[active=false]:dark:text-ink-50/25"
+                  className="transition-[color] duration-700 data-[active=false]:text-ink-900/25 dark:text-ink-50 data-[active=false]:dark:text-ink-50/25"
                 >
                   {word}
                   {' '}
@@ -99,7 +99,7 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
       <span
         aria-hidden="true"
         data-reveal-rule=""
-        className="bg-brand-500 mt-8 block h-px origin-left scale-x-100 transition-transform duration-[900ms] ease-[cubic-bezier(0.32,0.72,0,1)] data-[armed=true]:scale-x-0 data-[revealed=true]:scale-x-100"
+        className="bg-brand-500 mt-8 block h-px origin-left scale-x-100 transition-transform duration-[900ms] data-[armed=true]:scale-x-0 data-[revealed=true]:scale-x-100"
       />
     </div>
   )

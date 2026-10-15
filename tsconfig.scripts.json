@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2023",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -12,7 +14,10 @@
        that renders a component would be transformed with the classic runtime and
        fail on a missing React binding that the app itself never needs. */
     "jsx": "react-jsx",
-    "types": ["node", "vite/client"]
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["scripts/**/*.ts", "scripts/**/*.tsx", "src"]
 }

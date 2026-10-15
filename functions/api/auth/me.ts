@@ -93,6 +93,12 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
         headers: { 'Content-Type': 'application/json' },
       })
     }
+    if (body.newPassword.length > 128) {
+      return new Response(JSON.stringify({ error: 'Password is too long (max 128 characters).' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
     const { hash, salt } = await hashPassword(body.newPassword)
     await db
       .prepare('UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime("now") WHERE id = ?')

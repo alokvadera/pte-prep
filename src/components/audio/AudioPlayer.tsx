@@ -113,7 +113,7 @@ export function AudioPlayer({
   // previously consumed a replay, which silently stole attempts.
   useEffect(() => {
     if (state !== 'countdown') return
-    if (!script && !utterance) return
+    if (!script && !utterance && !audioId) return
     let n = leadIn
 
     const step = () => {
@@ -130,11 +130,11 @@ export function AudioPlayer({
 
     timerRef.current = window.setTimeout(step, 500)
     return () => clearTimer()
-  }, [state, leadIn, script, utterance, clearTimer])
+  }, [state, leadIn, script, utterance, audioId, clearTimer])
 
   useEffect(() => {
     if (state !== 'playing') return
-    if (!script && !utterance) return
+    if (!script && !utterance && !audioId) return
     let cancelled = false
     void (async () => {
       stopAllSpeech()
@@ -177,6 +177,97 @@ export function AudioPlayer({
           return
         }
       }
+      // Studio pre-rendered audio mode: if a pre-generated high-fidelity MP3/M4A exists, play it;
+      // otherwise, seamlessly fall back to client speech synthesis.
+      if (audioId) {
+        let fallbackTriggered = false
+        const runFallback = async () => {
+          if (fallbackTriggered || cancelled) return
+          fallbackTriggered = true
+          if (beepWord !== undefined && fromTurn !== undefined && script) {
+            const turn = script.turns[fromTurn]
+            const speaker = script.speakers.find((s) => s.id === turn?.speaker)
+            const words = (turn?.text ?? '').split(/\s+/).filter((w) => w.length > 0)
+            if (turn && beepWord >= 0 && beepWord < words.length) {
+              setTurnIndex(fromTurn)
+              const controller = await speakWithBeep(words.slice(0, beepWord).join(' '), words.slice(beepWord + 1).join(' '), {
+                rate: Number((1.02 * speed).toFixed(2)),
+                voiceHint: speaker?.voiceHint ?? 'mid',
+                onEnd: done,
+                onError: failed,
+              })
+              if (cancelled) controller.stop()
+              else controllerRef.current = controller
+              return
+            }
+          }
+          if (script) {
+            const controller = await speakScript(script, {
+              rate: Number((1.02 * speed).toFixed(2)),
+              fromTurn,
+              toTurn,
+              onTurnStart: (i) => setTurnIndex(i),
+              onEnd: done,
+              onError: failed,
+            })
+            if (cancelled) controller.stop()
+            else controllerRef.current = controller
+            return
+          }
+          if (utterance) {
+            setTurnIndex(0)
+            const controller = await speakText(utterance, {
+              rate: Number((1.02 * speed).toFixed(2)),
+              onEnd: done,
+              onError: failed,
+            })
+            if (cancelled) controller.stop()
+            else controllerRef.current = controller
+            return
+          }
+          failed()
+        }
+
+        try {
+          const audio = new Audio()
+          audio.playbackRate = speed
+
+          controllerRef.current = {
+            stop: () => {
+              audio.pause()
+              audio.currentTime = 0
+            },
+            speaking: true,
+          }
+
+          audio.onended = () => {
+            if (!cancelled) done()
+          }
+
+          const tryPlay = (sources: string[]) => {
+            const src = sources[0]
+            if (!src) {
+              void runFallback()
+              return
+            }
+            const rest = sources.slice(1)
+            audio.onerror = () => {
+              tryPlay(rest)
+            }
+            audio.src = src
+            audio.play().catch(() => {
+              tryPlay(rest)
+            })
+          }
+
+          tryPlay([`/audio/${audioId}.m4a`, `/audio/${audioId}.mp3`])
+          return
+        } catch {
+          void runFallback()
+          return
+        }
+      }
+
       const controller = await speakScript(script, {
         rate: Number((1.02 * speed).toFixed(2)),
         fromTurn,
@@ -191,13 +282,13 @@ export function AudioPlayer({
     return () => {
       cancelled = true
     }
-  }, [state, script, utterance, fromTurn, toTurn, beepWord, speed])
+  }, [state, script, utterance, audioId, fromTurn, toTurn, beepWord, speed])
 
-  if (!script && !utterance) return null
+  if (!script && !utterance && !audioId) return null
 
   const speaker = script?.speakers.find((s) => s.id === script.turns[turnIndex]?.speaker)
   const exhausted = playsLeft <= 0
-  const title = script?.title ?? (beepWord !== undefined ? 'Listen and select the missing word' : 'Listen and repeat the sentence')
+  const title = script?.title ?? (beepWord !== undefined ? 'Listen and select the missing word' : utterance ? 'Listen and repeat the sentence' : 'Audio recording')
 
   return (
     <div className={cn('card-solid', compact ? 'p-3' : 'p-4')}>
@@ -206,7 +297,7 @@ export function AudioPlayer({
           <p className="text-ink-900 dark:text-white truncate text-sm font-semibold">
             {state === 'playing' && speaker ? `${speaker.name}:` : title}
           </p>
-          <p className="text-ink-500 dark:text-ink-400 truncate text-xs">
+          <p className="text-ink-500 dark:text-ink-on-dark-muted truncate text-xs">
             {!script
               ? 'Single speaker'
               : script.speakers.length === 1
@@ -232,8 +323,8 @@ export function AudioPlayer({
                   className={cn(
                     'rounded px-1.5 py-0.5 font-mono text-micro font-semibold transition-colors disabled:opacity-50',
                     speed === s
-                      ? 'bg-white text-ink-900 shadow-xs dark:bg-ink-800 dark:text-white'
-                      : 'text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-100',
+                      ? 'bg-white text-ink-900 dark:bg-ink-800 dark:text-white'
+                      : 'text-ink-500 hover:text-ink-800 dark:text-ink-on-dark-muted dark:hover:text-ink-100',
                   )}
                 >
                   {s.toFixed(1)}×
@@ -258,7 +349,7 @@ export function AudioPlayer({
               }}
             >
               <PlayIcon />
-              {exhausted ? 'Played' : playsLeft > 1 ? `Play · ${playsLeft} left` : 'Play'}
+              {exhausted ? 'Played' : playsLeft > 1 ? `Play, ${playsLeft} left` : 'Play'}
             </button>
           ) : (
             <button type="button" className="btn-secondary" onClick={halt}>

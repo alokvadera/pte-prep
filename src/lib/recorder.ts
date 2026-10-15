@@ -105,6 +105,7 @@ export class VoiceRecorder {
   private state: RecorderState = 'idle'
   private startedAt = 0
   private energySamples: number[] = []
+  private peakLevel = 1e-5
   private silentFrames = 0
   private speechFrames = 0
   private pauses = 0
@@ -115,6 +116,8 @@ export class VoiceRecorder {
   private lastInterim = ''
   private events: RecorderEvents
   private stopping = false
+  private mediaRecorder: MediaRecorder | null = null
+  private audioChunks: Blob[] = []
 
   constructor(events: RecorderEvents = {}) {
     this.events = events
@@ -140,6 +143,7 @@ export class VoiceRecorder {
 
     this.setState('requesting')
     this.energySamples = []
+    this.peakLevel = 1e-5
     this.silentFrames = 0
     this.speechFrames = 0
     this.pauses = 0
@@ -181,6 +185,35 @@ export class VoiceRecorder {
     this.startedAt = performance.now()
     this.setState('recording')
     this.tick()
+
+    if (typeof MediaRecorder !== 'undefined' && this.stream) {
+      try {
+        const mimeCandidates = [
+          'audio/webm;codecs=opus',
+          'audio/webm',
+          'audio/mp4',
+          'audio/ogg;codecs=opus',
+          'audio/wav',
+        ]
+        const mimeType = mimeCandidates.find((m) => {
+          try {
+            return MediaRecorder.isTypeSupported(m)
+          } catch {
+            return false
+          }
+        })
+        this.mediaRecorder = mimeType ? new MediaRecorder(this.stream, { mimeType }) : new MediaRecorder(this.stream)
+        this.audioChunks = []
+        this.mediaRecorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            this.audioChunks.push(e.data)
+          }
+        }
+        this.mediaRecorder.start(250)
+      } catch {
+        this.mediaRecorder = null
+      }
+    }
 
     // Web Speech recognition gives us a transcript on Chrome/Edge. Safari and
     // Firefox do not, and the scorer degrades to acoustic-only in that case.
@@ -239,13 +272,18 @@ export class VoiceRecorder {
     if (this.energySamples.length >= 10_000) this.energySamples.shift()
     this.energySamples.push(rms)
 
-    const loudest = this.energySamples.reduce((m, x) => (x > m ? x : m), 1e-5)
+    // Running peak with slow decay instead of scanning the whole buffer every
+    // frame. A full reduce here is O(n) per animation frame and burns CPU on
+    // long recordings.
+    this.peakLevel = Math.max(rms, this.peakLevel * 0.9995, 1e-5)
+    const loudest = this.peakLevel
     const normalised = Math.min(1, rms / (loudest * 0.85))
     const speechiness = Math.min(1, Math.max(0, (normalised - SILENCE_RATIO) / (1 - SILENCE_RATIO)))
     this.events.onLevel?.({ level: normalised, speechiness })
 
     if (speechiness > 0.25) {
       this.speechFrames += 1
+      this.silentFrames = 0
       const pitch = detectPitch(buffer)
       if (pitch !== null) {
         this.pitchSum += pitch
@@ -263,10 +301,29 @@ export class VoiceRecorder {
     this.raf = requestAnimationFrame(this.tick)
   }
 
-  async stop(): Promise<{ analysis: AudioAnalysis; transcript: string }> {
+  async stop(): Promise<{ analysis: AudioAnalysis; transcript: string; audioBlob?: Blob | null }> {
     this.stopping = true
     if (this.raf) cancelAnimationFrame(this.raf)
     this.raf = 0
+
+    let audioBlob: Blob | null = null
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      await new Promise<void>((resolve) => {
+        if (!this.mediaRecorder) return resolve()
+        this.mediaRecorder.onstop = () => resolve()
+        try {
+          this.mediaRecorder.stop()
+        } catch {
+          resolve()
+        }
+      })
+      if (this.audioChunks.length > 0) {
+        const mime = this.mediaRecorder?.mimeType || 'audio/webm'
+        audioBlob = new Blob(this.audioChunks, { type: mime })
+      }
+    }
+    this.mediaRecorder = null
+    this.audioChunks = []
 
     try {
       this.recognition?.stop()
@@ -304,6 +361,12 @@ export class VoiceRecorder {
     const wordsPerMinute =
       durationMs > 0 && spokenWords > 0 ? Math.round((spokenWords / (durationMs / 60000)) * 10) / 10 : 0
 
+    // A 300ms accidental tap is not a measurement. Gate reliability on a
+    // minimum sample so fluency never reports confidence from noise.
+    const totalSamples = this.speechFrames + this.silentFrames
+    const reliable =
+      (this.state === 'recording' || this.stopping) && durationMs >= 1500 && totalSamples >= 10
+
     const analysis: AudioAnalysis = {
       durationMs: Math.round(durationMs),
       wordsPerMinute,
@@ -311,16 +374,25 @@ export class VoiceRecorder {
       pauseCount: this.pauses,
       meanPitchHz: meanPitch,
       energyVariance: Math.round(energyVariance * 100) / 100,
-      reliable: this.state === 'recording' || this.stopping,
+      reliable,
     }
 
     this.setState('idle')
-    return { analysis, transcript }
+    return { analysis, transcript, audioBlob }
   }
 
   dispose(): void {
     if (this.raf) cancelAnimationFrame(this.raf)
     this.raf = 0
+    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+      try {
+        this.mediaRecorder.stop()
+      } catch {
+        /* ignore */
+      }
+    }
+    this.mediaRecorder = null
+    this.audioChunks = []
     this.stream?.getTracks().forEach((t) => t.stop())
     this.stream = null
     void this.ctx?.close().catch(() => undefined)

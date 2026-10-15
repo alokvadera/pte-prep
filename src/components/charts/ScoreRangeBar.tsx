@@ -23,13 +23,24 @@ import { CEFR_BANDS, nextBand, scoreBand } from '../../domain/scoring'
 // is not.
 // ---------------------------------------------------------------------------
 
+/**
+ * Band fills, as class pairs.
+ *
+ * Each entry carries a light and a dark step because the score rail is a bar
+ * chart: a fill needs 3:1 against the ground (SC 1.4.11), and no single step
+ * clears it on both. The light steps are the deep ones; on the navy ground they
+ * drop to 2.4–3.0:1 and disappear, so dark steps up to the 300s.
+ *
+ * Ordered brightest-to-dimmest within a scheme so C2 → A1 still reads as a
+ * descending scale rather than as six unrelated hues.
+ */
 const BAND_COLOR: Record<string, string> = {
-  C2: 'bg-mint-400',
-  C1: 'bg-brand-400',
-  B2: 'bg-amber-brand',
-  B1: 'bg-amber-600/70',
-  A2: 'bg-rose-brand/70',
-  A1: 'bg-rose-brand/50',
+  C2: 'bg-mint-400 dark:bg-mint-300',
+  C1: 'bg-brand-600 dark:bg-brand-300',
+  B2: 'bg-amber-brand dark:bg-amber-300',
+  B1: 'bg-amber-600/80 dark:bg-amber-400/80',
+  A2: 'bg-rose-brand/80 dark:bg-rose-300/80',
+  A1: 'bg-rose-brand/60 dark:bg-rose-400/60',
 }
 
 /**
@@ -45,7 +56,7 @@ const BAND_EDGES: Array<{ band: string; from: number; to: number; color: string 
       band: b.band,
       from: b.min,
       to: above ? above.min - 1 : 90,
-      color: BAND_COLOR[b.band] ?? 'bg-ink-400',
+      color: BAND_COLOR[b.band] ?? 'bg-ink-400 dark:bg-ink-on-dark-faint',
     }
   })
 
@@ -104,14 +115,14 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
         ))}
         {/* The score, as a linear fill. */}
         <div
-          className={cn('absolute inset-y-0 left-0 rounded-full origin-left animate-bar-reveal transition-[width] duration-700 ease-out', current?.color ?? 'bg-brand-400')}
+          className={cn('absolute inset-y-0 left-0 rounded-full origin-left animate-bar-reveal transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]', current?.color ?? 'bg-brand-400')}
           style={{ width: `${pct}%` }}
           aria-hidden="true"
         />
         {/* A single hard marker rather than a segment, so the value is readable
             without relying on the fill colour. */}
         <div
-          className="absolute inset-y-0 w-0.5 bg-white ring-1 ring-black/35 dark:bg-white transition-[left] duration-700 ease-out"
+          className="absolute inset-y-0 w-0.5 bg-white ring-1 ring-black/35 dark:bg-white transition-[left] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
           style={{ left: `calc(${pct}% - 1px)` }}
           aria-hidden="true"
         />
@@ -138,22 +149,22 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
       ) : null}
 
       {/* Band edges along the track, and the current band called out once. */}
-      <div className="mt-2 flex justify-between gap-3 text-xs font-semibold text-ink-500 dark:text-ink-400 tabular-nums" aria-hidden="true">
+      <div className="mt-2 flex justify-between gap-3 text-xs font-semibold text-ink-500 dark:text-ink-on-dark-muted tabular-nums" aria-hidden="true">
         <span>10</span>
-        <span className="text-ink-700 dark:text-ink-300">{band}</span>
+        <span className="text-ink-700 dark:text-ink-on-dark">{band}</span>
         <span>90</span>
       </div>
 
       {current ? (
-        <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs">
-          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{clamped}</span> of 90 ·{' '}
+        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 text-xs">
+          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{clamped}</span> of 90 ,{' '}
           {band} runs {current.from}–{current.to}, so you are{' '}
           {Math.round(Math.max(0, current.to - clamped) * 10) / 10} point{Math.round(current.to - clamped) === 1 ? '' : 's'} short of{' '}
           {nextBand(band)?.band ?? 'the top of the scale'}.{''}
         </p>
       ) : null}
       {showRail && bounds ? (
-        <p className="text-ink-500 dark:text-ink-400 mt-3 max-w-prose text-xs">
+        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 max-w-prose text-xs">
           The same attempt could land between{' '}
           <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.low}</span> and{' '}
           <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.high}</span> if our 10–90
@@ -195,17 +206,17 @@ export function SkillBars({
               <span className="text-ink-700 dark:text-ink-200 font-medium">
                 <span className="capitalize">{skill}</span>
                 {isWeak ? (
-                  <span className="text-ink-500 dark:text-ink-400 ml-2 text-xs normal-case">work on this one</span>
+                  <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 text-xs normal-case">work on this one</span>
                 ) : null}
                 {isStrong && !isWeak ? (
-                  <span className="text-ink-500 dark:text-ink-400 ml-2 text-xs normal-case">strongest</span>
+                  <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 text-xs normal-case">strongest</span>
                 ) : null}
               </span>
               <span className="text-ink-900 dark:text-white font-bold tabular-nums">{value}</span>
             </div>
             <div className="bg-ink-200 dark:bg-white/10 h-2 w-full overflow-hidden rounded-full">
               <div
-                className={cn('h-full rounded-sm origin-left animate-bar-reveal transition-[width] duration-700 ease-out', isWeak ? 'bg-rose-brand' : 'bg-brand-500')}
+                className={cn('h-full rounded-sm origin-left animate-bar-reveal transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]', isWeak ? 'bg-rose-brand' : 'bg-brand-500')}
                 style={{ width: `${pct}%` }}
               />
             </div>

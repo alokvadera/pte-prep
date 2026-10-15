@@ -1,5 +1,5 @@
 import type { Env, UserRecord } from '../../types'
-import { createSessionToken, hashPassword, requireSecret, verifyPassword } from '../../lib/auth'
+import { createSessionToken, requireSecret, verifyPassword } from '../../lib/auth'
 
 interface ExtendedUserRecord extends UserRecord {
   password_hash: string | null

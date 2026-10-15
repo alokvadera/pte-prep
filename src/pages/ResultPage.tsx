@@ -12,9 +12,14 @@ import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
 import { Badge, Button, ButtonLink, Callout, Card, ProgressBar } from '../components/ui/primitives'
 import { SkillBars } from '../components/charts/ScoreRangeBar'
-import { CountUp } from '../components/ui/motion'
+import { CountUp, Reveal } from '../components/ui/motion'
+import { Tabs } from '../components/ui/tabs'
+import { ConfettiBurst } from '../components/ui/confetti'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useTest } from '../store/useTest'
 import { useSettings } from '../store/useSettings'
+import { useAuth } from '../store/useAuth'
+import { evaluateWithAi, type AiEvaluationResult } from '../lib/aiScorer'
 
 type Tab = 'overview' | 'pace' | 'by-type' | 'review'
 
@@ -29,6 +34,26 @@ export default function ResultPage() {
   const [attempt, setAttempt] = useState<AttemptRecord | null>(null)
   const [tab, setTab] = useState<Tab>('overview')
   const [filter, setFilter] = useState<'all' | 'lost'>('all')
+  const user = useAuth((s) => s.user)
+  // Clearing the target score earns one
+  // celebration: a confetti burst when the
+  // report first shows it.
+  const [celebrated, setCelebrated] = useState(false)
+  useEffect(() => {
+    if (celebrated || !attempt || loading) return
+    const target = user?.targetScore ?? 79
+    if (attempt.overallScore >= target) {
+      const t = window.setTimeout(() => setCelebrated(true), 1200)
+      return () => window.clearTimeout(t)
+    }
+  }, [attempt, loading, celebrated, user])
+
+  // The report renders outside the app shell, so the route
+  // change is announced by hand: focus moves to the report's
+  // main landmark when the page mounts.
+  useEffect(() => {
+    document.getElementById('main-content')?.focus({ preventScroll: true })
+  }, [])
 
   // Score once when runner reports test finished, or load stored attempt by query id.
   useEffect(() => {
@@ -139,8 +164,8 @@ export default function ResultPage() {
     return (
       <div className="grid min-h-dvh place-items-center px-4">
         <div className="text-center">
-          <span className="border-brand-500/25 border-t-brand-500 mx-auto block size-9 animate-spin rounded-full border-2" />
-          <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">Scoring your responses…</p>
+          <span className="border-ink-200 border-t-ink-900 dark:border-white/15 dark:border-t-ink-50 mx-auto block size-9 animate-spin rounded-full border-2" />
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-sm">Scoring your responses…</p>
         </div>
       </div>
     )
@@ -148,16 +173,27 @@ export default function ResultPage() {
 
   if (!attempt) {
     return (
-      <div className="route-inner min-h-dvh">
-        <div className="page-shell-empty">
-          <Card className="text-center">
-            <h1 className="text-ink-900 dark:text-white text-xl font-bold text-balance">No test result found</h1>
-            <p className="text-ink-500 dark:text-ink-400 mt-2 text-sm leading-relaxed">
-              There is no active test session or saved result with this ID on this device.
+      <div className="route-inner min-h-dvh flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card variant="solid" className="p-8 text-center shadow-lg">
+            <div className="mx-auto size-14 rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center mb-4 border border-amber-500/20">
+              <svg className="size-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <h1 className="font-display text-2xl font-extrabold text-balance text-ink-900 dark:text-white">
+              No test result found
+            </h1>
+            <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-sm leading-relaxed">
+              There is no active test session or saved score report with this ID on this device.
             </p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <ButtonLink to="/mock">Start a mock test</ButtonLink>
-              <ButtonLink to="/dashboard" variant="secondary">Go to dashboard</ButtonLink>
+              <ButtonLink to="/mock" magnetic>
+                Start a mock test
+              </ButtonLink>
+              <ButtonLink to="/dashboard" variant="secondary">
+                Go to dashboard
+              </ButtonLink>
             </div>
           </Card>
         </div>
@@ -177,11 +213,15 @@ export default function ResultPage() {
 
   const estimatedCount = details.filter((d) => d.maxPoints > 0 && isEstimated(d)).length
 
+  // The next drill should target the largest points gap, not merely the lowest
+  // percentage on a tiny type. This order matches the advice on the home page.
   const typeRows = Object.values(attempt.breakdown).sort((a, b) => {
-    const ra = a.maxPoints > 0 ? a.earnedPoints / a.maxPoints : 0
-    const rb = b.maxPoints > 0 ? b.earnedPoints / b.maxPoints : 0
-    return ra - rb
+    const lostA = Math.max(0, a.maxPoints - a.earnedPoints)
+    const lostB = Math.max(0, b.maxPoints - b.earnedPoints)
+    return lostB - lostA || b.maxPoints - a.maxPoints
   })
+  const focusType = typeRows.find((row) => row.maxPoints - row.earnedPoints > 0.01)
+  const focusPath = focusType ? `/practice?type=${focusType.type}` : '/practice'
 
   return (
     <>
@@ -189,16 +229,25 @@ export default function ResultPage() {
 
       <a
         href="#main-content"
-        className="bg-brand-500 focus:ring-brand-300 sr-only rounded-lg px-4 py-2 text-white focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100"
+        className="bg-brand-500 sr-only rounded-sm px-4 py-2 text-white focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100"
       >
         Skip to content
       </a>
 
-      <main id="main-content" className="route-inner min-h-dvh">
+      <main id="main-content" tabIndex={-1} className="route-inner min-h-dvh outline-none">
         <div className="page-shell-app animate-rise-in">
+        <div className="mb-6 no-print">
+          <Breadcrumbs
+            trail={[
+              { name: 'Home', path: '/' },
+              { name: 'Dashboard', path: '/dashboard' },
+              { name: 'Score report' },
+            ]}
+          />
+        </div>
+
         {/* Header */}
-        <header className="relative overflow-hidden rounded-md border border-ink-200 dark:border-white/10 bg-white/70 dark:bg-ink-900/60 backdrop-blur-xl shadow-sm mb-8">
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-500/5 to-transparent dark:from-brand-500/10" aria-hidden="true" />
+        <header className="relative overflow-hidden rounded-3xl border-2 border-ink-900/10 dark:border-white/10 bg-white dark:bg-ink-850 mb-8 shadow-sm">
           
           <div className="relative z-10 p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
             <div className="flex-1 text-center md:text-left">
@@ -206,13 +255,16 @@ export default function ResultPage() {
                 <Badge tone={attempt.overallIsEstimate ? 'mint' : 'brand'}>
                   {attempt.overallIsEstimate ? 'Estimated score' : 'Auto-scored'}
                 </Badge>
+                {settings.aiScoringEnabled && settings.groqApiKey ? (
+                  <Badge tone="mint">AI Examiner Active</Badge>
+                ) : null}
                 <Badge tone="neutral">{attempt.mockTitle}</Badge>
                 <Badge tone="neutral">{formatDuration(attempt.durationMs)}</Badge>
                 <button
                   type="button"
                   onClick={() => window.print()}
-                  className="btn-ghost no-print inline-flex items-center gap-1.5 py-1 px-3 rounded text-xs font-mono font-bold cursor-pointer ml-auto border border-ink-200 hover:bg-ink-100 dark:border-white/10 dark:hover:bg-white/5 transition-colors"
-                  title="Print or Save PDF Diagnostic Score Card"
+                  className="btn-ghost no-print ml-auto text-xs"
+                  title="Print or save this report as a PDF"
                 >
                   <svg viewBox="0 0 20 20" fill="currentColor" className="size-3.5" aria-hidden="true">
                     <path fillRule="evenodd" d="M5 2.75C5 2.06 5.56 1.5 6.25 1.5h7.5c.69 0 1.25.56 1.25 1.25v2.5H5v-2.5zM3.5 6.75A2.25 2.25 0 001.25 9v5.5A2.25 2.25 0 003.5 16.75h1.25v1.5c0 .69.56 1.25 1.25 1.25h8c.69 0 1.25-.56 1.25-1.25v-1.5h1.25A2.25 2.25 0 0018.75 14.5V9A2.25 2.25 0 0016.5 6.75H3.5zm2.75 8v3.25h7.5V14.75H6.25zM16 9.5a.75.75 0 11-1.5 0 .75.75 0 011.5 0z" clipRule="evenodd" />
@@ -220,34 +272,40 @@ export default function ResultPage() {
                   Export PDF
                 </button>
               </div>
-              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-ink-900 dark:text-white leading-[1.1]">
-                CEFR {attempt.cefr} <span className="text-brand-600 dark:text-brand-400">·</span> {cefrLabel(attempt.cefr)}
+              <h1 className="font-display text-ink-900 dark:text-ink-50 text-4xl leading-[1.1] font-extrabold tracking-tight sm:text-5xl">
+                CEFR {attempt.cefr}, {cefrLabel(attempt.cefr)}
               </h1>
-              <p className="mt-4 text-ink-500 dark:text-ink-300 text-base max-w-xl mx-auto md:mx-0 leading-relaxed">
+              <p className="mt-4 text-ink-500 dark:text-ink-on-dark text-base max-w-xl mx-auto md:mx-0 leading-relaxed">
                 You achieved <CountUp value={Math.round(accuracy * 100)} suffix="%" duration={1100} className="font-bold text-ink-900 dark:text-white" /> of the available points. 
-                Your weakest area is <span className="font-bold capitalize text-rose-600 dark:text-rose-400">{weakest?.skill ?? '—'}</span>, 
-                and your strongest is <span className="font-bold capitalize text-mint-600 dark:text-mint-400">{strongest?.skill ?? '—'}</span>.
+                Your weakest area is <span className="font-bold capitalize text-mark-600 dark:text-mark-300">{weakest?.skill ?? '—'}</span>, 
+                and your strongest is <span className="font-bold capitalize text-mint-700 dark:text-mint-400">{strongest?.skill ?? '—'}</span>.
               </p>
+              <div className="no-print mt-6 flex flex-wrap justify-center gap-3 md:justify-start">
+                <ButtonLink to={focusPath} magnetic>
+                  {focusType ? `Practice ${focusType.label}` : 'Browse practice drills'}
+                </ButtonLink>
+                <ButtonLink to="/dashboard" variant="secondary">See progress</ButtonLink>
+              </div>
             </div>
 
-            <div className="shrink-0 text-center md:text-right bg-white dark:bg-[#0d1117] p-8 rounded-md shadow-xs border border-ink-200 dark:border-white/10 w-full md:w-auto">
-              <div className="text-brand-600 dark:text-brand-400 font-mono text-7xl font-bold tabular-nums tracking-tighter leading-none mb-2">
+            <div className="bg-ink-50/70 dark:bg-ink-900/60 shrink-0 rounded-2xl border-2 border-ink-900/10 p-8 dark:border-white/10 md:w-auto md:text-right shadow-inner">
+              <div className="font-display text-ink-900 dark:text-ink-50 text-7xl font-extrabold tabular-nums tracking-tight leading-none mb-2">
                 <CountUp value={attempt.overallScore} duration={1300} />
               </div>
-              <div className="font-mono text-ink-500 dark:text-ink-400 text-xs font-semibold uppercase tracking-widest mb-3">Overall Score</div>
+              <div className="text-ink-500 dark:text-ink-on-dark-muted mb-3 text-xs font-bold">Overall score, 10 to 90</div>
               <div className="h-px bg-ink-200 dark:bg-white/10 w-full my-3"></div>
-              <p className="font-mono text-ink-600 dark:text-ink-300 text-xs font-medium">
-                <span className="font-bold text-ink-900 dark:text-white">{attempt.overallScore60}</span> / 120 (TOEFL scale)
+              <p className="text-ink-600 dark:text-ink-on-dark text-xs font-medium">
+                <span className="text-ink-900 dark:text-white font-bold">{attempt.overallScore60}</span> of 120 (TOEFL scale)
               </p>
             </div>
           </div>
         </header>
 
         {/* Skills, on one shared scale so the bars are actually comparable. */}
-        <div className="card mt-6">
+        <div className="card-solid mt-6 p-6 sm:p-8">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
-            <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">By skill</h2>
-            <p className="text-ink-500 dark:text-ink-400 text-xs">
+            <h2 className="font-display text-ink-900 dark:text-white text-base font-extrabold text-balance">By skill</h2>
+            <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
               Each item's points feed every skill it scores, so these overlap. Pearson does not publish
               per-skill scores, so these are our own.
             </p>
@@ -261,47 +319,47 @@ export default function ResultPage() {
           </div>
         </div>
 
-        <details className="card mt-6 no-print">
+        <details className="card-solid mt-6 p-6 sm:p-8 no-print">
           <summary className="text-ink-900 dark:text-white cursor-pointer list-none text-sm font-semibold [&::-webkit-details-marker]:hidden">
             How much of this number is exact?
           </summary>
           <div className="mt-4 grid gap-5 sm:grid-cols-2">
             <div>
-              <p className="text-ink-900 dark:text-white font-mono text-3xl font-bold tabular-nums tracking-[-0.02em]">
+              <p className="font-display text-3xl text-ink-900 tabular-nums dark:text-white">
                 {details.filter((d) => d.maxPoints > 0).length - estimatedCount}
-                <span className="text-ink-500 dark:text-ink-400 text-lg font-bold"> of {details.filter((d) => d.maxPoints > 0).length}</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted font-sans text-xl"> of {details.filter((d) => d.maxPoints > 0).length}</span>
               </p>
-              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
+              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm">
                 items scored exactly against an answer key. Multiple choice, fill in the blanks, re-order paragraphs and
                 highlight-the-incorrect-words are all deterministic, including partial credit per blank and the
                 one-point deduction for a wrong multi-select.
               </p>
             </div>
             <div>
-              <p className="text-ink-900 dark:text-white font-mono text-3xl font-bold tabular-nums tracking-[-0.02em]">
+              <p className="font-display text-3xl text-ink-900 tabular-nums dark:text-white">
                 {estimatedCount}
-                <span className="text-ink-500 dark:text-ink-400 text-lg font-bold"> estimated</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted font-sans text-xl"> estimated</span>
               </p>
-              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
+              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm">
                 speaking and writing responses, rated with a rubric over the same four constructs Pearson uses. Read
                 these as a band, not a number — and record with a microphone to narrow them.
               </p>
             </div>
           </div>
-          <p className="text-ink-500 dark:text-ink-400 mt-5 border-t pt-4 text-xs leading-relaxed">
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-5 border-t pt-4 text-xs leading-relaxed">
             Pearson produces the overall score with a single item-response-theory scaling, and states plainly that it is
             <em> not </em> an average of the four skill scores. Ours is computed from the same item points, which is the
             closest honest approximation available without their model. The four things Pearson does not publish — the
             Read Aloud error conversion, the trait weighting, the item-to-scale step, and per-skill CEFR bands — are
-            listed in full on the <Link to="/scoring" className="text-brand-500 dark:text-brand-300 underline">scoring page</Link>.
+            listed in full on the <Link to="/scoring" className="text-ink-900 dark:text-ink-50 underline underline-offset-2 transition-colors hover:text-mark-700 dark:hover:text-mark-300">scoring page</Link>.
           </p>
         </details>
 
         {/* Admission thresholds */}
-        <Card className="mt-6">
+        <Card variant="solid" className="mt-6 p-6 sm:p-8">
           <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">What this score means</h2>
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {ADMISSION_TARGETS.map((t) => {
+            {ADMISSION_TARGETS.map((t, i) => {
               // Three states, not two: inside the target band, above it, or short.
               const match = t.range.match(/(\d+)(?:–(\d+))?/)
               const lo = Number(match?.[1] ?? 0)
@@ -311,23 +369,23 @@ export default function ResultPage() {
               const exceeds = hi !== null && score > hi
               const state = inside ? 'met' : exceeds ? 'exceeded' : 'notMet'
               return (
-                <li
-                  key={t.label}
-                  className={cn(
-                    'flex items-start gap-3 rounded-lg border p-4',
-                    state === 'notMet'
-                      ? 'border-ink-200 dark:border-white/10'
-                      : state === 'met'
-                        ? 'border-mint-500/50 bg-mint-500/8'
-                        : 'border-mint-500/25',
-                  )}
+                <Reveal key={t.label} variant="up" delay={Math.min(i, 5) * 25} duration={500}>
+                  <li
+                    className={cn(
+                      'flex items-start gap-3 rounded-2xl border p-4',
+                      state === 'notMet'
+                        ? 'border-ink-200 dark:border-white/10'
+                        : state === 'met'
+                          ? 'border-mint-500/50 bg-mint-500/8 dark:border-emerald-500/30 dark:bg-emerald-500/10'
+                          : 'border-mint-500/25 dark:border-emerald-500/20',
+                    )}
                 >
                   <span
                     className={cn(
-                      'mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-micro font-bold',
+                      'mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-xs font-bold',
                       state === 'notMet'
-                        ? 'bg-ink-200 text-ink-500 dark:bg-white/10 dark:text-ink-400'
-                        : 'bg-mint-500 text-white',
+                        ? 'bg-ink-200 text-ink-500 dark:bg-white/10 dark:text-ink-on-dark-muted'
+                        : 'bg-mint-500 text-ink-900 dark:bg-emerald-600 dark:text-white',
                     )}
                     aria-hidden="true"
                   >
@@ -336,25 +394,34 @@ export default function ResultPage() {
                   <div className="min-w-0">
                     <p className="text-ink-900 dark:text-white text-sm font-semibold">
                       {t.label}{' '}
-                      <span className="text-ink-500 dark:text-ink-400 font-normal">· target {t.range}</span>
+                      <span className="text-ink-500 dark:text-ink-on-dark-muted font-normal">
+                        target {t.range}
+                      </span>
                       {state !== 'notMet' ? (
                         <span className="text-mint-700 dark:text-mint-300 ml-2 text-xs font-semibold">
                           {state === 'met' ? 'met' : 'exceeded'}
                         </span>
                       ) : null}
                     </p>
-                    <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs leading-relaxed">{t.note}</p>
+                    <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-xs leading-relaxed">{t.note}</p>
                   </div>
                 </li>
+              </Reveal>
               )
             })}
           </ul>
         </Card>
 
-        {/* Tabs */}
-        <div className="no-print mt-10 border-ink-200 dark:border-white/10 border-b">
-          <div className="-mb-px flex gap-1 overflow-x-auto" role="tablist">
-            {(
+        <ConfettiBurst fire={celebrated} />
+
+        {/* Tabs — the primitive owns the strip; the panels
+            below stay hand-rendered so printing captures
+            the whole report in one document. */}
+        <div className="no-print mt-10">
+          <Tabs
+            value={tab}
+            onChange={(v) => setTab(v as Tab)}
+            tabs={(
               [
                 ['overview', 'By question type'],
                 ['pace', 'Pace'],
@@ -367,51 +434,36 @@ export default function ResultPage() {
               // Untimed runs record durations but have no budget to judge them
               // against, so the tab stays hidden there too.
               .filter(([id]) => id !== 'pace' || (paceRows.length > 0 && !attempt?.untimed))
-              .map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={tab === id}
-                onClick={() => setTab(id)}
-                className={cn(
-                  'shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors',
-                  tab === id
-                    ? 'border-brand-500 text-brand-600 dark:text-brand-300'
-                    : 'text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-100',
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+              .map(([id, label]) => ({ id, label }))}
+          />
         </div>
 
-        <div key={tab} className="mt-6 animate-fade-in print:animate-none">
+        <div key={tab} id={`panel-${tab}`} role="tabpanel" aria-labelledby={`tab-${tab}`} className="mt-6 animate-tab-enter print:animate-none">
           {/* All sections render so printing captures the whole report; only
               the active tab shows on screen. */}
           <section className={cn(tab === 'overview' ? '' : 'hidden print:block')}>
-            <Card>
+            <Card variant="solid" className="p-6 sm:p-8">
               <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Accuracy by question type</h2>
-              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">Weakest first.</p>
+              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm">Most points lost first, so you can pick the drill with the biggest payoff.</p>
               <ul className="mt-5 space-y-3.5">
-                {typeRows.map((row) => {
+                {typeRows.map((row, i) => {
                   const ratio = row.maxPoints > 0 ? row.earnedPoints / row.maxPoints : 0
                   return (
-                    <li key={row.type}>
+                    <Reveal key={row.type} variant="up" delay={Math.min(i, 6) * 25} duration={500}>
+                      <li>
                       <div className="mb-1.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                         <span className="text-ink-800 dark:text-ink-100 text-sm font-medium">
                           {row.label}
-                          <span className="text-ink-500 dark:text-ink-400 ml-2 text-xs">
+                          <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 text-xs">
                             {row.correct}/{row.total} fully correct
                           </span>
                         </span>
                         <div className="flex items-center gap-3">
                           <Link
                             to={`/practice?type=${row.type}`}
-                            className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
+                            className="text-ink-900 dark:text-ink-50 hover:text-mark-700 dark:hover:text-mark-300 text-xs font-semibold hover:underline"
                           >
-                            Drill this type →
+                            Drill this type
                           </Link>
                           <span className="text-ink-900 dark:text-white text-sm font-bold tabular-nums">
                             {row.earnedPoints.toFixed(1)} / {row.maxPoints}
@@ -424,7 +476,8 @@ export default function ResultPage() {
                         tone={ratio >= 0.8 ? 'mint' : ratio >= 0.5 ? 'amber' : 'rose'}
                         label={row.label}
                       />
-                    </li>
+                      </li>
+                    </Reveal>
                   )
                 })}
               </ul>
@@ -432,9 +485,9 @@ export default function ResultPage() {
           </section>
 
           <section className={cn('print:mt-8', tab === 'pace' ? '' : 'hidden print:block')}>
-            <Card>
+            <Card variant="solid" className="p-6 sm:p-8">
               <h2 className="text-ink-900 dark:text-white text-base font-bold text-balance">Where your time went</h2>
-              <p className="text-ink-500 dark:text-ink-400 mt-1 text-sm">
+              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm">
                 Average time per item against what the real test allows. Overruns tend to concentrate in two or three
                 types rather than spread evenly.
                 {attempt.timeScale === undefined
@@ -461,7 +514,7 @@ export default function ResultPage() {
                   <li key={row.type} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
                     <div className="min-w-0">
                       <span className="text-ink-900 dark:text-white text-sm font-semibold">{row.label}</span>
-                      <span className="text-ink-500 dark:text-ink-400 ml-2 font-mono text-xs">{row.short}</span>
+                      <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 font-mono text-xs">{row.short}</span>
                     </div>
                     <div className="flex items-baseline gap-3">
                       <span className="text-ink-600 dark:text-ink-200 text-sm tabular-nums">
@@ -474,7 +527,7 @@ export default function ResultPage() {
                   </li>
                 ))}
               </ul>
-              <p className="text-ink-500 dark:text-ink-400 mt-5 text-xs leading-relaxed">
+              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-5 text-xs leading-relaxed">
                 Under budget is not automatically good. A repeat sentence finished in two seconds was probably not
                 understood, which the accuracy column will show. These items are individually timed in the real test,
                 so pace here changes the pressure you feel rather than the marks you earn directly.
@@ -487,12 +540,12 @@ export default function ResultPage() {
               {skills.map(({ skill, score }) => {
                 const types = typeRows.filter((r) => r.skill === skill)
                 return (
-                  <Card key={skill}>
+                  <Card key={skill} variant="solid" className="p-6 sm:p-8">
                     <div className="flex flex-wrap items-baseline justify-between gap-3">
                       <h2 className="text-ink-900 dark:text-white text-base font-bold capitalize text-balance">{skill}</h2>
-                      <p className="text-ink-500 dark:text-ink-400 text-sm">
+                      <p className="text-ink-500 dark:text-ink-on-dark-muted text-sm">
                         Estimated <span className="text-ink-900 dark:text-white font-bold tabular-nums">{score}</span> / 90
-                        {score >= 71 ? ' · C1 level' : score >= 46 ? ' · B2 level' : ' · below B2'}
+                        {score >= 71 ? ', C1 level' : score >= 46 ? ', B2 level' : ', below B2'}
                       </p>
                     </div>
                     <ul className="mt-4 space-y-3">
@@ -506,21 +559,21 @@ export default function ResultPage() {
                                 <p className="text-ink-800 dark:text-ink-100 text-sm font-medium">{row.label}</p>
                                 <Link
                                   to={`/practice?type=${row.type}`}
-                                  className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
+                                  className="text-ink-900 dark:text-ink-50 hover:text-mark-700 dark:hover:text-mark-300 text-xs font-semibold hover:underline"
                                 >
-                                  Drill →
+                                  Drill
                                 </Link>
                               </div>
-                              <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs leading-relaxed">{qm?.tip}</p>
+                              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-xs leading-relaxed">{qm?.tip}</p>
                             </div>
                             <span
                               className={cn(
                                 'shrink-0 text-sm font-bold tabular-nums',
                                 ratio >= 0.8
-                                  ? 'text-mint-600 dark:text-mint-300'
+                                  ? 'text-mint-700 dark:text-mint-300'
                                   : ratio >= 0.5
-                                    ? 'text-amber-600 dark:text-amber-300'
-                                    : 'text-rose-brand dark:text-rose-300',
+                                    ? 'text-amber-700 dark:text-amber-300'
+                                    : 'text-mark-600 dark:text-mark-300',
                               )}
                             >
                               {Math.round(ratio * 100)}%
@@ -540,28 +593,38 @@ export default function ResultPage() {
               <div className="mb-4 flex flex-wrap items-center gap-2">
                 <button
                   type="button"
-                  className={cn('btn-secondary text-sm', filter === 'all' && 'border-brand-500 text-brand-600 dark:text-brand-300')}
+                  className={cn(
+                    'rounded-full px-4 py-2 text-xs font-bold transition-all cursor-pointer border',
+                    filter === 'all'
+                      ? 'bg-mark-500 text-white border-mark-500 shadow-sm'
+                      : 'border-ink-200 bg-white text-ink-700 hover:border-mark-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-200',
+                  )}
                   onClick={() => setFilter('all')}
                 >
-                  All {details.length}
+                  All questions ({details.length})
                 </button>
                 <button
                   type="button"
-                  className={cn('btn-secondary text-sm', filter === 'lost' && 'border-amber-500 text-amber-600 dark:text-amber-300')}
+                  className={cn(
+                    'rounded-full px-4 py-2 text-xs font-bold transition-all cursor-pointer border',
+                    filter === 'lost'
+                      ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
+                      : 'border-ink-200 bg-white text-ink-700 hover:border-amber-400 dark:border-white/10 dark:bg-ink-800 dark:text-ink-200',
+                  )}
                   onClick={() => setFilter('lost')}
                 >
-                  Points lost {lost.length}
+                  Points lost ({lost.length})
                 </button>
               </div>
 
               {visibleDetails.length === 0 ? (
-                <Card>
+                <Card variant="solid" className="p-8 text-center">
                   <p className="text-ink-700 dark:text-ink-200 text-sm font-semibold">
                     {details.length === 0
                       ? 'Item-level answer review is available during an active test session'
                       : 'No questions match the current filter'}
                   </p>
-                  <p className="text-ink-500 dark:text-ink-400 mt-1.5 text-xs leading-relaxed">
+                  <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 text-xs leading-relaxed">
                     {details.length === 0
                       ? 'The full test score, CEFR band, and breakdown by question type are saved and visible in the tabs above.'
                       : 'Switch back to "All" to inspect all answered questions.'}
@@ -579,17 +642,14 @@ export default function ResultPage() {
         </div>
 
         <div className="no-print mt-10 flex flex-wrap gap-3">
-          <ButtonLink to="/mock" onClick={() => exit()}>
+          <ButtonLink to="/mock" magnetic onClick={() => exit()}>
             Take another mock
           </ButtonLink>
           <ButtonLink to="/dashboard" variant="secondary">
             See progress
           </ButtonLink>
-          <ButtonLink
-            to={typeRows[0] ? `/practice?type=${typeRows[0].type}` : '/practice'}
-            variant="secondary"
-          >
-            Practice weakest type{typeRows[0] ? ` (${typeRows[0].label})` : ''} →
+          <ButtonLink to={focusPath} variant="secondary">
+            {focusType ? `Practice ${focusType.label}` : 'Browse practice drills'}
           </ButtonLink>
           <Button
             variant="ghost"
@@ -628,8 +688,8 @@ function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
 
   return (
     <div>
-      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
-        Estimated traits · {meta.traits.join(', ')}
+      <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
+        Estimated traits, {meta.traits.join(', ')}
       </p>
       <ul className="mt-2 space-y-2">
         {shown.map(([label, value, max]) => {
@@ -637,17 +697,17 @@ function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
           return (
             <li key={label}>
               <div className="flex items-baseline justify-between text-xs">
-                <span className="text-ink-600 dark:text-ink-300">{label}</span>
+                <span className="text-ink-600 dark:text-ink-on-dark">{label}</span>
                 <span className="text-ink-900 dark:text-white font-semibold tabular-nums">
                   {pct >= 0.85 ? 'band top' : pct >= 0.6 ? 'band middle' : pct >= 0.3 ? 'band low' : 'band 0'}
-                  {max ? <span className="text-ink-500 dark:text-ink-400 font-normal"> of {max}</span> : null}
+                  {max ? <span className="text-ink-500 dark:text-ink-on-dark-muted font-normal"> of {max}</span> : null}
                 </span>
               </div>
-              <div className="bg-ink-200 dark:bg-white/10 mt-1 h-1.5 w-full overflow-hidden rounded-full">
+              <div className="bg-ink-200 dark:bg-white/10 mt-1 h-1.5 w-full overflow-hidden">
                 <div
                   className={cn(
-                    'h-full rounded-full',
-                    pct >= 0.6 ? 'bg-mint-500' : pct >= 0.3 ? 'bg-amber-500' : 'bg-rose-brand',
+                    'h-full',
+                    pct >= 0.6 ? 'bg-mint-500' : pct >= 0.3 ? 'bg-amber-500' : 'bg-mark-600',
                   )}
                   style={{ width: `${Math.max(2, pct * 100)}%` }}
                 />
@@ -656,7 +716,7 @@ function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
           )
         })}
       </ul>
-      <p className="text-ink-500 dark:text-ink-400 mt-2 text-xs">
+      <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-xs">
         Pearson scores these traits with a model it does not publish, so these bands are estimates. The published
         0–{maxOf(detail)} scale for each trait is what the bands are read against.
       </p>
@@ -676,26 +736,27 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
   const qm = QUESTION_META[detail.type]
   const [open, setOpen] = useState(false)
   const ratio = detail.maxPoints > 0 ? detail.points / detail.maxPoints : 0
+  const candidateText = (response?.text as string | undefined) || (response?.transcript as string | undefined) || ''
 
   return (
     <li
       className={cn(
-        'card overflow-hidden p-0',
-        detail.status === 'correct' && 'border-mint-500/40',
-        detail.status === 'partial' && 'border-amber-500/40',
-        detail.status === 'incorrect' && 'border-rose-brand/40',
+        'card-solid overflow-hidden p-0 transition-all',
+        detail.status === 'correct' && 'border-mint-500/40 hover:border-mint-500/60',
+        detail.status === 'partial' && 'border-amber-500/40 hover:border-amber-500/60',
+        detail.status === 'incorrect' && 'border-rose-brand/40 hover:border-rose-brand/60',
       )}
     >
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full cursor-pointer items-center gap-4 p-4 text-left"
+        className="flex w-full cursor-pointer items-center gap-4 p-5 text-left transition-colors hover:bg-ink-100/50 dark:hover:bg-white/4"
         aria-expanded={open}
       >
         <span
           className={cn(
-            'grid size-9 shrink-0 place-items-center rounded-lg text-xs font-bold',
-            detail.status === 'correct' && 'bg-mint-500/15 text-mint-600 dark:text-mint-300',
+            'grid size-10 shrink-0 place-items-center rounded-xl text-sm font-bold',
+            detail.status === 'correct' && 'bg-mint-500/15 text-mint-700 dark:text-mint-300',
             detail.status === 'partial' && 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
             detail.status === 'incorrect' && 'bg-rose-brand/15 text-rose-brand dark:text-rose-300',
           )}
@@ -704,8 +765,8 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
           {detail.status === 'correct' ? '✓' : detail.status === 'partial' ? '~' : '✕'}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="text-ink-900 dark:text-white block text-sm font-semibold">{detail.label}</span>
-          <span className="text-ink-500 dark:text-ink-400 block text-xs capitalize">{detail.skills.join(' + ')}</span>
+          <span className="text-ink-900 dark:text-white block text-sm font-bold">{detail.label}</span>
+          <span className="text-ink-500 dark:text-ink-on-dark-muted block text-xs capitalize mt-0.5">{detail.skills.join(' + ')}</span>
         </span>
         <span className="text-ink-900 dark:text-white shrink-0 text-sm font-bold tabular-nums">
           {detail.points.toFixed(1)} / {detail.maxPoints}
@@ -717,7 +778,7 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
           {detail.notes.length > 0 ? (
             <ul className="space-y-1.5">
               {detail.notes.map((n, i) => (
-                <li key={i} className="text-ink-600 dark:text-ink-300 flex gap-2 text-sm leading-relaxed">
+                <li key={i} className="text-ink-600 dark:text-ink-on-dark flex gap-2 text-sm leading-relaxed">
                   <span className="text-amber-500 dark:text-amber-300 mt-0.5 shrink-0" aria-hidden="true">
                     •
                   </span>
@@ -726,11 +787,11 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
               ))}
             </ul>
           ) : (
-            <p className="text-mint-600 dark:text-mint-300 text-sm">Full marks on this item.</p>
+            <p className="text-mint-700 dark:text-mint-300 text-sm">Full marks on this item.</p>
           )}
 
           {detail.gated ? (
-            <p className="rounded-lg border border-rose-brand/40 bg-rose-brand/8 p-3 text-sm dark:bg-rose-brand/15">
+            <p className="rounded-md border border-rose-brand/40 bg-rose-brand/8 p-3 text-sm dark:bg-rose-brand/15">
               <span className="text-rose-brand dark:text-rose-300 font-semibold">Zeroed by the score guide.</span> When Content or Form
               scores 0, no points are awarded for the item, however the other traits scored.
             </p>
@@ -742,32 +803,36 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
 
           {detail.reference ? (
             <div>
-              <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
+              <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
                 {isEstimated(detail) ? 'Model answer' : 'Answer key'}
               </p>
-              <p className="passage bg-ink-100 dark:bg-white/5 border border-ink-200/60 dark:border-white/10 mt-1.5 rounded-lg p-3 text-sm">{detail.reference}</p>
+              <p className="passage bg-ink-100 dark:bg-white/5 border border-ink-200/60 dark:border-white/10 mt-1.5 rounded-md p-3 text-sm">{detail.reference}</p>
             </div>
           ) : null}
 
           {response ? <ResponseEcho detail={detail} response={response} /> : null}
 
+          {isEstimated(detail) && candidateText.trim().length > 0 ? (
+            <AiExaminerReview detail={detail} candidateText={candidateText} />
+          ) : null}
+
           {qm?.tip ? (
-            <p className="text-brand-500 dark:text-brand-300 border-brand-500/25 border-t pt-3 text-sm leading-relaxed">
-              <span className="font-bold">Tip · </span>
+            <p className="text-ink-700 dark:text-ink-200 border-ink-200 dark:border-white/10 border-t pt-3 text-sm leading-relaxed">
+              <span className="font-bold">Tip, </span>
               {qm.tip}
             </p>
           ) : null}
 
           {ratio >= 0.999 ? null : (
             <div className="flex flex-wrap items-center justify-between gap-2 border-t border-ink-100 pt-3 dark:border-white/10">
-              <p className="text-ink-500 dark:text-ink-400 text-xs">
+              <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
                 Estimated traits: content {Math.round(ratio * 100)}% of the available credit.
               </p>
               <Link
                 to={`/practice?type=${detail.type}`}
-                className="text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 text-xs font-semibold hover:underline"
+                className="text-ink-900 dark:text-ink-50 hover:text-mark-700 dark:hover:text-mark-300 text-xs font-semibold hover:underline"
               >
-                Drill {detail.label} →
+                Drill {detail.label}
               </Link>
             </div>
           )}
@@ -782,15 +847,15 @@ function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response:
   const choice = response.choice as string | undefined
   if (choice) lines.push(`Your answer: ${choice}`)
   const choices = response.choices as string[] | undefined
-  if (choices && choices.length) lines.push(`Your answers: ${choices.join(' · ')}`)
+  if (choices && choices.length) lines.push(`Your answers: ${choices.join(', ')}`)
   const blanks = response.blanks as Array<string | null> | undefined
-  if (blanks) lines.push(`Your answers: ${blanks.map((b, i) => b || `(blank ${i + 1})`).join(' · ')}`)
+  if (blanks) lines.push(`Your answers: ${blanks.map((b, i) => b || `(blank ${i + 1})`).join(', ')}`)
   const order = response.order as string[] | undefined
   if (order) lines.push(`Your order: ${order.join(' → ')}`)
   const highlighted = response.highlighted as number[] | undefined
   const tokens = detail.tokens
   if (highlighted && highlighted.length > 0) {
-    lines.push(`You highlighted: ${highlighted.map((i) => (tokens?.[i] ? `“${tokens[i]}”` : `#${i + 1}`)).join(' · ')}`)
+    lines.push(`You highlighted: ${highlighted.map((i) => (tokens?.[i] ? `“${tokens[i]}”` : `#${i + 1}`)).join(', ')}`)
   }
   const text = response.text as string | undefined
   if (text) lines.push(`You wrote: ${text}`)
@@ -801,14 +866,191 @@ function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response:
 
   return (
     <div>
-      <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">What you gave</p>
+      <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">What you gave</p>
       <ul className="mt-1.5 space-y-1.5">
         {lines.map((l, i) => (
-          <li key={i} className="text-ink-600 dark:text-ink-300 min-w-0 text-sm leading-relaxed break-words">
+          <li key={i} className="text-ink-600 dark:text-ink-on-dark min-w-0 text-sm leading-relaxed break-words">
             {l}
           </li>
         ))}
       </ul>
+    </div>
+  )
+}
+
+function AiExaminerReview({
+  detail,
+  candidateText,
+}: {
+  detail: ItemScoreDetail
+  candidateText: string
+}) {
+  const { settings, set } = useSettings()
+  const [evaluating, setEvaluating] = useState(false)
+  const [result, setResult] = useState<AiEvaluationResult | null>(null)
+  const [error, setError] = useState<string | null>(null)
+  const [quickKey, setQuickKey] = useState('')
+  const [showKeyPrompt, setShowKeyPrompt] = useState(false)
+
+  const handleEvaluate = async (apiKeyToUse?: string) => {
+    const key = (apiKeyToUse || settings.groqApiKey || '').trim()
+    if (!key) {
+      setShowKeyPrompt(true)
+      return
+    }
+    setEvaluating(true)
+    setError(null)
+    try {
+      const res = await evaluateWithAi(
+        { id: detail.itemId, type: detail.type },
+        detail.reference,
+        candidateText,
+        key,
+      )
+      if (res) {
+        setResult(res)
+      } else {
+        setError('Evaluation failed. Please verify your Groq API key.')
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Evaluation error')
+    } finally {
+      setEvaluating(false)
+    }
+  }
+
+  const handleSaveQuickKey = (e: React.FormEvent) => {
+    e.preventDefault()
+    const trimmed = quickKey.trim()
+    if (!trimmed) return
+    set('groqApiKey', trimmed)
+    set('aiScoringEnabled', true)
+    setShowKeyPrompt(false)
+    void handleEvaluate(trimmed)
+  }
+
+  return (
+    <div className="rounded-xl border border-brand-500/20 bg-brand-500/5 p-4 dark:border-brand-500/30 dark:bg-brand-500/10 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-700 dark:text-brand-300">
+            AI Examiner (Groq BYOK)
+          </span>
+          <Badge tone={result ? 'mint' : 'neutral'}>
+            {result ? `${result.rawScore}/${result.maxScore} pts (Deterministic)` : 'Deterministic Rubric'}
+          </Badge>
+        </div>
+        {!result && (
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            disabled={evaluating}
+            onClick={() => handleEvaluate()}
+            className="text-xs font-semibold"
+          >
+            {evaluating ? 'Grading against Pearson rubrics...' : '⚡ Grade with AI Examiner'}
+          </Button>
+        )}
+      </div>
+
+      {showKeyPrompt && !result && (
+        <form onSubmit={handleSaveQuickKey} className="pt-2 border-t border-brand-500/20 space-y-2">
+          <p id="groq-key-hint" className="text-xs text-ink-600 dark:text-ink-on-dark leading-relaxed">
+            Provide your free Groq API key to unlock deterministic Pearson rubric grading. 100% in-browser, stored in localStorage.
+          </p>
+          <label
+            htmlFor="groq-quick-key"
+            className="block text-xs font-bold text-ink-700 dark:text-ink-200"
+          >
+            Groq API key
+          </label>
+          <div className="flex gap-2">
+            <input
+              id="groq-quick-key"
+              type="password"
+              placeholder="Paste gsk_... key"
+              value={quickKey}
+              onChange={(e) => setQuickKey(e.target.value)}
+              aria-describedby={error ? 'groq-key-hint groq-key-error' : 'groq-key-hint'}
+              aria-invalid={error ? 'true' : undefined}
+              className="flex-1 rounded-lg border border-ink-300 dark:border-white/10 bg-white dark:bg-ink-900 px-3 py-1.5 text-xs font-mono text-ink-900 dark:text-ink-100 placeholder:text-ink-500 dark:placeholder:text-ink-on-dark-muted"
+              autoComplete="off"
+              spellCheck="false"
+            />
+            <Button type="submit" size="sm" className="text-xs shrink-0">
+              Save & Score
+            </Button>
+          </div>
+          <a
+            href="https://console.groq.com/keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] text-brand-600 dark:text-brand-400 hover:underline inline-block font-medium"
+          >
+            Get a free Groq key at console.groq.com →
+          </a>
+        </form>
+      )}
+
+      {error && (
+        <p key={error} id="groq-key-error" className="animate-error-nudge text-xs font-medium text-rose-600 dark:text-rose-400">{error}</p>
+      )}
+
+      {result && (
+        <div className="space-y-3 pt-2 border-t border-brand-500/20">
+          <div>
+            <p className="text-ink-600 dark:text-ink-on-dark-muted text-xs font-semibold">
+              AI Trait Breakdown (Pearson Rubric)
+            </p>
+            <div className="mt-2 grid grid-cols-2 sm:grid-cols-3 gap-2">
+              {Object.entries(result.traits).map(([trait, score]) => {
+                if (typeof score !== 'number') return null
+                const pct = Math.round(score * 100)
+                return (
+                  <div key={trait} className="rounded-lg bg-white/60 dark:bg-white/5 border border-ink-200/50 dark:border-white/10 p-2 text-xs">
+                    <div className="flex justify-between items-baseline mb-1">
+                      <span className="capitalize text-ink-700 dark:text-ink-200 font-medium">{trait}</span>
+                      <span className="font-bold tabular-nums text-ink-900 dark:text-white">{pct}%</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-ink-200 dark:bg-white/10 rounded-full overflow-hidden">
+                      <div
+                        className={cn('h-full rounded-full', pct >= 70 ? 'bg-mint-500' : pct >= 40 ? 'bg-amber-500' : 'bg-rose-500')}
+                        style={{ width: `${Math.max(4, pct)}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {result.feedback.length > 0 && (
+            <div>
+              <p className="text-ink-600 dark:text-ink-on-dark-muted text-xs font-semibold">Examiner Feedback</p>
+              <ul className="mt-1 space-y-1">
+                {result.feedback.map((point, i) => (
+                  <li key={i} className="text-xs text-ink-700 dark:text-ink-200 flex items-start gap-1.5">
+                    <span className="text-brand-500 mt-0.5">•</span>
+                    <span>{point}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {result.suggestedRewrittenEssay && (
+            <div>
+              <p className="text-ink-600 dark:text-ink-on-dark-muted text-xs font-semibold">
+                Band 90 Model Response (Based on Your Arguments)
+              </p>
+              <p className="mt-1.5 text-xs text-ink-800 dark:text-ink-100 bg-white/80 dark:bg-white/5 border border-ink-200 dark:border-white/10 rounded-lg p-3 font-serif leading-relaxed italic">
+                “{result.suggestedRewrittenEssay}”
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

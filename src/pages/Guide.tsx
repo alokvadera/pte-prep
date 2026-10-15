@@ -91,7 +91,7 @@ Overall, the lecture provides crucial insights into [Main Topic / Final Summary 
     title: 'Academic Essay (4-Paragraph Balanced Framework)',
     targetType: 'Write Essay',
     drillPath: '/practice?type=write-essay',
-    timeLimit: '20 minutes · Aim for 220–260 words',
+    timeLimit: '20 minutes, Aim for 220–260 words',
     rationale: 'Guarantees maximum Form (2/2), Structure & Coherence (6/6), and Grammar (2/2). Four clear paragraphs with formal discourse markers satisfy human and automated grading.',
     templateText: `[Paragraph 1 - Introduction]
 In contemporary society, the debate surrounding whether [Topic / Question Statement] has garnered considerable attention. While some argue that [Perspective A], others maintain that [Perspective B]. In this essay, I will analyze both viewpoints before presenting my own reasoned perspective.
@@ -110,7 +110,7 @@ In conclusion, although valid arguments can be made for both sides, I firmly bel
     title: 'Summarize Spoken Text (50–70 Words Exact)',
     targetType: 'Summarize Spoken Text',
     drillPath: '/practice?type=summarize-spoken-text',
-    timeLimit: '10 minutes · 50–70 words',
+    timeLimit: '10 minutes, 50–70 words',
     rationale: 'Form score requires strictly 50 to 70 words. Exceeding 70 words or falling below 50 zeroes Form. This compact compound structure ensures exact length and high content keyword density.',
     templateText: `The lecture provided insightful information regarding [Main Topic]. The speaker initially highlighted that [Key Point 1]. Subsequently, the discussion focused on the role of [Key Point 2] and demonstrated the significance of [Key Point 3]. Ultimately, the speaker concluded by emphasizing that [Key Point 4].`,
   },
@@ -170,8 +170,8 @@ function TemplateCard({ item }: { item: StrategyTemplate }) {
     <div className="card-solid">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro">
-            {item.targetType} · {item.timeLimit}
+          <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 text-xs">
+            {item.targetType}, {item.timeLimit}
           </span>
           <h3 className="text-ink-900 dark:text-white mt-1.5 text-base font-bold">{item.title}</h3>
         </div>
@@ -180,17 +180,17 @@ function TemplateCard({ item }: { item: StrategyTemplate }) {
             {copied ? 'Copied ✓' : 'Copy template'}
           </Button>
           <ButtonLink to={item.drillPath} variant="ghost" className="text-xs">
-            Drill →
+            Drill
           </ButtonLink>
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg bg-ink-900 p-4 text-ink-100 font-mono text-xs leading-relaxed overflow-x-auto selection:bg-brand-500/40">
-        <pre className="whitespace-pre-wrap font-mono">{item.templateText}</pre>
+      <div className="mt-4 rounded-md bg-ink-900 p-4 text-ink-100 text-xs leading-relaxed overflow-x-auto selection:bg-brand-500/40">
+        <pre className="whitespace-pre-wrap font-sans">{item.templateText}</pre>
       </div>
 
-      <p className="mt-3 text-xs text-ink-500 dark:text-ink-400 leading-relaxed">
-        <span className="font-semibold text-mint-600 dark:text-mint-300">Why it works:</span> {item.rationale}
+      <p className="mt-3 text-xs text-ink-500 dark:text-ink-on-dark-muted leading-relaxed">
+        <span className="font-semibold text-mint-700 dark:text-mint-300">Why it works:</span> {item.rationale}
       </p>
     </div>
   )
@@ -207,21 +207,39 @@ export default function Guide() {
         title="PTE strategies that move the score."
         description={<>Most advice is generic. Start with the changes that return the most marks, then explore techniques for all 22 types in the <Link to="/question-types/" className="link-inline">question type guide</Link>.</>}
       >
-        <div className="-mt-4 mb-8 flex flex-wrap gap-2">
-          <a href="#high-impact" className="btn-secondary px-3 py-1.5 text-xs">
-            5 Highest-impact changes
+        <div className="-mt-4 mb-8 flex flex-wrap gap-2.5">
+          <a
+            href="#high-impact"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
+          >
+            <span className="size-2 rounded-full bg-emerald-500" />
+            <span>5 Highest-impact changes</span>
           </a>
-          <a href="#templates" className="btn-secondary px-3 py-1.5 text-xs">
-            Proven 2025/2026 templates
+          <a
+            href="#templates"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
+          >
+            <span className="size-2 rounded-full bg-amber-500" />
+            <span>Proven 2025/2026 templates</span>
           </a>
-          <a href="#collocations" className="btn-secondary px-3 py-1.5 text-xs">
-            Academic collocations (FIB)
+          <a
+            href="#collocations"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
+          >
+            <span className="size-2 rounded-full bg-purple-500" />
+            <span>Academic collocations (FIB)</span>
           </a>
-          <a href="#by-type" className="btn-secondary px-3 py-1.5 text-xs">
-            Technique by type
+          <a
+            href="#by-type"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
+          >
+            <span>Technique by type</span>
           </a>
-          <a href="#study-plan" className="btn-secondary px-3 py-1.5 text-xs">
-            4-Week study plan
+          <a
+            href="#study-plan"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
+          >
+            <span>4-Week study plan</span>
           </a>
         </div>
 
@@ -255,13 +273,13 @@ export default function Guide() {
             },
           ].map((item, i) => (
             <Reveal as="li" key={item.title} delay={Math.min(i, 4) * 70} className="flex">
-              <article className="card flex w-full gap-4">
-              <span className="bg-mint-500 text-white grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold">
+              <article className="card-solid flex w-full gap-4 p-5 sm:p-6 border-ink-200 dark:border-white/10">
+              <span className="bg-mint-500 text-ink-900 grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold shadow-xs">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
                 <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{item.title}</h3>
-                <p className="text-ink-500 dark:text-ink-300 mt-1.5 text-sm leading-relaxed">{item.body}</p>
+                <p className="text-ink-500 dark:text-ink-on-dark mt-1.5 text-sm leading-relaxed">{item.body}</p>
               </div>
               </article>
             </Reveal>
@@ -271,12 +289,12 @@ export default function Guide() {
         <div id="templates" className="mt-16 scroll-mt-24">
           <div className="flex flex-wrap items-baseline justify-between gap-4">
             <div>
-              <span className="pill bg-mint-500/10 text-mint-700 dark:text-mint-300 font-mono text-micro uppercase tracking-wider">
+              <span className="pill bg-mint-500/10 text-mint-700 dark:text-mint-300 text-xs font-bold">
                 Exam-proven frameworks
               </span>
               <SectionHeading className="mt-2 mb-0" eyebrow="Frameworks" title="Proven 2025/2026 Strategy Templates" />
             </div>
-            <p className="text-ink-500 dark:text-ink-400 max-w-md text-xs leading-relaxed">
+            <p className="text-ink-500 dark:text-ink-on-dark-muted max-w-md text-xs leading-relaxed">
               Safe structures that hit Pearson content keywords and maintain oral fluency without triggering template penalties.
             </p>
           </div>
@@ -295,16 +313,16 @@ export default function Guide() {
         <div id="collocations" className="mt-16 scroll-mt-24">
           <div className="flex flex-wrap items-baseline justify-between gap-4">
             <div>
-              <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro uppercase tracking-wider">
+              <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 text-xs font-bold">
                 Vocabulary booster
               </span>
               <SectionHeading className="mt-2 mb-0" eyebrow="Vocabulary" title="Academic Collocations (Fill in the Blanks)" />
             </div>
             <Link to="/practice?type=fill-in-blanks-dropdown" className="text-brand-600 dark:text-brand-300 -m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-xs font-semibold hover:underline">
-              Practice FIB dropdowns →
+              Practice FIB dropdowns
             </Link>
           </div>
-          <p className="text-ink-500 dark:text-ink-400 mt-2 text-sm leading-relaxed">
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-sm leading-relaxed">
             Over 70% of blanks in Reading & Writing FIB test collocations from the Pearson Academic Collocation List (ACL). Memorize these common word partnerships:
           </p>
 
@@ -314,9 +332,9 @@ export default function Guide() {
               <div className="card-solid h-full p-4">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-ink-900 dark:text-white font-bold text-sm">{c.col}</span>
-                  <span className="text-ink-500 dark:text-ink-400 text-micro font-mono">{c.type}</span>
+                  <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">{c.type}</span>
                 </div>
-                <p className="text-ink-600 dark:text-ink-300 mt-2 text-xs italic leading-relaxed">"{c.example}"</p>
+                <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-xs italic leading-relaxed">"{c.example}"</p>
               </div>
               </Reveal>
             ))}
@@ -331,32 +349,32 @@ export default function Guide() {
         />
         {(['speaking-writing', 'reading', 'listening'] as const).map((key) => (
           <section key={key} className="mt-10">
-            <h3 className="text-ink-900 dark:text-white text-xl font-bold text-balance">{SECTION_META[key].longTitle}</h3>
+            <h3 className="section-title">{SECTION_META[key].longTitle}</h3>
             <div className="mt-4 space-y-3">
               {ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === key).map((t, i) => {
                 const qm = QUESTION_META[t]
                 return (
-                  <Reveal as="article" key={t} id={t}              delay={Math.min(i, 4) * 45} duration={600} className="scroll-mt-24">
-                    <div className="card">
+                  <Reveal as="article" key={t} id={t} delay={Math.min(i, 4) * 45} duration={600} className="scroll-mt-24">
+                    <div className="card-solid p-5 border-ink-200 dark:border-white/10">
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <h4 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{qm.label}</h4>
-                      <span className="pill bg-ink-100 text-ink-500 dark:bg-white/8 dark:text-ink-400">
-                        {qm.perTest} per test · {qm.skills.join(' + ')}
+                      <span className="pill bg-ink-100 text-ink-500 dark:bg-white/8 dark:text-ink-on-dark-muted">
+                        {qm.perTest} per test, {qm.skills.join(' + ')}
                       </span>
                     </div>
-                    <p className="text-ink-600 dark:text-ink-300 mt-2 text-sm leading-relaxed">{qm.tip}</p>
+                    <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">{qm.tip}</p>
                     <div className="border-ink-100 dark:border-white/6 mt-3 flex items-center justify-between border-t pt-2.5 text-xs">
                       <Link
                         to={`/question-types/${typeSlug(t)}/`}
-                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-brand-600 dark:text-ink-300 dark:hover:text-brand-400 font-medium hover:underline"
+                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-brand-600 dark:text-ink-on-dark dark:hover:text-brand-300 font-medium hover:underline"
                       >
-                        Deep dive & rubric →
+                        Deep dive & rubric
                       </Link>
                       <Link
                         to={`/practice?type=${t}`}
                         className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 font-semibold hover:underline"
                       >
-                        Practice drill →
+                        Practice drill
                       </Link>
                     </div>
                     </div>
@@ -404,7 +422,7 @@ export default function Guide() {
         <SectionBand className="mt-16">
         <SectionHeading id="study-plan" eyebrow="Schedule" title="A four-week study plan" />
         <Reveal variant="fade">
-          <div className="card mt-5 overflow-x-auto p-0">
+          <div className="card-solid mt-5 overflow-x-auto p-0 border-ink-200 dark:border-white/10">
           <table className="table-data min-w-lg">
             <caption className="sr-only">Four week PTE preparation plan</caption>
             <thead>
@@ -426,8 +444,8 @@ export default function Guide() {
                 <tr key={row[0]} className="border-ink-100 dark:border-white/6 border-b">
                   <td className="text-ink-900 dark:text-white font-bold">{row[0]}</td>
                   <td className="text-ink-700 dark:text-ink-200">{row[1]}</td>
-                  <td className="text-ink-500 dark:text-ink-400">{row[2]}</td>
-                  <td className="text-ink-500 dark:text-ink-400">{row[3]}</td>
+                  <td className="text-ink-500 dark:text-ink-on-dark-muted">{row[2]}</td>
+                  <td className="text-ink-500 dark:text-ink-on-dark-muted">{row[3]}</td>
                 </tr>
               ))}
             </tbody>
@@ -451,7 +469,7 @@ export default function Guide() {
           description="Reading this page is worth less than one scored attempt. Find out what these techniques actually do to your score."
           actions={
             <>
-              <ButtonLink to="/mock" size="lg">Start a full mock</ButtonLink>
+              <ButtonLink to="/mock" size="lg" magnetic>Start a full mock</ButtonLink>
               <ButtonLink to="/practice" variant="secondary" size="lg">Drill a weak type</ButtonLink>
             </>
           }

@@ -4,6 +4,7 @@ import { QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { typeSlug } from '../content/questionTypeDetail'
 import type { QuestionType, SectionId, Skill } from '../domain/types'
 import { Badge, Callout } from './ui/primitives'
+import { Reveal } from './ui/motion'
 import { cn } from '../lib/cn'
 
 export interface ItemWeightage {
@@ -309,7 +310,7 @@ const TARGET_STRATEGIES: Record<
     recommendation:
       'Over 70% of total exam marks come from just 6 of the 22 question types. Mastering Tier 1 guarantees the greatest return on practice time.',
     keyTypes: ['Write From Dictation', 'Repeat Sentence', 'Read Aloud', 'R&W Fill in the Blanks', 'Describe Image'],
-    timeAllocation: '80% time on Tier 1 & 2 · 20% on mock exams & remaining items',
+    timeAllocation: '80% time on Tier 1 & 2, 20% on mock exams & remaining items',
   },
   '50': {
     title: 'Target 50 (Competent English / CEFR B1)',
@@ -317,7 +318,7 @@ const TARGET_STRATEGIES: Record<
     recommendation:
       'Focus 90% of your prep on mastering fixed templates for Describe Image and Essay, and building accuracy in Read Aloud and Write From Dictation. In Reading multiple-choice tasks, pick one answer and move on quickly so you never run out of time.',
     keyTypes: ['Describe Image (Templates)', 'Read Aloud (Fluency)', 'Write Essay (Templates)', 'Write From Dictation'],
-    timeAllocation: '70% Tier 1 · 25% Tier 2 · 5% Tier 3',
+    timeAllocation: '70% Tier 1, 25% Tier 2, 5% Tier 3',
   },
   '65': {
     title: 'Target 65 (Proficient English / CEFR B2-C1)',
@@ -325,7 +326,7 @@ const TARGET_STRATEGIES: Record<
     recommendation:
       'To reach 65, you cannot rely solely on templates. You need 90%+ spelling accuracy in Write From Dictation, 65%+ word recall in Repeat Sentence with unhesitating oral fluency, and solid mastery of academic collocations in Fill in the Blanks.',
     keyTypes: ['Write From Dictation (90%+)', 'Repeat Sentence (Fluency)', 'R&W Fill in the Blanks (Collocations)', 'Summarize Spoken Text'],
-    timeAllocation: '60% Tier 1 · 35% Tier 2 · 5% Tier 3',
+    timeAllocation: '60% Tier 1, 35% Tier 2, 5% Tier 3',
   },
   '79': {
     title: 'Target 79+ (Superior English / CEFR C1-C2)',
@@ -333,7 +334,7 @@ const TARGET_STRATEGIES: Record<
     recommendation:
       'Zero-tolerance for spelling errors in Write From Dictation and Summarize Spoken Text. Natural, rapid phrasing with zero self-corrections in Read Aloud and Repeat Sentence. Flawless grammar and punctuation in Summarize Written Text (exact single-sentence rule).',
     keyTypes: ['All Tier 1 (Near 100% accuracy)', 'Summarize Spoken Text', 'Summarize Written Text (Strict single sentence)', 'Highlight Incorrect Words (No penalty clicks)'],
-    timeAllocation: '50% Tier 1 mastery · 45% Tier 2 perfection · 5% Tier 3 penalty protection',
+    timeAllocation: '50% Tier 1 mastery, 45% Tier 2 perfection, 5% Tier 3 penalty protection',
   },
 }
 
@@ -358,7 +359,7 @@ export function ScoreWeightageMatrix() {
       <div className="border-ink-200 dark:border-white/10 border-t pt-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <span className="bg-brand-500/10 text-brand-700 dark:text-brand-300 rounded-full px-2.5 py-0.5 font-mono text-micro font-bold uppercase tracking-wider">
+            <span className="bg-ink-100 text-ink-700 dark:bg-white/5 dark:text-ink-on-dark rounded-sm px-2.5 py-0.5 text-xs font-bold">
               Strategic Scoring Priority
             </span>
             <h2 className="section-title mt-2">Score weightage & contributor matrix</h2>
@@ -367,10 +368,10 @@ export function ScoreWeightageMatrix() {
             to="/scoring"
             className="btn-secondary px-3 py-1.5 text-xs font-semibold"
           >
-            How scoring works →
+            How scoring works
           </Link>
         </div>
-        <p className="text-ink-600 dark:text-ink-300 mt-3 text-sm leading-relaxed max-w-3xl">
+        <p className="text-ink-600 dark:text-ink-on-dark mt-3 text-sm leading-relaxed max-w-3xl">
           Unlike traditional exams where skills are isolated, PTE distributes marks across sections through integrated tasks.
           Filter by your target skill to reveal which tasks provide the bulk of your points.
         </p>
@@ -381,7 +382,7 @@ export function ScoreWeightageMatrix() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-ink-900 dark:text-white text-base font-bold">Target score focus plans</h3>
-            <p className="text-ink-500 dark:text-ink-400 text-xs mt-0.5">
+            <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs mt-0.5">
               Select your benchmark to adapt your daily study allocation:
             </p>
           </div>
@@ -405,7 +406,7 @@ export function ScoreWeightageMatrix() {
                   className={cn(
                     'rounded-md px-3 py-1.5 text-xs font-semibold transition-colors',
                     active
-                      ? 'bg-brand-600 text-white shadow-xs'
+                      ? 'bg-brand-600 text-white'
                       : 'bg-ink-100 hover:bg-ink-200 text-ink-700 dark:bg-white/8 dark:hover:bg-white/12 dark:text-ink-200',
                   )}
                 >
@@ -417,29 +418,31 @@ export function ScoreWeightageMatrix() {
         </div>
 
         {/* Strategy Detail Card */}
-        <div className="border-ink-100 dark:border-white/8 mt-5 rounded-lg border bg-ink-100/50 p-4 dark:bg-white/3">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h4 className="text-ink-900 dark:text-white text-sm font-bold">{currentStrategy.title}</h4>
-            <span className="font-mono text-micro text-ink-500 dark:text-ink-400">
-              {currentStrategy.timeAllocation}
-            </span>
-          </div>
-          <p className="text-ink-500 dark:text-ink-400 text-xs mt-1">{currentStrategy.subtitle}</p>
-          <p className="text-ink-700 dark:text-ink-200 text-sm mt-3 leading-relaxed">
-            {currentStrategy.recommendation}
-          </p>
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <span className="text-ink-500 dark:text-ink-400 text-xs font-medium mr-1">High-yield priorities:</span>
-            {currentStrategy.keyTypes.map((kt) => (
-              <span
-                key={kt}
-                className="bg-brand-500/10 text-brand-700 dark:text-brand-300 font-mono text-micro rounded px-2 py-0.5 font-medium"
-              >
-                {kt}
+        <Reveal variant="up" delay={30} duration={550}>
+          <div className="border-ink-200 dark:border-white/10 mt-5 rounded-md border bg-ink-100/60 p-4 dark:bg-white/[0.03]">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h4 className="text-ink-900 dark:text-white text-sm font-bold">{currentStrategy.title}</h4>
+              <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
+                {currentStrategy.timeAllocation}
               </span>
-            ))}
+            </div>
+            <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs mt-1">{currentStrategy.subtitle}</p>
+            <p className="text-ink-700 dark:text-ink-200 text-sm mt-3 leading-relaxed">
+              {currentStrategy.recommendation}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-medium mr-1">High-yield priorities:</span>
+              {currentStrategy.keyTypes.map((kt) => (
+                <span
+                  key={kt}
+                  className="bg-brand-500/10 text-brand-700 dark:text-brand-300 rounded-sm px-2 py-0.5 text-xs font-medium"
+                >
+                  {kt}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
+        </Reveal>
       </div>
 
       {/* The Integrated Scoring Trap Callout */}
@@ -461,7 +464,7 @@ export function ScoreWeightageMatrix() {
       <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         {/* Skill filter */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-ink-500 dark:text-ink-400 text-xs font-semibold mr-1">Filter by skill:</span>
+          <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold mr-1">Filter by skill:</span>
           {(['all', 'speaking', 'writing', 'reading', 'listening'] as const).map((s) => {
             const active = selectedSkill === s
             return (
@@ -473,8 +476,8 @@ export function ScoreWeightageMatrix() {
                 className={cn(
                   'rounded-md px-2.5 py-1 text-xs font-semibold transition-colors capitalize',
                   active
-                    ? 'bg-brand-600 text-white shadow-xs'
-                    : 'bg-ink-100 hover:bg-ink-200 text-ink-700 dark:bg-white/8 dark:hover:bg-white/12 dark:text-ink-300',
+                    ? 'bg-brand-600 text-white'
+                    : 'bg-ink-100 hover:bg-ink-200 text-ink-700 dark:bg-white/8 dark:hover:bg-white/12 dark:text-ink-on-dark',
                 )}
               >
                 {s === 'all' ? 'All Skills' : s}
@@ -485,7 +488,7 @@ export function ScoreWeightageMatrix() {
 
         {/* Tier filter */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-ink-500 dark:text-ink-400 text-xs font-semibold mr-1">Filter by tier:</span>
+          <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold mr-1">Filter by tier:</span>
           {(
             [
               { id: 'all', label: 'All Tiers' },
@@ -504,8 +507,8 @@ export function ScoreWeightageMatrix() {
                 className={cn(
                   'rounded-md px-2.5 py-1 text-xs font-semibold transition-colors',
                   active
-                    ? 'bg-ink-900 text-white dark:bg-white dark:text-ink-900 shadow-xs'
-                    : 'bg-ink-100 hover:bg-ink-200 text-ink-700 dark:bg-white/8 dark:hover:bg-white/12 dark:text-ink-300',
+                    ? 'bg-ink-900 text-white dark:bg-white dark:text-ink-900'
+                    : 'bg-ink-100 hover:bg-ink-200 text-ink-700 dark:bg-white/8 dark:hover:bg-white/12 dark:text-ink-on-dark',
                 )}
               >
                 {t.label}
@@ -516,7 +519,7 @@ export function ScoreWeightageMatrix() {
       </div>
 
       {/* Item count status */}
-      <div className="mt-3 flex items-center justify-between text-xs text-ink-500 dark:text-ink-400">
+      <div className="mt-3 flex items-center justify-between text-xs text-ink-500 dark:text-ink-on-dark-muted">
         <span>
           Showing <strong>{filteredItems.length}</strong> of 22 question types
         </span>
@@ -529,19 +532,19 @@ export function ScoreWeightageMatrix() {
 
       {/* The Matrix Cards */}
       <div className="mt-4 grid gap-4">
-        {filteredItems.map((item) => {
+        {filteredItems.map((item, i) => {
           const meta = QUESTION_META[item.type]
           const slug = typeSlug(item.type)
 
           return (
-            <div
-              key={item.type}
-              className={cn(
-                'card-solid flex flex-col justify-between p-5 transition-shadow hover:shadow-sm',
-                item.tier === 1 && 'border-l-4 border-l-brand-500 dark:border-l-brand-400',
-                item.tier === 2 && 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
-                item.tier === 3 && 'border-l-4 border-l-ink-300 dark:border-l-white/20',
-              )}
+            <Reveal key={item.type} variant="up" delay={Math.min(i, 8) * 25} duration={550}>
+              <div
+                className={cn(
+                  'card-solid flex flex-col justify-between p-5',
+                  item.tier === 1 && 'border-l-4 border-l-brand-500 dark:border-l-brand-400',
+                  item.tier === 2 && 'border-l-4 border-l-amber-500 dark:border-l-amber-400',
+                  item.tier === 3 && 'border-l-4 border-l-ink-300 dark:border-l-white/20',
+                )}
             >
               <div>
                 {/* Title & Badges */}
@@ -550,20 +553,20 @@ export function ScoreWeightageMatrix() {
                     <h3 className="text-ink-900 dark:text-white text-base font-bold">
                       <Link
                         to={`/question-types/${slug}/`}
-                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 hover:text-brand-600 dark:hover:text-brand-400 hover:underline"
+                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 hover:text-brand-600 dark:hover:text-brand-300 hover:underline"
                       >
                         {item.name}
                       </Link>
                     </h3>
-                    <span className="text-ink-500 dark:text-ink-400 text-xs">
+                    <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
                       ({SECTION_META[item.section].longTitle})
                     </span>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-1.5">
-                    {item.tier === 1 && <Badge tone="brand">Tier 1 · Critical</Badge>}
-                    {item.tier === 2 && <Badge tone="neutral">Tier 2 · Core</Badge>}
-                    {item.tier === 3 && <Badge tone="neutral">Tier 3 · Low yield</Badge>}
+                    {item.tier === 1 && <Badge tone="brand">Tier 1, Critical</Badge>}
+                    {item.tier === 2 && <Badge tone="neutral">Tier 2, Core</Badge>}
+                    {item.tier === 3 && <Badge tone="neutral">Tier 3, Low yield</Badge>}
                     <Badge tone="brand">{item.skills.join(' + ')}</Badge>
                   </div>
                 </div>
@@ -571,21 +574,21 @@ export function ScoreWeightageMatrix() {
                 {/* Score estimates & cross-impact */}
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-md bg-ink-100 p-2.5 dark:bg-white/5">
-                    <span className="text-ink-500 dark:text-ink-400 font-mono text-micro font-semibold uppercase tracking-wider block">
-                      Estimated Point Impact
+                    <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold block">
+                      Estimated point impact
                     </span>
                     <span className="text-ink-900 dark:text-white text-sm font-semibold mt-0.5 block">
                       {item.points}
                     </span>
-                    <span className="text-ink-500 dark:text-ink-400 text-xs mt-0.5 block">
+                    <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs mt-0.5 block">
                       Target duration: {item.suggestedTime}
                     </span>
                   </div>
 
                   {item.crossImpactNote ? (
                     <div className="rounded-md bg-brand-500/8 border border-brand-500/15 p-2.5 dark:bg-brand-500/10">
-                      <span className="text-brand-700 dark:text-brand-300 font-mono text-micro font-semibold uppercase tracking-wider block">
-                        Cross-Skill Contributor
+                      <span className="text-brand-700 dark:text-brand-300 text-xs font-semibold block">
+                        Cross-skill contributor
                       </span>
                       <p className="text-ink-800 dark:text-ink-200 text-xs mt-0.5 leading-snug">
                         {item.crossImpactNote}
@@ -593,10 +596,10 @@ export function ScoreWeightageMatrix() {
                     </div>
                   ) : (
                     <div className="rounded-md bg-ink-100 p-2.5 dark:bg-white/5">
-                      <span className="text-ink-500 dark:text-ink-400 font-mono text-micro font-semibold uppercase tracking-wider block">
-                        Module Impact
+                      <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold block">
+                        Module impact
                       </span>
-                      <p className="text-ink-700 dark:text-ink-300 text-xs mt-0.5 leading-snug">
+                      <p className="text-ink-700 dark:text-ink-on-dark text-xs mt-0.5 leading-snug">
                         {item.impact}
                       </p>
                     </div>
@@ -605,7 +608,7 @@ export function ScoreWeightageMatrix() {
 
                 {/* Strategy recommendation */}
                 <div className="mt-3">
-                  <p className="text-ink-600 dark:text-ink-300 text-sm leading-relaxed">
+                  <p className="text-ink-600 dark:text-ink-on-dark text-sm leading-relaxed">
                     <strong className="text-ink-900 dark:text-white font-medium">Exam Strategy: </strong>
                     {item.priorityStrategy}
                   </p>
@@ -614,25 +617,26 @@ export function ScoreWeightageMatrix() {
 
               {/* Action Links */}
               <div className="border-ink-100 dark:border-white/6 mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-3 text-xs">
-                <div className="text-ink-500 dark:text-ink-400">
+                <div className="text-ink-500 dark:text-ink-on-dark-muted">
                   {meta.perTest} per full exam
                 </div>
                 <div className="flex items-center gap-3">
                   <Link
                     to={`/question-types/${slug}/`}
-                    className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-white font-medium hover:underline"
+                    className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:text-white font-medium hover:underline"
                   >
-                    Scoring rubric & mistakes →
+                    Scoring rubric & mistakes
                   </Link>
                   <Link
                     to={`/practice?type=${item.type}`}
                     className="btn-secondary px-3 py-1 text-xs font-semibold"
                   >
-                    Practice now →
+                    Practice now
                   </Link>
                 </div>
               </div>
             </div>
+          </Reveal>
           )
         })}
       </div>

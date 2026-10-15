@@ -6,15 +6,14 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <!--
-      Body text is the usual Largest Contentful Paint element, so the one face it
-      needs is fetched ahead of the stylesheet rather than discovered inside it.
-      Only the regular weight is preloaded: preloading the whole family costs
-      more bandwidth than the swap delay it would save.
+      All faces are self-hosted WOFF2 — no third-party request, and the app works
+      offline. Body copy is the usual Largest Contentful Paint element, so the
+      regular body face is preloaded ahead of the stylesheet rather than
+      discovered inside it. Only the body face is preloaded: preloading every
+      face costs more bandwidth than the swap delay it would save.
     -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <meta name="theme-color" content="#ffffff" />
+    <link rel="preload" href="/fonts/Nunito-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <meta name="theme-color" content="#fff8ec" />
     <!--
       Applies the saved theme before first paint. The React layout applies the
       class again once the settings store hydrates; this runs earlier so a
@@ -31,7 +30,7 @@
           if (dark) {
             document.documentElement.classList.add('dark')
             var meta = document.querySelector('meta[name="theme-color"]')
-            if (meta) meta.setAttribute('content', '#171b20')
+            if (meta) meta.setAttribute('content', '#2d2a5e')
           }
           // Same store, same pre-paint moment: the text scale is set on the
           // root font size, so applying it here avoids a visible reflow when
@@ -57,14 +56,15 @@
       content="Full-length timed PTE Academic mock tests with detailed score reports. No signup required."
     />
     <meta property="og:type" content="website" />
-    <!--
-      Self-hosted: no third-party request, and the app works offline.
-      Only the body face is preloaded. Body text is the usual Largest Contentful
-      Paint element, so fetching it ahead of the stylesheet is what moves LCP;
-      preloading the serif and mono faces as well cost more bandwidth than the
-      swap delay they saved. All three ship as WOFF2, which is roughly a third
-      of the size of the same face as TTF.
-    -->
+    <meta property="og:site_name" content="PTE Prep" />
+    <meta property="og:image" content="/og-default.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PTE Prep — Free Unlimited PTE Academic Mock Tests" />
+    <meta
+      name="twitter:description"
+      content="Full-length timed PTE Academic mock tests with detailed score reports. No signup required."
+    />
+    <meta name="twitter:image" content="/og-default.png" />
   </head>
   <body>
     <div id="root"></div>

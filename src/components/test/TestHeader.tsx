@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { cn } from '../../lib/cn'
 import { formatClock } from '../../lib/format'
+import { CountdownRing } from '../../components/ui/countdown-ring'
 
 // ---------------------------------------------------------------------------
 // The section clock.
@@ -68,11 +69,32 @@ export function TestHeader({
     <header className="border-ink-200 dark:border-white/10 bg-white/85 dark:bg-ink-900/85 sticky top-0 z-30 border-b backdrop-blur-md">
       <div className="page-shell-wide flex flex-wrap items-center gap-x-5 gap-y-2 py-2.5">
         <div className="flex min-w-0 flex-1 items-center gap-3">
-          <span className="bg-brand-500 grid size-8 shrink-0 place-items-center rounded-full font-display text-xs font-bold text-white" aria-hidden="true">
-            PTE
+          {/* The mark, ringed by the section clock. The
+              ring drains with the same budget as the digital
+              clock below-right, so urgency reads at a glance
+              before the numbers do. Sans, not the display
+              serif: this is a 12px UI mark on a filled
+              circle, not a heading. A high-contrast face at
+              that size is illegible, and the serif ships no
+              bold to fall back on. */}
+          <span className="relative grid size-8 shrink-0 place-items-center">
+            <CountdownRing
+              ratio={ratio}
+              size={40}
+              stroke={3}
+              critical={critical}
+              warning={warning}
+              className="absolute -top-1 -left-1"
+            />
+            <span
+              className="bg-brand-500 grid size-8 place-items-center rounded-full font-sans text-xs font-bold text-white"
+              aria-hidden="true"
+            >
+              PTE
+            </span>
           </span>
           <div className="min-w-0">
-            <p className="text-ink-500 dark:text-ink-400 truncate text-xs font-semibold">
+            <p className="text-ink-500 dark:text-ink-on-dark-muted truncate text-xs font-semibold">
               {sectionTitle}
             </p>
             <p className="text-ink-900 dark:text-white text-sm font-bold tabular-nums">
@@ -85,21 +107,21 @@ export function TestHeader({
           {onExit ? (
             <button
               type="button"
-              className="btn-ghost px-2.5 py-1 text-xs text-ink-500 dark:text-ink-300 hover:text-rose-600 dark:hover:text-rose-400"
+              className="btn-ghost px-2.5 py-1 text-xs text-ink-500 dark:text-ink-on-dark hover:text-rose-600 dark:hover:text-rose-400"
               onClick={onExit}
               title="Exit test and save progress"
             >
               Exit
             </button>
           ) : null}
-          <span className="text-ink-500 dark:text-ink-400 hidden text-xs tabular-nums sm:inline">
+          <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs tabular-nums">
             {answered} answered
           </span>
           {flagged > 0 ? (
             <span className="text-amber-600 dark:text-amber-300 text-xs tabular-nums">{flagged} flagged</span>
           ) : null}
           {untimed ? (
-            <span className="bg-ink-100 text-ink-700 dark:bg-white/8 dark:text-ink-200 rounded-lg px-3 py-1.5 text-sm font-semibold">
+            <span className="bg-ink-100 text-ink-700 dark:bg-white/8 dark:text-ink-200 rounded-md px-3 py-1.5 text-sm font-semibold">
               Untimed
             </span>
           ) : null}
@@ -108,8 +130,8 @@ export function TestHeader({
               of the live region; a plain label keeps it readable on demand. */}
           {untimed ? null : <div
             className={cn(
-              'rounded-lg px-3 py-1.5 font-mono text-lg font-bold tabular-nums',
-              critical && 'bg-rose-brand/15 text-rose-600 dark:text-rose-300',
+              'rounded-md px-3 py-1.5 font-mono text-lg font-bold tabular-nums',
+              critical && 'bg-rose-brand/15 text-rose-600 dark:text-rose-300 animate-pulse-soft',
               warning && 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
               !critical && !warning && 'bg-brand-500/10 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300',
             )}
@@ -140,7 +162,7 @@ export function TestHeader({
         <div className="border-t border-amber-500/30 bg-amber-500/10">
           <div className="page-shell-wide flex flex-wrap items-center gap-3 py-2">
             <p role="status" className="text-amber-700 dark:text-amber-200 text-sm font-semibold">
-              {formatClock(secondsRemaining)} left in this section.
+              Running low on time in this section.
             </p>
             {onExtend ? (
               <button
@@ -152,7 +174,7 @@ export function TestHeader({
                 }}
               >
                 Add 5 minutes
-                {extended > 0 ? <span className="text-ink-500 dark:text-ink-400"> ({extended} added)</span> : null}
+                {extended > 0 ? <span className="text-ink-500 dark:text-ink-on-dark-muted"> ({extended} added)</span> : null}
               </button>
             ) : null}
             {canExtend ? null : <span className="sr-only">Time is about to expire.</span>}

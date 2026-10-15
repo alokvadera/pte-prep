@@ -47,7 +47,8 @@ async function loadEnv() {
 
 await loadEnv()
 
-const ORIGIN = (process.env.SITE_ORIGIN ?? process.env.VITE_SITE_ORIGIN ?? '').replace(/\/+$/, '')
+const FALLBACK_ORIGIN = 'https://pte-prep.pages.dev'
+const ORIGIN = ((process.env.SITE_ORIGIN ?? process.env.VITE_SITE_ORIGIN ?? '').replace(/\/+$/, '')) || FALLBACK_ORIGIN
 
 // A Netlify placeholder origin would bake wrong canonicals into every page.
 // Fail here, with the fix, rather than deploying bad metadata silently.
@@ -362,9 +363,9 @@ ${sitemapLine}
   await rm(path.resolve('dist-ssr'), { recursive: true, force: true })
 
   console.log(`\n  Prerendered ${written} routes into dist/`)
-  if (!ORIGIN) {
-    console.log('  Note: SITE_ORIGIN was not set, so canonical and sitemap URLs are relative.')
-    console.log('        Set SITE_ORIGIN=https://your-domain to emit absolute URLs.\n')
+  if (!process.env.SITE_ORIGIN && !process.env.VITE_SITE_ORIGIN) {
+    console.log(`  Note: SITE_ORIGIN was not set, defaulted to ${FALLBACK_ORIGIN}.`)
+    console.log('        Set SITE_ORIGIN=https://your-domain to emit absolute URLs for a custom domain.\n')
   } else {
     console.log(`  Origin: ${ORIGIN}\n`)
   }

@@ -1,403 +1,584 @@
 import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
-import { bankCapacity } from '../content/bank'
-import { typeSlug } from '../content/questionTypeDetail'
+import { manifestBankCapacity } from '../content/manifest'
 import { Seo } from '../seo/Seo'
-import { Accordion, CtaBand, ButtonLink, SectionHeading } from '../components/ui/primitives'
-import { TaglineReveal } from '../components/ui/TaglineReveal'
+import { ButtonLink, CtaBand } from '../components/ui/primitives'
 import { CountUp, Reveal } from '../components/ui/motion'
-import { RotatingText } from '../components/ui/RotatingText'
-import { DesktopMockupWindow } from '../components/ui/DesktopMockupWindow'
+import { DottedGlowBackground } from '../components/ui/dotted-glow-background'
+import { cn } from '../lib/cn'
+import {
+  ProgressDots,
+  SectionDivider,
+  NumberTicker,
+  HeroScoreCard,
+} from '../components/ui'
+
+/**
+ * The three parts, in the order they are sat.
+ */
+const PART_KEYS = ['speaking-writing', 'reading', 'listening'] as const
+
+/** The landing page's section rail: maps each named
+ * <section> on this page to a dot on the right rail, so a
+ * reader who scrolls can see where they are and jump
+ * anywhere in three clicks.
+ */
+const LANDING_SECTIONS = [
+  { id: 'hero', label: 'Start' },
+  { id: 'numbers', label: 'Numbers' },
+  { id: 'what', label: 'What changes' },
+  { id: 'test', label: 'Test day' },
+  { id: 'report', label: 'The report' },
+  { id: 'scoring', label: 'Honesty' },
+  { id: 'compare', label: 'Compare' },
+  { id: 'how', label: 'How it works' },
+  { id: 'faq', label: 'Questions' },
+] as const
+
+/**
+ * The scoring split, read off the blueprint rather than restated here.
+ *
+ * `scoring === 'trait-composite'` is the blueprint's own marker for a response
+ * judged against a written rubric, so it is the single source of truth for
+ * which items are estimated. Note that Answer Short Question is scored
+ * `binary` and is therefore counted as exact — which is correct: on the real
+ * test it is one point for a correct answer, decided by the key.
+ */
+const OBJECTIVE_TYPES = ALL_QUESTION_TYPES.filter(
+  (t) => QUESTION_META[t].scoring !== 'trait-composite',
+)
 
 const FAQ = [
   {
     question: 'Is this PTE mock test really free?',
     answer:
-      'Yes. There is no account, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no per-user server cost to pass on. An optional cloud account exists only to sync your history across devices.',
+      'Yes. There is no account needed to start, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no server cost per test to pass on. An optional account exists only to sync your history across devices.',
   },
   {
-    question: 'How accurate are the scores produced here?',
+    question: 'How accurate are the scores here?',
     answer:
-      'Objective items — multiple choice, fill in the blanks, re-order paragraphs — are scored exactly. Speaking and writing responses are scored with a transparent rubric covering content, form, oral fluency and pronunciation, using the same four PTE constructs. Those are estimates for practice, not official Pearson scores, and the results page labels every item as either auto-scored or estimated.',
+      'Choice based and text based items are scored exactly against the official keys. Speaking and writing are scored with an open rubric covering content, form, fluency and pronunciation, using the same four constructs as the real test. Those are practice estimates, not official Pearson scores, and every item on the results page is labelled as auto scored or estimated.',
   },
   {
     question: 'Do I need a microphone?',
     answer:
-      'No. Every speaking item can be answered by typing. A microphone improves the fluency and pronunciation estimate, and browsers with speech recognition give a much more accurate content score, but the test is fully usable without one.',
+      'No. Every speaking item can be answered by typing, so you can practice in a quiet room or a library. A microphone improves the fluency and pronunciation estimate, and browsers with speech recognition give a more accurate content score, but the test works fully without one.',
   },
   {
     question: 'How long is a full mock test?',
     answer:
-      `The current section ranges are Speaking and Writing ${SECTION_META['speaking-writing'].weightNote}, Reading ${SECTION_META.reading.weightNote}, and Listening ${SECTION_META.listening.weightNote}. The actual total varies between test versions.`,
+      'A full mock follows the real section order with one running clock per section and no pauses. Timings track the current Pearson ranges, and the setup screen shows the expected length before you start so you can plan around it.',
   },
   {
-    question: 'Is the practice material the same as the real exam?',
+    question: 'Is this the same material as the real exam?',
     answer:
-      'No real exam material can be reproduced. All passages, lectures and conversations on this site were written specifically for it, at the same B2 to C1 academic level and word counts as the real test, so that timing and difficulty feel comparable.',
+      'No real exam material can be reproduced. All passages, lectures and conversations here were written for this site at the same academic level and word counts as the real test, so timing pressure and difficulty feel close to test day.',
+  },
+  {
+    question: 'Do I need to create an account?',
+    answer:
+      'No. Practice, full mocks and score reports work with no sign up. If you want your history on a second device, create the free account and your attempts sync in the background.',
+  },
+  {
+    question: 'How do I actually improve my score?',
+    answer:
+      'Sit one full mock and check the breakdown, already ordered by points lost per type. Drill the type at the top, then sit another mock and compare your progress on the dashboard.',
   },
   {
     question: 'Does it work offline?',
     answer:
-      'Yes. After the first visit the app is cached as an installable app, and the audio is synthesised by your own device rather than streamed, so core practice continues with no connection. Browser speech recognition and cloud sync need a connection when you use them.',
+      'Yes. After the first visit the app is cached and audio is built on your own device rather than streamed, so core practice keeps working with no connection. Speech recognition and cloud sync need a connection when you use them.',
   },
 ]
 
+
+
+const COMPARISON: Array<{ label: string; prep: string; coaching: string; packs: string }> = [
+  { label: 'Full mock under timed conditions', prep: 'Yes, unlimited', coaching: 'Two per course', packs: 'Five per pack' },
+  { label: 'Score on the 10 to 90 scale', prep: 'Every attempt', coaching: 'At course end', packs: 'Per paid mock' },
+  { label: 'Retake the same week', prep: 'Anytime', coaching: 'Next batch', packs: 'Buy again' },
+  { label: 'Review per question with correct answer', prep: 'Yes', coaching: 'In class only', packs: 'Score only' },
+  { label: 'Price to start', prep: 'Free', coaching: 'Paid by term', packs: 'Paid per pack' },
+]
+
 export default function Home() {
-  const capacity = bankCapacity()
+  const capacity = manifestBankCapacity()
+
+  const STEPS = [
+    {
+      title: 'Pick a length',
+      body: 'A full mock runs all three sections in order. Half and quick runs sample the same sections when you have less time.',
+    },
+    {
+      title: 'Sit it under the clock',
+      body: 'Each section starts its own timer and cannot be paused. Flag items and return to them before the section ends, exactly as on test day.',
+    },
+    {
+      title: 'Fix what cost you',
+      body: 'Open the report, already ordered by points lost, and drill the type at the top. Sit another mock later to see what improved.',
+    },
+  ]
+
+  /** The three-step rail. The markers sit on a
+   *  hairline line in the step-rail utilities; the
+   *  first step is the current one, so it carries
+   *  aria-current and the active marker.
+   */
+  const STEP_RAIL = (step: typeof STEPS[number], i: number) => (
+    <Reveal as="li" key={step.title} className="step-rail-cell" delay={Math.min(i, 3) * 70}>
+      <span
+        aria-hidden="true"
+        className={cn(
+          'step-rail-line',
+          i === 0 && 'step-rail-line-first',
+          i === STEPS.length - 1 && 'step-rail-line-last',
+        )}
+      />
+      <span
+        className={cn(
+          'step-rail-marker',
+          i === 0 ? 'step-rail-marker-active' : 'step-rail-marker-quiet',
+        )}
+        aria-current={i === 0 ? 'step' : undefined}
+      >
+        <span className="sr-only">Step </span>
+        {i + 1}
+      </span>
+      <h3 className="step-rail-title">{step.title}</h3>
+      <p className="step-rail-body">{step.body}</p>
+    </Reveal>
+  )
 
   return (
     <>
       <Seo />
 
-      {/* Hero — the only page allowed the display scale. Centre-aligned here is
-          the exception that proves the rule: every interior page is
-          left-aligned, so the marketing page reads as a distinct register
-          rather than a different product. */}
-      <section className="relative border-ink-200 dark:border-white/10 border-b py-16 sm:py-20 lg:py-24 overflow-hidden">
-        {/* Ambient Studio Lighting Spotlight */}
-        <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[550px] bg-[radial-gradient(ellipse_at_center,rgba(9,105,218,0.12),transparent_70%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(56,139,253,0.10),transparent_70%)] blur-3xl" />
-        <div className="absolute inset-0 bg-grid-pattern opacity-40 [mask-image:linear-gradient(to_bottom,white,transparent)]" />
-        <div className="page-shell-wide relative z-10 grid items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,.95fr)] lg:gap-16">
-          <div className="max-w-hero">
-            <Reveal variant="up">
-              <div className="inline-flex items-center gap-2 rounded border border-ink-200 bg-white/80 px-2.5 py-1 font-mono text-[11px] font-semibold text-ink-700 shadow-xs dark:border-white/10 dark:bg-white/5 dark:text-ink-300 mb-6">
-                <span className="size-1.5 rounded-full bg-brand-500 animate-pulse" />
-                <span>ARCH.SPEC // PTE ACADEMIC RUNNER</span>
-              </div>
-              <h1 className="font-display text-4xl font-bold leading-tight tracking-[-0.04em] text-balance sm:text-5xl lg:text-6xl">
-                <span className="text-ink-900 dark:text-white">
-                  <RotatingText
-                    words={['Precision timed mocks', 'Acoustic speech telemetry', 'Official rubric scoring', 'Targeted section drills']}
-                    className="text-brand-600 dark:text-brand-400 font-extrabold"
-                  />
+      {/* Hero. The claim, one action, and the score report the product shows. */}
+      <section id="hero" className="border-ink-200 dark:border-white/10 relative overflow-hidden border-b">
+        {/* Dotted glow field behind the hero with smooth radial vignette mask */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]">
+          <DottedGlowBackground
+            gap={16}
+            radius={1.6}
+            opacity={0.45}
+            colorLightVar="--color-ink-300"
+            glowColorLightVar="--color-brand-400"
+            colorDarkVar="--color-ink-800"
+            glowColorDarkVar="--color-mark-500"
+            backgroundOpacity={0}
+            speedMin={0.3}
+            speedMax={1.2}
+            speedScale={1}
+          />
+        </div>
+        <div className="page-shell-wide relative grid items-center gap-[52px] pt-[70px] pb-[60px] lg:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
+          <div>
+            <Reveal variant="blur-up">
+              <p className="mb-6">
+                <span className="inline-flex items-center gap-2 rounded-full border border-mint-500/30 bg-mint-50/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-mint-700 backdrop-blur-xs dark:border-mint-400/30 dark:bg-mint-500/10 dark:text-mint-300">
+                  <span className="size-2 rounded-full bg-mint-500 animate-pulse" aria-hidden="true" />
+                  Free PTE Academic Mock Tests · 22 Question Types
                 </span>
-                <br />
-                <span className="bg-gradient-to-b from-ink-950 via-ink-800 to-ink-600 bg-clip-text text-transparent dark:from-white dark:via-white/90 dark:to-ink-300">
-                  built for high scorers.
-                </span>
+              </p>
+              <h1 className="hero-title">
+                Know your <span className="ticket" aria-hidden="true">76/90</span> PTE score before you pay for the test.
               </h1>
             </Reveal>
 
-            <Reveal delay={100} variant="up">
-              <p className="text-ink-600 dark:text-ink-300 mt-6 max-w-xl text-lg leading-relaxed">
-                Full Pearson-concordant mock tests, real-time speech telemetry, and an instant diagnostic breakdown. Zero latency, 100% browser-native engine.
+            <Reveal delay={140} variant="blur-up">
+              <p className="page-intro mt-6 max-w-[60ch] text-[18.5px] leading-[1.65]">
+                Sit full mock tests with real timers, practice all 22 question types, and get a
+                score report on the 10 to 90 scale with CEFR band. Built for test takers who want
+                proof of readiness, not more sample PDFs.
               </p>
             </Reveal>
 
-            <Reveal delay={180} variant="up">
-              <div className="mt-8 flex flex-wrap items-center gap-4">
-                <ButtonLink to="/mock" size="lg" className="rounded font-mono text-sm font-semibold shadow-sm hover:shadow-[0_0_20px_rgba(9,105,218,0.35)] transition-all">
-                  Execute full mock →
+            <Reveal delay={220} variant="blur-up">
+              <div className="mt-[34px] flex flex-wrap items-center gap-4">
+                <ButtonLink to="/mock" size="lg" magnetic>
+                  Start free mock test
                 </ButtonLink>
-                <Link to="/practice" className="font-mono text-xs font-semibold text-ink-700 hover:text-ink-900 dark:text-ink-300 dark:hover:text-white underline underline-offset-4">
-                  [CONFIGURE DRILL]
-                </Link>
+                <ButtonLink to="/practice" variant="secondary" size="lg" magnetic>
+                  Browse practice drills
+                </ButtonLink>
               </div>
 
-              {/* Ultra-Premium Trust & Proof Metrics Strip */}
-              <div className="mt-8 pt-6 border-t border-ink-200/60 dark:border-white/10 flex flex-wrap items-center gap-y-2 gap-x-5 font-mono text-xs text-ink-500 dark:text-ink-400">
-                <div className="flex items-center gap-1.5">
-                  <span className="size-1.5 rounded-full bg-emerald-500" />
-                  <span className="font-semibold text-ink-800 dark:text-ink-200">3,800+</span>
-                  <span>Mocks Run</span>
-                </div>
-                <span className="text-ink-300 dark:text-ink-600 hidden sm:inline">/</span>
-                <div>
-                  <span className="font-semibold text-ink-800 dark:text-ink-200">79+</span>
-                  <span> Target Ready</span>
-                </div>
-                <span className="text-ink-300 dark:text-ink-600 hidden sm:inline">/</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-brand-600 dark:text-brand-400">⚡</span>
-                  <span>Zero Server Latency</span>
-                </div>
+              {/* High-trust assurance strip */}
+              <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[13.5px] font-semibold text-ink-600 dark:text-ink-on-dark-muted">
+                <span className="inline-flex items-center gap-2">
+                  <svg className="size-4 text-mint-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Official 10–90 Pearson scale
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <svg className="size-4 text-mint-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  Real 2h 15m countdown timers
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <svg className="size-4 text-mint-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  100% Free · No card or login
+                </span>
               </div>
             </Reveal>
           </div>
 
-          <Reveal delay={140} variant="up">
-            <DesktopMockupWindow />
+          <Reveal delay={180} variant="blur-up">
+            <HeroScoreCard />
+          </Reveal>
+      </div>
+    </section>
+
+      {/* Key numbers — a quiet proof strip. The four
+          figures each answer a trust question; the
+          item count leads as the hero figure and
+          the rest rest at body scale. */}
+      <section id="numbers" aria-label="Key numbers" className="py-12 border-b border-ink-200/70 dark:border-white/5 bg-ink-50/40 dark:bg-ink-950/30">
+        <div className="page-shell-wide">
+          <div className="stat-strip">
+            <div className="stat-hero">
+              <span className="stat-hero-figure">
+                <NumberTicker value={capacity} />+
+              </span>
+              <span className="stat-hero-caption">
+                Practice items in the verified exam bank
+              </span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-figure">
+                <NumberTicker value={ALL_QUESTION_TYPES.length} />
+              </span>
+              <span className="stat-label">
+                Question types · 100% official coverage
+              </span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-figure">10–90</span>
+              <span className="stat-label">
+                Pearson scale · with aligned CEFR bands
+              </span>
+            </div>
+            <div className="stat-cell">
+              <span className="stat-figure">100% Free</span>
+              <span className="stat-label">
+                No card, no account required
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* What changes here — mint band. */}
+      <section id="what" className="band">
+        <div className="page-shell-wide">
+          <Reveal variant="up">
+            <div className="sec-head">
+              <span className="pill-orange">What changes here</span>
+              <h2 className="section-title">
+                Studying more is not the same as scoring more
+              </h2>
+              <p className="page-intro">
+                Most preparation gives you hours of material and one vague score at the end. You
+                finish tired, with no idea which skill cost you the test.
+              </p>
+            </div>
+          </Reveal>
+          <ul className="rule-list">
+            <Reveal as="li" className="rule-item" delay={0}>
+              <span className="rule-no" aria-hidden="true">
+                1
+              </span>
+              <p className="rule-body">
+                <strong className="rule-label">Timed sections</strong>
+                {' '}that match test day pressure, so your score means something.
+              </p>
+            </Reveal>
+            <Reveal as="li" className="rule-item" delay={70}>
+              <span className="rule-no" aria-hidden="true">
+                2
+              </span>
+              <p className="rule-body">
+                <strong className="rule-label">Scores on the official scale</strong>
+                {' '}with the CEFR band, not a percent that maps to nothing.
+              </p>
+            </Reveal>
+            <Reveal as="li" className="rule-item" delay={140}>
+              <span className="rule-no" aria-hidden="true">
+                3
+              </span>
+              <p className="rule-body">
+                <strong className="rule-label">Loss per question type</strong>
+                {' '}so you drill the two types that cost you most.
+              </p>
+            </Reveal>
+          </ul>
+        </div>
+      </section>
+
+      {/* The test — lavender band. Every part on one row of
+          cards, in the order they are sat. */}
+      <section id="test" className="band-plain">
+        <div className="page-shell-wide">
+          <Reveal variant="up">
+            <div className="sec-head">
+              <span className="pill-purple">Test day timing</span>
+              <h2 className="section-title">A mock that runs like test day</h2>
+              <p className="page-intro">
+                Three sections in order, one running clock, no pauses. A 65 here reads like a 65
+                there, because the scale and the timing match.
+              </p>
+            </div>
+          </Reveal>
+          <Reveal variant="up" duration={650} className="mt-[46px] overflow-x-auto">
+            <table className="table-data">
+              <caption>
+                The three parts of the mock, in the order they are sat
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Part</th>
+                  <th scope="col">Timing</th>
+                  <th scope="col">Question types</th>
+                  <th scope="col">What it covers</th>
+                </tr>
+              </thead>
+              <tbody>
+                {PART_KEYS.map((key, idx) => {
+                  const meta = SECTION_META[key]
+                  const types = questionTypesFor(key)
+                  return (
+                    <tr key={key}>
+                      <th scope="row">
+                        <span className="part-index" aria-hidden="true">
+                          {idx + 1}
+                        </span>
+                        {meta.longTitle}
+                      </th>
+                      <td>
+                        <span
+                          className={`dur-sm ${
+                            idx === 0
+                              ? 'dur-sm-mint'
+                              : idx === 1
+                                ? 'dur-sm-lav'
+                                : 'dur-sm-org'
+                          }`}
+                        >
+                          {meta.weightNote}
+                        </span>
+                      </td>
+                      <td>{types.length} types</td>
+                      <td className="part-blurb">{meta.blurb}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </Reveal>
+          <Link to="/format" className="textlink">
+            Read the full PTE test format
+          </Link>
+        </div>
+      </section>
+
+      {/* The one moment of large type — the mockup's
+          cream tagline beat, placed after the test-day
+          cards and before the report. */}
+      <section className="band-tagline" aria-label="Focus your drilling">
+        <div className="page-shell-wide">
+          <Reveal as="p" variant="blur-up" duration={750} className="tagline-text">
+            Find the <span className="hl">one type</span> that keeps costing you
+            points. Then fix only that one.
           </Reveal>
         </div>
       </section>
 
-      {/* ---------------------------------------------------------------- */}
-      {/* Precision Blueprint Telemetry Strip */}
-      <section className="border-b border-ink-200 dark:border-white/10 bg-white/60 dark:bg-ink-950/40 py-10 sm:py-12">
+      {/* The report — mint band. Three figures that
+          state what the report is, not a panel of
+          sample rows. */}
+      <section id="report" className="band">
         <div className="page-shell-wide">
-          <div className="flex items-center justify-between mb-4 font-mono text-[11px] text-ink-500 dark:text-ink-400">
-            <span>+ TELEMETRY // BLUEPRINT SPECIFICATION +</span>
-            <span className="hidden sm:inline-block">OFFICIAL 10–90 CONTINUOUS SCALE</span>
+          <Reveal variant="up">
+            <div className="sec-head">
+              <span className="pill-green">The score report</span>
+              <h2 className="section-title">Not one number. Every lost point traced.</h2>
+              <p className="page-intro">
+                Four skills, 22 question types, and every answer shown against the correct one with
+                the rule that docked the point.
+              </p>
+            </div>
+          </Reveal>
+          <div className="report-stats">
+            <Reveal className="rstat rstat-mint" delay={0}>
+              <b className="rstat-figure">
+                <CountUp value={90} duration={1000} />
+              </b>
+              <span className="rstat-caption">point scale, not a percentage</span>
+            </Reveal>
+            <Reveal className="rstat" delay={70}>
+              <b className="rstat-figure">
+                <CountUp value={6} duration={1000} />
+              </b>
+              <span className="rstat-caption">CEFR bands, A1 to C2</span>
+            </Reveal>
+            <Reveal className="rstat rstat-lav" delay={140}>
+              <b className="rstat-figure">
+                <CountUp value={22} duration={1000} />
+              </b>
+              <span className="rstat-caption">types, each with its own feedback</span>
+            </Reveal>
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 rounded border border-ink-200 divide-y lg:divide-y-0 lg:divide-x divide-ink-200 bg-white dark:border-white/10 dark:divide-white/10 dark:bg-[#0d1117] shadow-xs">
-            {[
-              { code: 'SEC.01', k: SECTION_META['speaking-writing'].weightNote, v: 'Speaking + Writing', d: `${questionTypesFor('speaking-writing').length} question types · 54-67 min` },
-              { code: 'SEC.02', k: SECTION_META.reading.weightNote, v: 'Reading Comprehension', d: `${questionTypesFor('reading').length} question types · 29-30 min` },
-              { code: 'SEC.03', k: SECTION_META.listening.weightNote, v: 'Listening & Audio', d: `${questionTypesFor('listening').length} question types · 30-43 min` },
-              { code: 'BANK.04', k: `${capacity}+`, v: 'Deterministic Items', d: 'Seeded pseudo-random corpus' },
-            ].map((s, idx) => (
-              <div key={s.v} className="p-5 sm:p-6">
-                <div className="flex items-center justify-between font-mono text-[10px] text-brand-600 dark:text-brand-400 mb-2">
-                  <span>[{s.code}]</span>
-                  <span className="text-ink-400">PTE-2026</span>
-                </div>
-                <div className="font-mono text-2xl sm:text-3xl font-bold text-ink-900 dark:text-white tabular-nums tracking-tight">
-                  {idx === 3 ? <><CountUp value={capacity} duration={1200} />+</> : s.k}
-                </div>
-                <div className="font-semibold text-xs sm:text-sm text-ink-800 dark:text-ink-200 mt-1">{s.v}</div>
-                <div className="font-mono text-[11px] text-ink-500 dark:text-ink-400 mt-0.5">{s.d}</div>
-              </div>
+      {/* Scoring honesty — lavender band. Two panels, one
+          per way of marking. */}
+      <section id="scoring" className="band-plain">
+        <div className="page-shell-wide">
+          <Reveal variant="up">
+            <div className="sec-head">
+              <span className="pill-plain">Scoring honesty</span>
+              <h2 className="section-title">Which half of your score is exact</h2>
+              <p className="page-intro">
+                {OBJECTIVE_TYPES.length} of the {ALL_QUESTION_TYPES.length} question types are marked
+                against the answer key. The rest are estimated from a written rubric, and every item
+                on your report says which it was.
+              </p>
+            </div>
+          </Reveal>
+          <div className="cols">
+            <Reveal as="article" className="col" delay={0}>
+              <h3 className="col-title">Marked from the key</h3>
+              <p className="col-body">
+                The answer is either right or it is not, so these marks are exact. Partial credit
+                applies per blank, and a wrong multi-select costs one point.
+              </p>
+            </Reveal>
+            <Reveal as="article" className="col" delay={90}>
+              <h3 className="col-title">Estimated from a rubric</h3>
+              <p className="col-body">
+                Speaking and writing answers are scored with a written rubric covering content, form,
+                fluency and pronunciation — the same four constructs the real test uses. Every one is
+                labelled as an estimate.
+              </p>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Compare — cream band. The table is the content,
+          so it sits on the page ground like the
+          mockup's does. */}
+      <section id="compare" className="band-cream">
+        <div className="page-shell-wide">
+          <Reveal variant="up">
+            <div className="sec-head">
+              <span className="pill-purple">Compare</span>
+              <h2 className="section-title">Why learners pick unlimited mocks</h2>
+            </div>
+          </Reveal>
+          <Reveal variant="up" duration={650} className="table-scroll">
+            <table>
+              <caption>PTE Prep vs Coaching center vs Paid mock packs</caption>
+              <thead>
+                <tr>
+                  <th scope="col">What matters</th>
+                  <th scope="col">PTE Prep</th>
+                  <th scope="col">Coaching center</th>
+                  <th scope="col">Paid mock packs</th>
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON.map((row) => (
+                  <tr key={row.label}>
+                    <th scope="row">{row.label}</th>
+                    <td>{row.prep}</td>
+                    <td>{row.coaching}</td>
+                    <td>{row.packs}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Reveal>
+          <p className="table-note">
+            Same scale, same timing, no invoice before your first attempt.
+          </p>
+        </div>
+      </section>
+
+      {/* How it works — mint band. A real sequence, so
+          it is drawn as a rail: numbered markers on
+          one hairline, in order. */}
+      <section id="how" className="band">
+        <div className="page-shell-wide">
+          <Reveal variant="up">
+            <div className="sec-head">
+              <span className="pill-orange">How it works</span>
+              <SectionDivider />
+              <h2 className="section-title">Ready in three steps</h2>
+            </div>
+          </Reveal>
+          <ol className="step-rail">
+            {STEPS.map((step, i) => STEP_RAIL(step, i))}
+          </ol>
+        </div>
+      </section>
+
+      {/* FAQ — lavender band. Objections as one card
+          list, the first open by default. */}
+      <section id="faq" className="band-plain">
+        <div className="page-shell-wide">
+          <Reveal variant="up">
+            <div className="sec-head">
+              <span className="pill-purple">Questions</span>
+              <h2 className="section-title">Frequently asked questions</h2>
+            </div>
+          </Reveal>
+          <div className="faq-list">
+            {FAQ.map((f, i) => (
+              <Reveal key={f.question} variant="up" duration={600} delay={Math.min(i, 4) * 55}>
+                <details className="qa" open={i === 0}>
+                  <summary className="qa-summary">
+                    {f.question}
+                    <span className="qa-toggle" aria-hidden="true">
+                      +
+                    </span>
+                  </summary>
+                  <p className="qa-answer">{f.answer}</p>
+                </details>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide py-16 sm:py-20">
-        <div className="max-w-2xl">
-          <SectionHeading
-            className="mb-0"
-            eyebrow="Exam structure & timing"
-            title="A mock that runs like test day"
-          />
-          <p className="text-ink-500 dark:text-ink-300 mt-4 leading-relaxed">
-            Three sections in order, one running clock, no pauses. The score you get here
-            is on the same 10–90 scale with the same CEFR bands, so a 65 here means a 65 there.
-          </p>
-        </div>
+      {/* The landing page's section rail — a slim track of
+          nine dots on the far right, one per named section,
+          so a reader who has scrolled past partway can see
+          where they are and jump anywhere in one click.
+          Hidden below desktop where it would crowd the copy;
+          the progress-dots CSS lays it out. */}
+      <ProgressDots sections={LANDING_SECTIONS} />
 
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          {(['speaking-writing', 'reading', 'listening'] as const).map((key, idx) => {
-            const meta = SECTION_META[key]
-            return (
-              <Reveal key={key} delay={Math.min(idx, 2) * 90} variant="up">
-                <article className="card-exam flex h-full flex-col">
-                    <p className="flex items-center justify-between font-mono text-micro tabular-nums">
-                      <span className="text-brand-600 dark:text-brand-300 font-bold">Part {idx + 1}</span>
-                      <span className="text-ink-500 dark:text-ink-400">{meta.weightNote}</span>
-                    </p>
-                    <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{meta.longTitle}</h3>
-                    <p className="text-ink-500 dark:text-ink-300 mt-2 flex-1 text-sm leading-relaxed">{meta.blurb}</p>
-                    <ul className="mt-4 space-y-1.5">
-                      {questionTypesFor(key).map((t) => (
-                        <li key={t}>
-                          <Link
-                            to={`/question-types/${typeSlug(t)}/`}
-                            className="text-ink-600 dark:text-ink-300 hover:text-brand-600 dark:hover:text-brand-400 group -my-1 flex items-center justify-between gap-2 rounded-sm py-1 text-xs transition-colors"
-                          >
-                            <span className="flex min-w-0 items-center gap-2">
-                              <span className="bg-brand-500/70 group-hover:bg-brand-500 size-1 shrink-0 rounded-full transition-colors" />
-                              <span className="truncate group-hover:underline">{QUESTION_META[t].label}</span>
-                            </span>
-                            <span className="shrink-0 font-mono text-micro text-ink-500 dark:text-ink-400">{QUESTION_META[t].short}</span>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </article>
-              </Reveal>
-            )
-          })}
-        </div>
-
-        <div className="mt-8 text-center">
-          <ButtonLink to="/format" variant="secondary">
-            Read the full PTE test format →
-          </ButtonLink>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      <section className="py-16 sm:py-20">
-        <div className="page-shell-wide">
-          <SectionHeading
-            className="mb-0"
-            eyebrow="Score breakdown & insights"
-            title="What the report shows you"
-          />
-          <p className="text-ink-500 dark:text-ink-300 mt-3 max-w-2xl leading-relaxed">
-            Not a single number. Four skills, 22 types, every lost point traced to its rule.
-          </p>
-          <div className="mt-12 grid gap-6 md:grid-cols-3 md:grid-rows-2">
-            <Reveal delay={0} variant="scale" className="md:col-span-2 md:row-span-2">
-              <article className="card-interactive card-glow h-full flex flex-col justify-between bg-ink-100/70 p-8 sm:p-10 dark:bg-ink-850/80 rounded-2xl border border-ink-200/80 dark:border-white/10">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ink-200/60 dark:border-white/10 pb-6 mb-6">
-                  <div>
-                    <span className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400">
-                      OFFICIAL 10–90 CONCORDANCE
-                    </span>
-                    <h3 className="text-2xl font-bold tracking-tight text-ink-900 dark:text-white mt-1">
-                      Complete Diagnostic Report
-                    </h3>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex flex-col items-end">
-                      <span className="text-2xl font-bold font-mono text-ink-900 dark:text-white tabular-nums">79<span className="text-sm font-normal text-ink-500">/90</span></span>
-                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 font-mono">CEFR C1 Qualified</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 my-4">
-                  {[
-                    { label: 'Speaking', val: '84', band: 'B2+' },
-                    { label: 'Writing', val: '86', band: 'C1' },
-                    { label: 'Reading', val: '79', band: 'B2' },
-                    { label: 'Listening', val: '83', band: 'C1' },
-                  ].map((sk) => (
-                    <div key={sk.label} className="rounded-xl border border-ink-200/60 bg-white/80 p-3.5 dark:border-white/5 dark:bg-ink-900/60">
-                      <p className="text-xs text-ink-500 dark:text-ink-400">{sk.label}</p>
-                      <p className="font-mono text-xl font-bold text-ink-900 dark:text-white mt-1">{sk.val}</p>
-                      <span className="text-[10px] font-mono text-brand-600 dark:text-brand-400 font-semibold">{sk.band} Level</span>
-                    </div>
-                  ))}
-                </div>
-
-                <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed mt-4">
-                  Reported on both the official 10–90 Pearson scale and TOEFL equivalents. Isolates individual item metrics so you never waste hours reviewing questions you already mastered.
-                </p>
-              </article>
-            </Reveal>
-
-            <Reveal delay={70} variant="scale">
-              <article className="card-interactive card-glow h-full p-6 sm:p-7 rounded-2xl border border-ink-200/80 dark:border-white/10 flex flex-col justify-between">
-                <div>
-                  <span className="font-mono text-[10px] font-bold text-brand-600 dark:text-brand-400">SKILL MATRIX</span>
-                  <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mt-0.5 mb-2">Four Skill Balance</h3>
-                </div>
-                <div className="space-y-2.5 my-3">
-                  {[
-                    { name: 'Speaking', p: 84, color: 'bg-emerald-500' },
-                    { name: 'Writing', p: 86, color: 'bg-brand-500' },
-                    { name: 'Reading', p: 79, color: 'bg-brand-500' },
-                    { name: 'Listening', p: 83, color: 'bg-emerald-500' },
-                  ].map((s) => (
-                    <div key={s.name} className="flex items-center gap-2 text-xs">
-                      <span className="w-14 truncate text-ink-600 dark:text-ink-300">{s.name}</span>
-                      <div className="h-1.5 flex-1 rounded-full bg-ink-200 dark:bg-white/10 overflow-hidden">
-                        <div className={`h-full ${s.color}`} style={{ width: `${s.p}%` }} />
-                      </div>
-                      <span className="font-mono text-[11px] font-semibold text-ink-900 dark:text-white tabular-nums">{s.p}</span>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-ink-500 dark:text-ink-300 text-xs">Identify if oral fluency or passage comprehension is pulling down your total score.</p>
-              </article>
-            </Reveal>
-
-            <Reveal delay={140} variant="scale">
-              <article className="card-interactive card-glow h-full p-6 sm:p-7 rounded-2xl border border-ink-200/80 dark:border-white/10 flex flex-col justify-between">
-                <div>
-                  <span className="font-mono text-[10px] font-bold text-emerald-600 dark:text-emerald-400">ERROR TRACKING</span>
-                  <h3 className="text-lg font-bold tracking-tight text-ink-900 dark:text-white mt-0.5 mb-2">Per-Item Rule Tracing</h3>
-                </div>
-                <div className="rounded-xl border border-ink-200/60 bg-ink-50/80 p-3 text-xs space-y-1.5 font-mono dark:border-white/5 dark:bg-ink-950/60 my-2">
-                  <div className="flex items-center justify-between text-emerald-700 dark:text-emerald-400 text-[11px]">
-                    <span>✓ Content Match</span>
-                    <span>100%</span>
-                  </div>
-                  <div className="flex items-center justify-between text-rose-600 dark:text-rose-400 text-[11px]">
-                    <span>⚠ Word order inverted</span>
-                    <span>-1 pt</span>
-                  </div>
-                </div>
-                <p className="text-ink-500 dark:text-ink-300 text-xs">Plain-English explanation of exactly which scoring rubric rule docked points.</p>
-              </article>
-            </Reveal>
-            
-            <Reveal delay={210} variant="scale" className="md:col-span-3">
-               <article className="card-interactive card-glow flex flex-col md:flex-row items-center justify-between gap-8 p-8 sm:p-10 rounded-2xl border border-ink-200/80 dark:border-white/10">
-                 <div className="flex-1">
-                   <span className="font-mono text-xs font-bold text-brand-600 dark:text-brand-400">DEVICE-PERSISTED TRENDS</span>
-                   <h3 className="text-xl font-bold tracking-tight text-ink-900 dark:text-white mt-1 mb-2">Practice That Shows Real Compounding</h3>
-                   <p className="text-ink-500 dark:text-ink-300 text-sm leading-relaxed max-w-2xl">Every attempt is recorded locally in your browser SQLite/IndexedDB store with zero cloud lag. Track your 4-week trajectory with complete confidence.</p>
-                 </div>
-                 <div className="shrink-0 flex items-center gap-4">
-                   <div className="rounded-xl bg-ink-50/90 dark:bg-ink-950/80 border border-ink-200/80 dark:border-white/10 p-3 px-5 flex items-center gap-4">
-                     <div>
-                       <span className="text-[10px] font-mono text-ink-500 uppercase tracking-wider block">Recent Delta</span>
-                       <span className="font-mono text-lg font-bold text-emerald-600 dark:text-emerald-400">+14 pts</span>
-                     </div>
-                     <div className="h-10 w-28 relative">
-                       <svg className="h-full w-full stroke-emerald-500" viewBox="0 0 100 40" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                         <path d="M5 32 L25 28 L50 20 L75 14 L95 6" />
-                         <circle cx="95" cy="6" r="3" className="fill-emerald-500" />
-                       </svg>
-                     </div>
-                   </div>
-                 </div>
-               </article>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide py-16 sm:py-20">
-        <TaglineReveal
-          lines={['Find the one question type that keeps', 'costing you points. Then fix only that one.']}
-        />
-      </section>
-
-      {/* A2: how it works, three steps. Sits after the benefits and before the FAQ
-          so the page answers "what happens when I press start" at the point
-          where the reader has just decided they want to. */}
-      <section className="page-shell-wide py-16 sm:py-20">
-        <SectionHeading className="mb-0" eyebrow="How it works" title="How a mock runs" />
-        <p className="text-ink-500 dark:text-ink-300 mt-4 max-w-2xl leading-relaxed">
-          Three steps, and nothing to set up. The whole thing runs in this browser tab.
-        </p>
-
-        <ol className="mt-8 grid gap-8 md:grid-cols-3 md:gap-6">
-          {[
-            {
-              title: 'Choose a length',
-              body: 'A full paper runs the three real sections back to back. Half and quick builds take one skill only, for when you have twenty minutes rather than two hours.',
-            },
-            {
-              title: 'Sit it under the clock',
-              body: 'Each section starts its own timer and cannot be paused. Flag items and come back to them before that section ends, exactly as you would on the day.',
-            },
-            {
-              title: 'Read what it cost you',
-              body: 'An overall score on both PTE scales, four skill scores, a CEFR band, and a per item breakdown showing the correct answer against the one you gave.',
-            },
-          ].map((step, i) => (
-            <Reveal as="li" key={step.title} delay={Math.min(i, 2) * 90} variant="left">
-              <p className="text-brand-600 dark:text-brand-300 font-mono text-micro font-bold tabular-nums">
-                Step {i + 1}
-              </p>
-              <h3 className="text-ink-900 dark:text-white mt-2 text-lg font-bold leading-tight text-balance">{step.title}</h3>
-              <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{step.body}</p>
-            </Reveal>
-          ))}
-        </ol>
-      </section>
-
-      {/* ---------------------------------------------------------------- */}
-      <section className="page-shell-wide pt-8 sm:pt-12 pb-0">
-        <SectionHeading className="mb-0" eyebrow="Questions" title="Frequently asked questions" />
-        <Accordion className="mt-6" items={FAQ} />
-      </section>
-
-      <section className="page-shell-wide pt-8 pb-12 sm:pb-16">
-        <CtaBand
-          className="mt-0"
-          title="Know your score before you pay for the test"
-          description="Full mock · real clocks · 10–90 + CEFR report. No sign-up, no payment, no upload."
-          actions={
-            <>
-              <ButtonLink to="/mock" size="lg">
-                Start with target 65
-              </ButtonLink>
-              <ButtonLink to="/scoring" variant="secondary" size="lg">
-                How PTE scores work
-              </ButtonLink>
-            </>
-          }
-        />
-      </section>
+      <CtaBand
+        eyebrow="Last thing"
+        title="Know your score before you pay for the test"
+        description="Full mock with real timers plus a 10 to 90 report with CEFR band. No sign up, no payment, no upload. If the first mock does not feel like test day, simply close the tab."
+        actions={
+          <>
+            <ButtonLink to="/mock" size="lg" magnetic>
+              Start free mock test
+            </ButtonLink>
+            <ButtonLink to="/scoring" variant="secondary" size="lg">
+              How PTE scoring works
+            </ButtonLink>
+          </>
+        }
+      />
     </>
   )
 }

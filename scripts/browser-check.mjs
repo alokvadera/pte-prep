@@ -255,6 +255,8 @@ for (const route of ROUTES) {
           description: document.querySelector('meta[name=description]')?.getAttribute('content') ?? '',
           jsonLd: document.querySelectorAll('script[type="application/ld+json"]').length,
           interactive: document.querySelectorAll('a[href], button, input, select, textarea').length,
+          currentNav: [...document.querySelectorAll('header.site-header nav a[aria-current]')]
+            .map((a) => ({ label: a.textContent.trim(), current: a.getAttribute('aria-current') })),
           // A section band escapes the page shell with a negative margin, which
           // is only safe while the shell is centred — assert the rendered
           // geometry rather than trusting the arithmetic.
@@ -265,9 +267,12 @@ for (const route of ROUTES) {
             return r.left < -1 || r.right > window.innerWidth + 1
           }),
           // A band whose ground never resolved would read as a stray hairline.
-          bandGroundOk: [...document.querySelectorAll('.band, .band-flush')].every(
-            (b) => getComputedStyle(b).backgroundImage !== 'none',
-          ),
+          bandGroundOk: [...document.querySelectorAll('.band, .band-flush')].every((b) => {
+            const cs = getComputedStyle(b)
+            const bg = cs.backgroundColor
+            const clear = !bg || bg === 'transparent' || bg.endsWith(', 0)')
+            return cs.backgroundImage !== 'none' || !clear
+          }),
           callouts: document.querySelectorAll('.callout, .callout-rule').length,
           // Structure, which a component refactor silently breaks: a heading
           // level skipped, an aria-labelledby pointing at nothing, an in-page
@@ -327,6 +332,11 @@ for (const route of ROUTES) {
   report(data.title.length > 10, `${label.padEnd(14)} has a title`, data.title)
   report(data.description.length > 40, `${label.padEnd(14)} has a meta description`)
   report(data.canonical.length > 0, `${label.padEnd(14)} has a canonical`, data.canonical)
+  const expectedNav = route.startsWith('/question-types/') ? 'Test format'
+    : ({ '/mock': 'Mock test', '/practice': 'Practice', '/format': 'Test format', '/dashboard': 'Progress' })[route]
+  if (expectedNav) {
+    report(data.currentNav.some((n) => n.label === expectedNav), `${label.padEnd(14)} marks its current nav section`, JSON.stringify(data.currentNav))
+  }
   report(data.overflowX <= 1, `${label.padEnd(14)} does not scroll sideways`, `overflows by ${data.overflowX}px`)
   report(!data.bandOvershoot, `${label.padEnd(14)} bands span the shell without overshooting`)
   report(data.bandGroundOk, `${label.padEnd(14)} band grounds resolve`)
@@ -433,6 +443,14 @@ report(
   report(navigated, 'client-side routing navigates to /format', data.url)
   report(data.h1.length > 0, 'routed page has an h1', data.h1)
   report(/test format/i.test(data.title), 'routed page title is updated', data.title)
+  const accountReturn = await send('Runtime.evaluate', {
+    expression: `(() => {
+      const link = document.querySelector('header.site-header a[aria-label="Create account"], header.site-header a[aria-label="Sign in"]')
+      return link ? new URL(link.href).searchParams.get('from') : ''
+    })()`,
+    returnByValue: true,
+  }, sessionId)
+  report(accountReturn.result.value === '/format', 'sign in returns to the page you came from', accountReturn.result.value)
   report(errors.length === 0, 'client-side navigation throws nothing', errors.join(' | '))
 
   collectors.delete(navCollect)
@@ -468,7 +486,7 @@ report(
   }
 
   const startClicked = await evaluate(`(() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /^Start full mock$/i.test(b.textContent.trim()));
+    const btn = [...document.querySelectorAll('button')].find(b => /^Start (full mock|mock test|session)$/i.test(b.textContent.trim()));
     if (!btn) return 'no-button';
     btn.click();
     return 'clicked';
@@ -529,9 +547,68 @@ report(
   )
   report(stillAlive.question !== '', 'the runner is still on a question after navigating', stillAlive.question || stillAlive.head)
   report(stillAlive.timer !== '', 'the timer survives navigation', stillAlive.timer)
+
+  // Leaving a running session must offer a clear route back without silently
+  // discarding it. A full navigation also exercises persisted store hydration.
+  await send('Page.navigate', { url: `${BASE}/mock` }, sessionId)
+  const canResume = await waitUntil(sessionId, `!!document.querySelector('aside[aria-label="Active session"] a[href="/test"]')`)
+  report(canResume, 'mock setup offers to resume a running session')
+  const headerResume = await evaluate(`!!document.querySelector('header.site-header a[href="/test"]')`)
+  report(headerResume, 'the site header keeps the resume path visible')
+  if (canResume) {
+    await evaluate(`document.querySelector('aside[aria-label="Active session"] a[href="/test"]').click()`)
+    const resumed = await waitUntil(sessionId, `location.pathname === '/test' && !!document.querySelector('[role="timer"]')`)
+    report(resumed, 'resume returns to the running question and timer')
+  }
   report(flowErrors.length === 0, 'sitting the test throws nothing', flowErrors.join(' | ').slice(0, 200))
 
   collectors.delete(collectFlow)
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Timing control
+//
+// The untimed and extended timings were wired end to end — the preview, the
+// assembler, the store and the runner header all honour them — but the setup
+// screen had no control to choose one, so a candidate who needs extra time
+// could never reach the affordance the WCAG 2.2.1 note describes.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
+    return r.exceptionDetails ? '' : r.result.value
+  }
+
+  await send('Page.navigate', { url: `${BASE}/mock` }, sessionId)
+  await waitUntil(sessionId, `document.documentElement.dataset.appReady === 'true'`)
+
+  const options = JSON.parse(await evaluate(`(() => {
+    const group = document.querySelector('[role="group"][aria-label="Timing"]')
+    if (!group) return JSON.stringify({ found: false, count: 0 })
+    const buttons = [...group.querySelectorAll('button')]
+    buttons.find((b) => /untimed/i.test(b.textContent))?.click()
+    return JSON.stringify({ found: true, count: buttons.length })
+  })()`))
+  report(options.found && options.count === 4, 'the setup screen offers every timing option', JSON.stringify(options))
+
+  await sleep(400)
+  const applied = JSON.parse(await evaluate(`JSON.stringify({
+    summary: document.querySelector('dl')?.textContent ?? '',
+    body: document.body.textContent ?? '',
+    pressed: document.querySelector('[role="group"][aria-label="Timing"] button[aria-pressed="true"]')?.textContent?.trim() ?? '',
+  })`))
+  report(applied.pressed === 'Untimed', 'the chosen timing is marked as selected', applied.pressed)
+  report(/Untimed/.test(applied.summary), 'choosing a timing updates the session summary', applied.summary.replace(/\\s+/g, ' ').slice(0, 80))
+  report(/No clock/.test(applied.body), 'the chosen timing explains what changes', 'No clock')
+
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })
 }
@@ -565,7 +642,7 @@ report(
   }
 
   await evaluate(`(() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /^Start full mock$/i.test(b.textContent.trim()));
+    const btn = [...document.querySelectorAll('button')].find(b => /^Start (full mock|mock test|session)$/i.test(b.textContent.trim()));
     if (btn) btn.click();
     return !!btn;
   })()`)
@@ -609,8 +686,8 @@ report(
 
   const summary = JSON.parse(
     await evaluate(`JSON.stringify({
-      hasScore: /of 90/.test(document.body.textContent ?? ''),
-      hasSixty: /60–120 scale/.test(document.body.textContent ?? ''),
+      hasScore: /10 to 90/.test(document.body.textContent ?? ''),
+      hasSixty: /of 120|TOEFL/i.test(document.body.textContent ?? ''),
       hasSkills:
         ['speaking', 'writing', 'reading', 'listening'].every((s) =>
           new RegExp(s, 'i').test(document.body.textContent ?? ''),
@@ -621,12 +698,17 @@ report(
     })`),
   )
 
-  report(summary.hasScore, 'the results page shows a score out of 90')
-  report(summary.hasSixty, 'the results page shows the 60-120 scale')
+  report(summary.hasScore, 'the results page states the official 10 to 90 scale')
+  report(summary.hasSixty, 'the results page shows the TOEFL 120 equivalent')
   report(summary.hasSkills, 'the results page reports the four skills')
   report(summary.hasTabs, 'the results page offers its breakdown tabs')
   report(summary.hasEstimateNote, 'the results page labels estimates')
   report(!summary.noAttemptsText, 'the report is not an empty state', 'rendered the empty state')
+  const nextStep = JSON.parse(await evaluate(`JSON.stringify({
+    practice: !!document.querySelector('#main-content header a[href^="/practice"]'),
+    progress: !!document.querySelector('#main-content header a[href="/dashboard"]'),
+  })`))
+  report(nextStep.practice && nextStep.progress, 'the report offers practice and progress without scrolling')
 
   // Opening the answer review must list every attempted item.
   await evaluate(`(() => {
@@ -677,8 +759,29 @@ report(
     return r.result.value
   }
 
-  const DARK_BG = 'rgb(23, 27, 32)'
-  const LIGHT_BG = 'rgb(255, 255, 255)'
+  /* Read the grounds off the stylesheet rather than hardcoding them.
+     These two literals had drifted three times over: they said `rgb(23,27,32)`
+     while the app painted `rgb(13,17,23)`, and both predate the navy palette
+     that moved them to `rgb(10,22,40)`. Every theme assertion below was
+     therefore failing on a value nobody had looked at in a year, which is a
+     test that reports on itself rather than on the app. Reading the token means
+     a palette change does not turn four assertions red — and if the ground is
+     genuinely wrong, the token comparison still catches it. */
+  const token = async (name) =>
+    (await evaluate(
+      `getComputedStyle(document.documentElement).getPropertyValue('${name}').trim()`,
+    )) ?? ''
+  const rgbOf = (hex) => {
+    // The build minifies #ffffff to #fff, so both lengths have to parse or
+    // every light-ground assertion silently compares against an empty string.
+    const m = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(hex)
+    if (!m) return ''
+    const full = m[1].length === 3 ? m[1].replace(/./g, (c) => c + c) : m[1]
+    const n = parseInt(full, 16)
+    return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`
+  }
+  const DARK_BG = rgbOf(await token('--color-ink-900'))
+  const LIGHT_BG = rgbOf(await token('--color-ink-50'))
 
   // A realistic v1 record: the removed `system` theme, at the shape v1 wrote.
   await evaluate(`localStorage.setItem('pte-prep-settings', JSON.stringify({
@@ -727,8 +830,20 @@ report(
     'the toggle switches to the dark ground',
     await evaluate('getComputedStyle(document.body).backgroundColor'),
   )
+  /* Assert the relationship, not a literal. The chrome colour is derived from
+     the painted ground (see the theme-color effect in App.tsx), so the invariant
+     worth protecting is "they agree" — pinning `#171b20` here would break every
+     time the palette moves and would never have caught the three-way drift
+     between that value, the pre-paint script in index.html, and the real
+     `--color-ink-900`. */
+  const hexToRgbStr = (h) => {
+    const m = /^#?([0-9a-f]{6})$/i.exec((h ?? '').trim())
+    if (!m) return ''
+    const n = parseInt(m[1], 16)
+    return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`
+  }
   report(
-    (await evaluate("document.querySelector('meta[name=theme-color]').content")) === '#171b20',
+    hexToRgbStr(await evaluate("document.querySelector('meta[name=theme-color]').content")) === DARK_BG,
     'the browser chrome follows the dark theme',
     await evaluate("document.querySelector('meta[name=theme-color]').content"),
   )
@@ -857,12 +972,12 @@ report(
 }
 
 // ---------------------------------------------------------------------------
-// Tagline reveal
+// Tagline
 //
-// The B11 section animates per word via IntersectionObserver. Two things about
-// it can break silently, so both are asserted: the prerendered HTML must carry
-// the words already resolved (otherwise crawlers and no-JS visitors get 25%
-// opacity text), and the animation must still arm and resolve in the browser.
+// The mockup's tagline is one static sentence — no word-by-word reveal — with
+// the "one type" phrase punched out on its own highlight. The regressions this
+// guards are the section being dropped, or the highlight losing its span so the
+// sentence reverts to plain body colour.
 // ---------------------------------------------------------------------------
 {
   const { browserContextId } = await send('Target.createBrowserContext', {})
@@ -879,20 +994,14 @@ report(
   await send('Page.navigate', { url: `${BASE}/` }, sessionId)
   await sleep(2500)
 
-  const total = await evaluate("document.querySelectorAll('[data-reveal-word]').length")
-  report(Number(total) > 0, 'the tagline reveal renders its words', `words=${total}`)
+  const text = await evaluate("document.querySelector('.tagline-text')?.textContent?.trim() ?? ''")
+  report(text.startsWith('Find the'), 'the tagline renders its sentence', `text="${text.slice(0, 30)}"`)
 
-  const mutedOnLoad = await evaluate("document.querySelectorAll('[data-reveal-word][data-active=\"false\"]').length")
-  report(mutedOnLoad > 0, 'the tagline is armed off screen on load', `${mutedOnLoad} muted`)
+  const highlight = await evaluate("document.querySelector('.tagline-text .hl')?.textContent?.trim() ?? ''")
+  report(highlight === 'one type', 'the tagline highlight wraps "one type"', `hl="${highlight}"`)
 
-  await evaluate("document.querySelector('[data-reveal-word]')?.scrollIntoView({ block: 'center' }); 1")
-  await sleep(2600)
-  const active = await evaluate("document.querySelectorAll('[data-reveal-word][data-active=\"true\"]').length")
-  report(Number(active) === Number(total), 'every tagline word resolves once scrolled into view', `${active}/${total}`)
-
-  // Tailwind v4's scale-* sets the standalone `scale` property, not `transform`.
-  const scale = await evaluate("getComputedStyle(document.querySelector('[data-reveal-rule]')).scale")
-  report(/^1( |$)/.test(scale ?? ''), 'the rule draws across as the sentence resolves', `scale=${scale}`)
+  const opacity = await evaluate("getComputedStyle(document.querySelector('.tagline-text .hl')).opacity")
+  report(opacity === '1', 'the tagline ships fully resolved, with no muted words', `opacity=${opacity}`)
 
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })
@@ -928,7 +1037,7 @@ report(
   // Read Aloud is the densest timed type, so a short drill exercises the timer.
   await send('Page.navigate', { url: `${BASE}/practice?type=read-aloud` }, sessionId)
   await sleep(2200)
-  await click('Start this practice')
+  await click('Start drill')
   await sleep(2000)
   await click('^Begin')
   await sleep(2200)
@@ -998,7 +1107,7 @@ report(
 
   await send('Page.navigate', { url: `${BASE}/practice?type=summarize-written-text` }, sessionId)
   await sleep(2200)
-  await click('Start this practice')
+  await click('Start drill')
   await sleep(2200)
   await click('^Begin')
   await sleep(2200)
@@ -1011,8 +1120,11 @@ report(
     const path = await evaluate('location.pathname')
     if (path === '/result' || path === '/dashboard') break
   }
-  await click('View progress|Dashboard|Progress')
-  await sleep(2200)
+  const scored = await waitUntil(sessionId, `location.pathname === '/result' && !!document.querySelector('#main-content header')`)
+  report(scored, 'the recommended drill produces a result')
+  if (scored) await click('View progress|Dashboard|Progress')
+  const onDashboard = scored && await waitUntil(sessionId, `location.pathname === '/dashboard' && !!document.querySelector('#focus-heading')`)
+  report(onDashboard, 'the result leads into progress')
 
   const card = await evaluate(
     "(() => { const a = document.querySelector('section[aria-labelledby=\"focus-heading\"] a[href^=\"/practice?type=\"]'); return a ? a.getAttribute('href') : '' })()",
@@ -1123,17 +1235,32 @@ report(
   const order = await evaluate(`
     JSON.stringify([...document.querySelectorAll('main h2')].map(h => h.textContent.trim().slice(0, 24)))
   `)
+  /* Match the section by its position in the step list rather than by one
+     exact string. This asserted the literal "How a mock runs" and had been
+     failing every run since the heading was rewritten to "Ready in three
+     steps" — a check that goes stale silently and then trains you to ignore
+     the file. The invariant worth keeping is structural: the walkthrough has to
+     come before the FAQ. */
   const headings = JSON.parse(order ?? '[]')
-  const howIdx = headings.findIndex((h) => /how a mock runs/i.test(h))
+  const stepIdx = headings.findIndex((h) => /ready in three steps|how a mock runs/i.test(h))
   const faqIdx = headings.findIndex((h) => /frequently asked/i.test(h))
   report(
-    howIdx >= 0 && faqIdx > howIdx,
+    stepIdx >= 0 && faqIdx > stepIdx,
     'the three steps sit before the FAQ, per the page structure',
-    `how=${howIdx} faq=${faqIdx}`,
+    `steps=${stepIdx} faq=${faqIdx}`,
   )
 
+  /* Query a nav pill, not `nav a`. The first anchor inside <nav> is the logo
+     link, which carries no transition of its own, so this assertion had been
+     reading a computed `ease` off an element that was never meant to have the
+     house curve and reporting it as a failure. The logo also has an href, so
+     exclude it by aria-label and take a real navigation link. */
   const curve = await evaluate(
-    "getComputedStyle(document.querySelector('nav a')).transitionTimingFunction",
+    `(() => {
+       const link = [...document.querySelectorAll('nav a[href]')]
+         .find(a => !a.getAttribute('aria-label')?.includes('home'))
+       return link ? getComputedStyle(link).transitionTimingFunction : ''
+     })()`,
   )
   report(
     (curve ?? '').includes('0.32'),
@@ -1174,15 +1301,18 @@ report(
     `)) ?? '{}',
   )
   // The press animates over 700ms, so a literal string compare races the
-  // transition and intermittently reads 0px 0.999292px. Compare numerically.
+  // transition and intermittently reads a fractional value. Compare numerically.
+  // The press depth is a design choice — the 06-playful buttons sink 5px onto
+  // their offset shadow — so assert the intent (a real downward press) rather
+  // than one hard-coded pixel value.
   const pressY = Number.parseFloat(String(pressed.translate).split(/\s+/)[1] ?? 'NaN')
   report(
-    Number.isFinite(pressY) && Math.abs(pressY - 1) < 0.05,
+    Number.isFinite(pressY) && pressY >= 1,
     'buttons give physical press feedback',
     `translate=${pressed.translate}`,
   )
   report(
-    pressed.height === box.height && pressed.top === box.top + 1,
+    pressed.height === box.height && pressed.top === box.top + Math.round(pressY),
     'the press does not resize the tap target',
     `height ${box.height}->${pressed.height}, top ${box.top}->${pressed.top}`,
   )
@@ -1200,6 +1330,32 @@ report(
     'the button returns on release',
     `translate=${released}`,
   )
+
+  // Unlike the hero CTA, the format page's secondary action has no wrapper.
+  // Its pointer pull is delegated site-wide, without changing its box or link.
+  await send('Page.navigate', { url: `${BASE}/format` }, sessionId)
+  await waitUntil(sessionId, "document.documentElement.dataset.appReady === 'true'")
+  const action = JSON.parse((await evaluate(`(() => {
+    const a = document.querySelector('main a.btn-secondary')
+    if (!a) return '{}'
+    const r = a.getBoundingClientRect()
+    return JSON.stringify({ x: Math.round(r.left + r.width * .7), y: Math.round(r.top + r.height * .65) })
+  })()`)) ?? '{}')
+  if (Number.isFinite(action.x) && Number.isFinite(action.y)) {
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: action.x, y: action.y }, sessionId)
+    await sleep(450)
+    const pulled = await evaluate("document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')")
+    report(Math.abs(Number.parseFloat(pulled)) > 0.2, 'functional page actions follow the pointer', `x=${pulled}`)
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 2, y: 2 }, sessionId)
+    const settled = await evaluate("document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')")
+    report(Number.parseFloat(settled) === 0, 'functional actions settle when the pointer leaves', `x=${settled}`)
+    await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] }, sessionId)
+    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: action.x, y: action.y }, sessionId)
+    const still = await evaluate("document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')")
+    report(Number.parseFloat(still) === 0, 'reduced motion disables pointer pull', `x=${still}`)
+  } else {
+    report(false, 'functional page actions are present for hover testing')
+  }
 
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })
@@ -1231,13 +1387,24 @@ for (const width of [390, 768, 1100]) {
       'Runtime.evaluate',
       {
         expression: `(() => {
+          const W = window.innerWidth
           const bands = [...document.querySelectorAll('.band, .band-plain, .band-flush, .band-flush-plain')]
           const bad = bands.filter((el) => {
             const r = el.getBoundingClientRect()
-            return r.left < -1 || r.right > window.innerWidth + 1
+            return r.left < -1 || r.right > W + 1
           })
-          return { overflow: document.documentElement.scrollWidth - window.innerWidth,
-                   bands: bands.length, bad: bad.length }
+          // Name the offenders: a pixel count alone cannot be fixed.
+          const offenders = []
+          for (const el of document.querySelectorAll('body *')) {
+            const r = el.getBoundingClientRect()
+            if (r.width === 0 && r.height === 0) continue
+            if (r.right > W + 1 || r.left < -1) {
+              const cls = String(el.className).split(' ').slice(0, 2).join('.')
+              offenders.push(el.tagName.toLowerCase() + (cls ? '.' + cls : '') + ' w=' + Math.round(r.width) + ' r=' + Math.round(r.right))
+            }
+          }
+          return { overflow: document.documentElement.scrollWidth - W,
+                   bands: bands.length, bad: bad.length, offenders: offenders.slice(0, 6) }
         })()`,
         returnByValue: true,
       },
@@ -1247,7 +1414,7 @@ for (const width of [390, 768, 1100]) {
     report(
       v.overflow <= 1 && v.bad === 0,
       `${route.padEnd(14)} furniture at ${width}px keeps its geometry`,
-      `overflow ${v.overflow}px · ${v.bad}/${v.bands} bands off-edge`,
+      `overflow ${v.overflow}px · ${v.bad}/${v.bands} bands off-edge · ${(v.offenders ?? []).join(" | ")}`,
     )
   }
 
@@ -1343,6 +1510,57 @@ for (const width of [390, 768, 1100]) {
       v.hits.slice(0, 3).join('; '),
     )
   }
+
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// The landing hero should use the most recently saved attempt, not its old
+// hard-coded example score.
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+
+  const evaluate = async (expression) => {
+    const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+    return r.exceptionDetails ? null : r.result.value
+  }
+
+  await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+  const ready = await waitUntil(sessionId, "document.documentElement.dataset.appReady === 'true'")
+  await sleep(300)
+  const seeded = await evaluate(`new Promise((resolve) => {
+    const open = indexedDB.open('pte-prep')
+    open.onerror = () => resolve(false)
+    open.onsuccess = () => {
+      const db = open.result
+      if (!db.objectStoreNames.contains('attempts')) { db.close(); resolve(false); return }
+      const tx = db.transaction('attempts', 'readwrite')
+      tx.objectStore('attempts').put({
+        id: 'browser-check-latest',
+        finishedAt: '2026-10-12T10:00:00.000Z',
+        overallScore: 73.5,
+        overallIsEstimate: true,
+      })
+      tx.oncomplete = () => { db.close(); resolve(true) }
+      tx.onerror = () => { db.close(); resolve(false) }
+    }
+  })`)
+  report(ready && seeded, 'the saved-score fixture is available in local history')
+
+  await send('Page.reload', {}, sessionId)
+  const shown = await waitUntil(sessionId, "document.querySelector('h1')?.textContent?.includes('73.5/90')")
+  const details = JSON.parse(String(await evaluate(`JSON.stringify({
+    heading: document.querySelector('h1')?.textContent?.trim() ?? '',
+    label: document.querySelector('h1 + p')?.textContent?.trim() ?? '',
+    reportLink: [...document.querySelectorAll('a')].some(a => a.href.includes('attempt=browser-check-latest')),
+  })`)))
+  report(shown && /73\.5\/90/.test(details.heading), 'the homepage shows the latest saved practice score', details.heading)
+  report(details.label.includes('Practice estimate'), 'the homepage identifies estimated scores as practice estimates', details.label)
+  report(details.reportLink, 'the homepage links the score to its result report')
 
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })

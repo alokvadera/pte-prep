@@ -5,6 +5,9 @@
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "esnext",
     "types": ["vite/client", "vite-plugin-pwa/react"],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
 

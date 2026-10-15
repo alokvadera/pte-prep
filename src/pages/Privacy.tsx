@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Seo } from '../seo/Seo'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { PageWrapper, SectionHeading } from '../components/ui/primitives'
+import { Reveal } from '../components/ui/motion'
 
 const SECTIONS = [
   {
@@ -61,30 +62,38 @@ export default function Privacy() {
             claim ends and the next begins. */}
         <div className="mt-8">
           {SECTIONS.map((s, i) => (
-            <section
+            <Reveal
               key={s.heading}
-              className={
-                i > 0 ? 'border-ink-200 dark:border-white/10 mt-10 border-t pt-10 sm:mt-12 sm:pt-12' : undefined
-              }
+              variant="up"
+              delay={Math.min(i, 4) * 60}
+              duration={500}
             >
-              <SectionHeading eyebrow={s.eyebrow} title={s.heading} />
-              {s.body.map((p) => (
-                <p key={p.slice(0, 32)} className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
-                  {p}
-                </p>
-              ))}
-            </section>
+              <section
+                className={
+                  i > 0 ? 'border-ink-200 dark:border-white/10 mt-10 border-t pt-10 sm:mt-12 sm:pt-12' : undefined
+                }
+              >
+                <SectionHeading eyebrow={s.eyebrow} title={s.heading} />
+                {s.body.map((p) => (
+                  <p key={p.slice(0, 32)} className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
+                    {p}
+                  </p>
+                ))}
+              </section>
+            </Reveal>
           ))}
         </div>
 
-        <p className="text-ink-500 dark:text-ink-400 mt-16 border-t pt-6 text-sm leading-relaxed">
+        <Reveal variant="up" delay={100} duration={500}>
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-16 border-t pt-6 text-sm leading-relaxed">
           Questions about how the practice scoring works are answered on the{' '}
           <Link to="/about" className="link-inline">
             about page
           </Link>
           . PTE Academic and the PTE logo are trademarks of Pearson Education Ltd. This is an independent practice tool
           and is not affiliated with Pearson          .
-        </p>
+          </p>
+        </Reveal>
       </PageWrapper>
     </>
   )

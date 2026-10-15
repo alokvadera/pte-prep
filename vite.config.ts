@@ -2,6 +2,7 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
+import { fileURLToPath } from 'node:url'
 
 // Deployments under a sub-path (e.g. https://owner.github.io/repo/) set
 // BASE_PATH=/repo/ so that bundles, the manifest, the router and the
@@ -10,6 +11,12 @@ const base = process.env.BASE_PATH ?? '/'
 
 export default defineConfig({
   base,
+  // The `@` alias shadcn-style components import from
+  // (`@/components/ui/…`). It maps to the same folder this app's own
+  // UI primitives live in: src/components.
+  resolve: {
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
+  },
   plugins: [
     react(),
     tailwindcss(),
@@ -58,8 +65,8 @@ export default defineConfig({
         short_name: 'PTE Prep',
         description:
           'Free, unlimited PTE Academic mock tests with timed sections, detailed score reports and question-level review. Runs entirely in your browser.',
-        theme_color: '#0e1413',
-        background_color: '#0e1413',
+        theme_color: '#fff8ec',
+        background_color: '#fff8ec',
         display: 'standalone',
         orientation: 'portrait-primary',
         start_url: base,

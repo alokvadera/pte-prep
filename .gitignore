@@ -15,3 +15,16 @@ design-lab/motion-review
 agent
 skills-lock.json
 .wrangler
+mock-site/
+.vscode
+.cursor
+.commandcode
+.opencode
+.firecrawl
+.playwright-cli
+command-code-session-*.html
+design-options/
+test_fish_free.mp3
+.mcp.json
+opencode.json
+.freebuff

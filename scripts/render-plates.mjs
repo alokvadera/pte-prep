@@ -40,12 +40,9 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 // Typefaces, inlined so the composition is self-contained.
 // ---------------------------------------------------------------------------
 const FONT_FILES = {
-  serif: 'InstrumentSerif-Regular',
-  serifItalic: 'InstrumentSerif-Italic',
-  sans: 'InstrumentSans-Regular',
-  sansBold: 'InstrumentSans-Bold',
+  serif: 'Baloo2-Variable',
+  sans: 'Nunito-Variable',
   mono: 'IBMPlexMono-Regular',
-  monoBold: 'IBMPlexMono-Bold',
 }
 
 const fontCss = async () => {

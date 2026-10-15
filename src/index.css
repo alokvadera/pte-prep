@@ -2,7 +2,33 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ---------------------------------------------------------------------------
+   Faces. Three voices, each with a job, all self-hosted variable WOFF2 (latin
+   subset) so the app works offline and stays inside the 300 KB font budget
+   that scripts/seo-audit.mjs enforces.
 
+   Baloo 2 is the display voice: rounded, heavy, a little playful. It carries
+   every heading and large figure, which is what gives the page its character.
+
+   Nunito is the interface voice: a warm humanist sans for body copy, labels
+   and controls. Declared as a weight range so 400-800 all resolve from one
+   file instead of asking the browser for a synthetic bold.
+
+   IBM Plex Mono is for machine identifiers: a timer, an item code, a count.
+--------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Baloo 2';
+  src: url('/fonts/Baloo2-Variable.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Nunito';
+  src: url('/fonts/Nunito-Variable.woff2') format('woff2');
+  font-weight: 200 1000;
+  font-display: swap;
+}
 @font-face {
   font-family: 'IBM Plex Mono';
   src: url('/fonts/IBMPlexMono-Regular.woff2') format('woff2');
@@ -10,409 +36,740 @@
   font-display: swap;
 }
 @font-face {
-  font-family: 'Instrument Sans';
-  src: url('/fonts/InstrumentSans-Regular.woff2') format('woff2');
-  font-weight: 400 500;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'Instrument Sans';
-  src: url('/fonts/InstrumentSans-Bold.woff2') format('woff2');
-  font-weight: 600 800;
-  font-display: swap;
-}
-@font-face {
   font-family: 'IBM Plex Mono';
   src: url('/fonts/IBMPlexMono-Bold.woff2') format('woff2');
-  font-weight: 600;
+  font-weight: 500 700;
   font-display: swap;
 }
 
 @theme {
-  --font-sans: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Instrument Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Baloo 2', 'Nunito', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
 
-  /* White page ground, cool dividers and slate copy mirror the practice mock. */
-  --color-ink-50: #f6f8fa;
-  --color-ink-100: #edf0f4;
-  --color-ink-200: #d0d7de;
-  --color-ink-300: #b1bac4;
-  --color-ink-400: #8b949e;
-  --color-ink-500: #57606a;
-  --color-ink-600: #32383f;
-  --color-ink-700: #24292f;
-  --color-ink-800: #1c2128;
-  --color-ink-850: #161b22;
-  --color-ink-900: #0d1117;
-  --color-ink-950: #05070a; /* Coco dark-text */
+  /* --- Playful palette ----------------------------------------------------
+     Cream ground, indigo ink, and four candy accents (purple / green /
+     orange / pink). Two tiers per family so every contrast.mjs pair holds:
+     a DARK step for text and meaningful marks (>=4.5 on cream/white) and a
+     BRIGHT step for fills and decoration (>=3 where it is audited). The
+     mockup's raw bright hexes fail WCAG as small text on cream, so the text
+     steps are deliberately deepened. -------------------------------------- */
 
-  /* Blue marks navigation, selection, and the primary mock action.
-     Dark mode uses two steps: brand-300 for static accent text (kickers,
-     Part labels), brand-400 as the resting state for links that hover to
-     brand-300. Both clear 4.5:1 on ink-900 (8.26 / 5.17). */
-  --color-brand-50: #edf5ff;
-  --color-brand-100: #d0e2ff;
-  --color-brand-200: #a6c8ff;
-  --color-brand-300: #79c0ff;
-  --color-brand-400: #388bfd;
-  --color-brand-500: #0969da;
-  --color-brand-600: #0356b6;
-  --color-brand-700: #023b7e;
-  --color-brand-800: #012754;
-  --color-brand-900: #001633;
+  /* Ground + indigo ink ramp. 50 is the cream page ground; cards are white. */
+  --color-ink-50: #fff8ec;
+  --color-ink-100: #f1ecff;
+  --color-ink-200: #e0daf4;
+  --color-ink-300: #c2bae4;
+  --color-ink-400: #8b82b8;
+  --color-ink-500: #6b6398;
+  --color-ink-600: #544c86;
+  --color-ink-700: #403a6b;
+  --color-ink-800: #232538;
+  --color-ink-850: #181928;
+  --color-ink-900: #10111e;
+  --color-ink-950: #0a0b14;
 
-  /* --- Signals ------------------------------------------------------------
-     Three, each with exactly one meaning: held, partial, lost. Muted, printed
-     values rather than alert-box saturation. */
-  --color-mint-300: #7fc0a0;
-  --color-mint-400: #2f7a5b;
-  --color-mint-500: #2a6b50;
-  --color-mint-600: #215d45;
-  --color-mint-700: #174334;
+  /* Action ink: indigo fills (skip link, toggles, progress, score band C1). */
+  --color-brand-50: #f4f1ff;
+  --color-brand-100: #e9e4ff;
+  --color-brand-200: #d0c8f7;
+  --color-brand-300: #b0a9dd;
+  --color-brand-400: #8880c4;
+  --color-brand-500: #5b54a8;
+  --color-brand-600: #443d8c;
+  --color-brand-700: #322c6e;
+  --color-brand-800: #26215a;
+  --color-brand-900: #1c1846;
 
-  --color-amber-brand: #9c4a24;
-  --color-amber-300: #e0a377;
-  --color-amber-400: #cf8148;
-  --color-amber-500: #9c4a24;
-  --color-amber-600: #8d4220;
-  --color-amber-700: #6b3218;
+  /* The mark — purple (focus, eyebrows, links, hover). */
+  --color-mark-50: #faf7ff;
+  --color-mark-100: #f1ebfe;
+  --color-mark-200: #e2d6fe;
+  --color-mark-300: #c4b1fc;
+  --color-mark-400: #b19afc;
+  --color-mark-500: #8b5cf6;
+  --color-mark-600: #6d3fe0;
+  --color-mark-700: #5b2fc9;
+  --color-mark-800: #4c1d95;
+  --color-mark-900: #3b0764;
+  --color-mark-950: #260544;
 
-  --color-rose-brand: #8c3a3a;
-  --color-rose-300: #d69191;
-  --color-rose-400: #c26b6b;
-  --color-rose-500: #a44a4a;
-  --color-rose-600: #833737;
-  --color-rose-700: #652929;
+  /* Positive / held — green. 50 is the mockup's mint band; 500/600 are the
+     mockup's exact candy green and its darker twin (the offset-shadow colour);
+     they carry deep-indigo text rather than white, which is what makes
+     06-playful's greens readable at ~6:1 instead of the mockup's 2.2:1.
+     700 stays a deep green for text on light grounds. */
+  --color-mint-50: #eaf9ee;
+  --color-mint-300: #7fd0a4;
+  --color-mint-400: #2f9a63;
+  --color-mint-500: #3cc85e;
+  --color-mint-600: #279645;
+  --color-mint-700: #124a32;
 
-  /* Shape: pills for controls, squares for surfaces. Buttons, nav pills,
-     toggles and progress tracks are `rounded-full` so a finger target reads
-     as one gesture; cards, fields and disclosures stay softly squared
-     (sm/md/lg) so a surface never mimics a control. */
-  --radius-sm: 2px;
-  --radius-md: 4px;
-  --radius-lg: 6px;
-  --radius-xl: 8px;
-  --radius-2xl: 10px;
-  --radius-3xl: 12px;
+  /* Caution — orange. Text steps are deep brown-orange for WCAG. */
+  --color-amber-300: #f0a94c;
+  --color-amber-400: #d98324;
+  --color-amber-500: #8f6110;
+  --color-amber-600: #7e560d;
+  --color-amber-700: #5f400a;
 
-  --radius-4xl: 2rem;
-  
-  --shadow-premium-light: 0 1px 2px rgb(14 17 23 / 0.04), 0 10px 28px rgb(14 17 23 / 0.04);
-  --shadow-premium-dark: 0 1px 2px rgb(0 0 0 / 0.28), 0 12px 28px rgb(0 0 0 / 0.18);
-  --shadow-premium-inset: inset 0 1px 0 rgba(255,255,255,0.08);
-  --shadow-premium-inset-light: inset 0 1px 0 rgba(255,255,255,0.7);
+  /* Lost point / attention — pink. */
+  --color-rose-300: #f7a8cb;
+  --color-rose-400: #f284b0;
+  --color-rose-500: #ff7eb6;
+  --color-rose-600: #c2185b;
+  --color-rose-700: #a3174a;
+  --color-rose-brand: #de4a8e;
+  --color-amber-brand: #c87a16;
 
-  /* One size for the micro-label role: the mono eyebrow, the stat key, the
-     per-item counter. These were nine separate arbitrary values between 9px and
-     13px, which is not a scale. Declared once so they read as one voice.
-     Kept on the same readable 12px step as Tailwind's `text-xs`. */
+  /* Light text steps for the dark theme's indigo grounds. */
+  --color-ink-on-dark: #d6d1f2;
+  --color-ink-on-dark-muted: #b4aedd;
+  --color-ink-on-dark-faint: #a79fd4;
+
+  /* Playful radii: nothing razor-sharp. Small chips get 6px, panels 12px,
+     cards 24px (--radius-2xl); buttons and pills go fully round inside their
+     own utility blocks. */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
+  --radius-4xl: 32px;
+
+  /* Candy depth: a hard indigo offset (the playful signature) over a soft
+     ambient, so surfaces feel lifted rather than stickered. */
+  --shadow-card: 0 6px 0 rgb(45 42 94 / 0.07);
+  --shadow-panel: 0 8px 0 rgb(45 42 94 / 0.09);
+  --shadow-glow: none;
+  --shadow-lift: 0 6px 0 rgb(45 42 94 / 0.12), 0 16px 30px -16px rgb(45 42 94 / 0.35);
+  --shadow-lift-lg: 0 10px 0 rgb(45 42 94 / 0.14), 0 26px 46px -22px rgb(45 42 94 / 0.4);
+  --shadow-glass: 0 0 0 1px rgb(255 255 255 / 0.1) inset, 0 8px 32px -8px rgb(0 0 0 / 0.18);
+  --shadow-glass-strong: 0 0 0 1px rgb(255 255 255 / 0.14) inset, 0 16px 48px -12px rgb(0 0 0 / 0.24);
+
   --text-micro: 12px;
   --text-micro--line-height: 1rem;
 
-  /* The measure cap for hero headings (skill B5). A heading wider than this
-     wraps at arbitrary points and stops being scannable; a token rather than an
-     arbitrary value so the cap means the same thing wherever it is used. */
-  --container-hero: 680px;
+  --container-hero: 640px;
 
-  /* Motion (skill B7). One curve for the whole site rather than the framework
-     default: everything settles quickly and never overshoots, so a hover, a
-     panel and the tagline reveal all read as the same material. Set once here
-     so the twenty-plus `transition-*` utilities across the app inherit it
-     instead of each call site inventing its own. */
+  /* Motion curves. Real world mass and spring, never a framework default. */
   --ease-settle: cubic-bezier(0.32, 0.72, 0, 1);
-  --default-transition-timing-function: var(--ease-settle);
-
-  /* Elevation is a shift in value, not a blur. The only shadows that exist
-     here are the near-invisible ones used to lift a surface one step off its
-     ground; nothing is allowed to float. */
-  --shadow-card: 0 1px 0 0 rgb(255 255 255 / 0.04) inset, 0 14px 36px -18px rgb(0 0 0 / 0.72);
-  --shadow-panel: 0 1px 0 0 rgb(255 255 255 / 0.03) inset;
-  --shadow-glow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 20px 52px -20px rgb(0 0 0 / 0.62);
-
-  --animate-route-enter: route-enter 0.28s var(--ease-settle) both;
-  --animate-shimmer: shimmer 2.2s linear infinite;
-  --animate-drawer-enter: drawer-enter 0.26s var(--ease-settle) both;
-  --animate-modal-enter: modal-enter 0.22s var(--ease-settle) both;
-  --animate-fade-in: fade-in 0.2s ease-out both;
-  --animate-question-enter: question-enter 0.2s var(--ease-settle) both;
-  --animate-bar-reveal: bar-reveal 0.65s var(--ease-settle) both;
-
-  /* Motion, the expressive half.
-
-     `--ease-settle` stays the curve for anything the user operates — a hover, a
-     press, a nav pill — so controls still feel like one material. These two are
-     for things the page does on its own: `--ease-pop` carries a little
-     overshoot for entrances and count-ups, `--ease-glide` is a long, calm
-     decelerate for large surfaces and drifting backgrounds. */
-  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-glide: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.2, 0.95, 0.3, 1.06);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+  --default-transition-timing-function: var(--ease-settle);
+  --transition-fluid: all 360ms cubic-bezier(0.32, 0.72, 0, 1);
 
-  --animate-rise-in: rise-in 0.6s var(--ease-settle) both;
-  --animate-pop-in: pop-in 0.9s var(--ease-pop) both;
-  --animate-float-slow: float-slow 6s ease-in-out infinite;
-  --animate-bob: bob 3.6s ease-in-out infinite;
-  --animate-drift: drift 22s ease-in-out infinite alternate;
-  --animate-spin-slow: spin 28s linear infinite;
-  --animate-gradient-pan: gradient-pan 7s ease infinite;
-  --animate-pulse-ring: pulse-ring 2.8s var(--ease-settle) infinite;
-  --animate-soft-pulse: soft-pulse 3s ease-in-out infinite;
-  --animate-gradient-shift: gradient-shift 8s ease infinite;
-  --animate-shimmer-subtle: shimmer-subtle 3s linear infinite;
-  --animate-slide-up: slide-up 0.5s var(--ease-settle) both;
-  --animate-slide-down: slide-down 0.5s var(--ease-settle) both;
-  --animate-scale-in: scale-in 0.4s var(--ease-pop) both;
-  --animate-rotate-in: rotate-in 0.6s var(--ease-settle) both;
+  --animate-route-enter: route-enter 0.28s var(--ease-glide) both;
+  --animate-drawer-enter: drawer-enter 0.26s var(--ease-glide) both;
+  --animate-modal-enter: modal-enter 0.26s var(--ease-spring) both;
+  --animate-fade-in: fade-in 0.22s var(--ease-glide) both;
+  --animate-question-enter: question-enter 0.28s var(--ease-glide) both;
+  --animate-bar-reveal: bar-reveal 0.65s var(--ease-out-expo) both;
+  --animate-rise-in: rise-in 0.46s var(--ease-out-expo) both;
+  --animate-blur-in: blur-in 0.52s var(--ease-out-expo) both;
+  --animate-shimmer: shimmer 1.8s var(--ease-in-out-quart) infinite;
+  --animate-float: float 3.8s ease-in-out infinite;
+  --animate-bob: bob 3.2s ease-in-out infinite;
+  --animate-pulse-soft: pulse-soft 2.4s var(--ease-in-out-quart) infinite;
+  --animate-morph: morph 0.32s var(--ease-spring) both;
+  --animate-pop: pop 0.26s var(--ease-spring) both;
+  --animate-tab-enter: tab-enter 0.20s var(--ease-glide) both;
+  --animate-draw: draw-line 0.9s var(--ease-out-expo) both;
+  --animate-draw-dot: draw-dot 0.32s var(--ease-spring) both;
+  --animate-tooltip-in: tooltip-in 0.15s var(--ease-glide) both;
+  --animate-pop-in: pop-in 0.20s var(--ease-spring) both;
+  --animate-toast-in: toast-in 0.24s var(--ease-spring) both;
+  --animate-skeleton-pulse: skeleton-pulse 1.8s var(--ease-in-out-quart) infinite;
+  --animate-ping-slow: ping-slow 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-marquee: marquee-scroll 36s linear infinite;
+  --animate-marquee-slow: marquee-scroll 60s linear infinite;
 }
 
 @keyframes route-enter {
-  0% { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translateY(8px) scale(0.995); filter: blur(3px); }
+  100% { opacity: 1; transform: none; filter: none; }
 }
-
 @keyframes drawer-enter {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 }
-
 @keyframes modal-enter {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  0% { opacity: 0; transform: scale(0.97) translateY(5px); }
+  70% { transform: scale(1.004) translateY(-0.3px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
-
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-
 @keyframes question-enter {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  0% { opacity: 0; transform: translateY(6px); filter: blur(2px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-
 @keyframes details-sweep {
-  from {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
 @keyframes eq-pulse {
-  0%, 100% {
-    transform: scaleY(0.25);
-  }
-  35% {
-    transform: scaleY(0.9);
-  }
-  65% {
-    transform: scaleY(0.45);
-  }
-  85% {
-    transform: scaleY(1);
-  }
+  0%, 100% { transform: scaleY(0.35); }
+  50% { transform: scaleY(1); }
 }
-
 @keyframes bar-reveal {
-  from {
-    transform: scaleX(0);
-  }
-  to {
-    transform: scaleX(1);
-  }
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
-
-@keyframes shimmer {
-  from {
-    background-position: -200% 0;
-  }
-  to {
-    background-position: 200% 0;
-  }
+@keyframes grow-up {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
 }
-
-/* --- Expressive motion ---------------------------------------------------- */
-
 @keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  0% { opacity: 0; transform: translateY(10px); filter: blur(3px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-
-/* Overshoots a touch past its resting place, then settles back. */
-@keyframes pop-in {
-  0% {
-    opacity: 0;
-    transform: scale(0.92) translateY(16px);
-  }
-  62% {
-    opacity: 1;
-    transform: scale(1.025) translateY(-3px);
-  }
-  100% {
-    opacity: 1;
-    transform: none;
-  }
+@keyframes blur-in {
+  0% { opacity: 0; transform: translateY(12px); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
-
-@keyframes float-slow {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-14px);
-  }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
 @keyframes bob {
-  0%,
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-4px) rotate(-2deg); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes morph {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(0deg) scale(0.85); }
+  100% { transform: rotate(0deg) scale(1); }
+}
+/* The one-shot playful arrival: a value that changed, or a figure worth a beat.
+   A spring overshoot, so it reads as a nudge rather than a fade. */
+@keyframes pop {
+  0% { opacity: 0; transform: scale(0.94); }
+  65% { transform: scale(1.015); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* A brief, useful error nudge: two small side-to-side moves,
+   then rest. Errors are information, not theatre, so the
+   motion stays under half a centimetre and 300ms. */
+@keyframes error-nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  55% { transform: translateX(4px); }
+  80% { transform: translateX(-2px); }
+}
+/* The exit half of a toast: up and away. Exits run at roughly
+   70% of the 240ms entrance, per the motion timing rule. */
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes tab-enter {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+/* Charts draw in unit space: the element carries pathLength="1", so one
+   dasharray value works whatever the path's real length is. */
+@keyframes draw-line {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes draw-dot {
+  0% { opacity: 0; transform: scale(0.2); }
+  100% { opacity: 1; transform: scale(1); }
+}
+/* Overlay arrivals for the newer primitives: a tooltip's
+   quick rise, a popover's spring pop, a toast sliding up
+   from the corner, and the skeleton's soft breath. */
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(4px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+@keyframes pop-in {
+  0% { opacity: 0; transform: translateY(4px) scale(0.98); }
+  65% { transform: translateY(-0.5px) scale(1.006); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-in {
+  0% { opacity: 0; transform: translateY(12px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+/* Second wave of motion patterns:
+   a slow ping for live indicators,
+   the marquee's endless scroll, the
+   confetti flight, and the word-by-
+   word heading arrival. */
+@keyframes ping-slow {
+  0% { transform: scale(1); opacity: 0.7; }
+  80%, 100% { transform: scale(2.4); opacity: 0; }
+}
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+@keyframes confetti-fly {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
   100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-8px) rotate(-2.5deg);
+    transform: translate(calc(cos(var(--angle)) * var(--dist)), calc(sin(var(--angle)) * var(--dist) + 140px)) rotate(560deg) scale(0.7);
+    opacity: 0;
   }
 }
-
-/* Each blob carries its own pair of stops so the field cycles through the
-     brand/mint hues instead of sitting on one flat colour. Both stops are
-     tokens, so the drift never introduces a hue that is not already in the
-     palette, and mint — the darker of the two — spends part of the cycle
-     lowering the wash's mean luminance, which is what protects the headline. */
-@keyframes drift {
-  from {
-    transform: translate3d(-4%, -3%, 0) scale(1);
-    background-color: var(--aurora-a, var(--color-brand-400));
-  }
-  to {
-    transform: translate3d(6%, 5%, 0) scale(1.08);
-    background-color: var(--aurora-b, var(--color-brand-400));
-  }
-}
-
-@keyframes gradient-pan {
-  0%,
-  100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-@keyframes pulse-ring {
+@keyframes orbit {
   0% {
-    opacity: 0.5;
-    transform: scale(0.85);
-  }
-  70% {
-    opacity: 0;
-    transform: scale(1.7);
+    transform: rotate(calc(var(--angle) * 1deg)) translateY(calc(var(--radius) * 1px)) rotate(calc(var(--angle) * -1deg));
   }
   100% {
-    opacity: 0;
-    transform: scale(1.7);
+    transform: rotate(calc(var(--angle) * 1deg + 360deg)) translateY(calc(var(--radius) * 1px)) rotate(calc((var(--angle) * -1deg) - 360deg));
   }
 }
-
-@keyframes soft-pulse {
-  0%, 100% {
-    opacity: 1;
+.animate-orbit {
+  animation: orbit calc(var(--duration) * 1s) linear infinite;
+}
+@keyframes shiny-text {
+  0%, 90%, 100% {
+    background-position: calc(-100% - var(--shiny-width, 100px)) 0;
   }
-  50% {
-    opacity: 0.7;
+  30%, 60% {
+    background-position: calc(100% + var(--shiny-width, 100px)) 0;
   }
 }
-
-@keyframes gradient-shift {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
+.animate-shiny-text {
+  animation: shiny-text 8s infinite cubic-bezier(0.6, 0.6, 0, 1);
 }
-
-@keyframes shimmer-subtle {
+@keyframes type-cursor-blink {
+  0%, 48% { opacity: 1; }
+  50%, 98% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.animate-type-cursor {
+  animation: type-cursor-blink 0.85s steps(1, start) infinite;
+}
+@keyframes shine {
   0% {
-    background-position: -200% center;
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
   }
   100% {
-    background-position: 200% center;
+    background-position: 0% 0%;
   }
 }
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+.animate-shine {
+  animation: shine var(--duration, 14s) infinite linear;
 }
 
-@keyframes slide-down {
-  from {
-    opacity: 0;
-    transform: translateY(-12px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+/* ---------------------------------------------------------------------------
+   Second-wave UI patterns.
+--------------------------------------------------------------------------- */
+
+/* SpotlightCard — a radial glow that tracks
+   the cursor across the card surface. The
+   position is written to custom properties
+   on pointer move, so no per-frame React
+   work happens; only the compositor runs. */
+.spotlight-card { position: relative; }
+.spotlight-card > .spotlight-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(260px circle at var(--sp-x, 50%) var(--sp-y, 50%), rgb(91 84 168 / 0.14), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.spotlight-card > .spotlight-glow-on { opacity: 1; }
+.dark .spotlight-card > .spotlight-glow {
+  background: radial-gradient(
+    280px circle at var(--sp-x, 50%) var(--sp-y, 50%),
+    rgba(139, 92, 246, 0.22) 0%,
+    rgba(60, 200, 94, 0.08) 45%,
+    transparent 70%
+  );
 }
 
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+/* Marquee — the endless ticker. The track
+   holds two copies of the row and scrolls
+   by exactly half, so the loop is seamless;
+   it pauses on hover so a reader can land. */
+.marquee-track { animation: var(--animate-marquee); }
+.marquee-track.marquee-slow { animation: var(--animate-marquee-slow); }
+.marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* ConfettiBurst — a one-shot ring of candy
+   particles, fired from the viewport centre.
+   CSS trig does the radial flight; the burst
+   removes itself when the flight ends. */
+.confetti-origin { position: absolute; left: 50%; top: 38%; }
+.confetti-particle {
+  position: absolute;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--color);
+  animation: confetti-fly 1.7s cubic-bezier(0.15, 0.85, 0.45, 1) forwards;
 }
 
-@keyframes rotate-in {
-  from {
-    opacity: 0;
-    transform: rotate(-8deg) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+/* FlipCard — a card that turns over on the
+   spring curve. The front sits in flow and
+   defines the height; the back is pinned to
+   the same box, pre-rotated. */
+.flip-card {
+  display: block;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: inherit;
+  perspective: 1200px;
+}
+.flip-inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s var(--ease-spring);
+}
+.flip-inner-flipped { transform: rotateY(180deg); }
+.flip-face {
+  display: block;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+/* TextReveal — each word of a heading rises
+   and un-blurs a beat after the last. The
+   waiting state is never written to the
+   server render, so the heading is complete
+   without JavaScript. */
+.word {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition: opacity 0.5s ease, transform 0.5s var(--ease-out-expo), filter 0.5s ease;
+}
+.word[data-armed='true'] {
+  opacity: 0;
+  transform: translateY(0.35em);
+  filter: blur(4px);
+}
+.word[data-armed='true'].word-in {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+}
+
+/* ---------------------------------------------------------------------------
+   Third- and fourth-wave landing patterns.
+--------------------------------------------------------------------------- */
+
+/* AuroraBackground — three drifting
+   candy blobs, blurred hard so they
+   read as light on the ground. The
+   drift is a slow figure-eight per
+   blob; each blob is out of phase so
+   the sky never settles into a shape. */
+.aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aurora-blob {
+  position: absolute;
+  width: 55%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.5;
+}
+.aurora-blob-a {
+  top: -25%;
+  left: -10%;
+  background: rgb(60 200 94 / 0.22);
+  animation: aurora-a 26s ease-in-out infinite;
+}
+.aurora-blob-b {
+  right: -15%;
+  top: -10%;
+  background: rgb(91 84 168 / 0.2);
+  animation: aurora-b 32s ease-in-out infinite;
+}
+.aurora-blob-c {
+  bottom: -35%;
+  left: 30%;
+  background: rgb(139 92 246 / 0.16);
+  animation: aurora-c 38s ease-in-out infinite;
+}
+.dark .aurora-blob {
+  opacity: 0.55;
+}
+@keyframes aurora-a {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(12%, 8%) scale(1.12); }
+  66% { transform: translate(-6%, 14%) scale(0.94); }
+}
+@keyframes aurora-b {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  40% { transform: translate(-14%, 10%) scale(1.1); }
+  75% { transform: translate(8%, -6%) scale(0.92); }
+}
+@keyframes aurora-c {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-10%, -12%) scale(1.15); }
+}
+
+/* The one gradient device: the section
+   divider's travelling light. Text and
+   borders are solid colour everywhere
+   else, so a gradient on the page
+   means "section boundary" and
+   nothing else. */
+@keyframes gradient-x {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ScrollVelocity rides the shared
+   marquee track; its motion is
+   frame-driven in JavaScript, so the
+   CSS here only sizes the row. */
+
+/* StickyCTA — the closing pill. Off
+   screen below, up on scroll, and it
+   bows out before the footer. */
+.sticky-cta {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.5rem 0.4rem 1.1rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-ink-200);
+  box-shadow: 0 10px 30px -4px rgba(45, 42, 94, 0.18), 0 2px 6px rgba(0, 0, 0, 0.06);
+  transform: translate(-50%, calc(100% + 2rem));
+  transition: transform 0.45s var(--ease-spring);
+  pointer-events: none;
+}
+.sticky-cta:where(.dark, .dark *) {
+  background: rgba(24, 25, 40, 0.94);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.55);
+}
+.sticky-cta-on {
+  transform: translate(-50%, 0);
+  pointer-events: auto;
+}
+.sticky-cta-note {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-ink-700);
+  padding-right: 0.35rem;
+}
+.sticky-cta:where(.dark, .dark *) .sticky-cta-note {
+  color: var(--color-ink-200);
+}
+
+/* SectionDivider — a short gradient
+   hairline with a slow light
+   travelling along it. */
+.section-divider {
+  display: flex;
+  justify-content: center;
+  padding-block: 1.5rem;
+}
+.section-divider-line {
+  width: 120px;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-mint-500),
+    var(--color-brand-500),
+    var(--color-mark-500),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: gradient-x 9s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+/* Float — the weightless bob. */
+.float {
+  animation: float-y var(--float-dur, 6s) ease-in-out infinite;
+}
+@keyframes float-y {
+  0%, 100% { transform: translateY(calc(var(--float-y, 10px) * -1)); }
+  50% { transform: translateY(var(--float-y, 10px)); }
+}
+
+/* CursorGlow — refined ambient pool of light that follows the pointer.
+   Sized at 520px and offset by half, with smooth opacity fade transitions
+   and multi-tone atmospheric radiance in light and dark mode. */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 520px;
+  height: 520px;
+  margin-top: -260px;
+  margin-left: -260px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(139, 92, 246, 0.08) 0%,
+    rgba(60, 200, 94, 0.04) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  will-change: transform, opacity;
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dark .cursor-glow {
+  background: radial-gradient(
+    circle,
+    rgba(139, 92, 246, 0.16) 0%,
+    rgba(60, 200, 94, 0.07) 35%,
+    rgba(255, 159, 28, 0.02) 52%,
+    transparent 70%
+  );
+}
+
+/* TextScramble needs no costume: it
+   is inline text resolving in place. */
+
+/* ScrollDownIndicator — the mouse
+   with a travelling wheel dot. */
+.scroll-down {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  opacity: 0.55;
+}
+.scroll-down-mouse {
+  display: block;
+  width: 24px;
+  height: 38px;
+  border: 2px solid var(--color-ink-400);
+  border-radius: 12px;
+  position: relative;
+}
+.scroll-down-wheel {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 3px;
+  height: 7px;
+  margin-left: -1.5px;
+  border-radius: 9999px;
+  background: var(--color-brand-500);
+  animation: wheel-travel 1.8s ease-in-out infinite;
+}
+@keyframes wheel-travel {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(12px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+.scroll-down-label {
+  font-size: 0.625rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-ink-500);
+}
+.dark .scroll-down-label {
+  color: var(--color-ink-on-dark-muted);
+}
+
+/* ParallaxVisual — the drifting
+   card. The transform is owned here
+   and only here, per element. */
+.parallax-visual {
+  will-change: transform;
+}
+
+/* ShimmerButton — the periodic light
+   pass over the primary action. */
+.shimmer-button {
+  position: relative;
+  display: inline-flex;
+  border-radius: 9999px;
+}
+.shimmer-button-sweep {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  clip-path: inset(0 round 9999px);
+  transform: translateX(-130%);
+  background: linear-gradient(
+    100deg,
+    transparent 32%,
+    rgb(255 255 255 / 0.4) 50%,
+    transparent 68%
+  );
+  animation: shimmer-sweep 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes shimmer-sweep {
+  0%, 55% { transform: translateX(-130%); }
+  90%, 100% { transform: translateX(130%); }
+}
+
+/* GrainOverlay — the printed-paper
+   whisper. An SVG turbulence tile at
+   very low opacity, fixed to the
+   viewport so it never scrolls. */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+}
+
+/* ProgressDots — the section rail. */
+.progress-dots {
+  user-select: none;
 }
 
 @layer base {
@@ -428,7 +785,6 @@
     border-color: rgb(255 255 255 / 0.1);
   }
 
-  /* Subtle dividers for better visual hierarchy */
   hr {
     border: none;
     border-top: 1px solid var(--color-ink-200);
@@ -442,8 +798,7 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
-    scroll-padding-top: 5.5rem;
-    /* Keeps native controls, scrollbars, and form widgets on-palette. */
+    scroll-padding-top: 5rem;
     color-scheme: light;
   }
 
@@ -451,21 +806,15 @@
     color-scheme: dark;
   }
 
-  /* The one tinted ground on the site: a slow diagonal wash from the page
-     ground, through a 40% brand mix at the midpoint, and back. Declared once as
-     a variable so the section band and `bg-gradient-subtle` cannot drift into
-     two slightly different tints, which is what had started to happen. */
   :root { --ground-tint: var(--color-ink-100); }
   .dark { --ground-tint: var(--color-ink-950); }
 
   .route-enter {
-    animation: route-enter 0.4s var(--ease-glide) both;
+    animation: var(--animate-route-enter);
   }
 
-  /* Every route except Home sits on this slightly raised ground, so navigating
-     between the utility pages never flashes between two page colours. */
   .route-inner {
-    background-color: var(--color-ink-100);
+    background-color: var(--color-ink-50);
   }
 
   .dark .route-inner {
@@ -482,45 +831,37 @@
     @apply bg-ink-900 text-ink-100;
   }
 
-  /* A visible, high-contrast focus indicator. brand-500 clears 3:1 against both
-     grounds, so one token serves light and dark without a variant. */
+  /* The focus ring is the mark colour — purple. It is the one place the
+     accent means something other than a lost point: attention is exactly
+     what focus is. */
   :focus-visible {
-    outline: 2px solid var(--color-brand-500);
+    outline: 2px solid var(--color-mark-600);
     outline-offset: 2px;
     border-radius: var(--radius-sm);
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-brand-500) 8%, transparent);
   }
 
   .dark :focus-visible {
-    outline-color: var(--color-brand-300);
-    box-shadow: 0 0 0 4px color-mix(in oklab, var(--color-brand-300) 8%, transparent);
+    outline-color: var(--color-mark-400);
   }
 
-  /* Body copy is set with `text-wrap: pretty` so a single word is never left
-     alone on the last line. Headings opt into `text-balance` instead, which wins
-     on specificity since a utility class beats an element selector. */
   p {
     text-wrap: pretty;
   }
 
   ::selection {
-    background: color-mix(in oklab, var(--color-brand-500) 26%, transparent);
+    background: color-mix(in oklab, var(--color-mark-500) 25%, transparent);
     color: var(--color-ink-900);
   }
 
-  .dark ::selection {
-    background: color-mix(in oklab, var(--color-brand-300) 32%, transparent);
-    color: var(--color-ink-50);
+  .dark ::selection,
+  .dark::selection {
+    background: color-mix(in oklab, var(--color-mark-400) 45%, transparent);
+    color: #ffffff;
   }
 
-  /* Subtle link underline animation */
   a {
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;
-  }
-
-  a:hover {
-    text-decoration-thickness: 2px;
   }
 
   input,
@@ -528,6 +869,13 @@
   select,
   button {
     font: inherit;
+  }
+
+  dialog[open] {
+    animation: var(--animate-modal-enter);
+  }
+  dialog[open]::backdrop {
+    animation: var(--animate-fade-in);
   }
 
   summary {
@@ -547,42 +895,20 @@
     field-sizing: content;
   }
 
-  /* Reduced motion, in two parts.
-
-     The blanket reset below is the safety net: nothing loops, nothing travels,
-     nothing is delayed. It stays, because it also covers the animations nobody
-     remembered to register — the drift, the gradient pan, the shimmer.
-
-     On top of it, the entrances are re-pointed at the one keyframe that only
-     changes opacity. A visitor who asks for reduced motion is not asking for a
-     website that feels broken; they are asking not to be moved across the
-     screen. A 180ms fade gives them the arrival without the travel, which the
-     blanket reset could not do — it left every entrance simply switched off,
-     so a route change was an instant jump with no sense of having happened.
-
-     Anything driven by React (Reveal, Tilt, CountUp) does not arm at all under
-     this preference, so that content is in its resolved state from the first
-     paint and there is nothing left here to soften. */
+  /* Reduced motion. The blanket reset is the safety net; the entrances are
+     re-pointed at the opacity-only keyframe so a visitor who asked not to be
+     moved still gets an arrival. */
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
-      /* The stagger delays must go too: with `animation-fill-mode: both` a
-         400ms delay would otherwise hold the element at its hidden keyframe
-         for 400ms. */
       animation-delay: 0.01ms !important;
       animation-iteration-count: 1 !important;
       scroll-behavior: auto !important;
-      /* Promoted layers exist only to animate; with nothing animating they are
-         pure memory. */
       will-change: auto !important;
     }
 
-    /* Colour and opacity still get a real, short transition. A hover or a
-       selected state that snaps is disorienting in a different way, and a value
-       change is not what this preference is about — `transition-property` is
-       narrowed so nothing is translated or scaled. */
     *,
     *::before,
     *::after {
@@ -591,773 +917,1245 @@
       transition-timing-function: var(--ease-settle) !important;
     }
 
-    /* Every entrance becomes the opacity-only fade. Listed by animation class
-       rather than by keyframe name so a component cannot silently keep a
-       transform; anything not on this list still gets the blanket reset. */
     .route-enter,
     .animate-fade-in,
     .animate-rise-in,
-    .animate-pop-in,
-    .animate-slide-up,
-    .animate-slide-down,
-    .animate-scale-in,
-    .animate-rotate-in,
+    .animate-blur-in,
     .animate-drawer-enter,
     .animate-modal-enter,
-    .animate-question-enter {
+    .animate-question-enter,
+    .animate-pop,
+    .animate-tab-enter {
       animation: fade-in 0.18s ease-out both !important;
     }
+    .animate-shimmer,
+    .animate-float,
+    .animate-bob,
+    .animate-pulse-soft {
+      animation: none !important;
+    }
 
-    /* A bar that grows is a measurement being drawn, not decoration — but it
-       still arrives as a fade so the panel does not slide. */
-    .animate-bar-reveal {
-      animation: fade-in 0.25s ease-out both !important;
+    /* The mockup's reduce rule: hover lifts go nowhere, the
+       surface simply rests. The playful disc nudges rest too. */
+    .lift:hover,
+    .card:hover {
+      transform: none !important;
+    }
+    .bullet:hover .chip,
+    .step:hover .step-no,
+    .qa-summary:hover .qa-toggle,
+    .site-header nav a:hover,
+    a[aria-label='PTE Prep home']:hover .bg-amber-400 {
+      rotate: none !important;
+      scale: none !important;
+      translate: 0 0 !important;
     }
   }
 }
 
 /* ---------------------------------------------------------------------------
-   Component classes.
-
-   Anything that is composed with `@apply` has to be declared with `@utility`
-   rather than inside `@layer components`; in Tailwind v4 only real utilities
-   can be applied, so a plain class would fail to resolve.
-   --------------------------------------------------------------------------- */
-
-/* ---------------------------------------------------------------------------
-   Page shells. One gutter scale everywhere — px-4 / sm:px-6 / lg:px-8 — so the
-   content never jumps sideways between routes; only the measure changes.
-   --------------------------------------------------------------------------- */
+   Page shells. One gutter scale everywhere; only the measure changes.
+--------------------------------------------------------------------------- */
 
 @utility page-shell-prose {
-  @apply mx-auto w-full max-w-3xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-3xl px-4 pt-10 pb-20 sm:px-6 lg:px-8;
 }
-
 @utility page-shell-content {
-  @apply mx-auto w-full max-w-4xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-4xl px-4 pt-10 pb-20 sm:px-6 lg:px-8;
 }
-
 @utility page-shell-app {
-  @apply mx-auto w-full max-w-7xl px-4 pt-12 pb-20 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-6xl px-4 pt-10 pb-20 sm:px-6 lg:px-8;
 }
-
 @utility page-shell-wide {
-  @apply mx-auto w-full px-4 sm:px-6 lg:px-8;
+  @apply mx-auto w-full max-w-[1180px] px-5;
 }
-
-/* `py-16` rather than `py-24`: inside a `band-flush` the shell's own 96px of
-   padding stacked on the band's 64px, so the 404 opened with ~160px of nothing
-   above the status code and closed with the same below. */
 @utility page-shell-empty {
   @apply mx-auto w-full max-w-xl px-4 py-16 sm:px-6 lg:px-8;
 }
 
-/* Typographic scale (v3). Four roles, used everywhere:
-   hero-title   marketing hero only (Home) — the one oversized exception
-   page-title   every route H1              text-4xl bold
-   section-title every route H2             text-2xl bold
-   card-title   H3 inside a card            text-lg bold   (CardTitle component)
-   body         text-base / leading-relaxed · meta  text-sm / text-xs
-   Nothing outside the hero may exceed text-4xl. */
-@utility page-title {
-  @apply font-display text-ink-900 dark:text-white max-w-hero text-4xl font-bold leading-[1.15] text-balance;
-  letter-spacing: -0.025em;
-}
-
+/* --- Type. Headings are Baloo 2 — rounded and heavy, the playful voice.
+   Body copy stays Nunito. IBM Plex Mono is held back for machine IDs. --- */
 @utility hero-title {
-  @apply font-display text-ink-900 dark:text-white max-w-3xl text-5xl font-bold leading-[1.08] text-balance sm:text-6xl;
-  letter-spacing: -0.035em;
+  @apply font-display text-ink-900 dark:text-ink-50 max-w-[16ch] text-[clamp(2.125rem,6.2vw,4rem)] leading-[1.1] font-extrabold text-balance;
+  letter-spacing: -0.01em;
 }
-
-@utility page-title-compact {
-  @apply font-display text-ink-900 dark:text-white text-3xl leading-[1.2] text-balance;
+@utility page-title {
+  @apply font-display text-ink-900 dark:text-ink-50 max-w-hero text-3xl leading-[1.06] font-extrabold text-balance sm:text-4xl;
   letter-spacing: -0.015em;
 }
-
-@utility page-intro {
-  @apply text-ink-600 dark:text-ink-300 mt-4 max-w-2xl text-lg leading-[1.7];
-}
-
-@utility page-heading {
-  /* The hairline under every page header is what makes fourteen routes read as
-     one product: it separates "what this page is" from "what is on it" without
-     adding a surface, and it is the only furniture the page heading needs. */
-  @apply mb-8 flex flex-wrap items-end justify-between gap-x-5 gap-y-4;
-}
-
-@utility page-heading-kicker {
-  @apply text-brand-600 dark:text-brand-300 mb-3 text-sm font-semibold tracking-wide;
-}
-
 @utility section-title {
-  @apply font-display text-ink-900 dark:text-white text-2xl font-bold leading-[1.2] text-balance;
-  letter-spacing: -0.025em;
+  @apply font-display text-ink-900 dark:text-ink-50 text-[clamp(28px,4.2vw,46px)] leading-[1.1] font-extrabold text-balance;
+  letter-spacing: -0.01em;
 }
-
-/* ---------------------------------------------------------------------------
-   Section furniture.
-
-   The vocabulary a long page uses to break itself into parts. Every one of
-   these began as a pattern hand-written on two or more routes with slightly
-   different values — two callout treatments that were nearly the same colour,
-   three numbered markers at three sizes, one band on Home and none anywhere
-   else. They are named here once so the pages can stop inventing them.
-
-   All of it is built from existing tokens; nothing here introduces a colour.
-   --------------------------------------------------------------------------- */
-
-/* The mono eyebrow that opens a section, with the leading hairline that used to
-   be assembled inline by SectionHeading. A page that is not using the component
-   still gets the same kicker. */
+@utility page-intro {
+  @apply text-ink-500 dark:text-ink-on-dark mt-[18px] max-w-[64ch] text-[17.5px] leading-[1.65];
+}
+@utility page-heading {
+  @apply border-ink-200 dark:border-white/10 mb-8 flex flex-wrap items-end justify-between gap-x-5 gap-y-4 border-b pb-6;
+}
+/* A quiet page label, drawn as a pill — the mockup's eyebrows are
+   mint chips with a deep-green label and a green hairline in light mode,
+   refined brand-violet frosted badges in dark mode. */
+@utility page-heading-kicker {
+  @apply text-mint-700 dark:text-mint-300 mb-3 inline-flex w-fit items-center rounded-full border-2 border-mint-500/40 bg-mint-50 px-[18px] py-[7px] text-[13.5px] font-extrabold tracking-wider uppercase dark:bg-mint-500/12 dark:border-mint-400/30;
+}
 @utility section-eyebrow {
-  @apply text-brand-600 dark:text-brand-300 mb-2 block text-sm font-semibold tracking-wide;
+  @apply text-mint-700 dark:text-mint-300 mb-3 inline-flex w-fit items-center rounded-full border-2 border-mint-500/40 bg-mint-50 px-[18px] py-[7px] text-[13.5px] font-extrabold uppercase tracking-[0.06em] dark:bg-mint-500/12 dark:border-mint-400/30;
+}
+@utility passage {
+  @apply text-ink-700 dark:text-ink-200 text-base leading-[1.75];
+}
+@utility label {
+  @apply text-ink-600 dark:text-ink-on-dark mb-1.5 block text-xs font-semibold;
+}
+/* The display figure: a quantity set large in Baloo 2, tabular. */
+@utility figure {
+  @apply font-display text-ink-900 tabular-nums dark:text-ink-50;
 }
 
-/* The square that carries a step, rank or index digit. */
+/* --- Section furniture ---------------------------------------------------
+   06-playful's full-bleed tinted bands: mint and lavender, alternating, with
+   a big 48px radius on the top corners so the band reads as a rounded sheet
+   sliding over the cream ground. No hairline borders — the tint is enough. */
+
+/* Full-bleed tinted bands, alternating mint and lavender, with the mockup's
+   48px rounded tops. Vertical padding only — the page-shell inside supplies
+   the horizontal gutter and max-width, exactly like the mockup's .band/.wrap. */
+
+@utility band {
+  @apply pt-[96px] pb-[84px] border-b border-ink-200/60 dark:border-mint-500/15;
+  background: var(--color-mint-50);
+  &:where(.dark, .dark *) {
+    background: linear-gradient(180deg, rgba(60, 200, 94, 0.05) 0%, rgba(60, 200, 94, 0.015) 100%);
+  }
+}
+@utility band-plain {
+  @apply pt-[96px] pb-[84px] border-b border-ink-200/60 dark:border-mark-500/15;
+  background: var(--color-ink-100);
+  &:where(.dark, .dark *) {
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.07) 0%, rgba(139, 92, 246, 0.02) 100%);
+  }
+}
+/* The mockup's cream beat — the same ground as the page. */
+@utility band-cream {
+  @apply pt-[96px] pb-[84px] border-b border-ink-200/60 dark:border-amber-400/10;
+  background: var(--color-ink-50);
+  &:where(.dark, .dark *) {
+    background: linear-gradient(180deg, rgba(255, 159, 28, 0.035) 0%, rgba(255, 159, 28, 0.01) 100%);
+  }
+}
+/* The mockup's tagline beat: a cream band whose only job is the
+   one moment of large type, so it breathes at 100px top and
+   bottom rather than the band rhythm. */
+@utility band-tagline {
+  @apply pt-[100px] pb-[100px] border-b border-ink-200/60 dark:border-amber-400/10;
+  background: var(--color-ink-50);
+  &:where(.dark, .dark *) {
+    background: linear-gradient(180deg, rgba(255, 159, 28, 0.035) 0%, rgba(255, 159, 28, 0.01) 100%);
+  }
+}
+
+/* --- The mockup's band anatomy -----------------------------------------------
+   Every content band is a stacked head — an eyebrow pill, the title,
+   the intro — over content cards. Ported from the reference design
+   and given the app's dark-mode surfaces. Cards keep the mockup's
+   24px radius, 2px hairline and 8px offset shadow. --- */
+
+@utility sec-head {
+  max-width: 64ch;
+  & > h2 {
+    margin-top: 20px;
+  }
+  & > p {
+    margin-top: 18px;
+  }
+}
+
+/* Eyebrow pills, one per band tone. Marginless by design: inside a
+   sec-head the title's own top margin sets the gap, exactly as the
+   mockup's pills do. */
+@utility pill-green {
+  @apply inline-flex w-fit items-center rounded-full border-2 border-mint-500/40 bg-mint-50 px-[18px] py-[7px] text-[13.5px] font-extrabold uppercase tracking-[0.06em] text-mint-700 dark:border-mint-400/30 dark:bg-mint-500/12 dark:text-mint-300;
+}
+@utility pill-orange {
+  @apply inline-flex w-fit items-center rounded-full border-2 border-amber-600/45 bg-[#FFF2DE] px-[18px] py-[7px] text-[13.5px] font-extrabold uppercase tracking-[0.06em] text-amber-600 dark:bg-amber-400/10 dark:text-amber-300;
+}
+@utility pill-purple {
+  @apply inline-flex w-fit items-center rounded-full border-2 border-mark-500/35 bg-ink-100 px-[18px] py-[7px] text-[13.5px] font-extrabold uppercase tracking-[0.06em] text-mark-600 dark:bg-mark-500/10 dark:text-mark-300;
+}
+@utility pill-plain {
+  @apply inline-flex w-fit items-center rounded-full border-2 border-ink-200 bg-white px-[18px] py-[7px] text-[13.5px] font-extrabold uppercase tracking-[0.06em] text-ink-500 dark:border-white/10 dark:bg-ink-850 dark:text-ink-on-dark;
+}
+
+/* What changes — a hairline rule list. The three
+   claims are a sequence, so they read as a list:
+   the number sits inline in a hairline circle and
+   hairlines separate the rows. No shells, no discs. */
+@utility rule-list {
+  @apply border-ink-200 dark:border-white/10 mt-[46px] border-t;
+}
+@utility rule-item {
+  @apply border-ink-200 dark:border-white/10 flex items-baseline gap-5 border-b py-6;
+}
+@utility rule-no {
+  @apply font-display text-ink-500 dark:text-ink-on-dark-muted inline-flex size-7 shrink-0 translate-y-1 items-center justify-center rounded-full border border-current text-[14px] font-extrabold leading-none;
+}
+@utility rule-label {
+  @apply font-display text-ink-900 dark:text-ink-50 text-[19px] font-extrabold;
+}
+@utility rule-body {
+  @apply text-ink-500 dark:text-ink-on-dark text-[16px] leading-[1.6];
+}
+
+/* Test day — the three parts as a comparison
+   table: the same attributes per part, so the eye
+   scans down a column instead of across three
+   cards. The timing keeps its pill, at table
+   density. */
+@utility dur-sm {
+  @apply font-display inline-flex w-fit items-center rounded-full px-3.5 py-1.5 text-[15px] font-extrabold leading-none;
+}
+@utility dur-sm-mint {
+  @apply bg-mint-50 text-mint-600 dark:bg-mint-500/15 dark:text-mint-300;
+}
+@utility dur-sm-lav {
+  @apply bg-ink-100 text-mark-600 dark:bg-mark-500/15 dark:text-mark-300;
+}
+@utility dur-sm-org {
+  @apply bg-[#FFF2DE] text-amber-600 dark:bg-amber-400/15 dark:text-amber-300;
+}
+@utility part-index {
+  @apply font-display text-ink-500 dark:text-ink-on-dark-muted mr-3 inline-flex size-6 translate-y-0.5 items-center justify-center rounded-lg border border-current text-[13px] font-extrabold leading-none;
+}
+@utility part-blurb {
+  @apply text-ink-500 dark:text-ink-on-dark max-w-[46ch] text-[15px] leading-[1.6];
+}
+
+/* Key numbers — a quiet proof strip. The four
+   figures each answer a trust question, so they
+   all stay, but as one hairline-divided strip:
+   the item count leads as the hero figure and
+   the rest rest at body scale. No shells. */
+@utility stat-strip {
+  @apply flex flex-col divide-ink-200 divide-y dark:divide-white/10 sm:flex-row sm:divide-x sm:divide-y-0;
+}
+@utility stat-hero {
+  @apply py-6 sm:pr-8;
+}
+@utility stat-hero-figure {
+  @apply font-display text-ink-900 dark:text-ink-50 text-4xl font-extrabold leading-none sm:text-[44px];
+}
+@utility stat-hero-caption {
+  @apply text-ink-500 dark:text-ink-on-dark-muted mt-2 block text-sm font-semibold;
+}
+@utility stat-cell {
+  @apply flex-1 py-6 sm:pl-8;
+}
+@utility stat-figure {
+  @apply font-display text-ink-900 dark:text-ink-50 text-2xl font-extrabold leading-none;
+}
+@utility stat-label {
+  @apply text-ink-500 dark:text-ink-on-dark-muted mt-2 block text-xs font-semibold uppercase tracking-wider;
+}
+@utility textlink {
+  @apply mt-9 inline-flex w-fit items-center rounded-full border-2 border-ink-200 bg-white px-[26px] py-[13px] text-ink-900 shadow-[0_5px_0_rgba(45,42,94,0.12)] transition-[translate,box-shadow,color] duration-200 dark:border-white/10 dark:bg-ink-850 dark:text-ink-50;
+  &:hover {
+    translate: 0 -3px;
+    box-shadow: 0 8px 0 rgba(45,42,94,0.12);
+    color: var(--color-mark-600);
+  }
+}
+
+/* Report stats — three stat cards; the first and third wear the
+   band's own tint so the middle figure stays the quiet one. */
+@utility report-stats {
+  @apply mt-[46px] grid grid-cols-1 gap-[26px] sm:grid-cols-2 lg:grid-cols-3;
+}
+@utility rstat {
+  @apply lift border-ink-200 dark:border-white/10 dark:bg-ink-850 rounded-[24px] border-2 bg-white px-[26px] py-[30px] text-left shadow-panel;
+}
+@utility rstat-mint {
+  @apply bg-mint-50 dark:bg-mint-500/10;
+}
+@utility rstat-lav {
+  @apply bg-ink-100 dark:bg-mark-500/10;
+}
+@utility rstat-figure {
+  @apply font-display text-ink-900 dark:text-ink-50 block text-[56px] font-extrabold leading-none;
+}
+@utility rstat-caption {
+  @apply text-ink-500 dark:text-ink-on-dark mt-2.5 block text-[15.5px] font-bold;
+}
+
+/* Scoring honesty — two outlined panels. The mockup's own
+   panels carry no fill: the band's tint shows through
+   the border, so the border alone separates them. */
+@utility cols {
+  @apply mt-[46px] grid grid-cols-1 gap-[26px] lg:grid-cols-2;
+}
+@utility col {
+  @apply rounded-[24px] border-2 border-ink-200 px-[30px] py-[32px] shadow-panel;
+}
+@utility col-title {
+  @apply font-display text-ink-900 dark:text-ink-50 text-[22px] font-extrabold;
+}
+@utility col-body {
+  @apply text-ink-500 dark:text-ink-on-dark mt-3.5 text-[16.5px] leading-[1.65];
+}
+
+/* How it works — a horizontal step rail. The steps
+   are a sequence, so the order is drawn: one
+   hairline rail runs across the row and the
+   numbered markers sit on it, the way a timeline
+   reads. No shells — the rail carries the
+   progression. */
+@utility step-rail {
+  @apply mt-[46px] grid grid-cols-1 gap-y-10 sm:grid-cols-3;
+}
+@utility step-rail-cell {
+  @apply relative px-6 pt-12 sm:pt-16;
+}
+@utility step-rail-line {
+  @apply border-ink-200 dark:border-white/10 absolute top-4 right-0 left-0 hidden border-t-2 sm:block;
+}
+@utility step-rail-line-first {
+  @apply left-4;
+}
+@utility step-rail-line-last {
+  @apply right-4;
+}
+@utility step-rail-marker {
+  @apply font-display bg-ink-900 dark:bg-ink-50 dark:text-ink-900 text-ink-50 absolute top-0 left-0 grid size-8 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums;
+}
+@utility step-rail-marker-active {
+  @apply scale-110 shadow-[0_4px_0_rgb(45_42_94/0.15)];
+}
+@utility step-rail-marker-quiet {
+  @apply bg-ink-100 text-ink-600 dark:bg-white/8 dark:text-ink-200;
+}
+@utility step-rail-title {
+  @apply font-display text-ink-900 dark:text-ink-50 text-[22px] font-extrabold;
+}
+@utility step-rail-body {
+  @apply text-ink-500 dark:text-ink-on-dark mt-3 max-w-[38ch] text-[16px] leading-[1.65];
+}
+
+/* The tagline sentence — one large centred statement with the
+   highlighted words punched out in white. */
+@utility tagline-text {
+  @apply font-display text-ink-900 dark:text-ink-50 mx-auto max-w-[20ch] text-balance text-center text-[clamp(28px,5vw,54px)] font-extrabold leading-[1.15];
+}
+@utility hl {
+  @apply rounded-[14px] bg-white px-3 text-mark-600 [box-decoration-break:clone] dark:bg-ink-850 dark:text-mark-300;
+}
+
+/* FAQ cards — a disclosure list where each answer lives in its own
+   card; the toggle is a disc that turns into a cross when open. */
+@utility faq-list {
+  @apply mt-11 grid max-w-[900px] gap-4;
+}
+@utility qa {
+  @apply overflow-hidden rounded-[20px] border-2 border-ink-200 bg-white shadow-panel dark:border-white/10 dark:bg-ink-850;
+}
+@utility qa-summary {
+  @apply flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-display text-[18px] font-bold leading-[1.35] text-ink-900 transition-colors duration-200 ease-out [text-wrap:balance] dark:text-ink-50;
+}
+@utility qa-toggle {
+  @apply shrink-0 place-items-center rounded-full bg-ink-50 font-display text-[22px] font-extrabold leading-none text-ink-900 transition-transform duration-200 dark:bg-ink-800 dark:text-ink-50;
+}
+@utility qa-answer {
+  @apply text-ink-500 dark:text-ink-on-dark px-6 pb-6 text-[16.5px] leading-[1.7];
+}
+.dark :is(.card, .card-solid, .bullet, .part, .col, .step, .qa) {
+  box-shadow: 0 6px 0 #05060b, 0 12px 28px -6px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+.dark :is(.bullet, .part, .step, .lift):hover {
+  box-shadow: 0 14px 0 #05060b, 0 22px 36px -8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+@utility band-flush {
+  @apply py-16 sm:py-20 border-b border-ink-200/60 dark:border-mint-500/15;
+  background: var(--color-mint-50);
+  &:where(.dark, .dark *) {
+    background: linear-gradient(180deg, rgba(60, 200, 94, 0.05) 0%, rgba(60, 200, 94, 0.015) 100%);
+  }
+}
+@utility band-flush-plain {
+  @apply py-16 sm:py-20 border-b border-ink-200/60 dark:border-mark-500/15;
+  background: var(--color-ink-100);
+  &:where(.dark, .dark *) {
+    background: linear-gradient(180deg, rgba(139, 92, 246, 0.07) 0%, rgba(139, 92, 246, 0.02) 100%);
+  }
+}
+
 @utility num-marker {
-  @apply bg-brand-500 grid size-7 shrink-0 place-items-center rounded-lg font-mono text-xs font-bold text-white tabular-nums;
+  @apply bg-ink-900 dark:bg-ink-50 dark:text-ink-900 text-ink-50 grid size-6 shrink-0 place-items-center rounded-full font-display text-xs font-bold tabular-nums;
 }
-
 @utility num-marker-mint {
-  @apply bg-mint-500;
+  @apply bg-mint-500 dark:bg-mint-300 dark:text-ink-900 text-ink-900;
 }
-
 @utility num-marker-quiet {
   @apply bg-ink-100 text-ink-600 dark:bg-white/8 dark:text-ink-200;
 }
 
-/* A callout: the one tinted panel on a page that says the thing to remember.
-   Tones are roles, not decoration — brand for guidance, mint for a confirmed
-   positive, amber for caution, rose for the mistake being corrected. */
 @utility callout {
-  @apply rounded-lg border border-brand-500/30 bg-brand-500/5 p-5 dark:border-brand-400/30 dark:bg-brand-500/10;
+  @apply border-ink-200 dark:border-white/10 rounded-2xl border bg-ink-100/60 p-5 dark:bg-white/[0.03];
 }
-
 @utility callout-mint {
-  @apply border-mint-500/30 bg-mint-500/6 dark:border-mint-400/30 dark:bg-mint-500/10;
+  @apply border-mint-500/30 bg-mint-500/[0.06] dark:border-mint-400/30 dark:bg-mint-500/10;
 }
-
 @utility callout-amber {
-  @apply border-amber-500/30 bg-amber-500/5 dark:border-amber-400/30 dark:bg-amber-500/10;
+  @apply border-amber-500/30 bg-amber-500/[0.06] dark:border-amber-400/30 dark:bg-amber-500/10;
 }
-
 @utility callout-rose {
-  @apply border-rose-brand/30 bg-rose-brand/5 dark:border-rose-400/30 dark:bg-rose-brand/10;
+  @apply border-rose-600/30 bg-rose-500/[0.06] dark:border-rose-400/30 dark:bg-rose-500/10;
 }
-
-/* The left-rule variant: one rule down the side instead of a full border, for a
-   note that sits inside another surface rather than beside it. */
 @utility callout-rule {
-  @apply rounded-r-lg border-0 border-l-4 border-l-brand-500 bg-brand-500/5 p-4 dark:border-l-brand-400 dark:bg-brand-500/10;
+  @apply border-0 border-l-2 border-l-ink-900 bg-transparent p-0 pl-4 dark:border-l-ink-50;
 }
-
-/* The callout's own label. Mono, uppercase, in the tone's ink. */
 @utility callout-title {
-  @apply text-brand-700 dark:text-brand-300 font-mono text-micro font-semibold tracking-wider uppercase;
+  @apply text-ink-600 dark:text-ink-on-dark-muted text-xs font-bold;
 }
-
 @utility callout-title-mint {
   @apply text-mint-700 dark:text-mint-300;
 }
-
 @utility callout-title-amber {
   @apply text-amber-700 dark:text-amber-300;
 }
-
 @utility callout-title-rose {
   @apply text-rose-600 dark:text-rose-300;
 }
 
-/* A band: a wide field that separates one group of sections from the next.
-   Home hand-wrote this twice as inline utilities; the interior pages had none
-   at all, which is why they read as one undifferentiated column.
-
-   The band escapes the page shell's gutters with a matching negative margin and
-   puts them straight back as its own padding, so its ground spans the shell's
-   full width while its content still lines up with every section above and
-   below — edge to edge on a phone, a wide field inside the measure on a
-   desktop. Done this way rather than with `100vw`, which overflows by the width
-   of a classic scrollbar and would introduce a horizontal one. */
-@utility band {
-  @apply border-ink-200 dark:border-white/10 -mx-4 border-y px-4 py-12 sm:-mx-6 sm:px-6 sm:py-16 lg:-mx-8 lg:px-8;
-  background: var(--ground-tint);
-}
-
-/* The quiet variant: a lift in value rather than a tint, for a second band on a
-   page whose first one already carries the colour. */
-@utility band-plain {
-  @apply border-ink-200 dark:border-white/10 -mx-4 border-y bg-white/60 px-4 py-12 sm:-mx-6 sm:px-6 sm:py-16 lg:-mx-8 lg:px-8 dark:bg-white/3;
-}
-
-/* The same two bands for an element that is already outside a page shell (Home,
-   the 404, Result and the test runner do not use PageWrapper). Same grounds and
-   hairlines, no gutter to escape, because there is nothing above to escape from. */
-@utility band-flush {
-  @apply py-16 sm:py-20;
-  background: var(--ground-tint);
-}
-
-@utility band-flush-plain {
-  @apply bg-white/60 py-16 sm:py-20 dark:bg-white/3;
-}
-
-/* A key figure: the one number a section exists to state, set in the mono data
-   voice at display size with its own hairline. Used where a figure carries more
-   than the sentence around it. */
 @utility key-figure {
   @apply flex flex-wrap items-baseline gap-x-3 gap-y-1;
 }
-
 @utility key-figure-value {
-  @apply font-mono text-ink-900 text-3xl font-bold tabular-nums tracking-[-0.03em] sm:text-4xl dark:text-white;
+  @apply font-display text-ink-900 text-3xl tabular-nums sm:text-4xl dark:text-ink-50;
 }
-
 @utility key-figure-label {
-  @apply text-ink-500 dark:text-ink-400 text-sm font-medium;
+  @apply text-ink-500 dark:text-ink-on-dark-muted text-sm font-medium;
 }
 
-/* A list whose items are marked by a small tick or rule rather than a bullet
-   glyph. The tick is a rule rotated 45deg so it scales with type size instead
-   of shipping an icon per item. */
 @utility tick-list {
-  @apply space-y-3;
+  @apply space-y-2.5;
 }
-
 @utility tick-item {
   @apply text-ink-600 dark:text-ink-200 flex gap-3 leading-relaxed;
-
   &::before {
     content: '';
-    @apply bg-brand-500 dark:bg-brand-300 mt-2.5 size-1.5 shrink-0 rounded-full;
+    @apply bg-mark-500 dark:bg-mark-400 mt-2.5 size-2 shrink-0 rounded-full;
   }
 }
-
 @utility tick-item-mint {
   &::before {
-    @apply bg-mint-500 dark:bg-mint-300;
+    @apply bg-mint-500 dark:bg-mint-400 mt-2.5 size-2 shrink-0 rounded-full;
+  }
+}
+@utility tick-item-quiet {
+  &::before {
+    @apply bg-ink-400 dark:bg-ink-500 mt-2.5 size-2 shrink-0 rounded-full;
   }
 }
 
-@utility tick-item-quiet {
-  &::before {
-    @apply bg-ink-300 dark:bg-ink-500;
+/* A list whose rows are separated by hairlines instead of being boxed. Used
+   for the FAQ, the scoring split and the report's ledgers — anything that
+   would otherwise become one bordered panel per row. */
+@utility rule-list {
+  @apply border-t;
+  & > * {
+    @apply border-b;
+  }
+}
+
+/* --- Surfaces. Rounder and lifted: a soft candy offset at rest, a bigger
+   one on hover. ------------------------------------------------------- */
+@utility card {
+  @apply border-ink-200 dark:border-white/10 dark:bg-ink-850 rounded-2xl border bg-white p-6 transition-all duration-300 sm:p-7;
+  box-shadow: var(--shadow-card);
+  /* Every content card in 06-playful lifts on hover — the playful
+     signature, kept to a 3px rise so the surface hints instead
+     of bouncing. The hover shadow replaces the rest shadow
+     entirely, exactly as the mockup's `.lift:hover` does. */
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 0 rgb(45 42 94 / 0.1);
+  }
+  &:where(.dark, .dark *) {
+    box-shadow: 0 6px 0 #05060b, 0 12px 28px -6px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+  &:where(.dark, .dark *):hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 0 #05060b, 0 22px 36px -8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+}
+@utility card-solid {
+  @apply border-ink-200 dark:border-white/10 dark:bg-ink-850 rounded-2xl border bg-white p-6 transition-all duration-500 sm:p-7;
+  box-shadow: var(--shadow-card);
+  &:where(.dark, .dark *) {
+    box-shadow: 0 6px 0 #05060b, 0 12px 28px -6px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  }
+}
+@utility card-interactive {
+  @apply card;
+  &:hover {
+    border-color: var(--color-mark-500);
+    box-shadow: var(--shadow-lift);
+    translate: 0 -3px;
+  }
+  &:where(.dark, .dark *):hover {
+    border-color: var(--color-mark-400);
+    box-shadow: 0 8px 0 #05060b, 0 16px 32px -12px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  }
+  &:active {
+    translate: 0 1px;
+    box-shadow: none;
+  }
+}
+@utility card-exam {
+  @apply card relative overflow-hidden;
+  border-top-width: 3px;
+  border-top-color: var(--color-mark-600);
+  &:where(.dark, .dark *) {
+    border-top-color: var(--color-mark-400);
+  }
+}
+
+/* Glass surface. Used for the floating island nav and overlays. */
+@utility glass {
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.32);
+  box-shadow: var(--shadow-glass);
+  &:where(.dark, .dark *) {
+    background: rgb(16 17 30 / 0.75);
+    border-color: rgb(255 255 255 / 0.1);
+    box-shadow: var(--shadow-glass);
+  }
+}
+@utility glass-strong {
+  background: rgb(255 255 255 / 0.84);
+  backdrop-filter: blur(32px) saturate(200%);
+  -webkit-backdrop-filter: blur(32px) saturate(200%);
+  border: 1px solid rgb(255 255 255 / 0.4);
+  box-shadow: var(--shadow-glass-strong);
+  &:where(.dark, .dark *) {
+    background: rgb(16 17 30 / 0.88);
+    border-color: rgb(255 255 255 / 0.14);
+    box-shadow: var(--shadow-glass-strong);
+  }
+}
+
+/* Skeleton shimmer for loading states. */
+@utility skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-ink-100) 25%,
+    var(--color-ink-200) 50%,
+    var(--color-ink-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+  &:where(.dark, .dark *) {
+    background: linear-gradient(
+      90deg,
+      rgb(255 255 255 / 0.06) 25%,
+      rgb(255 255 255 / 0.12) 50%,
+      rgb(255 255 255 / 0.06) 75%
+    );
+    background-size: 200% 100%;
   }
 }
 
 @utility choice-card {
-  @apply cursor-pointer rounded-lg border border-ink-200 p-5 text-left transition-[color,background-color,border-color,box-shadow,translate] duration-200 active:translate-y-px dark:border-white/10;
-}
-
-@utility choice-row {
-  @apply flex cursor-pointer items-start gap-3 rounded-lg border border-ink-200 p-4 transition-[color,background-color,border-color,box-shadow,translate] duration-200 active:translate-y-px dark:border-white/10;
-}
-
-/* Selection is carried by the brand *border*, not by a brand fill. The fill
-   was `bg-brand-500/10`, which on a column of choice cards put three large blue
-   masses side by side on /mock — brand used as decoration across a third of the
-   screen. Calibrated Silence reserves the accent for the thing the reader came
-   to see, and here that thing is the selected edge. The tint drops to a
-   whisper and the shadow goes entirely: the same doc says shadow is almost
-   never the right tool for separating a surface from its ground. */
-@utility choice-active {
-  @apply border-brand-500 bg-brand-500/[0.04] dark:border-brand-400 dark:bg-brand-500/10;
-}
-
-@utility choice-idle {
-  @apply hover:border-ink-300 hover:-translate-y-0.5 hover:shadow-xs dark:hover:border-white/20;
-}
-
-@utility choice-idle-solid {
-  @apply bg-white hover:border-ink-300 hover:-translate-y-0.5 hover:shadow-xs dark:bg-white/3 dark:hover:border-white/20;
-}
-
-@utility card {
-  /* Elevation is a shift in value, not a blur. Padding lives here so a bare
-     `card` can never collapse into a zero-padding strip (FAQ, sidebar, review
-     rows all hit that). Override with any padding utility when needed. */
-  @apply bg-white border-ink-200 rounded-md border p-6 sm:p-8 transition-[border-color,box-shadow,translate,background-color] duration-200;
-  box-shadow: 0 1px 2px rgb(14 17 23 / 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-
-  &:where(.dark, .dark *) {
-    @apply border-white/10 bg-white/[0.035];
-    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  @apply border-ink-200 dark:border-white/10 cursor-pointer rounded-2xl border p-5 text-left transition-[translate,box-shadow,color,background-color,border-color] duration-300;
+  &:hover {
+    border-color: var(--color-ink-400);
+    translate: 0 -3px;
+    box-shadow: var(--shadow-lift);
+  }
+  &:active:active {
+    translate: 0 1px;
+    box-shadow: none;
   }
 }
-
-@utility divider {
-  @apply border-ink-200 border-t;
+@utility choice-row {
+  @apply border-ink-200 dark:border-white/10 flex cursor-pointer items-start gap-3 rounded-xl border p-4 transition-[translate,box-shadow,color,background-color,border-color] duration-300;
+  &:hover {
+    border-color: var(--color-ink-400);
+    translate: 0 -2px;
+    box-shadow: var(--shadow-lift);
+  }
+  &:active:active {
+    translate: 0 1px;
+    box-shadow: none;
+  }
+}
+/* Selected = playful mint in light mode, brand violet in dark mode. */
+@utility choice-active {
+  @apply border-mint-500 bg-mint-500/10 dark:border-mark-500 dark:bg-mark-500/15;
+}
+@utility choice-idle {
+  @apply hover:border-ink-400 dark:hover:border-white/25;
+}
+@utility choice-idle-solid {
+  @apply bg-white hover:border-ink-400 dark:bg-ink-850 dark:hover:border-white/25;
 }
 
-.dark .divider {
-  @apply border-white/10;
-}
-
-@utility divider-soft {
-  @apply border-ink-100 border-t;
-}
-
-.dark .divider-soft {
-  @apply border-white/6;
-}
-
-/* The one table treatment. Five pages were hand-rolling the same header and
-   cell classes, which is how three data tables ended up with two different
-   header greys and three different row heights. The utility owns the structure —
-   alignment, header voice, cell padding, row rules — and call sites keep the
-   semantic classes that carry meaning: `tabular-nums`, `font-semibold`,
-   `whitespace-nowrap`, and the per-column ink. */
-/* Links, in the three families a page actually uses. These were ~20 inline
-   class strings, split between brand-300 and brand-400 for dark mode, and the
-   prose family had no hover state at all while everything else did. */
-@utility link-inline {
-  @apply text-brand-600 dark:text-brand-300 underline underline-offset-2 transition-colors hover:text-brand-700 dark:hover:text-brand-200;
-}
-
-/* A link that behaves as a card title: the whole row is the target, so the
-   hover lands on the ink, not on an underline. */
-@utility link-card {
-  @apply text-ink-900 dark:text-white font-semibold transition-colors hover:text-brand-600 dark:hover:text-brand-300;
-}
-
+/* --- Data ---------------------------------------------------------------- */
 @utility table-data {
   @apply w-full border-collapse text-left text-sm;
-
   & thead th {
-    @apply text-ink-500 dark:text-ink-400 border-ink-200 dark:border-white/10 border-b px-4 py-3 text-xs font-mono font-bold tracking-wider uppercase;
+    @apply text-ink-500 dark:text-ink-on-dark-muted border-ink-900 dark:border-white/30 border-b px-4 py-3 text-xs font-semibold;
   }
-
   & tbody td {
-    @apply border-ink-100 dark:border-white/6 border-b px-4 py-3 align-middle;
+    @apply border-ink-200 dark:border-white/10 border-b px-4 py-3 align-middle;
   }
-
   & tbody tr:last-child td {
     @apply border-b-0;
   }
-
   & caption {
-    @apply text-ink-500 dark:text-ink-400 mt-3 text-left text-xs font-mono;
+    @apply text-ink-500 dark:text-ink-on-dark-muted mt-3 text-left text-xs;
   }
 }
 
-@utility card-interactive {
-  @apply card relative overflow-hidden;
-  
+/* --- Links --------------------------------------------------------------- */
+@utility link-inline {
+  @apply text-ink-900 dark:text-ink-50 decoration-ink-300 dark:decoration-ink-500 underline underline-offset-2 transition-colors hover:text-mark-700 hover:decoration-mark-600 dark:hover:text-mark-300;
+}
+@utility link-card {
+  @apply text-ink-900 dark:text-ink-50 font-semibold transition-colors hover:text-mark-700 dark:hover:text-mark-300;
+}
+
+/* --- Controls. Candy buttons: fully round, an offset solid shadow that
+   grows on hover and collapses on press, and a translation (never a scale)
+   so the measured tap target is identical before and after. ------------- */
+@utility btn {
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full px-[30px] py-[15px] text-base font-extrabold select-none;
+  @apply transition-[translate,box-shadow,color,background-color,border-color] duration-150;
+  @apply disabled:pointer-events-none disabled:opacity-45;
   &:hover {
-    @apply -translate-y-0.5;
-    border-color: var(--color-brand-300);
-    box-shadow: var(--shadow-premium-light), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    translate: 0 -2px;
   }
-
-  &:where(.dark, .dark *):hover {
-    border-color: var(--color-brand-400);
-    box-shadow: var(--shadow-premium-dark), var(--shadow-premium-inset);
+  &:active:active {
+    translate: 0 5px;
+    transition-duration: 80ms;
   }
 }
-
-@utility card-solid {
-  @apply bg-white border-ink-200 rounded-md border p-6 sm:p-8 transition-all duration-300;
-  box-shadow: var(--shadow-premium-light), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-
+/* 06-playful's primary: candy green with an offset solid shadow that grows on
+   hover and collapses on press. Deep indigo label, not white — the mockup's
+   white-on-green is 2.2:1. */
+@utility btn-primary {
+  @apply btn text-ink-900;
+  background-color: var(--color-mint-500);
+  box-shadow: 0 5px 0 var(--color-mint-600);
+  &:hover {
+    background-color: #4bd36c;
+    box-shadow: 0 7px 0 var(--color-mint-600);
+  }
+  &:active:active {
+    box-shadow: 0 0 0 var(--color-mint-600);
+  }
   &:where(.dark, .dark *) {
-    @apply border-white/12;
-    background: var(--color-ink-850);
-    box-shadow: var(--shadow-premium-dark), var(--shadow-premium-inset);
+    background-color: var(--color-mint-500);
+    color: var(--color-ink-950);
+    box-shadow: 0 5px 0 #124a32;
+    &:hover {
+      background-color: #4bd36c;
+      box-shadow: 0 7px 0 #124a32;
+    }
+    &:active:active {
+      box-shadow: 0 0 0 #124a32;
+    }
+  }
+}
+@utility btn-secondary {
+  @apply btn text-ink-900 bg-white dark:text-ink-100 dark:bg-white/8;
+  border: 2px solid var(--color-ink-200);
+  box-shadow: 0 5px 0 rgb(45 42 94 / 0.16);
+  &:hover {
+    border-color: var(--color-ink-900);
+    box-shadow: 0 7px 0 rgb(45 42 94 / 0.16);
+  }
+  &:active:active {
+    box-shadow: 0 0 0 rgb(45 42 94 / 0.16);
+  }
+  &:where(.dark, .dark *) {
+    border-color: rgb(255 255 255 / 0.25);
+    box-shadow: 0 5px 0 #05060b;
+    &:hover {
+      border-color: rgb(255 255 255 / 0.5);
+      box-shadow: 0 7px 0 #05060b;
+    }
+    &:active:active {
+      box-shadow: 0 0 0 #05060b;
+    }
+  }
+}
+/* 06-playful's orange accent button — the final CTA's action. */
+@utility btn-orange {
+  @apply btn text-ink-900;
+  background-color: var(--color-amber-400);
+  box-shadow: 0 5px 0 var(--color-amber-600);
+  &:hover {
+    background-color: #ffaf3d;
+    box-shadow: 0 7px 0 var(--color-amber-600);
+  }
+  &:active:active {
+    box-shadow: 0 0 0 var(--color-amber-600);
+  }
+}
+@utility btn-ghost {
+  @apply btn text-ink-600 dark:text-ink-on-dark;
+  &:hover {
+    background-color: var(--color-ink-100);
+  }
+  &:where(.dark, .dark *) {
+    &:hover {
+      background-color: rgb(255 255 255 / 0.08);
+    }
+  }
+}
+@utility btn-danger {
+  @apply btn text-rose-700 dark:text-rose-300 border-rose-600/40 dark:border-rose-400/40 border bg-transparent;
+  &:hover {
+    background-color: color-mix(in oklab, var(--color-rose-500) 10%, transparent);
+  }
+}
+@utility pill {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-bold;
+}
+@utility field {
+  @apply border-ink-300 text-ink-900 w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm transition-colors duration-150;
+  /* No `focus:outline-none` here: the global `:focus-visible` ring in
+     the base layer is the field's focus indicator, and a utility-layer
+     `outline: none` would erase it leaving only a border tint. */
+  @apply placeholder:text-ink-500 focus:border-mark-600;
+  &:where(.dark, .dark *) {
+    @apply text-ink-100 placeholder:text-ink-on-dark-muted border-white/15 bg-white/5;
+    &:focus {
+      border-color: var(--color-mark-400);
+    }
   }
 }
 
-@utility animate-drawer-enter {
-  animation: var(--animate-drawer-enter);
+/* Ruled ground for the hero. Rules, not a colour wash. */
+@utility bg-ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--color-ink-200) 0,
+    var(--color-ink-200) 1px,
+    transparent 1px,
+    transparent 44px
+  );
+  &:where(.dark, .dark *) {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      rgb(255 255 255 / 0.06) 0,
+      rgb(255 255 255 / 0.06) 1px,
+      transparent 1px,
+      transparent 44px
+    );
+  }
 }
 
-@utility animate-modal-enter {
-  animation: var(--animate-modal-enter);
-}
-
-@utility animate-fade-in {
-  animation: var(--animate-fade-in);
-}
-
-@utility animate-question-enter {
-  animation: var(--animate-question-enter);
-}
-
-@utility animate-bar-reveal {
-  transform-origin: left;
-  animation: var(--animate-bar-reveal);
+@utility scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-300) transparent;
+  &:where(.dark, .dark *) {
+    scrollbar-color: var(--color-ink-600) transparent;
+  }
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: color-mix(in oklab, var(--color-ink-400) 55%, transparent);
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 }
 
 @utility eq-bar {
   transform-origin: bottom;
-  animation: eq-pulse 1s ease-in-out infinite;
+  animation: eq-pulse 1.1s ease-in-out infinite;
 }
 
+/* The finale band runs flush into the footer: when a page ends on the green
+   CTA, the footer's normal top margin would leave a cream strip between the
+   two, breaking the green. Scoped via :has so pages without a CTA band keep
+   their spacing. */
+main:has(> .route-enter > .cta-band) + footer {
+  margin-top: 0;
+}
+
+.cta-band {
+  background-color: var(--color-mint-500);
+}
+.dark .cta-band {
+  background-color: var(--color-ink-950);
+  background-image: linear-gradient(180deg, #0d1f18 0%, #101426 50%, var(--color-ink-950) 100%);
+  border-top-color: rgba(60, 200, 94, 0.3);
+}
+
+/* On the green finale band the actions invert, as in the mockup's `.final`:
+   the primary flips to orange and the ghost goes solid white — a green
+   primary on the green band would vanish. Scoped so the rest of the site
+   keeps its normal buttons. */
+.cta-band .btn-primary {
+  background-color: #ff9f1c;
+  color: var(--color-ink-900);
+  box-shadow: 0 5px 0 #db7b06;
+  &:hover {
+    background-color: #f59309;
+    box-shadow: 0 7px 0 #db7b06;
+  }
+  &:active:active {
+    box-shadow: 0 0 0 #db7b06;
+  }
+  &:where(.dark, .dark *) {
+    background-color: #ff9f1c;
+    color: var(--color-ink-950);
+    box-shadow: 0 5px 0 #b45309;
+    &:hover {
+      background-color: #f59309;
+      box-shadow: 0 7px 0 #b45309;
+    }
+    &:active:active {
+      box-shadow: 0 0 0 #b45309;
+    }
+  }
+}
+.cta-band .btn-secondary {
+  background-color: #fff;
+  color: var(--color-ink-900);
+  border-color: #fff;
+  box-shadow: 0 5px 0 rgb(45 42 94 / 0.22);
+  &:hover {
+    border-color: #fff;
+    box-shadow: 0 7px 0 rgb(45 42 94 / 0.22);
+  }
+  &:active:active {
+    box-shadow: 0 0 0 rgb(45 42 94 / 0.22);
+  }
+  &:where(.dark, .dark *) {
+    background-color: #ffffff;
+    color: var(--color-ink-950);
+    border-color: #ffffff;
+    box-shadow: 0 5px 0 #05060b;
+    &:hover {
+      background-color: #f0f0f5;
+      box-shadow: 0 7px 0 #05060b;
+    }
+    &:active:active {
+      box-shadow: 0 0 0 #05060b;
+    }
+  }
+}
+
+/* The mockup's comparison table — a card-wrapped sheet with the
+   "PTE Prep" column highlighted in the band's own green, so the
+   reader's eye lands on the product's answer before any other. */
+.table-scroll {
+  margin-top: 46px;
+  overflow-x: auto;
+  background: #fff;
+  border: 2px solid var(--color-ink-200);
+  border-radius: 24px;
+  box-shadow: 0 10px 0 rgb(45 42 94 / 0.07);
+}
+.table-scroll table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 700px;
+}
+.table-scroll caption {
+  text-align: left;
+  padding: 22px 24px 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-ink-500);
+}
+.table-scroll th,
+.table-scroll td {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 15.5px;
+  vertical-align: top;
+  border-top: 2px solid var(--color-ink-200);
+  color: var(--color-ink-600);
+}
+.table-scroll thead th {
+  font-family: "Baloo 2", "Nunito", sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  background: var(--color-ink-900);
+  color: #fff;
+  border-top: none;
+}
+.table-scroll thead th:first-child {
+  border-radius: 20px 0 0 0;
+}
+.table-scroll thead th:last-child {
+  border-radius: 0 20px 0 0;
+}
+.table-scroll thead th:nth-child(2) {
+  background: var(--color-mint-500);
+  color: var(--color-ink-900);
+}
+.table-scroll tbody th {
+  font-weight: 800;
+  background: #fffdf7;
+  width: 32%;
+  color: var(--color-ink-900);
+}
+.table-scroll td:nth-child(2) {
+  background: var(--color-mint-50);
+  font-weight: 800;
+  color: var(--color-mint-700);
+}
+.table-scroll tbody tr:last-child th {
+  border-radius: 0 0 0 20px;
+}
+.table-scroll tbody tr:last-child td:last-child {
+  border-radius: 0 0 20px 0;
+}
+.table-scroll tbody tr:hover td,
+.table-scroll tbody tr:hover th {
+  filter: brightness(0.985);
+}
+.table-note {
+  margin-top: 18px;
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-ink-500);
+}
+
+/* The same sheet on the dark ground — the answer column keeps
+   its mint wash, the row labels a faint white one. */
+.dark .table-scroll {
+  background: var(--color-ink-850);
+  border-color: rgb(255 255 255 / 0.1);
+  box-shadow: 0 10px 0 #05060b, 0 16px 32px -8px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+.dark .table-scroll tbody th,
+.dark .table-scroll td {
+  border-top-color: rgb(255 255 255 / 0.1);
+  color: var(--color-ink-on-dark);
+}
+.dark .table-scroll caption {
+  color: var(--color-ink-on-dark-muted);
+}
+.dark .table-scroll tbody th {
+  background: rgb(255 255 255 / 0.04);
+  color: var(--color-ink-50);
+}
+.dark .table-scroll td:nth-child(2) {
+  background: rgb(60 200 94 / 0.12);
+  color: var(--color-mint-300);
+}
+.dark .table-scroll tbody tr:hover td,
+.dark .table-scroll tbody tr:hover th {
+  filter: brightness(1.08);
+}
+.dark .table-note {
+  color: var(--color-ink-on-dark);
+}
+
+/* FAQ open state — the summary washes lavender and the toggle
+   disc turns into a purple cross. */
+details.qa summary:hover {
+  background-color: var(--color-ink-100);
+}
+details.qa[open] > summary {
+  background-color: var(--color-ink-100);
+  color: var(--color-mark-600);
+}
+details.qa[open] .qa-toggle {
+  transform: rotate(45deg);
+  background-color: var(--color-mark-500);
+  color: #fff;
+}
+.dark details.qa summary:hover {
+  background-color: rgb(255 255 255 / 0.08);
+}
+.dark details.qa[open] > summary {
+  background-color: rgb(139 92 246 / 0.16);
+  color: var(--color-mark-300);
+}
+
+@utility animate-route-enter {
+  animation: var(--animate-route-enter);
+}
+@utility animate-drawer-enter {
+  animation: var(--animate-drawer-enter);
+}
+@utility animate-modal-enter {
+  animation: var(--animate-modal-enter);
+}
+@utility animate-fade-in {
+  animation: var(--animate-fade-in);
+}
+@utility animate-question-enter {
+  animation: var(--animate-question-enter);
+}
+@utility animate-bar-reveal {
+  transform-origin: left;
+  animation: var(--animate-bar-reveal);
+}
 @utility animate-rise-in {
   animation: var(--animate-rise-in);
 }
-
-@utility animate-pop-in {
-  animation: var(--animate-pop-in);
+@utility animate-blur-in {
+  animation: var(--animate-blur-in);
 }
-
-@utility animate-float-slow {
-  animation: var(--animate-float-slow);
+@utility animate-shimmer {
+  animation: var(--animate-shimmer);
 }
-
+@utility animate-float {
+  animation: var(--animate-float);
+}
 @utility animate-bob {
   animation: var(--animate-bob);
 }
-
-@utility animate-spin-slow {
-  animation: var(--animate-spin-slow);
+@utility animate-pop {
+  animation: var(--animate-pop);
+}
+@utility animate-error-nudge {
+  animation: error-nudge 0.3s var(--ease-settle) both;
+}
+@utility animate-toast-out {
+  animation: toast-out 0.16s var(--ease-settle) both;
+}
+@utility animate-tab-enter {
+  animation: var(--animate-tab-enter);
 }
 
-@utility animate-gradient-pan {
-  background-size: 220% 220%;
-  animation: var(--animate-gradient-pan);
+/* --- Charts draw themselves in when the Reveal around them resolves. -------
+   The drawn state is the default: no JavaScript, a crawler, or a visitor who
+   asked for reduced motion gets the finished line. The offset exists only
+   while the wrapper is armed and still waiting, and the units are the path's
+   own (each drawable carries pathLength="1"). ------------------------------ */
+[data-armed='true'][data-shown='false'] [data-draw] {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+[data-armed='true'][data-shown='true'] [data-draw] {
+  animation: var(--animate-draw);
+}
+[data-armed='true'][data-shown='false'] [data-draw-fade] {
+  opacity: 0;
+}
+[data-armed='true'][data-shown='true'] [data-draw-fade] {
+  animation: fade-in 0.9s var(--ease-out-expo) 0.3s both;
+}
+[data-draw-dot] {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+[data-armed='true'][data-shown='false'] [data-draw-dot] {
+  opacity: 0;
+}
+[data-armed='true'][data-shown='true'] [data-draw-dot] {
+  animation: var(--animate-draw-dot);
+  animation-delay: var(--draw-dot-delay, 0.55s);
 }
 
-@utility animate-soft-pulse {
-  animation: var(--animate-soft-pulse);
+/* --- Chart stimuli animate themselves in on mount: bars grow
+       from the baseline, polylines draw along their length,
+       markers pop. Decorative only — the blanket reduced-motion
+       reset resolves every one of these to the finished state
+       instantly, and the static markup is the finished chart. */
+@utility animate-grow-up {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: grow-up 0.6s var(--ease-out-expo) both;
+}
+@utility animate-draw-line {
+  stroke-dasharray: 1;
+  animation: draw-line 1.1s var(--ease-out-expo) both;
 }
 
-@utility animate-gradient-shift {
-  background-size: 200% 200%;
-  animation: var(--animate-gradient-shift);
+/* --- The header earns a shadow once the page has moved under it. ---------- */
+.site-header[data-scrolled='true'] {
+  box-shadow: 0 12px 32px -20px rgb(45 42 94 / 0.35), 0 1px 0 rgb(45 42 94 / 0.06);
+}
+.site-header.dark[data-scrolled='true'],
+.dark .site-header[data-scrolled='true'] {
+  box-shadow: 0 12px 32px -20px rgb(0 0 0 / 0.6);
 }
 
-@utility animate-shimmer-subtle {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in oklab, var(--color-brand-400) 12%, transparent) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: var(--animate-shimmer-subtle);
-}
-
-@utility animate-slide-up {
-  animation: var(--animate-slide-up);
-}
-
-@utility animate-slide-down {
-  animation: var(--animate-slide-down);
-}
-
-@utility animate-scale-in {
-  animation: var(--animate-scale-in);
-}
-
-@utility animate-rotate-in {
-  animation: var(--animate-rotate-in);
-}
-
-@utility bg-gradient-subtle {
-  background: var(--ground-tint);
-}
-
-@utility bg-mesh-gradient {
-  background:
-    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-100) 15%, transparent) 0px, transparent 70%),
-    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-50) 10%, transparent) 0px, transparent 70%),
-    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-100) 20%, transparent) 0px, transparent 70%),
-    var(--color-ink-50);
-}
-
-.dark .bg-mesh-gradient {
-  background:
-    radial-gradient(at 40% 20%, color-mix(in oklab, var(--color-brand-900) 20%, transparent) 0px, transparent 70%),
-    radial-gradient(at 80% 0%, color-mix(in oklab, var(--color-brand-950) 15%, transparent) 0px, transparent 70%),
-    radial-gradient(at 0% 50%, color-mix(in oklab, var(--color-ink-800) 25%, transparent) 0px, transparent 70%),
-    var(--color-ink-900);
-}
-
-@utility bg-dot-pattern {
-  background-image: radial-gradient(circle, var(--color-ink-200) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.dark .bg-dot-pattern {
-  background-image: radial-gradient(circle, rgb(255 255 255 / 0.08) 1px, transparent 1px);
-}
-
-@utility bg-grid-pattern {
-  background-image:
-    linear-gradient(var(--color-ink-100) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-ink-100) 1px, transparent 1px);
-  background-size: 32px 32px;
-}
-
-.dark .bg-grid-pattern {
-  background-image:
-    linear-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgb(255 255 255 / 0.04) 1px, transparent 1px);
-}
-
-@utility texture-noise {
-  position: relative;
-
-  &::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.03;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-    z-index: 1;
+/* --- Lift. The 06-playful hover: a card rises 3px onto a longer
+       neutral shadow — a hint of air, not a bounce. The transition
+       is the house curve at 300ms, the timing the mockup specifies. */
+@utility lift {
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
+    box-shadow 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 0 rgb(45 42 94 / 0.1);
   }
-
-  & > * {
-    position: relative;
-    z-index: 2;
+  &:where(.dark, .dark *):hover {
+    box-shadow: 0 14px 0 #05060b, 0 22px 36px -8px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
 }
 
-.dark .texture-noise::before {
-  opacity: 0.05;
+/* --- Playful premium micro-physics. One springy nudge per card, never a
+      layout shift: the numbered discs tilt and pop when their own card lifts,
+      the FAQ toggle grows on hover, nav pills rise 1px, and the logo dot
+      bounces. Individual `rotate`/`scale`/`translate` properties compose with
+      the parent card's `transform` lift instead of fighting it. --------- */
+.chip,
+.step-no {
+  transition: rotate 0.35s var(--ease-spring), scale 0.35s var(--ease-spring);
 }
-
-/* Buttons carry shape, weight, colour and press feedback only — never size.
-   The size lives in the <Button> component (sm / md / lg) so every control on
-   the site shares one scale instead of ad-hoc padding overrides. */
-@utility btn {
-  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-full font-semibold duration-150 select-none;
-  /* Default size (md). Kept here so a bare `btn-*` class is still a complete
-     button wherever a component import would be awkward; the <Button> component
-     overrides it per size via tailwind-merge. */
-  @apply px-6 py-3 text-sm;
-  /* `translate` and `box-shadow` are transitioned explicitly: avoids `transition-all`. */
-  @apply transition-[color,background-color,border-color,fill,translate,box-shadow];
-  @apply disabled:pointer-events-none disabled:opacity-45;
-  position: relative;
-  z-index: 1;
-
-  /* Physical press feedback (skill B9). A one pixel drop rather than a scale:
-     a scale would shrink the hit area, and 24px is already the tap target
-     floor. Translation keeps the measured box identical.
-
-     The pseudo-class is doubled deliberately. `btn-primary:hover` sets a -2px
-     lift and is emitted after a plain `:active`, so a press was resolving to the
-     hover transform and every primary button rose when pushed instead of
-     dropping. Doubling the specificity settles the order without !important. */
-  &:active:active {
+.qa-toggle {
+  transition: scale 0.3s var(--ease-spring), transform 0.2s var(--ease-settle), background-color 0.2s, color 0.2s;
+}
+.site-header nav a {
+  transition: translate 0.25s var(--ease-settle), background-color 0.2s var(--ease-settle), color 0.2s var(--ease-settle);
+}
+a[aria-label='PTE Prep home'] .bg-amber-400 {
+  transition: scale 0.35s var(--ease-spring);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@media (hover: hover) and (pointer: fine) {
+  .bullet:hover .chip {
+    rotate: -8deg;
+    scale: 1.08;
+  }
+  .step:hover .step-no {
+    rotate: 8deg;
+    scale: 1.06;
+  }
+  .qa-summary:hover .qa-toggle {
+    scale: 1.12;
+  }
+  .site-header nav a:not(.btn-primary):hover {
+    translate: 0 -1px;
+  }
+  .site-header nav a:not(.btn-primary):active {
     translate: 0 1px;
   }
-}
-
-@utility btn-primary {
-  @apply btn text-white font-medium;
-  background-color: var(--color-ink-900);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.2);
-  letter-spacing: -0.01em;
-  transition: all 0.12s ease-out;
-
-  &:hover {
-    background-color: var(--color-ink-800);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 2px 6px rgba(0, 0, 0, 0.25);
-  }
-
-  &:active {
-    transform: translateY(1px);
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
-  }
-
-  .dark & {
-    background-color: #ffffff;
-    color: #0d1117;
-    border-color: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
-
-    &:hover {
-      background-color: #f0f3f6;
-    }
-
-    &:active {
-      transform: translateY(1px);
-    }
+  a[aria-label='PTE Prep home']:hover .bg-amber-400 {
+    scale: 1.3;
   }
 }
 
-@utility btn-secondary {
-  @apply btn border border-ink-200 bg-white text-ink-800;
-  box-shadow: none;
-  transition: color 0.2s var(--ease-settle), background-color 0.2s var(--ease-settle), border-color 0.2s var(--ease-settle), translate 0.2s var(--ease-settle);
-
-  &:hover {
-    @apply -translate-y-0.5;
+/* --- Ticket. The 06-playful headline chip: a solid purple
+      stub with a white Baloo label and two cream notches
+      punched in its edges, like a ticket counter. Sized in
+      em so it tracks the headline it lives in. The label is
+      always large text (0.72em of a 34–64px headline), so
+      white on the mark colour clears the 3:1 large-text bar. */
+@utility ticket {
+  @apply inline-flex items-center gap-2 align-middle font-display text-white font-extrabold;
+  background-color: var(--color-mark-500);
+  font-size: 0.72em;
+  padding: 6px 18px;
+  border-radius: 18px;
+  margin: 0 6px;
+  box-shadow: 0 6px 0 rgb(109 63 224);
+  position: relative;
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
     background: var(--color-ink-50);
-    border-color: var(--color-ink-300);
-    box-shadow: none;
+    top: 50%;
+    transform: translateY(-50%);
   }
-
+  &::before {
+    left: -7px;
+  }
+  &::after {
+    right: -7px;
+  }
+  &:where(.dark, .dark *)::before,
+  &:where(.dark, .dark *)::after {
+    background: var(--color-ink-900);
+  }
+  /* The offset shadow is a light-mode candy effect only. In
+     dark mode no purple shade both reads as depth *and*
+     clears the 3:1 large-text bar against the ink ground
+     (the purple-dk shade lands at 2.14:1), so the ticket
+     sits flat — its body alone clears 3.3:1. */
   &:where(.dark, .dark *) {
-    @apply border-white/10 text-white;
-    background: rgb(255 255 255 / 0.04);
-    box-shadow: none;
-    
-    &:hover {
-      background: rgb(255 255 255 / 0.08);
-      border-color: rgba(255,255,255,0.2);
-      box-shadow: none;
+    box-shadow: 0 0 16px rgb(139 92 246 / 0.35);
+  }
+}
+@utility animate-pulse-soft {
+  animation: var(--animate-pulse-soft);
+}
+@utility animate-details-sweep {
+  animation: details-sweep 0.3s var(--ease-out-expo) both;
+}
+
+/* --- Fluid island nav. A floating glass pill that morphs. ----------------- */
+@utility nav-island {
+  @apply flex items-center gap-2 rounded-full px-3 py-2;
+  background: rgb(255 255 255 / 0.72);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.32);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -8px rgb(0 0 0 / 0.1);
+  transition: all 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  &:where(.dark, .dark *) {
+    background: rgb(24 24 24 / 0.72);
+    border-color: rgb(255 255 255 / 0.1);
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.2), 0 8px 32px -8px rgb(0 0 0 / 0.4);
+  }
+  &:hover {
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 16px 40px -12px rgb(0 0 0 / 0.14);
+    transform: translateY(-1px);
+  }
+  &:where(.dark, .dark *):hover {
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.2), 0 16px 48px -12px rgb(0 0 0 / 0.5);
+  }
+}
+
+/* Hamburger to X morph. Lines rotate and translate, never simply vanish. */
+@utility menu-toggle {
+  @apply relative grid size-9 cursor-pointer place-items-center rounded-full transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)];
+  @apply hover:scale-105 active:scale-95;
+}
+@utility menu-line {
+  @apply absolute h-0.5 w-4 rounded-full bg-current transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)];
+  &.menu-open {
+    &:nth-child(1) {
+      transform: rotate(45deg) translate(0, 0);
+    }
+    &:nth-child(2) {
+      opacity: 0;
+      transform: scaleX(0.5);
+    }
+    &:nth-child(3) {
+      transform: rotate(-45deg) translate(0, 0);
+    }
+  }
+  &:not(.menu-open) {
+    &:nth-child(1) {
+      transform: translateY(-4px);
+    }
+    &:nth-child(2) {
+      transform: translateY(0);
+    }
+    &:nth-child(3) {
+      transform: translateY(4px);
     }
   }
 }
 
 @layer components {
-  /* ------------------------------------------------------------------------
-     Expressive motion surfaces.
-
-     These are the page's own movement — a drifting aurora, a leaning card, a
-     sheen across a figure. Nothing here is required to operate the interface,
-     so every one of them is purely decorative and is removed wholesale under
-     `prefers-reduced-motion` (see the base layer above).
-     ------------------------------------------------------------------------ */
-
-  /* A soft, slow colour field behind the hero. Three blurred blobs in the
-     accent and its two signals, drifting out of phase so the field never
-     visibly loops. Sits on z-0; hero content is lifted above it. */
-  .hero-aurora {
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    overflow: hidden;
-    pointer-events: none;
-    /* Dissolve before the section edge so the drifting blobs never clip
-       into a straight square seam where the hero meets the next band. */
-    mask-image: linear-gradient(to bottom, black 62%, transparent 98%);
-    -webkit-mask-image: linear-gradient(to bottom, black 62%, transparent 98%);
-  }
-  .hero-aurora span {
-    position: absolute;
-    display: block;
-    border-radius: 9999px;
-    filter: blur(72px);
-    /* A soft but visible wash; keep the dark theme calmer because bright blobs
-       read more strongly against its darker ground. */
-    opacity: 0.36;
-  }
-  .hero-aurora .aurora-1 {
-    --aurora-a: var(--color-brand-400);
-    --aurora-b: var(--color-mint-400);
-    width: 32rem;
-    height: 32rem;
-    top: -9rem;
-    left: -7rem;
-    background: var(--aurora-a);
-    animation: drift 20s ease-in-out infinite alternate;
-  }
-  .hero-aurora .aurora-2 {
-    --aurora-a: var(--color-mint-400);
-    --aurora-b: var(--color-brand-300);
-    width: 28rem;
-    height: 28rem;
-    top: -5rem;
-    right: -8rem;
-    background: var(--aurora-a);
-    animation: drift 25s ease-in-out infinite alternate-reverse;
-  }
-  .hero-aurora .aurora-3 {
-    --aurora-a: var(--color-brand-300);
-    --aurora-b: var(--color-mint-300);
-    width: 24rem;
-    height: 24rem;
-    bottom: -6rem;
-    left: 34%;
-    background: var(--aurora-a);
-    animation: drift 30s ease-in-out infinite alternate;
-  }
-  .dark .hero-aurora span {
-    opacity: 0.25;
-  }
-
-  /* On a phone the hero is 390px wide and these blobs are 384–512px across, so
-     three of them blanket the entire section instead of sitting in its corners.
-     Measured at 390px: the aurora's contribution rose from a mean of 13/255 on a
-     desktop to 35/255, and the headline over it fell to 2.86:1 — below the 3.0
-     floor for large text. The field is scaled back to the corners it was drawn
-     for, so the title keeps a clean ground on every viewport; at 390px it now
-     measures a mean of 10.2 with the headline at 5.29:1. */
-  @media (max-width: 40rem) {
-    .hero-aurora span {
-      filter: blur(56px);
-      opacity: 0.28;
-    }
-
-    .dark .hero-aurora span {
-      opacity: 0.21;
-    }
-
-    .hero-aurora .aurora-1 {
-      width: 19rem;
-      height: 19rem;
-      top: -7rem;
-      left: -6rem;
-    }
-
-    .hero-aurora .aurora-2 {
-      width: 17rem;
-      height: 17rem;
-      top: -4rem;
-      right: -6rem;
-    }
-
-    .hero-aurora .aurora-3 {
-      width: 14rem;
-      height: 14rem;
-      bottom: -4rem;
-      left: 30%;
-    }
-  }
-
-  /* Keep the hero title tied to the brand, with a solid-colour fallback. */
-  .text-gradient-move { color: var(--color-brand-700); }
-  .dark .text-gradient-move { color: var(--color-brand-200); }
-  @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-    .text-gradient-move {
-      background-image: linear-gradient(105deg, var(--color-brand-700), var(--color-brand-500));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .dark .text-gradient-move {
-      background-image: linear-gradient(105deg, var(--color-brand-200), var(--color-brand-300));
-      color: transparent;
-    }
-  }
-
-  @media (forced-colors: active) {
-    .text-gradient-move { background: none; color: CanvasText; }
-  }
-
-  /* A rule that pans its gradient slowly, for under a heading. */
-  .rule-gradient {
-    background-image: linear-gradient(90deg, var(--color-brand-500), var(--color-mint-400), var(--color-brand-500));
-    background-size: 220% 100%;
-    animation: gradient-pan 7s ease infinite;
-  }
-
-  /* NB: a `.card-lift` rule briefly lived here as a third hover treatment. It
-     was never applied anywhere — `card-interactive` already owns the card hover
-     (lift, hairline, corner glow) and `.practice-float` owns the collage's — so
-     it was removed rather than left as a second, competing definition. */
-
-  /* Pointer-proximity field. The JS writes `--pf-x`/`--pf-y` target values on
-     whichever children are near the cursor; the browser does the interpolation
-     through this transition, so no easing is computed per frame in JS. `travel`
-     is capped in the component by pixel distance, and the whole rule is
-     neutralised by the reduced-motion layer below like every other motion
-     surface. Nothing here animates on a coarse pointer, because the component
-     never arms there. */
   .pointer-field [data-pf] {
     translate: var(--pf-x, 0px) var(--pf-y, 0px);
     transition: translate 0.4s var(--ease-settle);
   }
 
-  /* 3D tilt stage. The inner layer leans; the glare tracks the cursor. */
   .tilt {
     position: relative;
     perspective: 1200px;
@@ -1371,184 +2169,25 @@
   .tilt:hover .tilt-inner {
     transition-duration: 0.08s;
   }
-  .tilt-glare {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    border-radius: 12px;
-    pointer-events: none;
-    opacity: 0;
-    background: radial-gradient(
-      20rem circle at var(--tilt-gx, 50%) var(--tilt-gy, 50%),
-      rgb(255 255 255 / 0.08),
-      transparent 62%
-    );
-    transition: opacity 0.3s var(--ease-settle);
-  }
-  .tilt:hover .tilt-glare {
-    opacity: 1;
-  }
 }
 
-@utility btn-ghost {
-  @apply btn text-ink-500 hover:bg-ink-100;
-
-  &:where(.dark, .dark *) {
-    @apply text-ink-300 hover:bg-white/8;
-  }
-}
-
-@utility btn-danger {
-  @apply btn border border-rose-brand/30 bg-rose-brand/10 text-rose-600 hover:bg-rose-brand/20;
-  &:where(.dark, .dark *) {
-    @apply text-rose-300;
-  }
-}
-
-@utility pill {
-  @apply inline-flex items-center gap-1.5 rounded-sm px-2 py-0.5 font-mono text-micro font-medium tracking-wide;
-  letter-spacing: 0.05em;
-}
-
-@utility field {
-  @apply w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 transition-colors duration-150;
-  @apply placeholder:text-ink-400 focus:border-brand-500 focus:ring-brand-500/20 focus:ring-3 focus:outline-none;
-
-  &:where(.dark, .dark *) {
-    @apply border-white/12 bg-white/5 text-ink-100 placeholder:text-ink-500 shadow-sm focus:border-brand-400 focus:bg-white/10 focus:ring-2 focus:ring-brand-400/50;
-  }
-
-  &:focus {
-    box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-brand-500) 8%, transparent);
-  }
-
-  &:where(.dark, .dark *):focus {
-    box-shadow: 0 0 0 2px var(--color-brand-400);
-  }
-}
-
-@utility label {
-  @apply text-ink-600 dark:text-ink-300 mb-1.5 block text-xs font-semibold;
-}
-
-@utility passage {
-  @apply text-ink-700 dark:text-ink-200 text-base leading-relaxed;
-}
-
-@utility shimmer {
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in oklab, var(--color-brand-400) 18%, transparent) 50%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: var(--animate-shimmer);
-}
-
-/* Score-first cards: content cards stay flat, exam cards earn one hard top rule. */
-@utility card-exam {
-  @apply card relative overflow-hidden;
-  border-top-width: 3px;
-  border-top-color: var(--color-brand-500);
-
-  &:where(.dark, .dark *) {
-    border-top-color: var(--color-brand-400);
-  }
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--color-brand-500) 20%, transparent), transparent);
-    opacity: 0;
-    transition: opacity 0.3s var(--ease-settle);
-  }
-
-  &:hover::before {
-    opacity: 1;
-  }
-
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse at top right,
-      color-mix(in oklab, var(--color-brand-500) 6%, transparent) 0%,
-      transparent 50%
-    );
-    opacity: 0;
-    transition: opacity 0.4s var(--ease-settle);
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
-
-  &:where(.dark, .dark *)::after {
-    background: radial-gradient(
-      ellipse at top right,
-      color-mix(in oklab, var(--color-brand-400) 8%, transparent) 0%,
-      transparent 50%
-    );
-  }
-}
-
-@utility scrollbar-thin {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-ink-300) transparent;
-
-  &:where(.dark, .dark *) {
-    scrollbar-color: var(--color-ink-600) transparent;
-  }
-
-  &::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--color-ink-400) 55%, transparent);
-    border-radius: 99px;
-  }
-
-  &:where(.dark, .dark *) &::-webkit-scrollbar-thumb {
-    background: color-mix(in oklab, var(--color-ink-400) 25%, transparent);
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-}
-
-/* Print stylesheet: formats mock result into an official PTE Diagnostic Report Card */
+/* Print: the result page is a report card, and it prints as one. */
 @media print {
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-
-  /* Force light mode regardless of class on html */
   html {
     color-scheme: light !important;
   }
-
   body {
     background: #ffffff !important;
     color: #111827 !important;
     font-size: 11pt;
   }
-
-  /* Strip the dark class so token-based dark: variants don't fire */
   .dark {
     color-scheme: light !important;
   }
-
   nav,
   header.site-header,
   footer,
@@ -1559,7 +2198,6 @@
   .btn-ghost {
     display: none !important;
   }
-
   .page-shell-app,
   .route-inner {
     max-width: 100% !important;
@@ -1567,7 +2205,6 @@
     margin: 0 !important;
     background: #ffffff !important;
   }
-
   .card,
   .card-solid,
   .card-exam {
@@ -1578,85 +2215,137 @@
     break-inside: avoid;
     margin-top: 1rem !important;
   }
-
-  /* Headings, values, and text inside cards */
   h1, h2, h3, h4,
-  .page-title, .page-title-compact, .section-title,
+  .page-title, .section-title,
   [class*="text-ink-900"],
   [class*="text-white"],
   [class*="font-bold"] {
     color: #111827 !important;
   }
-
   [class*="text-ink-500"],
   [class*="text-ink-400"],
   [class*="text-ink-600"],
   [class*="text-ink-300"] {
     color: #4b5563 !important;
   }
-
-  /* Badges and pills */
   .pill {
     border: 1px solid #d1d5db !important;
     background: #f3f4f6 !important;
     color: #374151 !important;
   }
-
-  /* Progress bars */
   [role="progressbar"] {
     background: #e5e7eb !important;
   }
-
-  /* Tables */
   table {
     border-collapse: collapse !important;
   }
-
   thead {
     display: table-header-group !important;
   }
-
   th {
     color: #6b7280 !important;
   }
-
   td {
     color: #374151 !important;
   }
-
   tr {
     border-color: #e5e7eb !important;
     break-inside: avoid !important;
   }
-
   @page {
     margin: 12mm 15mm;
     size: A4 portrait;
   }
 }
 
-@utility swiss-hairline {
-  border-width: 1px;
-  border-color: var(--color-ink-200);
-  .dark & {
-    border-color: rgba(255, 255, 255, 0.1);
+
+
+
+/* --- Magnetic. Prominent CTAs have a wrapper; functional buttons get the
+   same capped pull on the control itself, so full-width and stateful controls
+   retain their layout and focus. `transform` composes with the candy button's
+   existing `translate` hover/press feedback. ---------------------------- */
+@layer components {
+  .magnetic {
+    display: inline-flex;
+    translate: var(--mg-x, 0px) var(--mg-y, 0px);
+    transition: translate 0.4s var(--ease-settle);
+    will-change: translate;
+  }
+
+}
+
+/* Outside the component layer so the composed transform transition wins over
+   the base button utility's transition list without changing button tokens. */
+.magnetic-control {
+  transform: translate3d(var(--control-x, 0px), var(--control-y, 0px), 0);
+  transition-property: transform, translate, box-shadow, color, background-color, border-color;
+  transition-duration: 0.35s;
+  transition-timing-function: var(--ease-settle);
+}
+.magnetic-control:active {
+  transition-duration: 80ms;
+}
+
+/* Selection, tabs and linked cards should acknowledge a hover without hiding
+   the selected state or making an exam answer move under the pointer. */
+@media (hover: hover) and (pointer: fine) {
+  :is(.choice-card, .choice-row):not(.choice-active):hover {
+    background-color: color-mix(in srgb, var(--color-mark-500) 7%, white);
+  }
+  .dark :is(.choice-card, .choice-row):not(.choice-active):hover {
+    background-color: color-mix(in srgb, var(--color-mark-400) 12%, var(--color-ink-850));
+  }
+  [role="tab"]:not([aria-selected="true"]):hover {
+    background-color: color-mix(in srgb, var(--color-mark-500) 9%, transparent);
+  }
+  .choice-active:hover {
+    border-color: var(--color-mint-500);
+  }
+  .dark .choice-active:hover {
+    border-color: var(--color-mark-400);
   }
 }
 
-@utility swiss-tag {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 2px;
-  border: 1px solid var(--color-ink-200);
-  background-color: var(--color-ink-100);
-  color: var(--color-ink-700);
+/* The timed exam retains color and border hover but not moving targets. */
+.test-route :is(.btn, .btn-primary, .btn-secondary, .btn-orange, .btn-ghost, .btn-danger,
+  .choice-card, .choice-row):is(:hover, :active) {
+  translate: 0 0 !important;
+}
+.test-route .card:hover {
+  transform: none !important;
+}
 
-  .dark & {
-    border-color: rgba(255, 255, 255, 0.12);
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--color-ink-300);
+/* Hover feedback stays visible on touch and for reduced-motion visitors, but
+   the targets do not move. */
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  :is(.btn, .btn-primary, .btn-secondary, .btn-orange, .btn-ghost, .btn-danger):is(:hover, :active),
+  .choice-card:is(:hover, :active), .choice-row:is(:hover, :active),
+  .card-interactive:is(:hover, :active), .menu-toggle:is(:hover, :active) {
+    translate: 0 0 !important;
+    scale: 1 !important;
+  }
+  .card:hover, .lift:hover {
+    transform: none !important;
+  }
+  .bullet:hover .chip,
+  .step:hover .step-no,
+  .qa-summary:hover .qa-toggle,
+  .site-header nav a:hover,
+  a[aria-label='PTE Prep home']:hover .bg-amber-400 {
+    rotate: none !important;
+    scale: none !important;
+    translate: 0 0 !important;
+  }
+  .magnetic-control, .magnetic {
+    transform: none !important;
+    translate: 0 0 !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice-card, .choice-row, .card-interactive, .magnetic-control, .magnetic,
+  .chip, .step-no, .qa-toggle {
+    transition-property: color, background-color, border-color, box-shadow, opacity !important;
   }
 }

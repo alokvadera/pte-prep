@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ElementType, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
+import { prefersReducedMotion } from '../../lib/motion'
 
 /* ---------------------------------------------------------------------------
    Motion primitives.
@@ -20,29 +21,28 @@ import { cn } from '../../lib/cn'
       an animation at 0.01ms inside a transition that still shifts layout.
 --------------------------------------------------------------------------- */
 
-/** True when the visitor has asked the system to reduce motion. */
-function prefersReducedMotion(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  )
-}
-
-type RevealVariant = 'up' | 'down' | 'left' | 'right' | 'scale' | 'fade'
+type RevealVariant = 'up' | 'down' | 'left' | 'right' | 'scale' | 'fade' | 'blur-up'
 
 /**
  * Hidden classes are written out in full rather than assembled from a variable,
  * because Tailwind scans source text for complete class names — a template
  * literal would compile to no CSS at all.
+ *
+ * The `blur-up` variant is the house entrance per B7: a heavy, slow fade up
+ * with a blur that resolves to nothing. It is the signature motion for
+ * headline moments and cards that deserve a beat.
+ *
+ * The `up` variant is 06-playful's `.rise`: 36px of travel, the same
+ * 800ms house curve the mockup's `riseIn` scroll-driven animation uses.
  */
 const HIDDEN_CLASS: Record<RevealVariant, string> = {
-  up: 'data-[armed=true]:data-[shown=false]:translate-y-6',
-  down: 'data-[armed=true]:data-[shown=false]:-translate-y-6',
-  left: 'data-[armed=true]:data-[shown=false]:translate-x-6',
-  right: 'data-[armed=true]:data-[shown=false]:-translate-x-6',
+  up: 'data-[armed=true]:data-[shown=false]:translate-y-5',
+  down: 'data-[armed=true]:data-[shown=false]:-translate-y-4',
+  left: 'data-[armed=true]:data-[shown=false]:translate-x-4',
+  right: 'data-[armed=true]:data-[shown=false]:-translate-x-4',
   scale: 'data-[armed=true]:data-[shown=false]:scale-95',
   fade: '',
+  'blur-up': 'data-[armed=true]:data-[shown=false]:translate-y-5 data-[armed=true]:data-[shown=false]:blur-[5px]',
 }
 
 /**
@@ -58,7 +58,7 @@ export function Reveal({
   id,
   variant = 'up',
   delay = 0,
-  duration = 600,
+  duration = 480,
   className,
 }: {
   children: ReactNode
@@ -107,7 +107,9 @@ export function Reveal({
       id={id}
       style={{ transitionDuration: `${duration}ms` }}
       className={cn(
-        'transition-[opacity,translate,scale] ease-[cubic-bezier(0.32,0.72,0,1)]',
+        // `filter` is transitioned so the `blur-up` variant can resolve its
+        // blur to nothing. The house curve per B7, never the framework default.
+        'transition-[opacity,translate,scale,filter]',
         // `will-change` is scoped to the waiting state only. Once a card has
         // revealed it is left alone, so a page with 20+ revealed cards is not
         // holding 20+ promoted layers for the life of the view.
@@ -131,7 +133,7 @@ export function Reveal({
  */
 export function CountUp({
   value,
-  duration = 1400,
+  duration = 750,
   decimals = 0,
   prefix = '',
   suffix = '',
@@ -149,21 +151,54 @@ export function CountUp({
 }) {
   const ref = useRef<HTMLSpanElement | null>(null)
   const [display, setDisplay] = useState(value)
+  const hasAnimatedRef = useRef(false)
+  const currentRef = useRef(value)
+
+  useEffect(() => {
+    currentRef.current = display
+  }, [display])
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
-    if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') return
+    if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') {
+      setDisplay(value)
+      return
+    }
 
     let raf = 0
+
+    // If already animated once and value is updated (e.g. user dragged a slider),
+    // smoothly glide from current display to new value without resetting to 0!
+    if (hasAnimatedRef.current) {
+      const from = currentRef.current
+      const to = value
+      const diff = to - from
+      if (Math.abs(diff) < 0.01) {
+        setDisplay(to)
+        return
+      }
+      const transitionDur = Math.min(220, duration)
+      const startedAt = performance.now()
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - startedAt) / transitionDur)
+        const eased = 1 - Math.pow(1 - t, 3.5)
+        setDisplay(from + diff * eased)
+        if (t < 1) raf = requestAnimationFrame(tick)
+      }
+      raf = requestAnimationFrame(tick)
+      return () => cancelAnimationFrame(raf)
+    }
+
     const io = new IntersectionObserver(
       (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return
         io.disconnect()
+        hasAnimatedRef.current = true
         const startedAt = performance.now()
         const tick = (now: number) => {
           const t = Math.min(1, (now - startedAt) / duration)
-          const eased = 1 - Math.pow(1 - t, 3)
+          const eased = 1 - Math.pow(1 - t, 3.5)
           setDisplay(value * eased)
           if (t < 1) raf = requestAnimationFrame(tick)
         }
@@ -226,6 +261,7 @@ export function Tilt({
     const el = ref.current
     if (!el) return
     if (prefersReducedMotion()) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
 
     let raf = 0
     const onMove = (event: PointerEvent) => {
@@ -316,7 +352,7 @@ export function PointerField({
   children,
   className,
   radius = 300,
-  travel = 12,
+  travel = 10,
 }: {
   children: ReactNode
   className?: string
@@ -412,6 +448,113 @@ export function PointerField({
 
   return (
     <div ref={ref} className={cn('pointer-field', className)}>
+      {children}
+    </div>
+  )
+}
+
+/* ---------------------------------------------------------------------------
+   Magnetic.
+
+   A premium hover effect where an element leans toward the cursor as it
+   approaches, and springs back when the pointer leaves. The effect falls off
+   with distance so only the element being pointed at responds, and it is
+   disabled entirely for touch pointers and for visitors who asked for reduced
+   motion.
+
+   Wrap a primary CTA or a floating action with this and the surface feels like
+   it has physical mass. One or two per page is enough — overuse reads as noise.
+--------------------------------------------------------------------------- */
+export function Magnetic({
+  children,
+  strength = 0.2,
+  radius = 85,
+  maxTravel = 8,
+  className,
+}: {
+  children: ReactNode
+  /** How far the element travels at maximum proximity, as a ratio of distance. */
+  strength?: number
+  /** Centre-to-centre distance at which the element has fully settled back. */
+  radius?: number
+  /** Maximum displacement cap in pixels so button never detaches or over-pulls. */
+  maxTravel?: number
+  className?: string
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (prefersReducedMotion()) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+
+    let raf = 0
+    let queued: { x: number; y: number } | null = null
+    let active = false
+    let restingCenter: { cx: number; cy: number } | null = null
+
+    const reset = () => {
+      cancelAnimationFrame(raf)
+      raf = 0
+      queued = null
+      active = false
+      restingCenter = null
+      el.style.setProperty('--mg-x', '0px')
+      el.style.setProperty('--mg-y', '0px')
+      window.removeEventListener('pointermove', onWindowMove)
+    }
+
+    const apply = () => {
+      raf = 0
+      if (!queued || !restingCenter) return
+      const { cx, cy } = restingCenter
+      const dx = queued.x - cx
+      const dy = queued.y - cy
+      const distance = Math.hypot(dx, dy)
+
+      if (distance > radius) {
+        reset()
+        return
+      }
+
+      const falloff = 1 - distance / radius
+      const tx = Math.max(-maxTravel, Math.min(maxTravel, dx * strength * falloff))
+      const ty = Math.max(-maxTravel * 0.75, Math.min(maxTravel * 0.75, dy * strength * falloff))
+      el.style.setProperty('--mg-x', `${tx.toFixed(2)}px`)
+      el.style.setProperty('--mg-y', `${ty.toFixed(2)}px`)
+    }
+
+    const onWindowMove = (e: PointerEvent) => {
+      queued = { x: e.clientX, y: e.clientY }
+      if (!raf) raf = requestAnimationFrame(apply)
+    }
+
+    const onEnter = (e: PointerEvent) => {
+      if (active) return
+      active = true
+      const box = el.getBoundingClientRect()
+      const curX = parseFloat(el.style.getPropertyValue('--mg-x')) || 0
+      const curY = parseFloat(el.style.getPropertyValue('--mg-y')) || 0
+      restingCenter = {
+        cx: box.left + box.width / 2 - curX,
+        cy: box.top + box.height / 2 - curY,
+      }
+      queued = { x: e.clientX, y: e.clientY }
+      window.addEventListener('pointermove', onWindowMove, { passive: true })
+      if (!raf) raf = requestAnimationFrame(apply)
+    }
+
+    el.addEventListener('pointerenter', onEnter)
+    return () => {
+      el.removeEventListener('pointerenter', onEnter)
+      window.removeEventListener('pointermove', onWindowMove)
+      cancelAnimationFrame(raf)
+    }
+  }, [strength, radius, maxTravel])
+
+  return (
+    <div ref={ref} className={cn('magnetic', className)}>
       {children}
     </div>
   )

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AudioAnalysis } from '../../domain/types'
 import { cn } from '../../lib/cn'
 import { isRecordingSupported, isSpeechRecognitionSupported, VoiceRecorder, type RecorderLevel, type RecorderState } from '../../lib/recorder'
+import { useSettings } from '../../store/useSettings'
+import { transcribeWithWhisper } from '../../lib/aiScorer'
 
 interface Props {
   /** Seconds allowed for the take. */
@@ -24,6 +26,7 @@ type Phase = 'idle' | 'prep' | 'recording' | 'done'
  * be scored on content rather than dropped entirely.
  */
 export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabled }: Props) {
+  const { settings } = useSettings()
   const [phase, setPhase] = useState<Phase>('idle')
   const [state, setState] = useState<RecorderState>('idle')
   const [level, setLevel] = useState<RecorderLevel>({ level: 0, speechiness: 0 })
@@ -33,6 +36,8 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
   const [typed, setTyped] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [lastDurationMs, setLastDurationMs] = useState<number | null>(null)
+  const [transcribing, setTranscribing] = useState(false)
+  const [sttSource, setSttSource] = useState<'browser' | 'whisper' | 'browser-fallback' | null>(null)
   const recorderRef = useRef<VoiceRecorder | null>(null)
   const timerRef = useRef<number | null>(null)
   const submittedRef = useRef(false)
@@ -66,19 +71,47 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
     const result = rec ? await rec.stop() : null
     setPhase('done')
     setLastDurationMs(result?.analysis?.durationMs ?? 0)
-    onRecorded(
-      result?.analysis ?? {
-        durationMs: 0,
-        wordsPerMinute: 0,
-        speechRatio: 0,
-        pauseCount: 0,
-        meanPitchHz: null,
-        energyVariance: 0,
-        reliable: false,
-      },
-      result?.transcript ?? '',
-    )
-  }, [onRecorded])
+
+    const baseAnalysis = result?.analysis ?? {
+      durationMs: 0,
+      wordsPerMinute: 0,
+      speechRatio: 0,
+      pauseCount: 0,
+      meanPitchHz: null,
+      energyVariance: 0,
+      reliable: false,
+    }
+
+    const browserTranscript = result?.transcript?.trim() ?? ''
+    const key = settings.groqApiKey?.trim()
+
+    // STT STRATEGY:
+    // 1. If user has entered their Groq API Key, Whisper Turbo is FIRST PREFERENCE!
+    if (key && result?.audioBlob && result.audioBlob.size > 0) {
+      setTranscribing(true)
+      try {
+        const whisperRes = await transcribeWithWhisper(result.audioBlob, key)
+        if (whisperRes && whisperRes.text.trim()) {
+          const whisperText = whisperRes.text.trim()
+          setTranscript(whisperText)
+          setSttSource('whisper')
+          onRecorded(baseAnalysis, whisperText)
+          setTranscribing(false)
+          return
+        }
+      } catch {
+        /* fallback to browser recognition */
+      }
+      setTranscribing(false)
+      setSttSource(browserTranscript ? 'browser-fallback' : null)
+      onRecorded(baseAnalysis, browserTranscript)
+      return
+    }
+
+    // 2. If no API key, use Browser Web Speech API directly (100% free)
+    setSttSource(browserTranscript ? 'browser' : null)
+    onRecorded(baseAnalysis, browserTranscript)
+  }, [onRecorded, settings.groqApiKey])
 
   useEffect(() => {
     finishRef.current = finish
@@ -157,6 +190,8 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
     cancel()
     setTyped('')
     setTranscript('')
+    setTranscribing(false)
+    setSttSource(null)
     setError(null)
     start()
   }, [cancel, start])
@@ -167,7 +202,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
             <p className="text-ink-900 dark:text-white text-sm font-semibold">Record your response</p>
-            <p className="text-ink-500 dark:text-ink-400 text-xs">
+            <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
               {disabled
                 ? 'Audio is playing. Wait for audio to finish before recording.'
                 : prepSeconds > 0
@@ -185,14 +220,14 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
 
       {phase === 'prep' ? (
         <div className="text-center">
-          <p className="text-ink-500 dark:text-ink-300 text-sm font-semibold">Prepare</p>
+          <p className="text-ink-500 dark:text-ink-on-dark text-sm font-semibold">Prepare</p>
           <p
             className="text-brand-500 dark:text-brand-300 my-2 font-mono text-5xl font-bold tabular-nums"
             role="timer"
             aria-live="off"
             aria-label={`${prepLeft} seconds to prepare`}
           >
-            {prepLeft}
+            <span key={prepLeft} className="animate-pop inline-block">{prepLeft}</span>
           </p>
           <div className="bg-ink-200 dark:bg-white/10 mx-auto h-1.5 w-48 overflow-hidden rounded-full">
             <div
@@ -213,7 +248,9 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
               <span className="bg-rose-brand size-2 animate-pulse rounded-full" />
               Recording
             </span>
-            <span className="text-ink-900 dark:text-white font-mono text-lg font-bold tabular-nums">{recLeft}s</span>
+            <span className="text-ink-900 dark:text-white font-mono text-lg font-bold tabular-nums">
+              <span key={recLeft} className="animate-pop inline-block">{recLeft}</span>s
+            </span>
           </div>
           <div className="bg-ink-100 dark:bg-white/6 mt-3 flex h-3 items-center gap-[3px] overflow-hidden rounded-full px-1" aria-hidden="true">
             {Array.from({ length: 48 }, (_, i) => {
@@ -231,12 +268,23 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
             })}
           </div>
           {transcript ? (
-            <p className="text-ink-500 dark:text-ink-400 mt-3 line-clamp-3 text-xs italic">“{transcript}”</p>
+            <div className="flex items-center justify-between mt-3 text-xs">
+              <p className="text-ink-500 dark:text-ink-on-dark-muted line-clamp-2 italic">“{transcript}”</p>
+              {settings.groqApiKey ? (
+                <span className="text-[10px] font-semibold text-mint-600 dark:text-mint-400 shrink-0 ml-2">
+                  Whisper on stop
+                </span>
+              ) : null}
+            </div>
           ) : sttSupported ? (
-            <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">Listening for speech…</p>
+            <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
+              Listening for speech… {settings.groqApiKey ? '(Whisper Turbo active)' : ''}
+            </p>
           ) : (
-            <p className="text-ink-500 dark:text-ink-400 mt-3 text-xs">
-              This browser cannot transcribe speech, so the estimate will rely on length and fluency signals only.
+            <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
+              {settings.groqApiKey
+                ? 'Recording audio. Whisper Turbo will transcribe on stop.'
+                : 'This browser cannot transcribe speech, so the estimate will rely on length and fluency signals only.'}
             </p>
           )}
           <button type="button" className="btn-secondary mt-3 w-full" onClick={() => void finish()}>
@@ -252,7 +300,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
             <p className="text-ink-900 dark:text-white text-sm font-semibold">
               {error ? 'Answer not recorded' : 'Response captured'}
             </p>
-            <p className="text-ink-500 dark:text-ink-400 text-xs">
+            <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
               {state === 'denied' ? 'Microphone permission denied' : state === 'unsupported' ? 'No microphone detected' : 'Microphone released'}
             </p>
             <button type="button" className="btn-secondary" onClick={restart}>
@@ -260,11 +308,32 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
             </button>
           </div>
 
-          {transcript ? (
-            <div className="border-ink-200 dark:border-white/10 mt-3 border-t pt-3">
-              <p className="text-ink-500 dark:text-ink-400 text-xs font-semibold">
-                What the browser heard
-              </p>
+          {transcribing ? (
+            <div className="border-ink-200 dark:border-white/10 mt-3 border-t pt-3 flex items-center gap-2.5 text-xs text-brand-600 dark:text-brand-300">
+              <span className="size-2 rounded-full bg-brand-500 animate-ping" />
+              <span className="font-semibold">Transcribing with Groq Whisper Turbo...</span>
+            </div>
+          ) : transcript ? (
+            <div className="border-ink-200 dark:border-white/10 mt-3 border-t pt-3 space-y-1.5">
+              <div className="flex items-center justify-between">
+                <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
+                  {sttSource === 'whisper' ? 'Transcribed via Whisper Turbo' : 'What the browser heard'}
+                </p>
+                <span
+                  className={cn(
+                    'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border',
+                    sttSource === 'whisper'
+                      ? 'border-mint-500/30 bg-mint-500/10 text-mint-700 dark:text-mint-300'
+                      : 'border-ink-200 bg-ink-100 text-ink-600 dark:border-white/10 dark:bg-white/5 dark:text-ink-300',
+                  )}
+                >
+                  {sttSource === 'whisper'
+                    ? 'Groq Whisper Turbo'
+                    : sttSource === 'browser-fallback'
+                      ? 'Browser Fallback'
+                      : 'Web Speech (Free)'}
+                </span>
+              </div>
               <p className="passage mt-1.5">{transcript}</p>
             </div>
           ) : null}
@@ -294,8 +363,8 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
                 }}
               />
               {typed.trim() ? (
-                <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs">
-                  {typed.trim().split(/\s+/).length} words · this will be used for scoring
+                <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs">
+                  {typed.trim().split(/\s+/).length} words, this will be used for scoring
                 </p>
               ) : null}
             </div>
@@ -347,12 +416,12 @@ export function TypedAnswer({
         <p
           className={cn(
             'mt-1.5 text-xs tabular-nums',
-            under || over ? 'text-amber-600 dark:text-amber-300' : 'text-ink-500 dark:text-ink-400',
+            under || over ? 'text-amber-600 dark:text-amber-300' : 'text-ink-500 dark:text-ink-on-dark-muted',
           )}
         >
           {wc} words
-          {minWords !== undefined ? ` · minimum about ${minWords}` : ''}
-          {maxWords !== undefined ? ` · maximum about ${maxWords}` : ''}
+          {minWords !== undefined ? `, minimum about ${minWords}` : ''}
+          {maxWords !== undefined ? `, maximum about ${maxWords}` : ''}
           {under ? ' — too short so far' : ''}
           {over ? ' — over length' : ''}
         </p>

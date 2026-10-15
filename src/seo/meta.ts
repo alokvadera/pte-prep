@@ -1,6 +1,7 @@
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
+import { typeSlug } from '../content/questionTypeDetail'
 import { SITE, type PageMeta } from './site'
-import { breadcrumbLd, faqLd, howToLd, itemListLd, webApplicationLd } from './structured'
+import { breadcrumbLd, faqLd, howToLd, itemListLd, organizationLd, webApplicationLd } from './structured'
 import { QUESTION_TYPE_META } from './questionTypeMeta'
 
 // ---------------------------------------------------------------------------
@@ -19,7 +20,7 @@ const HOME_FAQ: Array<{ question: string; answer: string }> = [
       'Yes. There is no account, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no per-user server cost to pass on. An optional cloud account exists only to sync your history across devices.',
   },
   {
-    question: 'How accurate are the scores produced here?',
+    question: 'How accurate are the scores here?',
     answer:
       'Objective items — multiple choice, fill in the blanks, re-order paragraphs — are scored exactly. Speaking and writing responses are scored with a transparent rubric covering content, form, oral fluency and pronunciation, using the same four PTE constructs. Those are estimates for practice, not official Pearson scores, and the results page labels every item as either auto-scored or estimated.',
   },
@@ -34,7 +35,7 @@ const HOME_FAQ: Array<{ question: string; answer: string }> = [
       `A full mock runs three timed sections. The current ranges are Speaking and Writing ${SECTION_META['speaking-writing'].weightNote}, Reading ${SECTION_META.reading.weightNote}, and Listening ${SECTION_META.listening.weightNote}. The actual total varies between test versions.`,
   },
   {
-    question: 'Is the practice material the same as the real exam?',
+    question: 'Is this the same material as the real exam?',
     answer:
       'No real exam material can be reproduced. All passages, lectures and conversations on this site were written specifically for it, at the same B2 to C1 academic level and word counts as the real test, so that timing and difficulty feel comparable.',
   },
@@ -180,6 +181,7 @@ export const PAGE_META: Record<string, PageMeta> = {
     path: '/',
     keywords: ['PTE mock test free', 'PTE practice test with score', 'full PTE mock test online'],
     structuredData: [
+      organizationLd(),
       webApplicationLd({
         name: 'PTE Prep — Free PTE Academic Mock Tests',
         description: SITE.description,
@@ -241,7 +243,11 @@ export const PAGE_META: Record<string, PageMeta> = {
     path: '/practice/',
     keywords: ['PTE speaking practice', 'PTE writing practice', 'PTE reading practice', 'PTE listening practice'],
     structuredData: [
-      itemListLd(ALL_QUESTION_TYPES.map((t) => ({ name: QUESTION_META[t].label, path: `/practice?type=${t}` }))),
+      itemListLd(ALL_QUESTION_TYPES.map((t) => ({ name: QUESTION_META[t].label, path: `/question-types/${typeSlug(t)}/` }))),
+      breadcrumbLd([
+        { name: 'Home', path: '/' },
+        { name: 'Practice', path: '/practice/' },
+      ]),
     ],
   },
 

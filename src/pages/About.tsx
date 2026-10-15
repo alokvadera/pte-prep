@@ -1,5 +1,5 @@
 import { ALL_QUESTION_TYPES } from '../domain/blueprint'
-import { bankCapacity } from '../content/bank'
+import { manifestBankCapacity } from '../content/manifest'
 import { Seo } from '../seo/Seo'
 import {
   Accordion,
@@ -12,6 +12,7 @@ import {
   TickList,
 } from '../components/ui/primitives'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
+import { Reveal } from '../components/ui/motion'
 
 const FAQ = [
   {
@@ -22,7 +23,7 @@ const FAQ = [
   {
     question: 'Where does the practice material come from?',
     answer:
-      'Every passage, lecture, conversation and chart on this site was written specifically for it, at the same academic level, word count and style as the real test. That avoids copyright problems and means the difficulty and timing are deliberately calibrated.',
+      'Every passage, lecture, conversation and chart on this site was written specifically for it, at the same academic level, word count and style as the real test. That avoids copyright problems and means the difficulty and timing are deliberately matched to the real test.',
   },
   {
     question: 'Where is my data stored?',
@@ -47,6 +48,8 @@ const FAQ = [
 ]
 
 export default function About() {
+  const capacity = manifestBankCapacity()
+
   return (
     <>
       <Seo />
@@ -61,25 +64,28 @@ export default function About() {
         <TickList
           items={[
             `Builds full-length PTE Academic mock tests covering all ${ALL_QUESTION_TYPES.length} official question types, in the order the real test uses them.`,
-            `Draws on a bank of ${bankCapacity()}+ distinct items — original academic passages, lectures, conversations, group discussions and data charts — so repeated attempts do not repeat content.`,
+            `Draws on a bank of ${capacity}+ distinct items — original academic passages, lectures, conversations, group discussions and data charts — so repeated attempts do not repeat content.`,
             'Reproduces the real section structure: an unscored personal introduction, then Speaking and Writing, Reading and Listening, each with its own clock.',
             'Scores objective items exactly and constructed responses with a documented rubric, then shows per-item feedback explaining where each lost point came from.',
             'Stores attempt history on your own device and shows trends by skill and by question type.',
           ]}
         />
 
-        <KeyFigure
-          className="mt-8"
-          value={`${bankCapacity()}+`}
-          label="distinct practice items"
-          note={`Across all ${ALL_QUESTION_TYPES.length} official question types, drawn in the order the real test uses them.`}
-        />
+        <Reveal variant="up" duration={500}>
+          <KeyFigure
+            className="mt-8"
+            value={`${capacity}+`}
+            label="distinct practice items"
+            note={`Across all ${ALL_QUESTION_TYPES.length} official question types, drawn in the order the real test uses them.`}
+          />
+        </Reveal>
 
         {/* The two trust sections sit in one band: "there is nothing to charge
             for" and "here is what happens to your data" are the same argument,
             and separating them at the shell's width made the page read as one
             undifferentiated column of prose. */}
-        <SectionBand className="mt-12 sm:mt-14">
+        <Reveal variant="up" delay={60} duration={550}>
+          <SectionBand className="mt-12 sm:mt-14">
           <SectionHeading eyebrow="Cost" title="Why it is free" />
           <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
             Because there is nothing to charge for. The entire test runs in your browser, so serving one more candidate
@@ -100,7 +106,8 @@ export default function About() {
               'Clearing your browser data for this site deletes everything permanently.',
             ]}
           />
-        </SectionBand>
+          </SectionBand>
+        </Reveal>
 
         <SectionHeading className="mt-12 sm:mt-14" eyebrow="Scoring" title="How the scores work" />
         <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
@@ -110,10 +117,12 @@ export default function About() {
           same four constructs — content, form, oral fluency and pronunciation — using signals a browser can measure
           directly. The full method, including the raw-to-scale conversion, is documented on the scoring page.
         </p>
-        <Callout className="mt-5" tone="amber" label="Read it as a trend, not a prediction">
-          Treat the estimate as a relative measure of your own progress, not a prediction of your official result. It is
-          most accurate on objective items and least accurate on speaking tasks recorded without a transcript.
+        <Reveal variant="up" duration={500}>
+          <Callout className="mt-5" tone="amber" label="Read it as a trend, not a prediction">
+        Treat the estimate as a relative measure of your own progress, not a prediction of your official result. It is
+        most accurate on objective items and least accurate on speaking tasks recorded without a transcript.
         </Callout>
+        </Reveal>
 
         <SectionHeading className="mt-12 sm:mt-14" eyebrow="Legal" title="Independence and trademarks" />
         <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
@@ -124,12 +133,16 @@ export default function About() {
         </p>
 
         <SectionHeading className="mt-12 sm:mt-14" eyebrow="Questions" title="Frequently asked questions" />
-        <Accordion items={FAQ} />
+        <Reveal variant="up" duration={500}>
+          <Accordion items={FAQ} />
+        </Reveal>
 
-        <div className="mt-10 flex flex-wrap gap-3">
-          <ButtonLink to="/mock" size="lg">Start a free mock test</ButtonLink>
-          <ButtonLink to="/format" variant="secondary" size="lg">PTE test format</ButtonLink>
-        </div>
+        <Reveal variant="up" delay={50} duration={500}>
+          <div className="mt-10 flex flex-wrap gap-3">
+            <ButtonLink to="/mock" size="lg" magnetic>Start a free mock test</ButtonLink>
+            <ButtonLink to="/format" variant="secondary" size="lg">PTE test format</ButtonLink>
+          </div>
+        </Reveal>
       </PageWrapper>
     </>
   )

@@ -3,6 +3,9 @@ import { EXTRA_PASSAGES } from './passagesExtra'
 import { EXTRA_PASSAGES_2 } from './passagesExtra2'
 import { EXTRA_PASSAGES_3 } from './passagesExtra3'
 import { EXTRA_PASSAGES_4 } from './passagesExtra4'
+import { EXTRA_PASSAGES_5 } from './passagesExtra5'
+import { EXTRA_PASSAGES_6 } from './passagesExtra6'
+import { EXTRA_PASSAGES_7 } from './passagesExtra7'
 
 export const PASSAGES: Passage[] = [
   {
@@ -606,4 +609,7 @@ export const PASSAGES: Passage[] = [
   ...EXTRA_PASSAGES_2,
   ...EXTRA_PASSAGES_3,
   ...EXTRA_PASSAGES_4,
+  ...EXTRA_PASSAGES_5,
+  ...EXTRA_PASSAGES_6,
+  ...EXTRA_PASSAGES_7,
 ]

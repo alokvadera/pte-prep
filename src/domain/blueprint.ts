@@ -410,3 +410,129 @@ export const MOCK_BLUEPRINT: Record<QuestionType, number> = Object.fromEntries(
     return [t, Math.round((min + max) / 2)]
   }),
 ) as Record<QuestionType, number>
+
+// ---------------------------------------------------------------------------
+// Mock preview, computed without the content bank.
+//
+// The mock-setup screen shows a session summary (sections, scored item
+// count, estimated time and the question types involved) before a session
+// starts. Computing it here — from the blueprint and section metadata
+// alone — keeps the ~10 000 LOC content bank out of the initial bundle:
+// the summary renders instantly, and the full mock is only assembled when
+// the candidate actually starts the session (see pages/MockSetup.tsx).
+//
+// The three constants below mirror constants that live in
+// domain/assemble.ts. They are duplicated here because importing them from
+// the assembler would drag the content bank into every bundle that renders
+// this summary. scripts/bank-check.ts asserts the copies still match, so a
+// reorder of the assembler's builders fails the check instead of silently
+// drifting.
+// ---------------------------------------------------------------------------
+
+/** Section order, mirroring `SECTION_ORDER` in domain/assemble.ts. */
+export const SECTION_IDS: readonly SectionId[] = [
+  'speaking-writing',
+  'reading',
+  'listening',
+]
+
+/**
+ * The order question types first appear in a built mock, mirroring the
+ * sequence the item builders in domain/assemble.ts add them in. Speaking
+ * and Writing leads with the unscored personal introduction, which is why
+ * Respond to a Situation heads the list even though its scored items are
+ * added further down the same builder.
+ */
+export const MOCK_TYPE_ORDER: readonly QuestionType[] = [
+  // Speaking & Writing — buildSpeakingWriting
+  'respond-to-situation', // the unscored introduction is added first
+  'read-aloud',
+  'repeat-sentence',
+  'describe-image',
+  'retell-lecture',
+  'answer-short-question',
+  'summarize-group-discussion',
+  'summarize-written-text',
+  'write-essay',
+  // Reading — buildReading
+  'fill-in-blanks-dropdown',
+  'fill-in-blanks-table',
+  'multiple-choice-multiple',
+  'multiple-choice-single',
+  'reorder-paragraphs',
+  // Listening — buildListening
+  'summarize-spoken-text',
+  'fill-in-blanks-listening',
+  'highlight-correct-summary',
+  'listening-multiple-choice-single',
+  'listening-multiple-choice-multiple',
+  'select-missing-word',
+  'highlight-incorrect-words',
+  'write-from-dictation',
+]
+
+export interface MockPreviewOptions {
+  /** Restrict the preview to a single section, as a section mock does. */
+  singleSection?: SectionId | null
+  /** Multiplier on every section clock. 1 is the official timing. */
+  timeScale?: number
+  /** True when the runner forbids the clock, as in the untimed option. */
+  untimed?: boolean
+}
+
+export interface MockPreview {
+  sectionIds: SectionId[]
+  scoredCount: number
+  totalSeconds: number
+  includedTypes: QuestionType[]
+}
+
+/**
+ * Describe a mock's shape from its per-type counts without assembling it.
+ *
+ * Every count contributes exactly one scored item (the only unscored item
+ * in a mock is the personal introduction, which is not part of the counts),
+ * and a section's clock is its official minimum scaled by the timing — the
+ * assembler sizes each section to its official minimum once the item count
+ * reaches the full blueprint, and the preview only ever needs that figure.
+ * Both relationships are asserted against the real assembler by
+ * scripts/bank-check.ts, so this stays faithful to the mock that will
+ * actually be built when the session starts.
+ */
+export function describeMockPreview(
+  counts: Partial<Record<QuestionType, number>>,
+  opts: MockPreviewOptions = {},
+): MockPreview {
+  const timeScale = opts.timeScale ?? 1
+  const untimed = opts.untimed ?? false
+  const sectionIds = opts.singleSection ? [opts.singleSection] : [...SECTION_IDS]
+
+  const totalSeconds = sectionIds.reduce(
+    (sum, id) =>
+      sum +
+      (untimed
+        ? SECTION_META[id].minSeconds
+        : Math.round(SECTION_META[id].minSeconds * timeScale)),
+    0,
+  )
+
+  const inScope = (type: QuestionType) =>
+    !opts.singleSection || QUESTION_META[type].section === opts.singleSection
+
+  const scoredCount = MOCK_TYPE_ORDER.reduce(
+    (sum, type) => sum + (inScope(type) ? (counts[type] ?? 0) : 0),
+    0,
+  )
+
+  // The introduction is always present in a session that includes the
+  // Speaking & Writing section, so Respond to a Situation is listed even
+  // before its scored items are counted.
+  const hasIntro = !opts.singleSection || opts.singleSection === 'speaking-writing'
+  const includedTypes = MOCK_TYPE_ORDER.filter(
+    (type) =>
+      inScope(type) &&
+      ((counts[type] ?? 0) > 0 || (type === 'respond-to-situation' && hasIntro)),
+  )
+
+  return { sectionIds, scoredCount, totalSeconds, includedTypes }
+}

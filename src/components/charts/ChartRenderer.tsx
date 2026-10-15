@@ -33,7 +33,7 @@ function GridLines({ max, left, right, top, bottom, ticks = 5 }: { max: number; 
         return (
           <g key={i}>
             <line x1={left} x2={right} y1={y} y2={y} stroke="currentColor" strokeOpacity={i === 0 ? 0.35 : 0.1} strokeWidth={1} />
-            <text x={left - 8} y={y + 4} textAnchor="end" className="fill-current text-[10px] opacity-60 tabular-nums">
+            <text x={left - 8} y={y + 4} textAnchor="end" className="fill-current text-xs opacity-60 tabular-nums">
               {Math.round(v * 10) / 10}
             </text>
           </g>
@@ -56,7 +56,7 @@ function BarChart({ data }: { data: Record<string, unknown> }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="presentation">
-      <text x={PAD.left} y={16} className="fill-current text-[11px] font-semibold opacity-70">
+      <text x={PAD.left} y={16} className="fill-current text-xs font-semibold opacity-70">
         {unit}
       </text>
       <GridLines max={max} left={PAD.left} right={W - PAD.right} top={PAD.top} bottom={H - PAD.bottom} />
@@ -71,14 +71,30 @@ function BarChart({ data }: { data: Record<string, unknown> }) {
               const y = H - PAD.bottom - h
               return (
                 <g key={s.name}>
-                  <rect x={x} y={y} width={barW} height={Math.max(1, h)} rx={2} fill={s.color} opacity={0.92} />
-                  <text x={x + barW / 2} y={y - 5} textAnchor="middle" className="fill-current text-[9px] font-semibold opacity-75 tabular-nums">
+                  <rect
+                    x={x}
+                    y={y}
+                    width={barW}
+                    height={Math.max(1, h)}
+                    rx={2}
+                    fill={s.color}
+                    opacity={0.92}
+                    className="animate-grow-up"
+                    style={{ animationDelay: `${ci * 90 + si * 45}ms` }}
+                  />
+                  <text
+                    x={x + barW / 2}
+                    y={y - 5}
+                    textAnchor="middle"
+                    className="fill-current text-xs font-semibold opacity-75 tabular-nums animate-fade-in"
+                    style={{ animationDelay: `${ci * 90 + si * 45 + 250}ms` }}
+                  >
                     {v}
                   </text>
                 </g>
               )
             })}
-            <text x={PAD.left + groupW * ci + groupW / 2} y={H - PAD.bottom + 18} textAnchor="middle" className="fill-current text-[11px] opacity-80">
+            <text x={PAD.left + groupW * ci + groupW / 2} y={H - PAD.bottom + 18} textAnchor="middle" className="fill-current text-xs opacity-80">
               {cat}
             </text>
           </g>
@@ -104,7 +120,7 @@ function LineChart({ data }: { data: Record<string, unknown> }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="presentation">
-      <text x={PAD.left} y={16} className="fill-current text-[11px] font-semibold opacity-70">
+      <text x={PAD.left} y={16} className="fill-current text-xs font-semibold opacity-70">
         {unit}
       </text>
       {Array.from({ length: 5 }, (_, i) => {
@@ -113,14 +129,14 @@ function LineChart({ data }: { data: Record<string, unknown> }) {
         return (
           <g key={i}>
             <line x1={PAD.left} x2={W - PAD.right} y1={y} y2={y} stroke="currentColor" strokeOpacity={v === 0 ? 0.4 : 0.1} strokeWidth={1} />
-            <text x={PAD.left - 8} y={y + 4} textAnchor="end" className="fill-current text-[10px] opacity-60 tabular-nums">
+            <text x={PAD.left - 8} y={y + 4} textAnchor="end" className="fill-current text-xs opacity-60 tabular-nums">
               {Math.round(v * 100) / 100}
             </text>
           </g>
         )
       })}
       {x.map((label, i) => (
-        <text key={label} x={px(i)} y={H - PAD.bottom + 18} textAnchor="middle" className="fill-current text-[10px] opacity-75">
+        <text key={label} x={px(i)} y={H - PAD.bottom + 18} textAnchor="middle" className="fill-current text-xs opacity-75">
           {label}
         </text>
       ))}
@@ -133,9 +149,19 @@ function LineChart({ data }: { data: Record<string, unknown> }) {
             strokeWidth={2.5}
             strokeLinejoin="round"
             strokeLinecap="round"
+            pathLength={1}
+            className="animate-draw-line"
           />
           {s.values.map((v, i) => (
-            <circle key={i} cx={px(i)} cy={py(v)} r={3.2} fill={s.color} />
+            <circle
+              key={i}
+              cx={px(i)}
+              cy={py(v)}
+              r={3.2}
+              fill={s.color}
+              className="animate-pop"
+              style={{ transformBox: 'fill-box', animationDelay: `${300 + i * 70}ms` }}
+            />
           ))}
         </g>
       ))}
@@ -161,7 +187,7 @@ function PieChart({ data }: { data: Record<string, unknown> }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="presentation">
-      {arcs.map(({ slice: s, a0, a1 }) => {
+      {arcs.map(({ slice: s, a0, a1 }, i) => {
         const large = a1 - a0 > Math.PI ? 1 : 0
         const x0 = cx + r * Math.cos(a0)
         const y0 = cy + r * Math.sin(a0)
@@ -175,6 +201,8 @@ function PieChart({ data }: { data: Record<string, unknown> }) {
             stroke="white"
             strokeOpacity={0.6}
             strokeWidth={1.5}
+            className="animate-pop"
+            style={{ transformBox: 'fill-box', animationDelay: `${i * 90}ms` }}
           >
             <title>{`${s.name}: ${s.value}%`}</title>
           </path>
@@ -182,12 +210,12 @@ function PieChart({ data }: { data: Record<string, unknown> }) {
       })}
       {slices.map((s, i) => {
         return (
-          <g key={s.name}>
+          <g key={s.name} className="animate-rise-in" style={{ animationDelay: `${150 + i * 70}ms` }}>
             <rect x={390} y={64 + i * 42} width={12} height={12} rx={2} fill={s.color} />
-            <text x={412} y={74 + i * 42} className="fill-current text-[13px]">
+            <text x={412} y={74 + i * 42} className="fill-current text-sm">
               {s.name}
             </text>
-            <text x={W - 24} y={74 + i * 42} textAnchor="end" className="fill-current text-[13px] font-semibold tabular-nums">
+            <text x={W - 24} y={74 + i * 42} textAnchor="end" className="fill-current text-sm font-semibold tabular-nums">
               {s.value}%
             </text>
           </g>
@@ -211,9 +239,9 @@ function ProcessChart({ data }: { data: Record<string, unknown> }) {
       {steps.map((s, i) => {
         const x = startX + i * (boxW + gap)
         return (
-          <g key={s.label}>
+          <g key={s.label} className="animate-rise-in" style={{ animationDelay: `${i * 100}ms` }}>
             <rect x={x} y={y} width={boxW} height={boxH} rx={12} className="fill-brand-500/10 stroke-brand-500/50" strokeWidth={1.5} />
-            <text x={x + boxW / 2} y={y + 30} textAnchor="middle" className="fill-current text-[12px] font-bold">
+            <text x={x + boxW / 2} y={y + 30} textAnchor="middle" className="fill-current text-xs font-bold">
               {s.label}
             </text>
             {s.detail.split(/(?<=[.!?])\s+/).slice(0, 3).map((d, di) => (
@@ -228,6 +256,8 @@ function ProcessChart({ data }: { data: Record<string, unknown> }) {
                 strokeOpacity={0.45}
                 strokeWidth={2}
                 markerEnd="url(#arrow)"
+                className="animate-fade-in"
+                style={{ animationDelay: `${300 + i * 100}ms` }}
               />
             ) : null}
           </g>
@@ -293,11 +323,13 @@ function DiagramChart({ data }: { data: Record<string, unknown> }) {
             strokeOpacity={0.28}
             strokeWidth={1.4}
             markerEnd="url(#fedge)"
+            className="animate-fade-in"
+            style={{ animationDelay: `${i * 60}ms` }}
           />
         )
       })}
-      {nodes.map((n) => (
-        <g key={n.id}>
+      {nodes.map((n, i) => (
+        <g key={n.id} className="animate-pop" style={{ transformBox: 'fill-box', animationDelay: `${200 + i * 80}ms` }}>
           <rect x={nx(n.x) - 38} y={ny(n.y) - 15} width={76} height={30} rx={15} className={fills[n.kind]} strokeWidth={1.5} />
           <text x={nx(n.x)} y={ny(n.y) + 4} textAnchor="middle" className="fill-current text-[11.5px] font-semibold">
             {n.label}
@@ -325,13 +357,13 @@ function TableChart({ data }: { data: Record<string, unknown> }) {
           x={40 + colW * c + colW / 2}
           y={86}
           textAnchor="middle"
-          className="fill-current text-[12px] font-bold"
+          className="fill-current text-xs font-bold"
         >
           {h}
         </text>
       ))}
       {rows.map((row, r) => (
-        <g key={r}>
+        <g key={r} className="animate-rise-in" style={{ animationDelay: `${r * 80}ms` }}>
           <line x1={40} x2={W - 40} y1={98 + rowH * r} y2={98 + rowH * r} stroke="currentColor" strokeOpacity={0.14} />
           {row.map((cell, c) => (
             <text
@@ -348,7 +380,7 @@ function TableChart({ data }: { data: Record<string, unknown> }) {
       ))}
       <line x1={40} x2={W - 40} y1={98 + rowH * rows.length} y2={98 + rowH * rows.length} stroke="currentColor" strokeOpacity={0.3} />
       {headers.map((h, c) => (
-        <text key={`h${c}`} x={40 + colW * c + colW / 2} y={40 + rowH * rows.length + 4} textAnchor="middle" className="fill-current text-[11px] font-bold">
+        <text key={`h${c}`} x={40 + colW * c + colW / 2} y={40 + rowH * rows.length + 4} textAnchor="middle" className="fill-current text-xs font-bold">
           {h}
         </text>
       ))}
@@ -376,7 +408,7 @@ export function ChartRenderer({ chartId, className }: Props) {
         {chart.kind === 'diagram' ? <DiagramChart data={data} /> : null}
         {chart.kind === 'table-chart' ? <TableChart data={data} /> : null}
       </div>
-      <p className="text-ink-500 dark:text-ink-400 mt-2 text-center text-xs">{chart.caption}</p>
+      <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-center text-xs">{chart.caption}</p>
     </figure>
   )
 }

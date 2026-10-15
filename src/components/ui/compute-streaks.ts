@@ -1,0 +1,32 @@
+/* Streak arithmetic, kept out of streak.tsx so that file exports nothing but
+   a component and stays hot-reloadable. Pure: the only clock read is `today`,
+   which the widget is expected to answer for on the day it is drawn. */
+
+function toDay(iso: string): number {
+  const d = new Date(iso)
+  return Math.floor(d.getTime() / 86_400_000)
+}
+
+export function computeStreaks(dates: string[]): { current: number; longest: number } {
+  if (dates.length === 0) return { current: 0, longest: 0 }
+  const days = [...new Set(dates.map(toDay))].sort((a, b) => a - b)
+
+  let longest = 1
+  let run = 1
+  for (let i = 1; i < days.length; i++) {
+    run = days[i]! - days[i - 1]! === 1 ? run + 1 : 1
+    if (run > longest) longest = run
+  }
+
+  // Current: count back from today (or yesterday — a streak
+  // survives the morning it is resumed).
+  const today = toDay(new Date().toISOString())
+  const last = days[days.length - 1]!
+  if (today - last > 1) return { current: 0, longest }
+  let current = 1
+  for (let i = days.length - 1; i > 0; i--) {
+    if (days[i]! - days[i - 1]! === 1) current++
+    else break
+  }
+  return { current, longest }
+}

@@ -1,5 +1,5 @@
 import type { Env } from '../../types'
-import { createSessionToken, requireSecret, verifySessionToken } from '../../lib/auth'
+import { extractBearerToken, requireSecret, verifySessionToken } from '../../lib/auth'
 
 interface RawAttemptRow {
   id: string
@@ -158,11 +158,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  // The client supplies a short, slug-like label; the server generates the
-  // unique id below. This bounds the write-primitive to a fixed charset and
-  // length, and the primary key keeps rows unique.
-  const label = typeof attempt.id === 'string' ? attempt.id : 'attempt'
-  if (!ATTEMPT_ID_RE.test(label)) {
+  // The client generates the attempt id (att-<uuid>) when the test finishes and
+  // reuses it for retries and sync. Using it as the primary key makes pushes
+  // idempotent and lets sync converge; a fresh server id every POST would
+  // create a duplicate on every retry. Ownership is enforced below so one user
+  // cannot overwrite another user's row by guessing its id.
+  const id = typeof attempt.id === 'string' ? attempt.id : 'attempt'
+  if (!ATTEMPT_ID_RE.test(id)) {
     return new Response(JSON.stringify({ error: 'Invalid attempt ID' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
@@ -170,6 +172,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const num = (v: unknown, fallback: number): number => {
+    const n = typeof v === 'number' ? v : Number(v ?? fallback)
+    return Number.isFinite(n) ? n : fallback
+  }
+  const str = (v: unknown, fallback: string, max = 120): string =>
+    typeof v === 'string' && v.length > 0 ? v.slice(0, max) : fallback
+
   const skillScores = JSON.stringify(attempt.skillScores ?? {})
   const breakdown = JSON.stringify(attempt.breakdown ?? {})
   const responses = JSON.stringify({
@@ -181,8 +196,25 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     untimed: attempt.untimed ? true : null,
     timeScale: typeof attempt.timeScale === 'number' ? attempt.timeScale : null,
   })
+  if (skillScores.length + breakdown.length + responses.length > 400_000) {
+    return new Response(JSON.stringify({ error: 'Attempt payload too large' }), {
+      status: 413,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
 
-  const id = `att_${crypto.randomUUID()}`
+  const existing = await db
+    .prepare('SELECT user_id FROM attempts WHERE id = ?')
+    .bind(id)
+    .first<{ user_id: string }>()
+  if (existing && existing.user_id !== session.userId) {
+    return new Response(JSON.stringify({ error: 'Attempt not found' }), {
+      status: 404,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const idForWrite = id
 
   await db
     .prepare(
@@ -195,22 +227,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         skill_scores = excluded.skill_scores,
         breakdown = excluded.breakdown,
         responses = excluded.responses,
-        synced_at = datetime('now')`,
+        synced_at = datetime('now')
+      WHERE attempts.user_id = excluded.user_id`,
     )
     .bind(
-      id,
+      idForWrite,
       session.userId,
-      attempt.mockId ?? 'mock',
-      attempt.mockTitle ?? 'PTE Mock Test',
-      attempt.mode ?? 'full',
-      attempt.startedAt ?? new Date().toISOString(),
-      attempt.finishedAt ?? new Date().toISOString(),
-      Number(attempt.durationMs ?? 0),
-      Number(attempt.overallScore ?? 10),
-      Number(attempt.overallScore60 ?? 60),
-      attempt.cefr ?? 'A1',
-      Number(attempt.earnedPoints ?? 0),
-      Number(attempt.availablePoints ?? 0),
+      str(attempt.mockId, 'mock', 64),
+      str(attempt.mockTitle, 'PTE Mock Test', 120),
+      str(attempt.mode, 'full', 24),
+      str(attempt.startedAt, new Date().toISOString(), 32),
+      str(attempt.finishedAt, new Date().toISOString(), 32),
+      num(attempt.durationMs, 0),
+      num(attempt.overallScore, 10),
+      num(attempt.overallScore60, 60),
+      str(attempt.cefr, 'A1', 8),
+      num(attempt.earnedPoints, 0),
+      num(attempt.availablePoints, 0),
       skillScores,
       breakdown,
       responses,

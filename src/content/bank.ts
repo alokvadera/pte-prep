@@ -5,6 +5,9 @@ import { GROUP_DISCUSSIONS, GROUP_DISCUSSION_ITEMS, LECTURES, RETELL_ITEMS, SPOK
 import { CHARTS } from './charts'
 import { PASSAGES } from './passages'
 import { EXTRA_ESSAY_PROMPTS } from './essayExtra'
+import { EXTRA_ESSAY_PROMPTS_2 } from './essayExtra2'
+import { EXTRA_ESSAY_PROMPTS_3 } from './essayExtra3'
+import { EXTRA_ESSAY_PROMPTS_4 } from './essayExtra4'
 import type { AudioScript, ContentBank, Passage } from './schema'
 
 // ---------------------------------------------------------------------------
@@ -82,7 +85,7 @@ export const READ_ALOUD_POOL = buildReadAloudPool()
 // Single index over the whole bank
 // ---------------------------------------------------------------------------
 
-const allAsq = PASSAGES.flatMap((p) => p.asq)
+const allAsq = [...ASQ_RECORDINGS.map((r) => r.item), ...PASSAGES.flatMap((p) => p.asq)]
 
 export { PASSAGES } from './passages'
 
@@ -290,6 +293,9 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     maxWords: 300,
   },
   ...EXTRA_ESSAY_PROMPTS,
+  ...EXTRA_ESSAY_PROMPTS_2,
+  ...EXTRA_ESSAY_PROMPTS_3,
+  ...EXTRA_ESSAY_PROMPTS_4,
 ]
 
 /** Deterministic helper used by the test assembler to vary distractor order. */

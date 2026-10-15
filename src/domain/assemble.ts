@@ -167,6 +167,7 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
           responseKind: 'audio',
           prompt: 'You will hear a recording. Repeat what you hear.',
           targetText: s.text,
+          stimulusId: s.id,
           audioUtterance: s.text,
           maxPoints: 1,
           seconds: 25,
@@ -279,7 +280,7 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
     for (const q of picks) {
       const id = itemId('answer-short-question', q.id)
       const gid = `g-asq-${q.id}`
-      const rec = ASQ_AUDIO.get(q.id)
+      const rec = ASQ_AUDIO.get(q.id) ?? q.id
       const script = rec ? AUDIO_INDEX.get(rec) : undefined
       addItem(
         ctx,
@@ -756,8 +757,7 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         responseKind: 'blanks',
           prompt: 'Listen and fill in the blanks. The recording plays once.',
           targetText: f.text,
-          stimulusId: f.audioId,
-          audioFromTurn: f.startTurn,
+          stimulusId: f.id,
           maxPoints: f.answers.length,
         seconds: 0,
         audioLeadIn: 4,
@@ -915,10 +915,7 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         prompt: 'Listen and select the missing word. A beep marks the blank.',
           tokens,
           options: optOrder.map((i) => m.options[i] as string),
-          stimulusId: m.audioId,
-          audioFromTurn: m.turnIndex,
-          audioToTurn: m.turnIndex,
-          audioBeepWord: m.wordIndex,
+          stimulusId: m.id,
           maxPoints: 1,
           seconds: 0,
           audioLeadIn: 4,
@@ -932,7 +929,7 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
       section: 'listening',
       type: 'select-missing-word',
       order: order++,
-      stimulus: audioStimulus(m.audioId, script?.title),
+      stimulus: audioStimulus(m.id, script?.title ?? 'Listen and select the missing word'),
       itemIds: [id],
       }),
     )
@@ -952,7 +949,7 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         responseKind: 'highlight',
         prompt: 'The transcript below contains two words that differ from the audio. Highlight the two words that are wrong.',
           tokens: tokenizeWithPunctuation(h.transcript),
-          stimulusId: h.audioId,
+          stimulusId: h.id,
           audioUtterance: h.correctTranscript,
           maxPoints: 1,
         seconds: 0,
@@ -967,7 +964,7 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
       section: 'listening',
       type: 'highlight-incorrect-words',
       order: order++,
-      stimulus: audioStimulus(h.audioId, AUDIO_INDEX.get(h.audioId)?.title),
+      stimulus: audioStimulus(h.id, 'Listen and highlight incorrect words'),
       itemIds: [id],
       }),
     )
@@ -986,9 +983,7 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         groupId: gid,
         responseKind: 'text',
           prompt: 'Listen and type exactly what you hear. The recording plays once.',
-          stimulusId: d.audioId,
-          audioFromTurn: d.turnIndex,
-          audioToTurn: d.turnIndex,
+          stimulusId: d.id,
           maxPoints: 1,
         seconds: 0,
         audioLeadIn: 4,

@@ -1,6 +1,7 @@
 import type { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { cn } from '../../lib/cn'
+import { CountUp, Magnetic, Reveal } from './motion'
 
 /* ---------------------------------------------------------------------------
    Card.
@@ -50,12 +51,14 @@ export function Card({
 /**
  * The one heading style inside cards. Cards previously used text-sm, text-base
  * and text-lg headings with three different weights; every card H3 is now this.
+ * Display serif at text-xl: a card title is a sub-heading, and the one size
+ * step below the section title is where the face starts to do real work.
  */
 export function CardTitle({ className, children, ...rest }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       className={cn(
-        'text-ink-900 dark:text-white text-lg font-bold leading-tight text-balance',
+        'font-display text-ink-900 dark:text-ink-50 text-lg leading-[1.3] font-extrabold text-balance',
         className,
       )}
       {...rest}
@@ -96,6 +99,12 @@ const BUTTON_SIZES: Record<ButtonSize, string> = {
 type ButtonOwnProps = {
   variant?: ButtonVariant
   size?: ButtonSize
+  /** The pointer lean, reserved for the one filled action a page wants the eye
+   *  to land on — a hero CTA, a band's action. Off by default by design: a
+   *  control that flips variant on state would gain and lose the wrapper on
+   *  click, remount, and drop focus, and a full-width button owns its row
+   *  where a wrapper would break the stretch. */
+  magnetic?: boolean
   className?: string
 }
 
@@ -109,30 +118,33 @@ type ButtonBaseProps = ButtonOwnProps & {
 }
 
 export function Button(props: ButtonBaseProps & ComponentPropsWithoutRef<'button'>) {
-  const { variant = 'primary', size = 'md', className, children, ...rest } = props
-  return (
+  const { variant = 'primary', size = 'md', magnetic = false, className, children, ...rest } = props
+  const control = (
     <button type="button" className={buttonClasses(variant, size, className)} {...rest}>
       {children}
     </button>
   )
+  return magnetic ? <Magnetic>{control}</Magnetic> : control
 }
 
 export function ButtonLink(props: ButtonBaseProps & ComponentPropsWithoutRef<typeof Link>) {
-  const { variant = 'primary', size = 'md', className, children, to, ...rest } = props
-  return (
+  const { variant = 'primary', size = 'md', magnetic = false, className, children, to, ...rest } = props
+  const control = (
     <Link to={to} className={buttonClasses(variant, size, className)} {...rest}>
       {children}
     </Link>
   )
+  return magnetic ? <Magnetic>{control}</Magnetic> : control
 }
 
 export function ButtonAnchor(props: ButtonBaseProps & { href: string }) {
-  const { variant = 'secondary', size = 'md', className, children, href, ...rest } = props
-  return (
+  const { variant = 'secondary', size = 'md', magnetic = false, className, children, href, ...rest } = props
+  const control = (
     <a href={href} className={buttonClasses(variant, size, className)} {...rest}>
       {children}
     </a>
   )
+  return magnetic ? <Magnetic>{control}</Magnetic> : control
 }
 
 /* ---------------------------------------------------------------------------
@@ -152,14 +164,14 @@ export function Accordion({
   className?: string
 }) {
   return (
-    <div className={cn('space-y-3', className)}>
+    <div className={cn('rule-list', className)}>
       {items.map((f) => (
-        <details key={f.question} className="card group">
-          <summary className="text-ink-900 dark:text-white flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold sm:text-base [&::-webkit-details-marker]:hidden">
+        <details key={f.question} className="group">
+          <summary className="text-ink-900 dark:text-ink-50 flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-base font-semibold text-balance [&::-webkit-details-marker]:hidden">
             {f.question}
             <AccordionMark />
           </summary>
-          <p className="text-ink-500 dark:text-ink-300 mt-3 border-t pt-3 text-sm leading-relaxed">
+          <p className="text-ink-500 dark:text-ink-on-dark max-w-2xl pb-6 text-sm leading-relaxed group-open:animate-details-sweep">
             {f.answer}
           </p>
         </details>
@@ -174,7 +186,7 @@ function AccordionMark({ className }: { className?: string }) {
     <span
       aria-hidden="true"
       className={cn(
-        'text-ink-500 group-open:rotate-45 grid size-7 shrink-0 place-items-center rounded-md bg-ink-100 text-lg leading-none transition-transform duration-200 ease-out dark:bg-white/8 dark:text-ink-300',
+        'text-ink-500 dark:text-ink-on-dark-muted group-open:rotate-45 grid size-5 shrink-0 place-items-center text-xl leading-none font-normal transition-transform duration-200 ease-out',
         className,
       )}
     >
@@ -270,14 +282,16 @@ export function PageHeading({
   actions?: ReactNode
 }) {
   return (
-    <header className="page-heading">
+    /* The page heading is its own Reveal rather than a wrapper around one, so
+       every route opens with the same settle without changing the DOM. */
+    <Reveal as="header" variant="up" duration={650} className="page-heading">
       <div className="min-w-0">
         {eyebrow ? <p className="page-heading-kicker">{eyebrow}</p> : null}
         <h1 className="page-title">{title}</h1>
         {description ? <p className="page-intro">{description}</p> : null}
       </div>
       {actions ? <div className="flex shrink-0 flex-wrap gap-3">{actions}</div> : null}
-    </header>
+    </Reveal>
   )
 }
 
@@ -301,7 +315,13 @@ export function SectionHeading({
   className?: string
 }) {
   return (
-    <div className={cn('mb-5 flex flex-wrap items-end justify-between gap-4', className)}>
+    /* Same reveal as the page heading, one step quieter: the mockup puts its
+       `.rise` entrance on every section head. */
+    <Reveal
+      variant="up"
+      duration={600}
+      className={cn('mb-5 flex flex-wrap items-end justify-between gap-4', className)}
+    >
       <div className="min-w-0">
         {/* The kicker and its leading hairline live in the `section-eyebrow`
             utility so a page that is not using this component still gets the
@@ -314,20 +334,20 @@ export function SectionHeading({
           {title}
         </h2>
         {description ? (
-          <p className="text-ink-500 dark:text-ink-300 mt-1.5 max-w-2xl text-sm leading-relaxed">{description}</p>
+          <p className="text-ink-500 dark:text-ink-on-dark mt-1.5 max-w-2xl text-sm leading-relaxed">{description}</p>
         ) : null}
       </div>
       {action}
-    </div>
+    </Reveal>
   )
 }
 
 type Tone = 'neutral' | 'brand' | 'mint' | 'amber' | 'rose'
 
 const TONES: Record<Tone, string> = {
-  neutral: 'bg-ink-100/90 border-ink-200 text-ink-700 dark:bg-white/5 dark:border-white/10 dark:text-ink-300',
+  neutral: 'bg-ink-100/90 border-ink-200 text-ink-700 dark:bg-white/5 dark:border-white/10 dark:text-ink-on-dark',
   brand: 'bg-brand-500/10 border-brand-500/30 text-brand-700 dark:text-brand-300 dark:bg-brand-500/15 dark:border-brand-400/30',
-  mint: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300 dark:bg-emerald-500/15 dark:border-emerald-400/30',
+  mint: 'bg-mint-500/10 border-mint-500/30 text-mint-700 dark:text-mint-300 dark:bg-mint-500/15 dark:border-mint-400/30',
   amber: 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 dark:bg-amber-500/15 dark:border-amber-400/30',
   rose: 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-300 dark:bg-rose-500/15 dark:border-rose-400/30',
 }
@@ -344,7 +364,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        'inline-flex items-center rounded-xs border px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider uppercase',
+        'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-bold',
         TONES[tone],
         className,
       )}
@@ -366,24 +386,25 @@ export function Stat({
   tone?: Tone
 }) {
   return (
-    <div className="card-solid rounded border border-ink-200/90 dark:border-white/10 p-4 sm:p-5 relative overflow-hidden">
-      <div className="flex items-center justify-between font-mono text-[10px] text-ink-400 dark:text-ink-500 uppercase tracking-widest mb-1">
+    <div className="card-solid border-ink-200 relative overflow-hidden p-4 sm:p-5 dark:border-white/10">
+      <div className="text-ink-500 dark:text-ink-on-dark-muted mb-1 text-xs font-semibold">
         <span>{label}</span>
-        <span>+</span>
       </div>
       <p
         className={cn(
-          'mt-1 font-mono font-bold text-2xl tracking-tight tabular-nums',
-          tone === 'mint' && 'text-emerald-600 dark:text-emerald-400',
-          tone === 'brand' && 'text-brand-600 dark:text-brand-400',
+          'mt-1 font-display text-2xl tabular-nums',
+          tone === 'mint' && 'text-mint-700 dark:text-mint-300',
+          tone === 'brand' && 'text-brand-600 dark:text-brand-300',
           tone === 'amber' && 'text-amber-600 dark:text-amber-400',
           tone === 'rose' && 'text-rose-600 dark:text-rose-400',
           tone === 'neutral' && 'text-ink-900 dark:text-white',
         )}
       >
-        {value}
+        {/* A plain count is a figure worth watching arrive; anything already
+            formatted stays exactly as the caller wrote it. */}
+        {typeof value === 'number' ? <CountUp value={value} duration={900} /> : value}
       </p>
-      {sub ? <p className="font-mono text-ink-500 dark:text-ink-400 mt-1 text-[11px]">{sub}</p> : null}
+      {sub ? <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs">{sub}</p> : null}
     </div>
   )
 }
@@ -409,13 +430,15 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label}
-      className={cn('h-1.5 w-full overflow-hidden rounded-xs bg-ink-200 dark:bg-white/10', className)}
+      className={cn('bg-ink-200 h-1.5 w-full overflow-hidden rounded-full dark:bg-white/10', className)}
     >
       <div
         className={cn(
-          'h-full transition-all duration-300',
-          tone === 'brand' && 'bg-brand-500',
-          tone === 'mint' && 'bg-emerald-500',
+          'h-full rounded-full',
+          /* Draws itself in on mount, the way the score bars do. */
+          'animate-bar-reveal transition-[width] duration-300',
+          tone === 'brand' && 'bg-mark-500',
+          tone === 'mint' && 'bg-mint-500',
           tone === 'amber' && 'bg-amber-500',
           tone === 'rose' && 'bg-rose-500',
         )}
@@ -440,7 +463,7 @@ export function Toggle({
     <label className="flex cursor-pointer items-start justify-between gap-4 py-2.5">
       <span className="min-w-0">
         <span className="text-ink-800 dark:text-ink-100 block text-sm font-medium">{label}</span>
-        {description ? <span className="text-ink-500 dark:text-ink-400 block text-xs">{description}</span> : null}
+        {description ? <span className="text-ink-500 dark:text-ink-on-dark-muted block text-xs">{description}</span> : null}
       </span>
       <input
         type="checkbox"
@@ -455,12 +478,12 @@ export function Toggle({
         aria-hidden="true"
         className={cn(
           'relative mt-0.5 h-6 w-11 shrink-0 rounded-full border transition-colors duration-200 ease-out',
-          checked ? 'border-brand-500 bg-brand-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
+          checked ? 'border-mint-600 bg-mint-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
         )}
       >
         <span
           className={cn(
-            'absolute top-0.5 size-4.5 rounded-full bg-white shadow-xs transition-transform duration-200 ease-out',
+            'absolute top-0.5 size-4.5 rounded-full bg-white transition-transform duration-200 ease-out',
             checked ? 'translate-x-5.5' : 'translate-x-0.5',
           )}
         />
@@ -477,9 +500,9 @@ export function Toggle({
 export function EmptyState({ icon, title, description, action }: { icon?: ReactNode; title: string; description: string; action?: ReactNode }) {
   return (
     <div className="card flex flex-col items-start px-6 py-10 text-left">
-      {icon ? <div className="text-ink-300 dark:text-ink-400 mb-3">{icon}</div> : null}
+      {icon ? <div className="text-ink-500 dark:text-ink-on-dark-muted mb-3">{icon}</div> : null}
       <h2 className="section-title">{title}</h2>
-      <p className="text-ink-500 dark:text-ink-400 mt-1.5 max-w-sm text-sm leading-relaxed">{description}</p>
+      <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 max-w-sm text-sm leading-relaxed">{description}</p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   )
@@ -487,28 +510,67 @@ export function EmptyState({ icon, title, description, action }: { icon?: ReactN
 
 /**
  * The closing call to action, shared by every content page so the ending of a
- * page is always the same shape. A flat tinted field separated by a rule — the
- * one place the accent tints a whole surface, which is why it stays a tint and
- * never a gradient.
+ * page is always the same shape. The mockup's finale: a solid candy-green band
+ * with a rounded top and an orange action. The green is the same #3cc85e the
+ * primary button uses, labelled in deep indigo (white on it is 2.2:1).
  */
-/* ---------------------------------------------------------------------------
-   Section furniture.
-
-   A band to separate groups of sections, a callout to state the thing a page
-   wants remembered, a key figure for the number a section exists to say, and a
-   tick list. Each replaces a pattern that was being hand-written per page at
-   slightly different values — see the note in index.css.
-
-   The utilities behind the backgrounds, tones and marks live in `index.css`;
-   these components only choose between them, so a page cannot pick a fifth
-   shade of tint.
---------------------------------------------------------------------------- */
+export function CtaBand({
+  eyebrow,
+  title,
+  description,
+  actions,
+  className,
+}: {
+  /** The mockup's "Last thing" pill — a translucent white
+   *  label that floats above the title on the green band in light mode,
+   *  violet frosted pill in dark mode. */
+  eyebrow?: string
+  title: string
+  description: string
+  actions: ReactNode
+  className?: string
+}) {
+  return (
+    <section
+      className={cn(
+        'cta-band relative overflow-hidden text-ink-900 px-5 pt-[96px] pb-[88px] text-center dark:text-ink-50 dark:border-t',
+        className,
+      )}
+    >
+      {/* Ambient background glow in dark mode */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 hidden dark:block bg-[radial-gradient(ellipse_80%_60%_at_50%_-10%,rgba(60,200,94,0.18),transparent)]"
+      />
+      <div className="relative z-10">
+        {eyebrow ? (
+          <span className="text-ink-900 inline-flex items-center rounded-full border-2 border-white/40 bg-white/20 px-[18px] py-[7px] text-[13.5px] font-extrabold uppercase tracking-[0.06em] dark:border-mint-400/30 dark:bg-mint-500/15 dark:text-mint-300">
+            {eyebrow}
+          </span>
+        ) : null}
+        <h2
+          className={cn(
+            'font-display text-ink-900 text-[clamp(30px,5vw,56px)] leading-[1.1] font-extrabold text-balance dark:text-white',
+            eyebrow && 'mt-6',
+          )}
+        >
+          {title}
+        </h2>
+        <p className="mx-auto mt-5 max-w-[58ch] text-[18px] leading-[1.65] font-semibold dark:text-ink-200">
+          {description}
+        </p>
+        <div className="mt-[34px] flex flex-wrap justify-center gap-4">{actions}</div>
+      </div>
+    </section>
+  )
+}
 
 /**
  * A wide band. `tone="tint"` is the page's one coloured field, `tone="plain"` a
- * quiet lift in value for a second band that would otherwise repeat it.
- * Everything inside keeps the page shell's measure, so a band re-groups a page
- * without moving a single element sideways.
+ * second, quieter band that would otherwise repeat it. Everything inside keeps
+ * the page shell's measure, so a band re-groups a page without moving a single
+ * element sideways. The band utilities in index.css give these their mint and
+ * lavender grounds with the mockup's big rounded tops.
  */
 export function SectionBand({
   tone = 'tint',
@@ -601,12 +663,12 @@ export function KeyFigure({
   className?: string
 }) {
   return (
-    <div className={cn('border-ink-200 dark:border-white/10 border-l-2 border-l-brand-500 pl-4 dark:border-l-brand-400', className)}>
+    <div className={cn('border-l-4 border-l-mark-600 pl-4 dark:border-l-mark-400', className)}>
       <p className="key-figure">
         <span className="key-figure-value">{value}</span>
         <span className="key-figure-label">{label}</span>
       </p>
-      {note ? <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs leading-relaxed">{note}</p> : null}
+      {note ? <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs leading-relaxed">{note}</p> : null}
     </div>
   )
 }
@@ -659,30 +721,5 @@ export function NumMarker({
     >
       {children}
     </span>
-  )
-}
-
-export function CtaBand({
-  title,
-  description,
-  actions,
-  className,
-}: {
-  title: string
-  description: string
-  actions: ReactNode
-  className?: string
-}) {
-  return (
-    <section
-      className={cn(
-        'bg-brand-500/[0.06] dark:bg-brand-500/10 border-ink-200 dark:border-white/10 mt-16 rounded-xl border border-t-4 border-t-brand-500 dark:border-t-brand-400 p-8 text-center sm:p-10 shadow-xs',
-        className,
-      )}
-    >
-      <h2 className="section-title">{title}</h2>
-      <p className="text-ink-600 dark:text-ink-300 mx-auto mt-3 max-w-md leading-relaxed">{description}</p>
-      <div className="mt-6 flex flex-wrap justify-center gap-3">{actions}</div>
-    </section>
   )
 }

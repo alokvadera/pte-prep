@@ -67,25 +67,44 @@ function scoreVoice(voice: SpeechSynthesisVoice, hint: VoiceHint): number {
   const lang = voice.lang.toLowerCase()
   if (!lang.startsWith('en')) return -1000
 
-  let score = 0
-  if (/(daniel|alex|fred|google uk english male|arthur|george)/.test(name)) score += 12
-  if (/(samantha|karen|serena|google uk english female|zira|female|samantha)/.test(name)) score += 10
-  if (/(natural|neural|premium|enhanced|online)/.test(name)) score += 8
-  if (voice.localService) score += 6
-  if (/(compact|eloquence|espeak)/.test(name)) score -= 8
+  // 1. Completely reject legacy novelty, robotic, and cartoon voices
+  if (
+    /(fred|albert|bad news|bahh|bells|boing|bubbles|cellos|deranged|good news|hysterical|junior|kathy|pipe organ|princess|ralph|trinoids|whisper|zarvox|espeak|compact|eloquence|wobble|organ|jester)/.test(
+      name,
+    )
+  ) {
+    return -1000
+  }
 
+  let score = 0
+
+  // 2. Strongly reward modern neural, enhanced, and natural voices
+  if (/(natural|neural|premium|enhanced|online)/.test(name)) score += 35
+  if (/(siri|ava|evan|zoe|allison|nathan|oliver|matilda|fiona)/.test(name)) score += 25
+  if (/(microsoft|google)/.test(name)) score += 15
+
+  // 3. Prioritize authentic accents tested in Pearson PTE Academic
+  if (lang.includes('au')) score += 14 // Australian
+  if (lang.includes('gb') || lang.includes('uk')) score += 12 // British
+  if (lang.includes('us')) score += 10 // American
+  if (lang.includes('in') || lang.includes('ie')) score += 8 // Indian / Irish
+
+  // 4. Local device rendering
+  if (voice.localService) score += 6
+
+  // 5. Gender / pitch profile matching
   switch (hint) {
     case 'low':
-      if (/(daniel|alex|fred|george|david|daniel)/.test(name)) score += 14
+      if (/(evan|nathan|oliver|daniel|guy|george|david|male|arthur|eddy|reed)/.test(name)) score += 18
       break
     case 'high':
-      if (/(samantha|karen|serena|zira|victoria|tessa|female)/.test(name)) score += 14
+      if (/(ava|zoe|allison|karen|samantha|serena|jenny|aria|female|tessa|fiona|flo|moira)/.test(name)) score += 18
       break
     case 'mid-high':
-      score += 2
+      if (/(zoe|samantha|karen|serena|jenny|flo)/.test(name)) score += 10
       break
     case 'mid':
-      score += 6
+      if (/(siri|ava|evan|daniel|david|eddy)/.test(name)) score += 10
       break
   }
   return score
@@ -106,17 +125,27 @@ function pickVoice(speaker: Speaker, index: number, used: Set<string>): SpeechSy
   return chosen.v
 }
 
+/** Formant-safe pitch: keeping within 0.98–1.02 avoids metallic resampling artifacts. */
 function basePitch(hint: VoiceHint): number {
   switch (hint) {
     case 'low':
-      return 0.82
+      return 0.98
     case 'mid':
-      return 0.95
+      return 1.0
     case 'mid-high':
-      return 1.06
+      return 1.01
     case 'high':
-      return 1.18
+      return 1.02
   }
+}
+
+/** Clean punctuation and dashes into natural conversational breathing pauses. */
+export function cleanProsodyText(raw: string): string {
+  return raw
+    .replace(/\s*—\s*/g, ', ')
+    .replace(/\s*–\s*/g, ', ')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
 }
 
 let keepAlive: number | null = null
@@ -193,7 +222,7 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
       return
     }
     onTurnStart?.(index)
-    const utter = new SpeechSynthesisUtterance(turn.text)
+    const utter = new SpeechSynthesisUtterance(cleanProsodyText(turn.text))
     const voice = pickVoice(speaker, index, used)
     if (voice) {
       utter.voice = voice

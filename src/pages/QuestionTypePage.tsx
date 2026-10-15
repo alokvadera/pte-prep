@@ -11,6 +11,7 @@ import {
   PageWrapper,
   SectionHeading,
 } from '../components/ui/primitives'
+import { Reveal } from '../components/ui/motion'
 import NotFound from './NotFound'
 
 const SKILL_LABEL: Record<string, string> = {
@@ -62,7 +63,7 @@ export default function QuestionTypePage() {
             ]}
           />
         }
-        eyebrow={`${section.title} · ${section.longTitle} · ${meta.short}`}
+        eyebrow={`${section.title}, ${section.longTitle}, ${meta.short}`}
         title={`${meta.label}: ${section.longTitle} PTE question type`}
         description={detail.what}
       >
@@ -74,33 +75,33 @@ export default function QuestionTypePage() {
 
           <dl className="card-solid mt-6 grid gap-px overflow-hidden p-0 sm:grid-cols-2">
             <div className="p-5">
-              <dt className="text-ink-500 dark:text-ink-400 text-xs font-semibold">Skills scored</dt>
+              <dt className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">Skills scored</dt>
               <dd className="text-ink-900 dark:text-white mt-1 flex flex-col gap-1 text-sm">
                 {meta.skills.map((s) => (
                   <span key={s}>
                     <strong>{SKILL_LABEL[s]}</strong>
-                    <span className="text-ink-500 dark:text-ink-400"> — {SKILL_BLURB[s]}</span>
+                    <span className="text-ink-500 dark:text-ink-on-dark-muted"> — {SKILL_BLURB[s]}</span>
                   </span>
                 ))}
               </dd>
             </div>
             <div className="p-5">
-              <dt className="text-ink-500 dark:text-ink-400 text-xs font-semibold">Questions per test</dt>
+              <dt className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">Questions per test</dt>
               <dd className="text-ink-900 dark:text-white mt-1 text-sm">
                 {meta.perTest}
-                <span className="text-ink-500 dark:text-ink-400"> in {section.longTitle}</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted"> in {section.longTitle}</span>
               </dd>
             </div>
             {meta.traits.length > 0 ? (
               <div className="p-5 sm:col-span-2">
-                <dt className="text-ink-500 dark:text-ink-400 text-xs font-semibold">Traits Pearson rates</dt>
-                <dd className="text-ink-900 dark:text-white mt-1 text-sm">{meta.traits.join(' · ')}</dd>
+                <dt className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">Traits Pearson rates</dt>
+                <dd className="text-ink-900 dark:text-white mt-1 text-sm">{meta.traits.join(', ')}</dd>
               </div>
             ) : null}
           </dl>
 
           {meta.skills.length > 1 ? (
-            <p className="text-ink-500 dark:text-ink-400 mt-3 text-sm leading-relaxed">
+            <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-sm leading-relaxed">
               This is an integrated item: it counts towards {meta.skills.length} different skill scores at once, which is
               why its weighting in a full test is higher than a single-skill item.
             </p>
@@ -111,12 +112,14 @@ export default function QuestionTypePage() {
           <SectionHeading className="mb-4" eyebrow="Watch out" title={`Common ${meta.label} mistakes`} />
           <ol className="space-y-3">
             {detail.mistakes.map((m, i) => (
-              <li key={i} className="flex gap-3">
-                <NumMarker tone="quiet" className="mt-0.5">
-                  {i + 1}
-                </NumMarker>
-                <span className="text-ink-600 dark:text-ink-200 leading-relaxed">{m}</span>
-              </li>
+              <Reveal key={i} variant="up" delay={Math.min(i, 6) * 25} duration={500}>
+                <li className="flex gap-3">
+                  <NumMarker tone="quiet" className="mt-0.5">
+                    {i + 1}
+                  </NumMarker>
+                  <span className="text-ink-600 dark:text-ink-200 leading-relaxed">{m}</span>
+                </li>
+              </Reveal>
             ))}
           </ol>
 
@@ -126,8 +129,12 @@ export default function QuestionTypePage() {
         </section>
 
         <section className="mt-10 flex flex-wrap gap-3">
-          <ButtonLink to={`/practice?type=${type}`} size="lg">Practice {meta.label}</ButtonLink>
-          <ButtonLink to="/mock" variant="secondary" size="lg">Sit a full mock</ButtonLink>
+          <Reveal as="div" variant="up" delay={30} className="w-full sm:w-auto">
+            <ButtonLink to={`/practice?type=${type}`} size="lg" magnetic>Practice {meta.label}</ButtonLink>
+          </Reveal>
+          <Reveal as="div" variant="up" delay={60} className="w-full sm:w-auto">
+            <ButtonLink to="/mock" variant="secondary" size="lg">Sit a full mock</ButtonLink>
+          </Reveal>
         </section>
 
         <section className="mt-16">
@@ -135,11 +142,11 @@ export default function QuestionTypePage() {
           {/* Rendered visibly because the FAQPage JSON-LD for this route is built
               from these same entries — marked-up FAQ content has to be on the
               page, not hidden in the head. */}
-          <div className="mt-4 divide-ink-200 dark:divide-white/10 divide-y border-y">
+          <div className="card-solid mt-6 p-6 sm:p-8 divide-ink-200 dark:divide-white/10 divide-y">
             {faqForType(type).map((f) => (
-              <div key={f.question} className="px-1 py-4 sm:px-2">
-                <h3 className="text-ink-900 dark:text-white text-sm font-semibold text-balance">{f.question}</h3>
-                <p className="text-ink-600 dark:text-ink-300 mt-1.5 text-sm leading-relaxed">{f.answer}</p>
+              <div key={f.question} className="py-4 first:pt-0 last:pb-0">
+                <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{f.question}</h3>
+                <p className="text-ink-600 dark:text-ink-on-dark mt-1.5 text-sm leading-relaxed">{f.answer}</p>
               </div>
             ))}
           </div>
@@ -151,34 +158,36 @@ export default function QuestionTypePage() {
             title={`Related ${section.longTitle.toLowerCase()} question types`}
           />
           <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {related.map((r: QuestionType) => (
-              <li key={r} className="card-solid p-4">
-                <Link
-                  to={`/question-types/${typeSlug(r)}/`}
-                  className="text-ink-900 dark:text-white hover:text-brand-600 dark:hover:text-brand-300 -m-1 inline-block px-1 py-1 font-semibold"
-                >
-                  {QUESTION_META[r].label}
-                </Link>
-                <p className="text-ink-500 dark:text-ink-400 mt-1 text-xs">
-                  {QUESTION_META[r].perTest} per test · {QUESTION_META[r].skills.map((s) => SKILL_LABEL[s]).join(' + ')}
-                </p>
-              </li>
+            {related.map((r: QuestionType, i: number) => (
+              <Reveal key={r} variant="up" delay={Math.min(i, 4) * 25} duration={500}>
+                <li className="card-solid p-5 hover:border-mark-500/50 transition-all group">
+                  <Link
+                    to={`/question-types/${typeSlug(r)}/`}
+                    className="text-ink-900 dark:text-white group-hover:text-mark-600 dark:group-hover:text-mark-300 font-bold text-sm inline-block transition-colors"
+                  >
+                    {QUESTION_META[r].label} →
+                  </Link>
+                  <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs">
+                    {QUESTION_META[r].perTest} per test, {QUESTION_META[r].skills.map((s) => SKILL_LABEL[s]).join(' + ')}
+                  </p>
+                </li>
+              </Reveal>
             ))}
           </ul>
 
-          <p className="text-ink-500 dark:text-ink-400 mt-6 text-sm leading-relaxed">
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-6 text-sm leading-relaxed">
             <Link to="/question-types/" className="link-inline">
               All {SECTION_META[meta.section].longTitle} question types
             </Link>{' '}
-            ·{' '}
+            ,{' '}
             <Link to="/guide" className="link-inline">
               tips for all 22 types
             </Link>{' '}
-            ·{' '}
+            ,{' '}
             <Link to="/format" className="link-inline">
               full test format
             </Link>{' '}
-            ·{' '}
+            ,{' '}
             <Link to="/scoring" className="link-inline">
               how PTE scores work
             </Link>
@@ -186,7 +195,7 @@ export default function QuestionTypePage() {
           </p>
         </section>
 
-        <p className="text-ink-500 dark:text-ink-400 mt-10 text-xs">
+        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-10 text-xs">
           Scoring figures on this page follow the current PTE Academic official guide. This is an independent practice
           site and is not affiliated with Pearson.
         </p>

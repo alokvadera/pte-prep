@@ -17,6 +17,21 @@ import {
   EXTRA_SPOKEN_SUMMARY_ITEMS_3,
   EXTRA_GROUP_DISCUSSION_ITEMS_3,
 } from './audioExtra3'
+import {
+  EXTRA_LECTURES_4,
+  EXTRA_GROUP_DISCUSSIONS_4,
+  EXTRA_RETELL_ITEMS_4,
+  EXTRA_SPOKEN_SUMMARY_ITEMS_4,
+  EXTRA_GROUP_DISCUSSION_ITEMS_4,
+} from './audioExtra4'
+import { EXTRA_LECTURES_5, EXTRA_RETELL_ITEMS_5 } from './audioExtra5'
+import {
+  EXTRA_LECTURES_6,
+  EXTRA_GROUP_DISCUSSIONS_5,
+  EXTRA_RETELL_ITEMS_6,
+  EXTRA_GROUP_DISCUSSION_ITEMS_5,
+  EXTRA_SPOKEN_SUMMARY_ITEMS_5,
+} from './audioExtra6'
 
 // ---------------------------------------------------------------------------
 // Single-speaker academic lectures. Text is delivered through the browser's
@@ -236,6 +251,9 @@ export const LECTURES: AudioScript[] = [
   },
   ...EXTRA_LECTURES,
   ...EXTRA_LECTURES_3,
+  ...EXTRA_LECTURES_4,
+  ...EXTRA_LECTURES_5,
+  ...EXTRA_LECTURES_6,
 ]
 
 export const RETELL_ITEMS: RetellItem[] = [
@@ -295,6 +313,9 @@ export const RETELL_ITEMS: RetellItem[] = [
   },
   ...EXTRA_RETELL_ITEMS,
   ...EXTRA_RETELL_ITEMS_3,
+  ...EXTRA_RETELL_ITEMS_4,
+  ...EXTRA_RETELL_ITEMS_5,
+  ...EXTRA_RETELL_ITEMS_6,
 ]
 
 export const SPOKEN_SUMMARY_ITEMS: SpokenSummaryItem[] = [
@@ -310,6 +331,8 @@ export const SPOKEN_SUMMARY_ITEMS: SpokenSummaryItem[] = [
   },
   ...EXTRA_SPOKEN_SUMMARY_ITEMS,
   ...EXTRA_SPOKEN_SUMMARY_ITEMS_3,
+  ...EXTRA_SPOKEN_SUMMARY_ITEMS_4,
+  ...EXTRA_SPOKEN_SUMMARY_ITEMS_5,
 ]
 
 export const GROUP_DISCUSSIONS: AudioScript[] = [
@@ -396,6 +419,8 @@ export const GROUP_DISCUSSIONS: AudioScript[] = [
   ...EXTRA_GROUP_DISCUSSIONS,
   ...EXTRA_DISCUSSIONS_2,
   ...EXTRA_DISCUSSIONS_3,
+  ...EXTRA_GROUP_DISCUSSIONS_4,
+  ...EXTRA_GROUP_DISCUSSIONS_5,
 ]
 
 export const GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
@@ -422,4 +447,6 @@ export const GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
   ...EXTRA_GROUP_DISCUSSION_ITEMS,
   ...EXTRA_GROUP_DISCUSSION_ITEMS_2,
   ...EXTRA_GROUP_DISCUSSION_ITEMS_3,
+  ...EXTRA_GROUP_DISCUSSION_ITEMS_4,
+  ...EXTRA_GROUP_DISCUSSION_ITEMS_5,
 ]

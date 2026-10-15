@@ -82,19 +82,19 @@ export default function ScoringGuide() {
         </p>
         <Reveal className="mt-5">
           <Tilt glare={false}>
-        <div className="card grid gap-4 sm:grid-cols-3">
-          {[
-            ['10 – 90', 'Pearson’s reported scale', 'Half-point increments'],
-            ['60 – 120', 'The same score, shifted', 'What universities publish'],
-            ['+ 50', 'The conversion', 'Both directions'],
-          ].map(([a, b, c]) => (
-            <div key={a}>
-              <p className="text-ink-900 dark:text-white text-2xl font-bold tabular-nums">{a}</p>
-              <p className="text-ink-600 dark:text-ink-300 mt-1 text-sm font-medium">{b}</p>
-              <p className="text-ink-500 dark:text-ink-400 mt-0.5 text-xs">{c}</p>
+            <div className="card-solid grid gap-4 sm:grid-cols-3 p-6 border-ink-200 dark:border-white/10">
+              {[
+                ['10 – 90', 'Pearson’s reported scale', 'Half-point increments', 'mint'],
+                ['60 – 120', 'The same score, shifted', 'What universities publish', 'brand'],
+                ['+ 50', 'The conversion', 'Both directions', 'neutral'],
+              ].map(([a, b, c]) => (
+                <div key={a} className="rounded-2xl border border-ink-100 bg-ink-50/50 p-4.5 dark:border-white/5 dark:bg-white/[0.02]">
+                  <p className="font-display text-ink-900 dark:text-white text-3xl font-extrabold tabular-nums tracking-tight">{a}</p>
+                  <p className="text-ink-700 dark:text-ink-on-dark mt-1 text-sm font-bold">{b}</p>
+                  <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-xs">{c}</p>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
           </Tilt>
         </Reveal>
 
@@ -104,7 +104,7 @@ export default function ScoringGuide() {
           pearsonpte.com: 85–90 is C2, 76–84 is C1, 59–75 is B2, 43–58 is B1, 30–42 is A2, and 10–29 is A1 or below.
           Pearson publishes bands for the <em>overall</em> score only — there are no public per-skill bands.
         </p>
-        <div className="card mt-5 overflow-x-auto p-0">
+        <div className="card-solid mt-5 overflow-x-auto p-0 border-ink-200 dark:border-white/10">
           <table className="table-data min-w-lg">
             <caption className="sr-only">PTE Academic score bands and their CEFR equivalents, from the published 10 to 90 scale</caption>
             <thead>
@@ -124,29 +124,30 @@ export default function ScoringGuide() {
                   <td>
                     <span className="pill bg-brand-500/12 text-brand-700 dark:text-brand-300">{r.cefr}</span>
                   </td>
-                  <td className="text-ink-600 dark:text-ink-300">{r.meaning}</td>
-                  <td className="text-ink-500 dark:text-ink-400">{r.use}</td>
+                  <td className="text-ink-600 dark:text-ink-on-dark">{r.meaning}</td>
+                  <td className="text-ink-500 dark:text-ink-on-dark-muted">{r.use}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
 
-        <SectionHeading className="mt-12 sm:mt-14" eyebrow="Targets" title="What universities require" />        <ul className="mt-5 space-y-3">
+        <SectionHeading className="mt-12 sm:mt-14" eyebrow="Targets" title="What universities require" />
+        <ul className="mt-5 space-y-3">
           {
             ADMISSION_TARGETS.map((t, i) => (
               <Reveal as="li" key={t.label} delay={Math.min(i, 3) * 55} duration={600} className="flex">
-              <article className="card w-full">
+              <article className="card-solid w-full p-5 border-ink-200 dark:border-white/10">
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{t.label}</h3>
-                <span className="text-ink-500 dark:text-ink-400 text-xs tabular-nums">target {t.range}</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs tabular-nums">target {t.range}</span>
               </div>
-              <p className="text-ink-500 dark:text-ink-300 mt-2 text-sm leading-relaxed">{t.note}</p>
+              <p className="text-ink-500 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">{t.note}</p>
               </article>
             </Reveal>
           ))}
         </ul>
-        <p className="text-ink-500 dark:text-ink-400 mt-4 text-sm">
+        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-sm">
           Requirements change. Always check the specific course page rather than relying on a general threshold.
         </p>
 
@@ -176,13 +177,13 @@ export default function ScoringGuide() {
             },
           ].map((step, i) => (
             <Reveal as="li" key={step.title} delay={Math.min(i, 3) * 70} className="flex">
-              <article className="card flex w-full gap-4">
-              <span className="bg-brand-500 text-white grid size-7 shrink-0 place-items-center rounded-lg text-xs font-bold">
+              <article className="card-solid flex w-full gap-4 p-5 sm:p-6 border-ink-200 dark:border-white/10">
+              <span className="bg-brand-500 text-white grid size-7 shrink-0 place-items-center rounded-xl text-xs font-bold shadow-xs">
                 {i + 1}
               </span>
               <div className="min-w-0 flex-1">
                 <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{step.title}</h3>
-                <p className="text-ink-500 dark:text-ink-300 mt-1.5 text-sm leading-relaxed">{step.body}</p>
+                <p className="text-ink-500 dark:text-ink-on-dark mt-1.5 text-sm leading-relaxed">{step.body}</p>
               </div>
               </article>
             </Reveal>
@@ -190,7 +191,7 @@ export default function ScoringGuide() {
         </ol>
 
         <Reveal variant="fade" className="mt-8">
-        <div className="card overflow-hidden">
+        <div className="card-solid overflow-hidden p-6 border-ink-200 dark:border-white/10">
           <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">The conversion curve, illustrated</h3>
           <div className="mt-4 -mx-5 overflow-x-auto px-5">
             <table className="table-data min-w-lg">
@@ -212,7 +213,7 @@ export default function ScoringGuide() {
                       <td className="text-ink-700 dark:text-ink-200 tabular-nums">{Math.round(f * 100)}%</td>
                       <td className="text-ink-900 dark:text-white font-bold tabular-nums">{s}</td>
                       <td className="text-ink-700 dark:text-ink-200 tabular-nums">{s + 50}</td>
-                      <td className="text-ink-500 dark:text-ink-400">{toCefr(s)}</td>
+                      <td className="text-ink-500 dark:text-ink-on-dark-muted">{toCefr(s)}</td>
                     </tr>
                   )
                 })}
@@ -247,18 +248,18 @@ export default function ScoringGuide() {
           <h3 className="text-ink-900 dark:text-white text-base font-bold">
             Essential High-Yield Preparation Tools
           </h3>
-          <p className="text-ink-600 dark:text-ink-300 mt-2 text-sm leading-relaxed">
+          <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">
             Maximize your preparation efficiency by focusing on the 6 critical question types that generate 70% of your total score, and adopt proven structures for subjective tasks.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
             <ButtonLink to="/format/#weightage" variant="primary" size="sm">
-              View Score Weightage Matrix →
+              View Score Weightage Matrix
             </ButtonLink>
             <ButtonLink to="/guide/#templates" variant="secondary" size="sm">
-              2025/2026 Strategy Templates →
+              2025/2026 Strategy Templates
             </ButtonLink>
             <ButtonLink to="/guide/#collocations" variant="secondary" size="sm">
-              Academic Collocations List →
+              Academic Collocations List
             </ButtonLink>          </div>
         </Callout>
           </Tilt>
@@ -274,7 +275,7 @@ export default function ScoringGuide() {
           title="Get a scored mock"
           description="See where your current score actually sits on this scale."
           actions={
-            <ButtonLink to="/mock" size="lg">Start a free mock test</ButtonLink>
+            <ButtonLink to="/mock" size="lg" magnetic>Start a free mock test</ButtonLink>
           }
         />
       </PageWrapper>

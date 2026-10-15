@@ -2,6 +2,10 @@ export interface Env {
   DB: D1Database
   JWT_SECRET: string
   CORS_ORIGIN?: string
+  BREVO_API_KEY?: string
+  BREVO_SENDER_EMAIL?: string
+  BREVO_SENDER_NAME?: string
+  SITE_ORIGIN?: string
 }
 
 export interface UserRecord {

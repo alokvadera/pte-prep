@@ -1,6 +1,7 @@
 import { PASSAGES } from '../src/content/passages'
 import { CHARTS } from '../src/content/charts'
-import { AUDIO_INDEX, capacityByType } from '../src/content/bank'
+import { AUDIO_INDEX, bankCapacity, capacityByType } from '../src/content/bank'
+import { MANIFEST_CAPACITY, manifestBankCapacity } from '../src/content/manifest'
 import { GROUP_DISCUSSION_ITEMS, RETELL_ITEMS, SPOKEN_SUMMARY_ITEMS } from '../src/content/audio'
 import {
   DICTATION,
@@ -12,6 +13,15 @@ import {
   MISSING_WORD,
   SITUATIONS,
 } from '../src/content/listening'
+import {
+  MOCK_BLUEPRINT,
+  MOCK_TYPE_ORDER,
+  QUESTION_META,
+  SECTION_IDS,
+  describeMockPreview,
+} from '../src/domain/blueprint'
+import { buildFullMock, buildSectionMock } from '../src/domain/assemble'
+import type { QuestionType } from '../src/domain/types'
 
 /**
  * Structural validation of the content bank.
@@ -472,6 +482,133 @@ for (const c of CHARTS) {
 const capacity = capacityByType()
 for (const [type, have] of Object.entries(capacity)) {
   check(`type ${type} has at least one item`, have > 0, `${have}`)
+}
+
+// --- Manifest and preview drift -------------------------------------------
+// The mock-setup screen describes a session from the blueprint alone, so the
+// candidate's browser never downloads the content bank before starting. That
+// means three things are duplicated outside the bank and the assembler: the
+// per-type counts in the manifest, the order types appear in a mock, and the
+// preview arithmetic. Each is asserted here against the real bank and
+// assembler so a content edit or a reordered builder fails this check rather
+// than quietly desynchronising the summary from the session it precedes.
+
+// 1. The manifest's per-type counts must equal the live bank's capacity.
+for (const [type, have] of Object.entries(capacity)) {
+  const declared = MANIFEST_CAPACITY[type as QuestionType]
+  check(
+    `manifest count for ${type} matches the bank`,
+    declared === have,
+    `manifest ${declared} vs bank ${have}`,
+  )
+}
+check(
+  'manifest total matches bankCapacity()',
+  manifestBankCapacity() === bankCapacity(),
+  `manifest ${manifestBankCapacity()} vs bank ${bankCapacity()}`,
+)
+
+// 2. MOCK_TYPE_ORDER must be exactly the order types first appear in a mock,
+//    deduplicated, across every length and timing.
+const mockCounts = (scale: number): Partial<Record<QuestionType, number>> => {
+  const out: Partial<Record<QuestionType, number>> = {}
+  for (const [type, n] of Object.entries(MOCK_BLUEPRINT)) {
+    const scaled = Math.max(1, Math.round(n * scale))
+    out[type as QuestionType] = Math.min(scaled, capacity[type as QuestionType] ?? scaled)
+  }
+  // Reading types share one passage each, so a short mock must not over-request.
+  const readingTypes = [
+    'fill-in-blanks-dropdown',
+    'fill-in-blanks-table',
+    'multiple-choice-multiple',
+    'multiple-choice-single',
+    'reorder-paragraphs',
+  ] as const
+  const readTotal = readingTypes.reduce((s, t) => s + (out[t] ?? 0), 0)
+  const readCap = capacity['fill-in-blanks-dropdown'] ?? 6
+  if (readTotal > readCap * 2) {
+    const excess = readTotal - readCap * 2
+    for (const t of readingTypes) out[t] = Math.max(1, (out[t] ?? 1) - Math.floor(excess / 3))
+  }
+  return out
+}
+
+const mockTypeOrder = (mock: ReturnType<typeof buildFullMock>) =>
+  [
+    ...new Set(
+      mock.sections
+        .flatMap((s) => s.itemIds)
+        .map((id) => mock.items[id]?.type)
+        .filter((type): type is QuestionType => type != null),
+    ),
+  ]
+
+for (const scale of [1, 0.5, 0.3]) {
+  const counts = mockCounts(scale)
+  const mock = buildFullMock(20260101, { counts })
+  check(
+    `MOCK_TYPE_ORDER matches a scale ${scale} mock`,
+    JSON.stringify(MOCK_TYPE_ORDER) === JSON.stringify(mockTypeOrder(mock)),
+  )
+}
+
+// 3. describeMockPreview must agree with the assembler on the figures the
+//    session summary shows, for every length, timing and section selection.
+const TIMINGS = [
+  { scale: 1 },
+  { scale: 1.5 },
+  { scale: 2 },
+  { scale: 0, untimed: true },
+]
+for (const scale of [1, 0.5, 0.3]) {
+  const counts = mockCounts(scale)
+  for (const t of TIMINGS) {
+    const mock = buildFullMock(20260101, { counts, timeScale: t.scale, untimed: t.untimed })
+    const scored = mock.sections
+      .flatMap((s) => s.itemIds)
+      .filter((id) => (mock.items[id]?.maxPoints ?? 0) > 0).length
+    const preview = describeMockPreview(counts, { timeScale: t.scale, untimed: t.untimed })
+    check(
+      `preview scored count (scale ${scale}, timing ${t.scale}${t.untimed ? ' untimed' : ''})`,
+      preview.scoredCount === scored,
+      `preview ${preview.scoredCount} vs mock ${scored}`,
+    )
+    check(
+      `preview seconds (scale ${scale}, timing ${t.scale}${t.untimed ? ' untimed' : ''})`,
+      preview.totalSeconds === mock.totalSeconds,
+      `preview ${preview.totalSeconds} vs mock ${mock.totalSeconds}`,
+    )
+    check(
+      `preview types (scale ${scale}, timing ${t.scale}${t.untimed ? ' untimed' : ''})`,
+      JSON.stringify(preview.includedTypes) === JSON.stringify(mockTypeOrder(mock)),
+    )
+  }
+}
+for (const section of SECTION_IDS) {
+  const counts = mockCounts(1)
+  const mock = buildSectionMock(20260101, section, counts, { timeScale: 1 })
+  const scored = mock.sections
+    .flatMap((s) => s.itemIds)
+    .filter((id) => (mock.items[id]?.maxPoints ?? 0) > 0).length
+  const preview = describeMockPreview(counts, { singleSection: section, timeScale: 1 })
+  check(
+    `section preview scored count (${section})`,
+    preview.scoredCount === scored,
+    `preview ${preview.scoredCount} vs mock ${scored}`,
+  )
+  check(
+    `section preview seconds (${section})`,
+    preview.totalSeconds === mock.totalSeconds,
+    `preview ${preview.totalSeconds} vs mock ${mock.totalSeconds}`,
+  )
+  check(
+    `section preview types (${section})`,
+    JSON.stringify(preview.includedTypes) === JSON.stringify(mockTypeOrder(mock)),
+  )
+}
+// Every type's section must be known, so the preview can scope a section mock.
+for (const type of Object.keys(QUESTION_META) as QuestionType[]) {
+  check(`QUESTION_META section known for ${type}`, QUESTION_META[type].section != null)
 }
 
 const items = Object.values(capacity).reduce((a, b) => a + b, 0)

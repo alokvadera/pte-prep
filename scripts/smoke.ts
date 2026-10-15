@@ -127,7 +127,7 @@ check('multi-choice keys point at real options', scored.filter((i) => i.response
 check('single-choice keys point at real options', scored.filter((i) => i.responseKind === 'choice').every((i) => (i.options ?? []).includes(mock.answers[i.id]?.correctChoice ?? '\u0000')))
 check('select-missing-word has exactly one ___ token', scored.filter((i) => i.type === 'select-missing-word').every((i) => (i.tokens ?? []).filter((t) => t === '___').length === 1))
 check('highlight-incorrect targets exactly two tokens', scored.filter((i) => i.type === 'highlight-incorrect-words').every((i) => (mock.answers[i.id]?.correctHighlighted?.length ?? 0) === 2 && (mock.answers[i.id]?.correctHighlighted ?? []).every((n) => n < (i.tokens?.length ?? 0))))
-check('every audio-backed item resolves to a script', scored.filter((i) => i.stimulusId).every((i) => BANK.lectures.concat(BANK.conversations, BANK.groupDiscussions).some((a) => a.id === i.stimulusId) || i.stimulusId?.startsWith('asq-aud')))
+check('every audio-backed item resolves to a script', scored.filter((i) => i.stimulusId).every((i) => BANK.lectures.concat(BANK.conversations, BANK.groupDiscussions).some((a) => a.id === i.stimulusId) || i.stimulusId?.startsWith('asq-') || i.stimulusId?.startsWith('rs-') || i.stimulusId?.startsWith('wfd-') || i.stimulusId?.startsWith('hiw-') || i.stimulusId?.startsWith('fibl-') || i.stimulusId?.startsWith('lfib-') || i.stimulusId?.startsWith('smw-')))
 check('every describe-image item resolves to a chart', scored.filter((i) => i.type === 'describe-image').every((i) => Boolean(i.chartId)))
 check('describer targets have reference answers', scored.filter((i) => i.responseKind === 'audio').every((i) => Boolean(mock.answers[i.id]?.reference)))
 check('writing items have key terms', scored.filter((i) => i.responseKind === 'text' && i.type !== 'write-from-dictation').every((i) => (mock.answers[i.id]?.keyTerms?.length ?? 0) > 0))
@@ -408,10 +408,11 @@ const micReport = buildReport(
   scored,
   mock.answers,
   Object.fromEntries(
-    scored.map((item) => {
+    scored.flatMap((item): Array<[string, ItemResponse]> => {
       const base = responses[item.id]
-      if (!base || item.responseKind !== 'audio' || item.type === 'answer-short-question') return [item.id, base]
-      return [item.id, { ...base, audio: { durationMs: 8000, wordsPerMinute: 150, speechRatio: 0.82, pauseCount: 1, meanPitchHz: 175, energyVariance: 0.55, reliable: true } }]
+      if (!base) return []
+      if (item.responseKind !== 'audio' || item.type === 'answer-short-question') return [[item.id, base]]
+      return [[item.id, { ...base, audio: { durationMs: 8000, wordsPerMinute: 150, speechRatio: 0.82, pauseCount: 1, meanPitchHz: 175, energyVariance: 0.55, reliable: true } }]]
     }),
   ),
   metaById,
@@ -460,7 +461,7 @@ console.log('\n== Pace analysis ==')
   check('averages the time actually spent', (rows.find((r) => r.type === 'read-aloud')?.averageSeconds ?? 0) === 40, String(rows.find((r) => r.type === 'read-aloud')?.averageSeconds))
   check('flags a type that overran its budget', rows.some((r) => r.type === 'summarize-written-text' && r.verdict === 'over'), rows.map((r) => `${r.short}:${r.ratio}`).join(' '))
   check('marks a type finished very fast as under, not steady', rows.some((r) => r.type === 'repeat-sentence' && r.verdict === 'under'))
-  check('sorts the worst overrun first', rows[0]?.ratio >= rows[rows.length - 1]!.ratio, rows.map((r) => r.ratio).join('>'))
+  check('sorts the worst overrun first', (rows[0]?.ratio ?? 0) >= (rows[rows.length - 1]?.ratio ?? 0), rows.map((r) => r.ratio).join('>'))
 
   check('excludes types with no real-test budget', !rows.some((r) => r.budgetSeconds === 0))
   check('ignores an item that was never engaged with', paceReport(items, { i1: resp('i1', 40) }).find((r) => r.type === 'read-aloud')?.items === 1)

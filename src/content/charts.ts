@@ -2,6 +2,8 @@ import type { ChartSpec } from './schema'
 import { EXTRA_CHARTS } from './chartsExtra'
 import { EXTRA_CHARTS_2 } from './chartsExtra2'
 import { EXTRA_CHARTS_3 } from './chartsExtra3'
+import { EXTRA_CHARTS_4 } from './chartsExtra4'
+import { EXTRA_CHARTS_5 } from './chartsExtra5'
 
 // ---------------------------------------------------------------------------
 // Describe Image stimuli. These are drawn as inline SVG from the data below, so
@@ -21,10 +23,10 @@ export const CHARTS: ChartSpec[] = [
       unit: '% of total generation',
       categories: ['1990', '2000', '2010', '2020', '2023'],
       series: [
-        { name: 'Coal', values: [42, 36, 29, 22, 18], color: '#64748b' },
-        { name: 'Natural gas', values: [18, 24, 33, 35, 33], color: '#f59e0b' },
+        { name: 'Coal', values: [42, 36, 29, 22, 18], color: '#7c8aa3' },
+        { name: 'Natural gas', values: [18, 24, 33, 35, 33], color: '#d97706' },
         { name: 'Nuclear', values: [26, 24, 20, 16, 15], color: '#8b5cf6' },
-        { name: 'Wind and other renewables', values: [3, 6, 11, 20, 27], color: '#14b88c' },
+        { name: 'Wind and other renewables', values: [3, 6, 11, 20, 27], color: '#2f9a63' },
         { name: 'Hydro', values: [11, 10, 7, 7, 7], color: '#3b82f6' },
       ],
     },
@@ -41,7 +43,7 @@ export const CHARTS: ChartSpec[] = [
       unit: '°C above/below average',
       x: ['1980', '1985', '1990', '1995', '2000', '2005', '2010', '2015', '2020', '2023'],
       series: [
-        { name: 'Global anomaly', values: [-0.06, -0.02, 0.14, 0.19, 0.11, 0.26, 0.34, 0.45, 0.52, 0.61], color: '#f4526b' },
+        { name: 'Global anomaly', values: [-0.06, -0.02, 0.14, 0.19, 0.11, 0.26, 0.34, 0.45, 0.52, 0.61], color: '#e85b9b' },
       ],
     },
   },
@@ -56,11 +58,11 @@ export const CHARTS: ChartSpec[] = [
     data: {
       unit: '% of households',
       slices: [
-        { name: 'Mains gas', value: 58, color: '#3665f6' },
-        { name: 'Electricity', value: 19, color: '#f5a524' },
-        { name: 'District heating', value: 15, color: '#14b88c' },
-        { name: 'Solid fuel', value: 6, color: '#9fb0cb' },
-        { name: 'Other', value: 2, color: '#4a5c7d' },
+        { name: 'Mains gas', value: 58, color: '#3b82f6' },
+        { name: 'Electricity', value: 19, color: '#d97706' },
+        { name: 'District heating', value: 15, color: '#2f9a63' },
+        { name: 'Solid fuel', value: 6, color: '#8b5cf6' },
+        { name: 'Other', value: 2, color: '#7c8aa3' },
       ],
     },
   },
@@ -77,8 +79,8 @@ export const CHARTS: ChartSpec[] = [
       xAxis: 'Age band (years)',
       categories: ['16–24', '25–34', '35–44', '45–54', '55–64'],
       series: [
-        { name: 'Country A', values: [46, 82, 87, 84, 63], color: '#3665f6' },
-        { name: 'Country B', values: [39, 76, 83, 80, 58], color: '#14b88c' },
+        { name: 'Country A', values: [46, 82, 87, 84, 63], color: '#3b82f6' },
+        { name: 'Country B', values: [39, 76, 83, 80, 58], color: '#2f9a63' },
       ],
     },
   },
@@ -168,12 +170,14 @@ export const CHARTS: ChartSpec[] = [
       unit: 'minutes (one way)',
       categories: ['<2 km', '2–5 km', '5–10 km', '10–20 km', '20–40 km', '>40 km'],
       series: [
-        { name: 'All workers', values: [7, 12, 19, 31, 44, 58], color: '#3665f6' },
-        { name: 'Public transport users', values: [9, 15, 24, 38, 51, 62], color: '#14b88c' },
+        { name: 'All workers', values: [7, 12, 19, 31, 44, 58], color: '#3b82f6' },
+        { name: 'Public transport users', values: [9, 15, 24, 38, 51, 62], color: '#2f9a63' },
       ],
     },
   },
   ...EXTRA_CHARTS,
   ...EXTRA_CHARTS_2,
   ...EXTRA_CHARTS_3,
+  ...EXTRA_CHARTS_4,
+  ...EXTRA_CHARTS_5,
 ]

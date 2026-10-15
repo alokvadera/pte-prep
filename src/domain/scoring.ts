@@ -164,7 +164,7 @@ function pronunciation(a: ItemResponse['audio'], wordsSpoken: number): { score: 
  */
 export function splitSentences(text: string): string[] {
   const protectedText = text.replace(
-    /\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|vs|etc|et al|e\.g|i\.e|U\.S)\./gi,
+    /\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|vs|etc|et al|e\.g|i\.e|U\.S|a\.m|p\.m)\./gi,
     (m) => m.slice(0, -1) + '§',
   )
   return protectedText
