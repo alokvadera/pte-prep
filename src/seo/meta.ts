@@ -81,9 +81,9 @@ const SCORING_FAQ: Array<{ question: string; answer: string }> = [
       'For most undergraduate UK university applications, 50 to 60 is the usual requirement, with many courses asking for 59 to 63. Taught postgraduate and professional programmes commonly ask for 60 to 70. Competitive subjects such as medicine and law frequently require 70 or above.',
   },
   {
-    question: 'What is the difference between the PTE 10-90 and 60-120 scales?',
+    question: 'How does PTE Academic compare to IELTS?',
     answer:
-      'They are the same score expressed twice. The 10 to 90 scale is the one Pearson reports; the 60 to 120 scale is simply the same number with 50 added. A score of 63 out of 90 is 113 out of 120.',
+      'Pearson publishes an official concordance between PTE Academic (10–90) and IELTS overall bands (1.0–9.0). For example, PTE 50 corresponds to IELTS 6.0, 59 to IELTS 6.5, 66 to IELTS 7.0, and 76 to IELTS 7.5. Universities and visa authorities evaluate candidates against these published concordances.',
   },
   {
     question: 'Does PTE Academic have a passing score?',
@@ -290,7 +290,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/scoring': {
     title: 'PTE Score Guide — Scale, CEFR Bands and Requirements',
     description:
-      'How PTE Academic scores work: the 10-90 and 60-120 scales, CEFR bands from B1 to C2, what universities require, and how this tool estimates your score.',
+      'How PTE Academic scores work: the 10-90 scale, CEFR bands from B1 to C2, IELTS concordance, university requirements, and how this tool estimates your score.',
     path: '/scoring/',
     keywords: [
       'PTE score',
@@ -304,12 +304,12 @@ export const PAGE_META: Record<string, PageMeta> = {
       howToLd({
         name: 'How to read a PTE Academic score',
         description:
-          'Interpret a PTE score, convert between the 10-90 and 60-120 scales, and match it to a CEFR band and university requirements.',
+          'Interpret an official PTE 10-90 score, compare with IELTS concordance bands, and match it to a CEFR level and university requirements.',
         steps: [
-          { name: 'Read the 10-90 score', text: 'Pearson reports a scaled score from 10 to 90 in half-point increments. Higher is better and the scale has no pass mark.' },
-          { name: 'Convert to the 60-120 scale', text: 'Add 50 to the 10-90 score. A 63 out of 90 is the same result as 113 out of 120.' },
-          { name: 'Match it to a CEFR band', text: 'Scores from 46 to 70 correspond to B2, 71 to 80 to C1, and 81 to 90 to C2. Below 46 sits at B1 or lower.' },
-          { name: 'Check the requirement', text: 'Most UK undergraduate courses ask for 50 to 60 on the 60-120 scale. Postgraduates and professional programmes usually ask for 60 to 70.' },
+          { name: 'Read the 10-90 score', text: 'Pearson reports a scaled score from 10 to 90 based on the Global Scale of English. Higher is better and the scale has no fixed pass mark.' },
+          { name: 'Compare with IELTS bands', text: 'Use Pearson’s published concordance: 50 is IELTS 6.0, 59–65 is IELTS 6.5, 66–75 is IELTS 7.0, and 76–83 is IELTS 7.5.' },
+          { name: 'Match it to a CEFR level', text: 'Scores from 43 to 58 correspond to B1, 59 to 75 to B2, 76 to 84 to C1, and 85 to 90 to C2.' },
+          { name: 'Check university requirements', text: 'Most UK undergraduate courses ask for 50 to 58 (IELTS 6.0). Taught postgraduate programmes commonly require 59 to 65 (IELTS 6.5) or 66 to 75 (IELTS 7.0).' },
         ],
       }),
       faqLd(SCORING_FAQ),

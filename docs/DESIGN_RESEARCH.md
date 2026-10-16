@@ -407,9 +407,7 @@ actionable rather than decorative.
   scale for C1 / B2 / B1), with the band names set once beneath the track, not repeated in a legend.
 - The number **61** set large in the body face, with `/ 90` as a smaller, lower-contrast companion, in the
   same typographic group as the axis rather than floating in the middle of a circle.
-- A plain-language sentence above the whole thing: *"61 of 90. About B2, upper intermediate."*
-- The second scale (60-120) as a **second, thinner row beneath**, sharing the same left edge, not a second
-  chart. It is a restatement, not new information.
+- The CEFR band and IELTS concordance stated clearly beneath, sharing the same left edge.
 - **The estimated portion rendered as a distinct, patterned or lower-opacity segment of the same bar**,
   with the exact-vs-estimated split labelled. This replaces the `Estimated` pill, which currently
   communicates the same fact in a place the eye has to travel to.

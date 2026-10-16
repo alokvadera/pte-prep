@@ -263,7 +263,10 @@ export interface AttemptRecord {
   forwardOnly?: boolean
   /** Overall estimate, 10–90. */
   overallScore: number
-  /** Overall estimate on the legacy 60–120 scale. */
+  /**
+   * Deprecated legacy field: retained for backward compatibility with existing
+   * stored IndexedDB attempts and Cloudflare D1 schema.
+   */
   overallScore60: number
   cefr: string
   /** Completed item ids. */

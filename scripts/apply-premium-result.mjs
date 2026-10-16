@@ -47,10 +47,6 @@ const premiumHeader = `<header className="relative overflow-hidden rounded-3xl b
                 <CountUp value={attempt.overallScore} duration={1300} />
               </div>
               <div className="text-ink-500 dark:text-ink-400 text-sm font-medium uppercase tracking-widest mb-4">Overall Score</div>
-              <div className="h-px bg-gradient-to-r from-transparent via-ink-200 dark:via-white/10 to-transparent w-full my-4"></div>
-              <p className="text-ink-600 dark:text-ink-300 text-xs font-medium">
-                <span className="font-bold text-ink-900 dark:text-white">{attempt.overallScore60}</span> / 120 (TOEFL scale)
-              </p>
             </div>
           </div>
         </header>

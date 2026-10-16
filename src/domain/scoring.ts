@@ -818,6 +818,7 @@ export function scoreBand(fraction: number, score: number): ScoreBand {
 
 export interface ScoreReport {
   overall: number
+  /** Deprecated legacy field: retained for backward compatibility with database schema. */
   overall60: number
   cefr: string
   skills: Partial<Record<Skill, number>>

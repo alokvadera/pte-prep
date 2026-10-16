@@ -137,8 +137,9 @@ on pearsonpte.com — G):
 **2.9 — The 10–90 scale is the Global Scale of English**, aligned to CEFR, and
 developed with 6,000+ teachers across 50+ countries. (B / efficacy report)
 
-**2.10 — The 60–120 scale is the same number plus 50.** Institutions quote it
-because that is the convention in admissions.
+**2.10 — Pearson publishes only the 10–90 scale.** There is no "60–120" scale in
+Pearson documentation. Institutions set admissions thresholds on the 10–90 scale
+or reference the official PTE Academic concordance with IELTS.
 
 **2.11 — IELTS concordance (overall).** (A p.12, B)
 

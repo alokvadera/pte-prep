@@ -63,7 +63,7 @@ const bentoGrid = `<div className="mt-12 grid gap-6 md:grid-cols-3 md:grid-rows-
                   </div>
                 </div>
                 <h3 className="text-2xl font-extrabold tracking-tight text-ink-900 dark:text-white mb-3">Complete Score Breakdown</h3>
-                <p className="text-ink-500 dark:text-ink-300 text-base leading-relaxed max-w-md">Reported on the official 10–90 PTE scale and the 60–120 TOEFL scale, including the CEFR band that your score corresponds to and university thresholds.</p>
+                <p className="text-ink-500 dark:text-ink-300 text-base leading-relaxed max-w-md">Reported on the official 10–90 PTE scale, including the CEFR band and IELTS concordance that your score corresponds to and university thresholds.</p>
               </article>
             </Reveal>
 

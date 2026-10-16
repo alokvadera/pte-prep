@@ -697,7 +697,6 @@ report(
   const summary = JSON.parse(
     await evaluate(`JSON.stringify({
       hasScore: /10 to 90/.test(document.body.textContent ?? ''),
-      hasSixty: /of 120|TOEFL/i.test(document.body.textContent ?? ''),
       hasSkills:
         ['speaking', 'writing', 'reading', 'listening'].every((s) =>
           new RegExp(s, 'i').test(document.body.textContent ?? ''),
@@ -709,7 +708,6 @@ report(
   )
 
   report(summary.hasScore, 'the results page states the official 10 to 90 scale')
-  report(summary.hasSixty, 'the results page shows the TOEFL 120 equivalent')
   report(summary.hasSkills, 'the results page reports the four skills')
   report(summary.hasTabs, 'the results page offers its breakdown tabs')
   report(summary.hasEstimateNote, 'the results page labels estimates')

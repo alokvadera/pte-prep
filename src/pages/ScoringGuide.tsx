@@ -20,9 +20,9 @@ const FAQ = [
       'For most undergraduate UK university applications, 50 to 60 is the usual requirement, with many courses asking for 59 to 63. Taught postgraduate and professional programmes commonly ask for 60 to 70. Competitive subjects such as medicine and law frequently require 70 or above.',
   },
   {
-    question: 'What is the difference between the PTE 10-90 and 60-120 scales?',
+    question: 'How does PTE Academic compare to IELTS?',
     answer:
-      'They are the same score expressed twice. The 10 to 90 scale is the one Pearson reports; the 60 to 120 scale is simply the same number with 50 added. A score of 63 out of 90 is 113 out of 120.',
+      'Pearson publishes an official concordance between PTE Academic (10–90) and IELTS overall bands (1.0–9.0). For example, PTE 50 corresponds to IELTS 6.0, 59 to IELTS 6.5, 66 to IELTS 7.0, and 76 to IELTS 7.5. Universities and visa authorities evaluate candidates against these published concordances.',
   },
   {
     question: 'Does PTE Academic have a passing score?',
@@ -46,21 +46,21 @@ const FAQ = [
   },
 ]
 
-const SCALE_ROWS: Array<{ score: number; cefr: string; meaning: string; use: string }> = [
-  { score: 90, cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
-  { score: 85, cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
-  { score: 84, cefr: 'C1', meaning: 'Advanced', use: 'Competitive courses' },
-  { score: 76, cefr: 'C1', meaning: 'Advanced', use: 'Strong applications, competitive courses' },
-  { score: 75, cefr: 'B2', meaning: 'Upper intermediate', use: 'Top of the B2 band' },
-  { score: 69, cefr: 'B2', meaning: 'Upper intermediate', use: 'Postgraduate and professional programmes' },
-  { score: 63, cefr: 'B2', meaning: 'Upper intermediate', use: 'A common minimum requirement' },
-  { score: 59, cefr: 'B2', meaning: 'Upper intermediate', use: 'Bottom of the B2 band' },
-  { score: 58, cefr: 'B1', meaning: 'Intermediate', use: 'Many UK undergraduate courses' },
-  { score: 50, cefr: 'B1', meaning: 'Intermediate', use: 'The usual UK undergraduate floor' },
-  { score: 43, cefr: 'B1', meaning: 'Intermediate', use: 'Bottom of the B1 band' },
-  { score: 42, cefr: 'A2', meaning: 'Elementary', use: 'Pre-sessional English programmes' },
-  { score: 30, cefr: 'A2', meaning: 'Elementary', use: 'Below most university requirements' },
-  { score: 29, cefr: 'A1', meaning: 'Basic', use: 'Well below the test threshold' },
+const SCALE_ROWS: Array<{ score: number; ielts: string; cefr: string; meaning: string; use: string }> = [
+  { score: 90, ielts: '9.0', cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
+  { score: 85, ielts: '8.5', cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
+  { score: 84, ielts: '8.0', cefr: 'C1', meaning: 'Advanced', use: 'Competitive courses' },
+  { score: 76, ielts: '7.5', cefr: 'C1', meaning: 'Advanced', use: 'Strong applications, competitive courses' },
+  { score: 75, ielts: '7.0', cefr: 'B2', meaning: 'Upper intermediate', use: 'Top of the B2 band' },
+  { score: 69, ielts: '7.0', cefr: 'B2', meaning: 'Upper intermediate', use: 'Postgraduate and professional programmes' },
+  { score: 63, ielts: '6.5', cefr: 'B2', meaning: 'Upper intermediate', use: 'A common minimum requirement' },
+  { score: 59, ielts: '6.5', cefr: 'B2', meaning: 'Upper intermediate', use: 'Bottom of the B2 band' },
+  { score: 58, ielts: '6.0', cefr: 'B1', meaning: 'Intermediate', use: 'Many UK undergraduate courses' },
+  { score: 50, ielts: '6.0', cefr: 'B1', meaning: 'Intermediate', use: 'The usual UK undergraduate floor' },
+  { score: 43, ielts: '5.5', cefr: 'B1', meaning: 'Intermediate', use: 'Bottom of the B1 band' },
+  { score: 42, ielts: '5.0', cefr: 'A2', meaning: 'Elementary', use: 'Pre-sessional English programmes' },
+  { score: 30, ielts: '5.0', cefr: 'A2', meaning: 'Elementary', use: 'Below most university requirements' },
+  { score: 29, ielts: '4.5', cefr: 'A1', meaning: 'Basic', use: 'Well below the test threshold' },
 ]
 
 export default function ScoringGuide() {
@@ -75,18 +75,17 @@ export default function ScoringGuide() {
         description="The PTE Academic is reported on a scaled score from 10 to 90. See how it maps to CEFR bands, common university requirements, and the estimates shown here."
       >
 
-        <SectionHeading className="mt-8 sm:mt-10" eyebrow="The scales" title="The two PTE scales" />
+        <SectionHeading className="mt-8 sm:mt-10" eyebrow="The scale" title="The official 10–90 scale" />
         <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
-          They are the same number written two ways. Pearson reports 10 to 90; many universities quote 60 to 120. To
-          convert, add 50.
+          Pearson reports PTE Academic results exclusively on a scale of 10 to 90, based on the Global Scale of English (GSE). Every score reflects communicative proficiency aligned directly with the Common European Framework of Reference (CEFR).
         </p>
         <Reveal className="mt-5">
           <Tilt glare={false}>
             <div className="card-solid grid gap-4 sm:grid-cols-3 p-6 border-ink-200 dark:border-white/10">
               {[
-                ['10 – 90', 'Pearson’s reported scale', 'Half-point increments', 'mint'],
-                ['60 – 120', 'The same score, shifted', 'What universities publish', 'brand'],
-                ['+ 50', 'The conversion', 'Both directions', 'neutral'],
+                ['10 – 90', 'Pearson’s official scale', 'Granular 1-point increments', 'mint'],
+                ['CEFR A1–C2', 'Directly aligned framework', 'International standard', 'brand'],
+                ['IELTS Concordance', 'Documented equivalence', 'Official Pearson research', 'neutral'],
               ].map(([a, b, c]) => (
                 <div key={a} className="rounded-2xl border border-ink-100 bg-ink-50/50 p-4.5 dark:border-white/5 dark:bg-white/[0.02]">
                   <p className="font-display text-ink-900 dark:text-white text-3xl font-extrabold tabular-nums tracking-tight">{a}</p>
@@ -98,18 +97,17 @@ export default function ScoringGuide() {
           </Tilt>
         </Reveal>
 
-        <SectionHeading className="mt-12 sm:mt-14" eyebrow="Mapping" title="Score and CEFR band" />
+        <SectionHeading className="mt-12 sm:mt-14" eyebrow="Mapping" title="Score, IELTS and CEFR concordance" />
         <p className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
-          These are Pearson's published bands, from the Institution Score Guide and
-          pearsonpte.com: 85–90 is C2, 76–84 is C1, 59–75 is B2, 43–58 is B1, 30–42 is A2, and 10–29 is A1 or below.
+          These are Pearson's published bands from the official Score Guide and concordance research: 85–90 is C2, 76–84 is C1, 59–75 is B2, 43–58 is B1, 30–42 is A2, and 10–29 is A1 or below.
           Pearson publishes bands for the <em>overall</em> score only — there are no public per-skill bands.
         </p>
         <div className="card-solid mt-5 overflow-x-auto p-0 border-ink-200 dark:border-white/10">
           <table className="table-data min-w-lg">
-            <caption className="sr-only">PTE Academic score bands and their CEFR equivalents, from the published 10 to 90 scale</caption>
+            <caption className="sr-only">PTE Academic score bands, published IELTS concordance, and CEFR equivalents</caption>
             <thead>
               <tr className="border-ink-200 dark:border-white/10 border-b">
-                {['Score (10–90)', 'Score (60–120)', 'CEFR', 'Level', 'Typically sufficient for'].map((h) => (
+                {['Score (10–90)', 'IELTS equivalent', 'CEFR', 'Level', 'Typically sufficient for'].map((h) => (
                   <th key={h} scope="col">
                     {h}
                   </th>
@@ -120,7 +118,7 @@ export default function ScoringGuide() {
               {SCALE_ROWS.map((r) => (
                 <tr key={r.score} className="border-ink-100 dark:border-white/6 border-b">
                   <td className="text-ink-900 dark:text-white font-bold tabular-nums">{r.score}</td>
-                  <td className="text-ink-700 dark:text-ink-200 tabular-nums">{r.score + 50}</td>
+                  <td className="text-ink-700 dark:text-ink-200 tabular-nums">{r.ielts}</td>
                   <td>
                     <span className="pill bg-brand-500/12 text-brand-700 dark:text-brand-300">{r.cefr}</span>
                   </td>
@@ -131,6 +129,9 @@ export default function ScoringGuide() {
             </tbody>
           </table>
         </div>
+        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-xs italic">
+          Source: Pearson PTE Academic Concordance with IELTS, Test Taker Score Guide.
+        </p>
 
         <SectionHeading className="mt-12 sm:mt-14" eyebrow="Targets" title="What universities require" />
         <ul className="mt-5 space-y-3">
@@ -198,7 +199,7 @@ export default function ScoringGuide() {
               <caption className="sr-only">How raw accuracy maps to the PTE 10 to 90 scale</caption>
               <thead>
                 <tr className="border-ink-200 dark:border-white/10 border-b">
-                  {['Points earned', 'Score (10–90)', 'Score (60–120)', 'CEFR'].map((h) => (
+                  {['Points earned', 'Score (10–90)', 'CEFR'].map((h) => (
                     <th key={h} scope="col">
                       {h}
                     </th>
@@ -212,7 +213,6 @@ export default function ScoringGuide() {
                     <tr key={f} className="border-ink-100 dark:border-white/6 border-b">
                       <td className="text-ink-700 dark:text-ink-200 tabular-nums">{Math.round(f * 100)}%</td>
                       <td className="text-ink-900 dark:text-white font-bold tabular-nums">{s}</td>
-                      <td className="text-ink-700 dark:text-ink-200 tabular-nums">{s + 50}</td>
                       <td className="text-ink-500 dark:text-ink-on-dark-muted">{toCefr(s)}</td>
                     </tr>
                   )
