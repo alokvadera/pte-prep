@@ -82,12 +82,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // Create new user
   const userId = `usr_${crypto.randomUUID().replace(/-/g, '')}`
-  await db
-    .prepare(
-      'INSERT INTO users (id, email, password_hash, password_salt, target_score) VALUES (?, ?, ?, ?, ?)',
-    )
-    .bind(userId, email, hash, salt, targetScore)
-    .run()
+  try {
+    await db
+      .prepare(
+        'INSERT INTO users (id, email, password_hash, password_salt, target_score) VALUES (?, ?, ?, ?, ?)',
+      )
+      .bind(userId, email, hash, salt, targetScore)
+      .run()
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('UNIQUE') || msg.includes('SQLITE_CONSTRAINT')) {
+      return new Response(
+        JSON.stringify({ error: 'Unable to create account. If you already have an account, please sign in or reset your password.' }),
+        { status: 400, headers: { 'Content-Type': 'application/json' } },
+      )
+    }
+    throw err
+  }
 
   const token = await createSessionToken({ userId, email }, requireSecret(context.env))
 

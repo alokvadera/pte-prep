@@ -32,8 +32,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       headers: newHeaders,
     })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Internal Server Error'
-    return new Response(JSON.stringify({ error: message }), {
+    console.error('Unhandled API error:', err)
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers: {
         'Content-Type': 'application/json',

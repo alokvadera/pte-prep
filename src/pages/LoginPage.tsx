@@ -549,6 +549,7 @@ export default function LoginPage() {
 
 function PasswordChangeForm() {
   const changePassword = useAuth((s) => s.changePassword)
+  const [currentPassword, setCurrentPassword] = useState('')
   const [value, setValue] = useState('')
   const [confirm, setConfirm] = useState('')
   const [busy, setBusy] = useState(false)
@@ -557,6 +558,10 @@ function PasswordChangeForm() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage(null)
+    if (!currentPassword) {
+      setMessage({ kind: 'error', text: 'Current password is required.' })
+      return
+    }
     if (value.length < 8) {
       setMessage({ kind: 'error', text: 'Password must be at least 8 characters.' })
       return
@@ -566,9 +571,10 @@ function PasswordChangeForm() {
       return
     }
     setBusy(true)
-    const result = await changePassword(value)
+    const result = await changePassword(currentPassword, value)
     setBusy(false)
     if (result === true) {
+      setCurrentPassword('')
       setValue('')
       setConfirm('')
       setMessage({ kind: 'ok', text: 'Password changed. Use it next time you sign in.' })
@@ -581,8 +587,18 @@ function PasswordChangeForm() {
     <form onSubmit={submit} className="rounded-md border border-ink-100 bg-ink-50/70 p-4 dark:border-white/8 dark:bg-white/4 space-y-3">
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-xs font-semibold text-ink-700 dark:text-ink-200">Password</span>
-        <span className="text-xs text-ink-500 dark:text-ink-on-dark-muted">Forgot it elsewhere? Reset it here while signed in.</span>
+        <span className="text-xs text-ink-500 dark:text-ink-on-dark-muted">Change your account password.</span>
       </div>
+      <input
+        type="password"
+        autoComplete="current-password"
+        aria-label="Current password"
+        value={currentPassword}
+        onChange={(e) => setCurrentPassword(e.target.value)}
+        placeholder="Current password"
+        required
+        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
+      />
       <input
         type="password"
         autoComplete="new-password"

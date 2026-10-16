@@ -94,16 +94,16 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   const origin = context.env.SITE_ORIGIN || new URL(context.request.url).origin
   const resetLink = `${origin}/reset-password?token=${rawToken}`
 
-    // Brevo configuration
+  // Brevo configuration
   const brevoKey = context.env.BREVO_API_KEY
-  const senderEmail = context.env.BREVO_SENDER_EMAIL || 'alokvadera123@gmail.com'
+  const senderEmail = context.env.BREVO_SENDER_EMAIL
   const senderName = context.env.BREVO_SENDER_NAME || 'PTE Prep'
 
   const escHtml = (s: string): string => {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
   }
 
-  if (brevoKey) {
+  if (brevoKey && senderEmail) {
     const htmlContent = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 32px 20px; color: #18181b;">
         <div style="margin-bottom: 24px;">
@@ -145,8 +145,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     if (!sendRes.ok) {
       console.warn('Failed to send reset email via Brevo:', sendRes.error)
     }
-  } else {
+  } else if (!brevoKey) {
     console.warn('BREVO_API_KEY is not configured in environment.')
+  } else {
+    console.warn('BREVO_SENDER_EMAIL is not configured in environment.')
   }
 
   return genericSuccess

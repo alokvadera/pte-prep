@@ -20,9 +20,9 @@ interface AuthStore {
   logout: () => void
   setTargetScore: (score: number) => Promise<void>
   setSession: (user: User, token: string, expiresAt?: number) => void
-  /** Session-authenticated reset for users who forgot the password on a
-      signed-in device. Returns true on success, else an error message. */
-  changePassword: (newPassword: string) => Promise<true | string>
+  /** Session-authenticated password change. Requires current password to prevent
+      takeover via stolen tokens. Returns true on success, else an error message. */
+  changePassword: (currentPassword: string, newPassword: string) => Promise<true | string>
   checkSession: () => Promise<void>
   clearError: () => void
 }
@@ -164,10 +164,11 @@ export const useAuth = create<AuthStore>()(
         })
       },
 
-      changePassword: async (newPassword: string) => {
+      changePassword: async (currentPassword: string, newPassword: string) => {
         const { token } = get()
         if (!token) return 'You are not signed in.'
-        if (newPassword.length < 6) return 'Password must be at least 6 characters long.'
+        if (!currentPassword) return 'Current password is required.'
+        if (newPassword.length < 8) return 'Password must be at least 8 characters.'
         try {
           const res = await fetch('/api/auth/me', {
             method: 'PATCH',
@@ -175,7 +176,7 @@ export const useAuth = create<AuthStore>()(
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ newPassword }),
+            body: JSON.stringify({ currentPassword, newPassword }),
           })
           if (!res.ok) {
             const data = (await res.json().catch(() => null)) as { error?: string } | null

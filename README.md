@@ -17,7 +17,7 @@ folder of static files, so any free hosting tier covers it indefinitely.
 
 | Need | How it is met | Cost |
 | --- | --- | --- |
-| Hosting | Static files on Cloudflare Pages / Netlify / Vercel / GitHub Pages | $0 |
+| Hosting | Cloudflare Pages (static assets + Pages Functions + D1) | $0 |
 | Audio | Browser speech synthesiser (local on macOS, Windows, iOS, Android) | $0 |
 | Practice material | Original passages, lectures and charts written for this site | $0 |
 | Storage | IndexedDB in the visitor's browser | $0 |
@@ -55,24 +55,17 @@ relative URLs and the running site resolves them against its own origin.
 
 ## Deploying
 
-The build command is `npm run build` and the publish directory is `dist` for
-every one of these.
+The build command is `npm run build` and the publish directory is `dist`.
 
-**Cloudflare Pages** — `public/_headers` and `public/_redirects` are already
-configured. Set `SITE_ORIGIN` in the Pages environment variables.
+**Cloudflare Pages (recommended)** — Full-stack deployment with static assets,
+edge Pages Functions, and D1 database. `public/_headers` and `public/_redirects`
+are already configured. Set `SITE_ORIGIN` and `JWT_SECRET` in the Pages environment variables.
 
-**Netlify** — `netlify.toml` is already configured. Set `SITE_ORIGIN` in the
-environment.
-
-**Vercel** — `vercel.json` is already configured. Set `SITE_ORIGIN` in the
-project environment.
-
-**GitHub Pages** — `.github/workflows/deploy.yml` builds and publishes on every
-push to `main`. Optionally set a `SITE_ORIGIN` repository variable for a custom
-domain. Without it, the workflow deploys to `https://<owner>.github.io/<repo>/`
-and sets `BASE_PATH=/<repo>/` automatically so assets, links, the router and
-the PWA manifest keep working under the sub-path (override with a `BASE_PATH`
-repository variable if needed).
+**GitHub Pages (static only)** — `.github/workflows/deploy.yml` builds and publishes
+static assets on every push to `main` (runs client-side only without cloud sync or accounts).
+Optionally set a `SITE_ORIGIN` repository variable for a custom domain. Without it,
+the workflow deploys to `https://<owner>.github.io/<repo>/` and sets `BASE_PATH=/<repo>/`
+automatically.
 
 ### Cloud sync secret (required)
 

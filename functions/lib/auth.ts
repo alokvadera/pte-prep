@@ -157,7 +157,12 @@ export async function verifyPassword(password: string, hash: string, salt: strin
     )
 
     const computedHash = base64UrlEncode(new Uint8Array(derivedBits))
-    return computedHash === hash
+    if (computedHash.length !== hash.length) return false
+    let diff = 0
+    for (let i = 0; i < computedHash.length; i++) {
+      diff |= computedHash.charCodeAt(i) ^ hash.charCodeAt(i)
+    }
+    return diff === 0
   } catch {
     return false
   }
