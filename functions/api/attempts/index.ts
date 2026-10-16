@@ -307,3 +307,45 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     headers: { 'Content-Type': 'application/json' },
   })
 }
+
+/**
+ * Delete every attempt belonging to the signed-in account.
+ *
+ * Clearing history used to be sent as one DELETE per attempt, which for a long
+ * history meant hundreds of sequential round trips. It also could not finish:
+ * the list endpoint returns only the newest 100 rows, so attempts the client
+ * could not see were never deleted and were pulled back down by a later sync.
+ * One statement removes all of them, whatever the history length.
+ */
+export const onRequestDelete: PagesFunction<Env> = async (context) => {
+  const token = extractBearerToken(context.request)
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const session = await verifySessionToken(token, requireSecret(context.env), db)
+  if (!session) {
+    return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const res = await db.prepare('DELETE FROM attempts WHERE user_id = ?').bind(session.userId).run()
+
+  return new Response(JSON.stringify({ ok: true, deleted: res.meta?.changes ?? 0 }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' },
+  })
+}

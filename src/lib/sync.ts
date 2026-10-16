@@ -47,6 +47,30 @@ async function unmarkDeleted(id: string): Promise<void> {
   })
 }
 
+/**
+ * Adds many ids to the tombstone set in one read and one write.
+ * Marking them one at a time re-read and re-wrote the whole growing array on
+ * every call, which is quadratic in the length of the history being cleared.
+ */
+async function markAllDeleted(ids: string[]): Promise<void> {
+  if (ids.length === 0) return
+  return serializeTombstone(async () => {
+    const set = await getDeletedIds()
+    for (const id of ids) set.add(id)
+    await writeKv(DELETED_IDS_KEY, Array.from(set))
+  })
+}
+
+/** Removes many ids from the tombstone set in one read and one write. */
+async function unmarkAllDeleted(ids: string[]): Promise<void> {
+  if (ids.length === 0) return
+  return serializeTombstone(async () => {
+    const set = await getDeletedIds()
+    for (const id of ids) set.delete(id)
+    await writeKv(DELETED_IDS_KEY, Array.from(set))
+  })
+}
+
 export async function syncAttemptToCloud(attempt: AttemptRecord): Promise<boolean> {
   const token = useAuth.getState().token
   if (!token) return false
@@ -133,26 +157,32 @@ export async function deleteAttemptEverywhere(id: string): Promise<boolean> {
  */
 export async function clearAllAttemptsEverywhere(): Promise<void> {
   const token = useAuth.getState().token
+  const localIds = (await listAllAttempts()).map((a) => a.id)
 
-  const ids = new Set((await listAllAttempts()).map((a) => a.id))
+  // Tombstone the whole local set first, in a single write. If the request
+  // below fails or the page closes mid-way, the tombstones replay on the next
+  // sync instead of the cloud pushing the rows back down.
+  await markAllDeleted(localIds)
 
   if (token) {
     try {
+      // One request for the entire cloud history. Deleting per id could not
+      // reach past the newest 100 rows, so a longer history left older attempts
+      // behind to be re-downloaded later.
       const res = await fetch('/api/attempts', {
+        method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })
       if (res.ok) {
-        const data = (await res.json()) as { attempts?: AttemptRecord[] }
-        for (const a of data.attempts ?? []) ids.add(a.id)
+        // The cloud has nothing left, so the tombstones have nothing to replay
+        // and would only accumulate.
+        await unmarkAllDeleted(localIds)
       }
     } catch {
-      /* offline: the local tombstones still replay on the next sync */
+      /* offline: the tombstones replay on the next sync */
     }
   }
 
-  for (const id of ids) {
-    await deleteAttemptEverywhere(id)
-  }
   await clearAttempts()
 }
 
