@@ -100,8 +100,12 @@ export function paceWarnings(rows: PaceRow[], limit = 3): PaceRow[] {
 
 /** Compact duration for the report, e.g. "1m 20s". */
 export function formatSeconds(seconds: number): string {
-  const m = Math.floor(seconds / 60)
-  const s = Math.round(seconds % 60)
+  let m = Math.floor(seconds / 60)
+  let s = Math.round(seconds % 60)
+  if (s === 60) {
+    m += 1
+    s = 0
+  }
   if (m === 0) return `${s}s`
   return s === 0 ? `${m}m` : `${m}m ${s}s`
 }

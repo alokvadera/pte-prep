@@ -93,7 +93,7 @@ const SCORING_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'How is the overall PTE score calculated?',
     answer:
-      'Every item is scored and the result is combined across the four communicative skills — Speaking, Writing, Reading and Listening — into a scaled score from 10 to 90 in half-point increments. Reading and Listening are scored exactly. Speaking and Writing are scored on content, form, oral fluency, pronunciation and range.',
+      'Every item is scored and the result is combined across the four communicative skills — Speaking, Writing, Reading and Listening — into a scaled score from 10 to 90 in 1-point increments. Reading and Listening are scored exactly. Speaking and Writing are scored on content, form, oral fluency, pronunciation and range.',
   },
   {
     question: 'How long is a PTE score valid?',
@@ -307,9 +307,9 @@ export const PAGE_META: Record<string, PageMeta> = {
           'Interpret an official PTE 10-90 score, compare with IELTS concordance bands, and match it to a CEFR level and university requirements.',
         steps: [
           { name: 'Read the 10-90 score', text: 'Pearson reports a scaled score from 10 to 90 based on the Global Scale of English. Higher is better and the scale has no fixed pass mark.' },
-          { name: 'Compare with IELTS bands', text: 'Use Pearson’s published concordance: 50 is IELTS 6.0, 59–65 is IELTS 6.5, 66–75 is IELTS 7.0, and 76–83 is IELTS 7.5.' },
+          { name: 'Compare with IELTS bands', text: 'Use Pearson’s published concordance: 47–54 is IELTS 6.0, 55–62 is IELTS 6.5, 63–70 is IELTS 7.0, and 71–78 is IELTS 7.5.' },
           { name: 'Match it to a CEFR level', text: 'Scores from 43 to 58 correspond to B1, 59 to 75 to B2, 76 to 84 to C1, and 85 to 90 to C2.' },
-          { name: 'Check university requirements', text: 'Most UK undergraduate courses ask for 50 to 58 (IELTS 6.0). Taught postgraduate programmes commonly require 59 to 65 (IELTS 6.5) or 66 to 75 (IELTS 7.0).' },
+          { name: 'Check university requirements', text: 'Most UK undergraduate courses ask for 50 to 58 (IELTS 6.0–6.5). Taught postgraduate programmes commonly require 59 to 65 (IELTS 6.5–7.0) or 66 to 75 (IELTS 7.0–7.5).' },
         ],
       }),
       faqLd(SCORING_FAQ),

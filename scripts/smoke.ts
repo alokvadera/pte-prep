@@ -2,7 +2,7 @@
 // exercises every scoring path. Run with: npx tsx scripts/smoke.ts
 import { buildDrillMock, buildFullMock, buildSectionMock } from '../src/domain/assemble'
 import { ALL_QUESTION_TYPES, MOCK_BLUEPRINT, NEGATIVE_MARKING_TYPES, QUESTION_META } from '../src/domain/blueprint'
-import { buildReport, formBand, rawToPteScale, scoreItem, toCefr } from '../src/domain/scoring'
+import { buildReport, formBand, pteToIelts, rawToPteScale, scoreItem, toCefr } from '../src/domain/scoring'
 import { BANK, bankCapacity, capacityByType } from '../src/content/bank'
 import { formatSeconds, paceReport, paceWarnings } from '../src/domain/pace'
 import { keyTermCoverage } from '../src/lib/text'
@@ -396,6 +396,22 @@ console.log(`  perfect typed run → overall ${perfect.overall}, CEFR ${perfect.
 check('a perfect typed run, with no microphone, lands in the B2 range', perfect.overall >= 68, String(perfect.overall))
 check('a perfect typed run reaches B2 or above', ['B2', 'C1', 'C2'].includes(perfect.cefr), perfect.cefr)
 check('legacy overall60 tracks the 10-90 score', perfect.overall60 === perfect.overall + 50)
+check('IELTS concordance: below threshold 23 is null', pteToIelts(23) === null)
+check('IELTS concordance: band 4.5 lower bound 24', pteToIelts(24) === '4.5')
+check('IELTS concordance: band 4.5 upper bound 30', pteToIelts(30) === '4.5')
+check('IELTS concordance: band 5.0 lower bound 31', pteToIelts(31) === '5.0')
+check('IELTS concordance: band 6.5 lower bound 55', pteToIelts(55) === '6.5')
+check('IELTS concordance: band 6.5 intermediate 58', pteToIelts(58) === '6.5')
+check('IELTS concordance: band 7.0 lower bound 63', pteToIelts(63) === '7.0')
+check('IELTS concordance: band 7.0 upper bound 70', pteToIelts(70) === '7.0')
+check('IELTS concordance: band 7.5 lower bound 71', pteToIelts(71) === '7.5')
+check('IELTS concordance: band 8.0 lower bound 79', pteToIelts(79) === '8.0')
+check('IELTS concordance: band 8.0 upper bound 85', pteToIelts(85) === '8.0')
+check('IELTS concordance: band 8.5 lower bound 86', pteToIelts(86) === '8.5')
+check('IELTS concordance: band 9.0 ceiling 90', pteToIelts(90) === '9.0')
+check('formatSeconds handles 119.6s without printing 60s', formatSeconds(119.6) === '2m')
+check('formatSeconds handles 59.6s without printing 60s', formatSeconds(59.6) === '1m')
+check('formatSeconds formats 90s correctly', formatSeconds(90) === '1m 30s')
 check('all four skills are reported', Object.keys(perfect.skills).length === 4, Object.keys(perfect.skills).join(','))
 const objectiveKinds = new Set(['choice', 'multi-choice', 'blanks', 'order', 'highlight'])
 const objectiveDetails = perfect.details.filter((d) => objectiveKinds.has(scored.find((i) => i.id === d.itemId)!.responseKind))

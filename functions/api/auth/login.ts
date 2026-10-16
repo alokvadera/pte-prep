@@ -36,7 +36,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  // Rate limit: 30 attempts per 10m per IP, 5 attempts per 5m per email
+  // Rate limit: 30 attempts per 10m per IP, 5 attempts per 5m per IP+email
   const clientIp = getClientIp(context.request)
   const ipCheck = await checkRateLimit(db, `login:ip:${clientIp}`, 30, 600)
   if (!ipCheck.allowed) {

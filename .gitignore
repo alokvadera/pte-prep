@@ -8,8 +8,8 @@ dist-ssr
 !.env.example
 *.tsbuildinfo
 .screenshots
-design-lab/contrast-render
-design-lab/motion-review
+design-lab/
+scratch_coco.css
 .agents
 .claude
 agent

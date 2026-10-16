@@ -258,9 +258,9 @@ for carrying four competing gradient devices at once.
 
 ## Verification
 
-- `node scripts/contrast.mjs` — 71 documented token pairs at WCAG 1.4.3 / 1.4.11.
+- `node scripts/contrast.mjs` — 75 documented token pairs at WCAG 1.4.3 / 1.4.11.
 - `node scripts/contrast-render.mjs` — walks the rendered DOM, composites translucent surfaces, fails any text node under its threshold.
-- `node scripts/smoke.ts` — 111 assertions from the Pearson Score Guide.
+- `node scripts/smoke.ts` — 146 assertions from the Pearson Score Guide.
 - `node scripts/browser-check.mjs` — hydration, metadata, and a full mock in headless Chrome.
 
 STRIDE RULE — NEVER BREAK THIS

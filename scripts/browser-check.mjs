@@ -697,6 +697,7 @@ report(
   const summary = JSON.parse(
     await evaluate(`JSON.stringify({
       hasScore: /10 to 90/.test(document.body.textContent ?? ''),
+      hasNoLegacyScale: !/TOEFL|60[–-]120/i.test(document.body.textContent ?? ''),
       hasSkills:
         ['speaking', 'writing', 'reading', 'listening'].every((s) =>
           new RegExp(s, 'i').test(document.body.textContent ?? ''),
@@ -708,6 +709,7 @@ report(
   )
 
   report(summary.hasScore, 'the results page states the official 10 to 90 scale')
+  report(summary.hasNoLegacyScale, 'the results page does not show a 60-120 or TOEFL equivalent')
   report(summary.hasSkills, 'the results page reports the four skills')
   report(summary.hasTabs, 'the results page offers its breakdown tabs')
   report(summary.hasEstimateNote, 'the results page labels estimates')
@@ -870,6 +872,11 @@ report(
     (await evaluate('getComputedStyle(document.body).backgroundColor')) === LIGHT_BG,
     'the toggle switches back to the light ground',
     await evaluate('getComputedStyle(document.body).backgroundColor'),
+  )
+  report(
+    hexToRgbStr(await evaluate("document.querySelector('meta[name=theme-color]').content")) === LIGHT_BG,
+    'the browser chrome follows the light theme',
+    await evaluate("document.querySelector('meta[name=theme-color]').content"),
   )
 
   // The dashboard control must expose the same two options as the header.

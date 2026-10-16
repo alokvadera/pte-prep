@@ -905,9 +905,7 @@ export function buildReport(
     stat.seconds += responses[item.id]?.secondsOnItem ?? 0
     if (detail.status === 'correct') stat.correct += 1
     else if (detail.status === 'partial') stat.partial += 1
-    else if (detail.status === 'unanswered') {
-      /* counted as incorrect for the totals, tracked separately */
-    } else stat.incorrect += 1
+    else stat.incorrect += 1
     breakdown[item.type] = stat
   }
 
@@ -964,6 +962,25 @@ export function nextBand(band: string): { min: number; band: string } | null {
 export const CEFR_BANDS: ReadonlyArray<{ min: number; band: string; label: string }> = [
   ...BANDS,
 ]
+
+/** Official PTE Academic ↔ IELTS concordance, Pearson July 2025. */
+export const IELTS_CONCORDANCE: ReadonlyArray<{ band: string; min: number; max: number }> = [
+  { band: '9.0', min: 90, max: 90 },
+  { band: '8.5', min: 86, max: 89 },
+  { band: '8.0', min: 79, max: 85 },
+  { band: '7.5', min: 71, max: 78 },
+  { band: '7.0', min: 63, max: 70 },
+  { band: '6.5', min: 55, max: 62 },
+  { band: '6.0', min: 47, max: 54 },
+  { band: '5.5', min: 39, max: 46 },
+  { band: '5.0', min: 31, max: 38 },
+  { band: '4.5', min: 24, max: 30 },
+]
+
+export function pteToIelts(score: number): string | null {
+  const row = IELTS_CONCORDANCE.find((r) => score >= r.min && score <= r.max)
+  return row ? row.band : null
+}
 
 function bandIndex(band: string): number {
   return BANDS.findIndex((b) => b.band === band)

@@ -33,8 +33,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  if (!password || password.length < 6) {
-    return new Response(JSON.stringify({ error: 'Password must be at least 6 characters long.' }), {
+  if (!password || password.length < 8) {
+    return new Response(JSON.stringify({ error: 'Password must be at least 8 characters.' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })

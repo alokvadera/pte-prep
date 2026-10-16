@@ -92,11 +92,9 @@ export default function App() {
     // theme to fall back on, this is the only signal the address bar gets.
     //
     // Read the value off the rendered element rather than hardcoding it. This
-    // had drifted three ways: the inline script in index.html set #0d1117, this
-    // effect set #171b20, and the actual dark ground is --color-ink-900. Any of
-    // them being wrong paints an address bar that does not match the page, and
-    // the value changes whenever the palette does. Reading it means the theme
-    // colour is correct by construction.
+    // The theme-color meta tag paints the mobile address bar and browser chrome.
+    // Reading computed body backgroundColor ensures the theme colour is correct
+    // by construction in both light (#fff8ec) and dark (#10111e) modes.
     //
     // Emitted as hex rather than `rgb()`: the computed value is serialised as
     // `rgb(r, g, b)`, which is a valid theme-color, but hex is what the
@@ -109,11 +107,13 @@ export default function App() {
       const asHex = computed.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)/)
       meta.setAttribute(
         'content',
-        dark && asHex
+        asHex
           ? `#${[asHex[1], asHex[2], asHex[3]]
               .map((c) => Number(c).toString(16).padStart(2, '0'))
               .join('')}`
-          : '#ffffff',
+          : dark
+            ? '#10111e'
+            : '#fff8ec',
       )
     }
 

@@ -342,7 +342,7 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
 
           {lastDurationMs !== null && lastDurationMs > 0 && lastDurationMs <= 500 ? (
             <p className="text-amber-600 dark:text-amber-300 mt-3 text-xs" role="status">
-              That take was under half a second, so it scores as unanswered. Record a longer take or type your
+              That take was under half a second, so it will not be scored. Record a longer take or type your
               answer below so content can still be scored.
             </p>
           ) : null}

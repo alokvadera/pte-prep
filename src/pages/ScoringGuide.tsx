@@ -1,4 +1,4 @@
-import { ADMISSION_TARGETS, rawToPteScale, toCefr } from '../domain/scoring'
+import { ADMISSION_TARGETS, pteToIelts, rawToPteScale, toCefr } from '../domain/scoring'
 import { Seo } from '../seo/Seo'
 import {
   Accordion,
@@ -32,7 +32,7 @@ const FAQ = [
   {
     question: 'How is the overall PTE score calculated?',
     answer:
-      'Every item is scored and the result is combined across the four communicative skills — Speaking, Writing, Reading and Listening — into a scaled score from 10 to 90 in half-point increments. Reading and Listening are scored exactly. Speaking and Writing are scored on content, form, oral fluency, pronunciation and range.',
+      'Every item is scored and the result is combined across the four communicative skills — Speaking, Writing, Reading and Listening — into a scaled score from 10 to 90 in 1-point increments. Reading and Listening are scored exactly. Speaking and Writing are scored on content, form, oral fluency, pronunciation and range.',
   },
   {
     question: 'How long is a PTE score valid?',
@@ -46,21 +46,21 @@ const FAQ = [
   },
 ]
 
-const SCALE_ROWS: Array<{ score: number; ielts: string; cefr: string; meaning: string; use: string }> = [
-  { score: 90, ielts: '9.0', cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
-  { score: 85, ielts: '8.5', cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
-  { score: 84, ielts: '8.0', cefr: 'C1', meaning: 'Advanced', use: 'Competitive courses' },
-  { score: 76, ielts: '7.5', cefr: 'C1', meaning: 'Advanced', use: 'Strong applications, competitive courses' },
-  { score: 75, ielts: '7.0', cefr: 'B2', meaning: 'Upper intermediate', use: 'Top of the B2 band' },
-  { score: 69, ielts: '7.0', cefr: 'B2', meaning: 'Upper intermediate', use: 'Postgraduate and professional programmes' },
-  { score: 63, ielts: '6.5', cefr: 'B2', meaning: 'Upper intermediate', use: 'A common minimum requirement' },
-  { score: 59, ielts: '6.5', cefr: 'B2', meaning: 'Upper intermediate', use: 'Bottom of the B2 band' },
-  { score: 58, ielts: '6.0', cefr: 'B1', meaning: 'Intermediate', use: 'Many UK undergraduate courses' },
-  { score: 50, ielts: '6.0', cefr: 'B1', meaning: 'Intermediate', use: 'The usual UK undergraduate floor' },
-  { score: 43, ielts: '5.5', cefr: 'B1', meaning: 'Intermediate', use: 'Bottom of the B1 band' },
-  { score: 42, ielts: '5.0', cefr: 'A2', meaning: 'Elementary', use: 'Pre-sessional English programmes' },
-  { score: 30, ielts: '5.0', cefr: 'A2', meaning: 'Elementary', use: 'Below most university requirements' },
-  { score: 29, ielts: '4.5', cefr: 'A1', meaning: 'Basic', use: 'Well below the test threshold' },
+const SCALE_ROWS: Array<{ score: number; cefr: string; meaning: string; use: string }> = [
+  { score: 90, cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
+  { score: 85, cefr: 'C2', meaning: 'Exceptional', use: 'Above every university requirement' },
+  { score: 84, cefr: 'C1', meaning: 'Advanced', use: 'Competitive courses' },
+  { score: 76, cefr: 'C1', meaning: 'Advanced', use: 'Strong applications, competitive courses' },
+  { score: 75, cefr: 'B2', meaning: 'Upper intermediate', use: 'Top of the B2 band' },
+  { score: 69, cefr: 'B2', meaning: 'Upper intermediate', use: 'Postgraduate and professional programmes' },
+  { score: 63, cefr: 'B2', meaning: 'Upper intermediate', use: 'A common minimum requirement' },
+  { score: 59, cefr: 'B2', meaning: 'Upper intermediate', use: 'Bottom of the B2 band' },
+  { score: 58, cefr: 'B1', meaning: 'Intermediate', use: 'Many UK undergraduate courses' },
+  { score: 50, cefr: 'B1', meaning: 'Intermediate', use: 'The usual UK undergraduate floor' },
+  { score: 43, cefr: 'B1', meaning: 'Intermediate', use: 'Bottom of the B1 band' },
+  { score: 42, cefr: 'A2', meaning: 'Elementary', use: 'Pre-sessional English programmes' },
+  { score: 30, cefr: 'A2', meaning: 'Elementary', use: 'Below most university requirements' },
+  { score: 29, cefr: 'A1', meaning: 'Basic', use: 'Well below the test threshold' },
 ]
 
 export default function ScoringGuide() {
@@ -118,7 +118,7 @@ export default function ScoringGuide() {
               {SCALE_ROWS.map((r) => (
                 <tr key={r.score} className="border-ink-100 dark:border-white/6 border-b">
                   <td className="text-ink-900 dark:text-white font-bold tabular-nums">{r.score}</td>
-                  <td className="text-ink-700 dark:text-ink-200 tabular-nums">{r.ielts}</td>
+                  <td className="text-ink-700 dark:text-ink-200 tabular-nums">{pteToIelts(r.score) ?? '≤4.0'}</td>
                   <td>
                     <span className="pill bg-brand-500/12 text-brand-700 dark:text-brand-300">{r.cefr}</span>
                   </td>
@@ -130,7 +130,7 @@ export default function ScoringGuide() {
           </table>
         </div>
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-xs italic">
-          Source: Pearson PTE Academic Concordance with IELTS, Test Taker Score Guide.
+          Source: Pearson, “Establishing score concordance between the enhanced PTE Academic and IELTS Academic” (July 2025), summarised in the PTE Academic Score Guide.
         </p>
 
         <SectionHeading className="mt-12 sm:mt-14" eyebrow="Targets" title="What universities require" />

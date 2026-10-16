@@ -209,13 +209,13 @@ blurs and no gradients, and a surface is square because a form is square. The
 palette is paper white, a graphite ink, and exactly one colour that means
 something: vermilion, for a lost point, attention and the focus ring. Type has
 three voices, all self-hosted so there is no third-party request and the app works
-offline: Instrument Sans for everything structural, Instrument Serif only for
-measured figures set large, IBM Plex Mono only for machine values. There are no
+offline: Nunito for interface and body text, Baloo 2 for
+display headings and measured figures set large, IBM Plex Mono only for machine values. There are no
 all-caps tracked labels, and the interface speaks plain English: the progress page
 is called Progress, not Telemetry.
 
 Accessibility is part of the design rather than a pass over it: `scripts/contrast.mjs`
-audits 71 token pairs and is part of `npm run verify`, `scripts/contrast-render.mjs`
+audits 75 token pairs and is part of `npm run verify`, `scripts/contrast-render.mjs`
 audits what actually renders, and the design research that motivated the work is in
 `docs/DESIGN_RESEARCH.md`. The earlier directions are archived in
 `docs/design/Calibrated-Silence.md` and its companion plate.
@@ -234,7 +234,7 @@ npx shadcn@latest add @aceternity/spotlight
 # or ask the agent: "install the Aceternity aurora background"
 ```
 
-Registry components import `cn` from `@/lib/utils` (provided) and
+Registry components import `cn` from `@/lib/cn` (provided) and
 animate with `motion/react` — `motion`, `lucide-react`, `clsx` and
 `tailwind-merge` are installed as prerequisites.
 
@@ -280,7 +280,7 @@ scripts/
   gen-assets.mjs     PNG icons and the Open Graph image
   render-plates.mjs  Renders the design plate from the philosophy
   contrast.mjs       WCAG 1.4.3 audit of the palette
-  smoke.ts           Engine test: 111 assertions, 33 from the Score Guide
+  smoke.ts           Engine test: 146 assertions, 46 from the Score Guide
   browser-check.mjs  Headless Chrome: hydration, SEO, and a full test run
   serve.mjs          Host-accurate static server for local verification
 components.json    shadcn config with the @aceternity registry
@@ -299,9 +299,9 @@ npm run test:browser   # needs a Chrome binary and a running `npm run serve`
 ```
 
 `scripts/smoke.ts` checks the content bank, mock assembly, every scoring path,
-and 33 assertions transcribed from the Score Guide itself — the adjacent-pair rule
+and 46 assertions transcribed from the Score Guide itself — the adjacent-pair rule
 for Re-order Paragraphs, the −1 deductions, the zero gates, the Form bands and the
-CEFR boundaries. `scripts/contrast.mjs` audits 25 colour pairs against WCAG
+CEFR boundaries. `scripts/contrast.mjs` audits 75 colour pairs against WCAG
 1.4.3. `scripts/browser-check.mjs` drives headless Chrome through every route,
 sits a full mock end to end, and fails on hydration mismatches, console errors
 or missing metadata.

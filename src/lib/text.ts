@@ -72,53 +72,6 @@ export function softF1(candidate: string, referenceTerms: readonly string[]): nu
   const lengthFit = Math.min(1, cand.size / ref.size)
   return recall + lengthFit === 0 ? 0 : (2 * recall * lengthFit) / (recall + lengthFit)
 }
-/** Sørensen–Dice bigram similarity, 0..1. */
-export function diceCoefficient(a: string, b: string): number {
-  const normA = a.toLowerCase().replace(/\s+/g, ' ').trim()
-  const normB = b.toLowerCase().replace(/\s+/g, ' ').trim()
-  if (!normA.length || !normB.length) return 0
-  if (normA === normB) return 1
-
-  const bigrams = new Map<string, number>()
-  for (let i = 0; i < normA.length - 1; i++) {
-    const g = normA.slice(i, i + 2)
-    bigrams.set(g, (bigrams.get(g) ?? 0) + 1)
-  }
-
-  let matches = 0
-  for (let i = 0; i < normB.length - 1; i++) {
-    const g = normB.slice(i, i + 2)
-    const count = bigrams.get(g) ?? 0
-    if (count > 0) {
-      bigrams.set(g, count - 1)
-      matches += 1
-    }
-  }
-
-  const denom = (normA.length - 1) + (normB.length - 1)
-  if (denom <= 0) {
-    return normA === normB ? 1 : 0
-  }
-  return (2 * matches) / denom
-}
-
-/** Token-level F1 of content words — used to score spoken/written summaries.
- *  Both sides are filtered identically, so a candidate that reproduces the
- *  reference exactly scores 1. */
-export function contentF1(candidate: string, referenceTerms: readonly string[]): number {
-  if (referenceTerms.length === 0) return 0
-  const cand = new Set(contentWords(candidate))
-  if (cand.size === 0) return 0
-  const ref = contentTermSet(referenceTerms)
-  if (ref.size === 0) return 0
-
-  let hits = 0
-  for (const w of ref) if (cand.has(w)) hits += 1
-
-  const precision = hits / cand.size
-  const recall = hits / ref.size
-  return precision + recall === 0 ? 0 : (2 * precision * recall) / (precision + recall)
-}
 
 /** Proportion of reference key terms present in the candidate. */
 export function keyTermCoverage(candidate: string, referenceTerms: readonly string[]): number {
@@ -131,35 +84,6 @@ export function keyTermCoverage(candidate: string, referenceTerms: readonly stri
   return hits / ref.size
 }
 
-const CONTRACTIONS: Array<[RegExp, string]> = [
-  [/\bit's\b/gi, 'it is'],
-  [/\bthat's\b/gi, 'that is'],
-  [/\bthere's\b/gi, 'there is'],
-  [/\bhe's\b/gi, 'he is'],
-  [/\bshe's\b/gi, 'she is'],
-  [/\bwhat's\b/gi, 'what is'],
-  [/\bdon't\b/gi, 'do not'],
-  [/\bdoesn't\b/gi, 'does not'],
-  [/\bdidn't\b/gi, 'did not'],
-  [/\bcan't\b/gi, 'can not'],
-  [/\bwon't\b/gi, 'will not'],
-  [/\bisn't\b/gi, 'is not'],
-  [/\baren't\b/gi, 'are not'],
-  [/\bwasn't\b/gi, 'was not'],
-  [/\bweren't\b/gi, 'were not'],
-  [/\bhaven't\b/gi, 'have not'],
-  [/\bhasn't\b/gi, 'has not'],
-  [/\bcouldn't\b/gi, 'could not'],
-  [/\bshouldn't\b/gi, 'should not'],
-  [/\bwouldn't\b/gi, 'would not'],
-  [/\bi'm\b/gi, 'i am'],
-  [/\bwe're\b/gi, 'we are'],
-  [/\bthey're\b/gi, 'they are'],
-  [/\bthey've\b/gi, 'they have'],
-  [/\bwe've\b/gi, 'we have'],
-  [/\bi've\b/gi, 'i have'],
-  [/\bit'll\b/gi, 'it will'],
-]
 
 /** Levenshtein distance with a cheap length guard. */
 export function levenshtein(a: string, b: string): number {
@@ -188,17 +112,6 @@ export function levenshtein(a: string, b: string): number {
   return prev[n] as number
 }
 
-export function wordErrorRate(candidate: string, reference: string): number {
-  const expand = (t: string) => CONTRACTIONS.reduce((acc, [re, to]) => acc.replace(re, to), t)
-  const norm = (t: string) =>
-    words(expand(t))
-      .map(normalizeWord)
-      .join(' ')
-  const a = norm(candidate)
-  const b = norm(reference)
-  if (!b) return 1
-  return Math.min(1, levenshtein(a, b) / Math.max(1, b.split(' ').length))
-}
 
 const CONNECTIVE_WORDS = new Set(
   [

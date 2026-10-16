@@ -99,8 +99,8 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
   // they are still signed in. There is no email infrastructure for a
   // logged-out reset, so that case stays impossible by design.
   if (typeof body.newPassword === 'string') {
-    if (body.newPassword.length < 6) {
-      return new Response(JSON.stringify({ error: 'Password must be at least 6 characters long.' }), {
+    if (body.newPassword.length < 8) {
+      return new Response(JSON.stringify({ error: 'Password must be at least 8 characters.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       })

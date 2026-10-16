@@ -136,8 +136,8 @@ export default function LoginPage() {
     }
 
     if (mode === 'register') {
-      if (password.length < 6) {
-        setClientError('Password must be at least 6 characters long.')
+      if (password.length < 8) {
+        setClientError('Password must be at least 8 characters.')
         return
       }
       if (password !== confirmPassword) {
@@ -342,7 +342,8 @@ export default function LoginPage() {
                     autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 6 characters"
+                    placeholder={mode === 'register' ? 'At least 8 characters' : 'Enter your password'}
+                    minLength={mode === 'register' ? 8 : undefined}
                     className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
                   />
                   {mode === 'login' && (
@@ -556,8 +557,8 @@ function PasswordChangeForm() {
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     setMessage(null)
-    if (value.length < 6) {
-      setMessage({ kind: 'error', text: 'Password must be at least 6 characters long.' })
+    if (value.length < 8) {
+      setMessage({ kind: 'error', text: 'Password must be at least 8 characters.' })
       return
     }
     if (value !== confirm) {
@@ -588,7 +589,8 @@ function PasswordChangeForm() {
         aria-label="New password"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        placeholder="New password, at least 6 characters"
+        placeholder="New password, at least 8 characters"
+        minLength={8}
         className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
       />
       <input
