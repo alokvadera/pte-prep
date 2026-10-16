@@ -146,29 +146,29 @@ export function AudioPlayer({
         setUnsupported(true)
         setState('idle')
       }
-      // Utterance mode: a single sentence with no bank script behind it.
-      if (utterance && !script) {
-        setTurnIndex(0)
-        const controller = await speakText(utterance, {
-          rate: Number((1.02 * speed).toFixed(2)),
-          onEnd: done,
-          onError: failed,
-        })
-        if (cancelled) controller.stop()
-        else controllerRef.current = controller
-        return
-      }
-      if (!script) return
-      // Beep mode: one turn with a word replaced by a tone.
-      if (beepWord !== undefined && fromTurn !== undefined) {
-        const turn = script.turns[fromTurn]
-        const speaker = script.speakers.find((s) => s.id === turn?.speaker)
-        const words = (turn?.text ?? '').split(/\s+/).filter((w) => w.length > 0)
-        if (turn && beepWord >= 0 && beepWord < words.length) {
-          setTurnIndex(fromTurn)
-          const controller = await speakWithBeep(words.slice(0, beepWord).join(' '), words.slice(beepWord + 1).join(' '), {
+      const runFallback = async () => {
+        if (cancelled) return
+        if (beepWord !== undefined && fromTurn !== undefined && script) {
+          const turn = script.turns[fromTurn]
+          const speaker = script.speakers.find((s) => s.id === turn?.speaker)
+          const words = (turn?.text ?? '').split(/\s+/).filter((w) => w.length > 0)
+          if (turn && beepWord >= 0 && beepWord < words.length) {
+            setTurnIndex(fromTurn)
+            const controller = await speakWithBeep(words.slice(0, beepWord).join(' '), words.slice(beepWord + 1).join(' '), {
+              rate: Number((1.02 * speed).toFixed(2)),
+              voiceHint: speaker?.voiceHint ?? 'mid',
+              onEnd: done,
+              onError: failed,
+            })
+            if (cancelled) controller.stop()
+            else controllerRef.current = controller
+            return
+          }
+        }
+        if (utterance) {
+          setTurnIndex(0)
+          const controller = await speakText(utterance, {
             rate: Number((1.02 * speed).toFixed(2)),
-            voiceHint: speaker?.voiceHint ?? 'mid',
             onEnd: done,
             onError: failed,
           })
@@ -176,56 +176,28 @@ export function AudioPlayer({
           else controllerRef.current = controller
           return
         }
+        if (script) {
+          const controller = await speakScript(script, {
+            rate: Number((1.02 * speed).toFixed(2)),
+            fromTurn,
+            toTurn,
+            onTurnStart: (i) => setTurnIndex(i),
+            onEnd: done,
+            onError: failed,
+          })
+          if (cancelled) controller.stop()
+          else controllerRef.current = controller
+          return
+        }
+        failed()
       }
-      // Studio pre-rendered audio mode: if a pre-generated high-fidelity MP3/M4A exists, play it;
-      // otherwise, seamlessly fall back to client speech synthesis.
+
       if (audioId) {
         let fallbackTriggered = false
-        const runFallback = async () => {
+        const triggerFallback = () => {
           if (fallbackTriggered || cancelled) return
           fallbackTriggered = true
-          if (beepWord !== undefined && fromTurn !== undefined && script) {
-            const turn = script.turns[fromTurn]
-            const speaker = script.speakers.find((s) => s.id === turn?.speaker)
-            const words = (turn?.text ?? '').split(/\s+/).filter((w) => w.length > 0)
-            if (turn && beepWord >= 0 && beepWord < words.length) {
-              setTurnIndex(fromTurn)
-              const controller = await speakWithBeep(words.slice(0, beepWord).join(' '), words.slice(beepWord + 1).join(' '), {
-                rate: Number((1.02 * speed).toFixed(2)),
-                voiceHint: speaker?.voiceHint ?? 'mid',
-                onEnd: done,
-                onError: failed,
-              })
-              if (cancelled) controller.stop()
-              else controllerRef.current = controller
-              return
-            }
-          }
-          if (script) {
-            const controller = await speakScript(script, {
-              rate: Number((1.02 * speed).toFixed(2)),
-              fromTurn,
-              toTurn,
-              onTurnStart: (i) => setTurnIndex(i),
-              onEnd: done,
-              onError: failed,
-            })
-            if (cancelled) controller.stop()
-            else controllerRef.current = controller
-            return
-          }
-          if (utterance) {
-            setTurnIndex(0)
-            const controller = await speakText(utterance, {
-              rate: Number((1.02 * speed).toFixed(2)),
-              onEnd: done,
-              onError: failed,
-            })
-            if (cancelled) controller.stop()
-            else controllerRef.current = controller
-            return
-          }
-          failed()
+          void runFallback()
         }
 
         try {
@@ -245,42 +217,36 @@ export function AudioPlayer({
           }
 
           const tryPlay = (sources: string[]) => {
+            if (cancelled) return
             const src = sources[0]
             if (!src) {
-              void runFallback()
+              triggerFallback()
               return
             }
             const rest = sources.slice(1)
             audio.onerror = () => {
-              tryPlay(rest)
+              if (!cancelled) tryPlay(rest)
             }
             audio.src = src
             audio.play().catch(() => {
-              tryPlay(rest)
+              if (!cancelled) tryPlay(rest)
             })
           }
 
           tryPlay([`/audio/${audioId}.m4a`, `/audio/${audioId}.mp3`])
           return
         } catch {
-          void runFallback()
+          triggerFallback()
           return
         }
       }
 
-      const controller = await speakScript(script, {
-        rate: Number((1.02 * speed).toFixed(2)),
-        fromTurn,
-        toTurn,
-        onTurnStart: (i) => setTurnIndex(i),
-        onEnd: done,
-        onError: failed,
-      })
-      if (cancelled) controller.stop()
-      else controllerRef.current = controller
+      await runFallback()
     })()
     return () => {
       cancelled = true
+      controllerRef.current?.stop()
+      controllerRef.current = null
     }
   }, [state, script, utterance, audioId, fromTurn, toTurn, beepWord, speed])
 
@@ -339,7 +305,7 @@ export function AudioPlayer({
               className="btn-primary"
               disabled={exhausted}
               onClick={() => {
-                if (!isSpeechSupported()) {
+                if (!audioId && !isSpeechSupported()) {
                   setUnsupported(true)
                   return
                 }
