@@ -82,6 +82,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     )
   }
 
+  // Atomically claim the token first to prevent race condition replay
+  const claimRes = await db
+    .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE id = ? AND used_at IS NULL")
+    .bind(resetRecord.id)
+    .run()
+
+  if (claimRes.meta.changes === 0) {
+    return new Response(
+      JSON.stringify({ error: 'This password reset link has already been used. Please request a new one.' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
   // Hash new password
   const { hash, salt } = await hashPassword(password)
 
@@ -91,12 +104,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       "UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime('now') WHERE id = ?",
     )
     .bind(hash, salt, resetRecord.user_id)
-    .run()
-
-  // Mark token as used
-  await db
-    .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE id = ?")
-    .bind(resetRecord.id)
     .run()
 
   // Retrieve user to issue fresh session

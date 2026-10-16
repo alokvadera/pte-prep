@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ADMISSION_TARGETS, buildReport, cefrLabel } from '../domain/scoring'
 import { QUESTION_META } from '../domain/blueprint'
@@ -26,12 +26,14 @@ type Tab = 'overview' | 'pace' | 'by-type' | 'review'
 export default function ResultPage() {
   const [params, setSearchParams] = useSearchParams()
   const mock = useTest((s) => s.mock)
+  const [sessionMock] = useState(() => useTest.getState().mock)
   const responses = useTest((s) => s.responses)
   const finish = useTest((s) => s.finish)
   const exit = useTest((s) => s.exit)
   const { settings } = useSettings()
   const [loading, setLoading] = useState(true)
   const [attempt, setAttempt] = useState<AttemptRecord | null>(null)
+  const scoringRef = useRef(false)
   const [tab, setTab] = useState<Tab>('overview')
   const [filter, setFilter] = useState<'all' | 'lost'>('all')
   const user = useAuth((s) => s.user)
@@ -87,13 +89,16 @@ export default function ResultPage() {
           }
           return
         }
-        if (mock) {
+        if (mock && !scoringRef.current) {
+          scoringRef.current = true
           const record = await finish()
           if (!cancelled && record) {
             setAttempt(record)
             setLoading(false)
             setSearchParams({ attempt: record.id }, { replace: true })
             void syncAttemptToCloud(record)
+            // Clear live mock from persisted store upon successful scoring to ensure single scoring
+            useTest.setState({ mock: null })
           }
           return
         }
@@ -116,8 +121,9 @@ export default function ResultPage() {
   // section/drill item sets are not recoverable from the seed alone, and
   // showing details against the wrong items would be worse than showing the
   // stored details only. New attempts always carry details anyway.
+  const currentMock = mock ?? sessionMock
   const effectiveMock = useMemo(() => {
-    if (mock) return mock
+    if (currentMock) return currentMock
     if (!seed) return null
     const sectionCount = attempt?.sectionIds?.length ?? 0
     const kind = attempt?.mockKind
@@ -128,7 +134,7 @@ export default function ResultPage() {
     } catch {
       return null
     }
-  }, [mock, seed, attempt?.mockKind, attempt?.sectionIds, attempt?.timeScale, attempt?.untimed])
+  }, [currentMock, seed, attempt?.mockKind, attempt?.sectionIds, attempt?.timeScale, attempt?.untimed])
 
   const effectiveResponses = attempt?.responses ?? responses
 
@@ -156,8 +162,8 @@ export default function ResultPage() {
   // item sets, and showing pace against the wrong items would be worse than
   // hiding the tab — the tab filter below already hides it then.
   const paceRows = useMemo(
-    () => (mock && attempt ? paceReport(Object.values(mock.items), attempt.responses ?? {}) : []),
-    [mock, attempt],
+    () => (currentMock && attempt ? paceReport(Object.values(currentMock.items), attempt.responses ?? {}) : []),
+    [currentMock, attempt],
   )
 
   if (loading) {

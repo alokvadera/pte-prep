@@ -86,7 +86,13 @@ export async function verifySessionToken(
 
     const dec = new TextDecoder()
     const session = JSON.parse(dec.decode(payloadBytes)) as AuthSession
-    if (session.exp < Math.floor(Date.now() / 1000)) {
+    if (
+      !session ||
+      typeof session.userId !== 'string' ||
+      !session.userId ||
+      typeof session.exp !== 'number' ||
+      session.exp < Math.floor(Date.now() / 1000)
+    ) {
       return null
     }
     return session

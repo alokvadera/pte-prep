@@ -173,7 +173,7 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
   await loadVoices()
   s.cancel()
 
-  const { rate = 1.0, onTurnStart, onEnd, onError } = options
+  const { rate = 1.0, pitch, onTurnStart, onEnd, onError } = options
   const used = new Set<string>()
   let cancelled = false
   // Turn-scoped playback: WFD and Missing Word test one turn of a long
@@ -188,12 +188,23 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
   stopKeepAlive()
   keepAlive = typeof window !== 'undefined' ? window.setInterval(() => s.resume(), 10000) : null
 
+  let gapTimer: number | null = null
+  let safetyTimer: number | null = null
+
+  const clearSafety = () => {
+    if (safetyTimer !== null) {
+      window.clearTimeout(safetyTimer)
+      safetyTimer = null
+    }
+  }
+
   const cleanup = () => {
     stopKeepAlive()
     if (gapTimer !== null) {
       window.clearTimeout(gapTimer)
       gapTimer = null
     }
+    clearSafety()
     controller.speaking = false
   }
 
@@ -203,7 +214,6 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
     cleanup()
   }
 
-  let gapTimer: number | null = null
   const run = (index: number) => {
     if (cancelled) return
     if (index > lastTurn || index >= script.turns.length) {
@@ -229,13 +239,25 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
       utter.lang = voice.lang
     }
     utter.rate = rate
-    utter.pitch = basePitch(speaker.voiceHint)
+    utter.pitch = pitch ?? basePitch(speaker.voiceHint)
+
+    const wordCount = turn.text.split(/\s+/).length
+    clearSafety()
+    safetyTimer = window.setTimeout(() => {
+      if (cancelled) return
+      cleanup()
+      onError?.('Speech playback timed out.')
+      onEnd?.()
+    }, Math.max(15000, wordCount * 1500 + 10000))
+
     utter.onend = () => {
+      clearSafety()
       // A short gap between speakers makes the exchange intelligible.
       if (gapTimer !== null) window.clearTimeout(gapTimer)
       gapTimer = window.setTimeout(() => run(index + 1), 220)
     }
     utter.onerror = (event) => {
+      clearSafety()
       const err = String((event as SpeechSynthesisErrorEvent).error ?? '')
       if (err === 'interrupted' || err === 'canceled') return
       onError?.(err || 'Speech synthesis failed.')

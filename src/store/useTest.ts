@@ -45,9 +45,9 @@ function flatItems(mock: MockTest | null): string[] {
 }
 
 
-import { safeStateStorage } from '../lib/storage'
+import { throttledStateStorage } from '../lib/storage'
 
-const safeJsonStorage = () => createJSONStorage(() => safeStateStorage())
+const safeJsonStorage = () => createJSONStorage(() => throttledStateStorage(1000))
 
 export const useTest = create<TestStore>()(
   persist(
@@ -274,7 +274,6 @@ export const useTest = create<TestStore>()(
         responses: s.responses,
         sectionEndsAt: s.sectionEndsAt,
         startedAt: s.startedAt,
-        elapsedMs: s.elapsedMs,
         attemptId: s.attemptId,
       }),
     },

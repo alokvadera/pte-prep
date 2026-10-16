@@ -50,6 +50,7 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
   // when the candidate actually starts a drill, so the ~10 000 LOC
   // bank never lands on this page's initial JavaScript.
   const [building, setBuilding] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const capacity = useMemo(() => manifestCapacityByType(), [])
 
@@ -68,12 +69,15 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
   const begin = async () => {
     if (building) return
     setBuilding(true)
+    setLoadError(null)
     try {
       const { buildDrillMock } = await import('../domain/assemble')
       const mock = buildDrillMock(Math.floor(Math.random() * 1_000_000), buildable, perType)
       if (mock.sections.every((s) => s.itemIds.length === 0)) return
       start(mock, 'practice')
       navigate('/test')
+    } catch {
+      setLoadError('Failed to load drill questions. Please check your connection and try again.')
     } finally {
       setBuilding(false)
     }
@@ -239,6 +243,11 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
             </Button>
           </div>
         </div>
+        {loadError ? (
+          <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">
+            {loadError}
+          </div>
+        ) : null}
         {dropped.length > 0 ? (
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs leading-relaxed" role="status">
             {dropped.length} selected {dropped.length === 1 ? 'type is' : 'types are'} skipped — the bank holds fewer

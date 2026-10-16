@@ -184,7 +184,7 @@ check('a perfect typed repeat scores well but not perfectly', scoreItem(rs, key(
 check('a perfect repeat with a recording scores higher', scoreItem(rs, key(rs.id), { transcript: rsText, audio: MIC }).ratio > scoreItem(rs, key(rs.id), { transcript: rsText }).ratio)
 check('half-correct repeat is partial', (() => { const half = rsText.split(/\s+/).slice(0, Math.ceil(rsWords / 2)).join(' '); const r = scoreItem(rs, key(rs.id), { transcript: half }).ratio; return r > 0.1 && r < 0.95 })())
 check('empty answer scores 0', scoreItem(rs, key(rs.id), {}).ratio === 0)
-check('a recording with no words still scores zero, because Content gates the item', scoreItem(rs, key(rs.id), { audio: MIC }).ratio === 0)
+check('a recording without a transcript scores from delivery traits rather than hard-zeroing', scoreItem(rs, key(rs.id), { audio: MIC }).ratio > 0)
 
 const essay = byType('write-essay')
 // Compose a realistic four-paragraph answer around the prompt's own key terms,

@@ -314,18 +314,20 @@ export function Layout() {
 }
 
 function ThemeToggle({ theme, onChange }: { theme: Theme; onChange: (t: Theme) => void }) {
-  const next: Theme = theme === 'light' ? 'dark' : 'light'
+  const ready = useClientReady()
+  const currentTheme = ready ? theme : 'light'
+  const next: Theme = currentTheme === 'light' ? 'dark' : 'light'
 
   return (
     <button
       type="button"
       className="btn-ghost text-ink-600 hover:text-mark-700 dark:text-ink-on-dark dark:hover:text-mark-300 rounded-full p-2"
       onClick={() => onChange(next)}
-      aria-label={`Theme: ${theme}. Switch to ${next} theme.`}
-      title={`Theme: ${theme}. Switch to ${next}.`}
+      aria-label={`Theme: ${currentTheme}. Switch to ${next} theme.`}
+      title={`Theme: ${currentTheme}. Switch to ${next}.`}
     >
       <span className="inline-block transition-transform duration-200 hover:scale-110 hover:rotate-12 active:scale-90">
-        {theme === 'light' ? <SunIcon /> : <MoonIcon />}
+        {currentTheme === 'light' ? <SunIcon /> : <MoonIcon />}
       </span>
     </button>
   )

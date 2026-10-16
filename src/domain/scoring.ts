@@ -96,7 +96,7 @@ function oralFluency(
   speechRatio: number,
   wordsSpoken: number,
 ): { score: number; note: string } {
-  if (wordsSpoken === 0) return { score: 0, note: 'Nothing was spoken.' }
+  if (wordsSpoken === 0 && wpm <= 0) return { score: 0, note: 'Nothing was spoken.' }
   if (wpm <= 0) {
     return { score: 0.5, note: 'Oral fluency was not measured — record the answer to score this trait.' }
   }
@@ -138,7 +138,7 @@ function oralFluency(
  * from a reduced one.
  */
 function pronunciation(a: ItemResponse['audio'], wordsSpoken: number): { score: number; note: string } {
-  if (!a || !a.reliable || wordsSpoken === 0) {
+  if (!a || !a.reliable || (wordsSpoken === 0 && (a.wordsPerMinute ?? 0) <= 0)) {
     return { score: 0.5, note: 'Pronunciation was not measured — record the answer to score this trait.' }
   }
   const variation = clamp(a.energyVariance / 0.5, 0, 1)
@@ -315,6 +315,7 @@ function contentAgainstTerms(spoken: string, keyTerms: string[]): { content: num
 
 /** Published Content maximum per type. */
 export const CONTENT_MAX: Partial<Record<Item['type'], number>> = {
+  'read-aloud': 3,
   'describe-image': 6,
   'retell-lecture': 6,
   'summarize-group-discussion': 6,
@@ -336,6 +337,7 @@ function scoreSpoken(
   const spoken = transcript || typed
   const analysis = response.audio
   const isTargetText = item.type === 'read-aloud' || item.type === 'repeat-sentence'
+  const maxContent = CONTENT_MAX[item.type] ?? (isTargetText ? 3 : 5)
 
   if (!spoken && !analysis) {
     return {
@@ -343,7 +345,7 @@ function scoreSpoken(
       notes: ['No answer was recorded or typed.'],
       traits: { ...ZERO_TRAITS },
       contentScore: 0,
-      contentMax: CONTENT_MAX[item.type],
+      contentMax: maxContent,
       gated: true,
     }
   }
@@ -373,15 +375,30 @@ function scoreSpoken(
     range: rangeFromText(spoken),
   }
 
-  // The published gate: Content 0 means no points at all for the item.
+  // The published gate: Content 0 means no points at all for the item,
+  // EXCEPT when speech was recorded but the browser lacked Web Speech (no transcript).
   if (contentResult.content <= 0) {
+    if (!spoken && analysis && wpm > 0) {
+      // Degrade gracefully when Web Speech is unavailable (Safari / Firefox).
+      // Delivery traits (oral fluency + pronunciation) score the acoustic response.
+      const deliveryRatio = clamp((of.score * 0.28 + pr.score * 0.17) / 0.45, 0, 1)
+      notes.push("Content words could not be checked for this browser's speech recognition.")
+      return {
+        ratio: deliveryRatio,
+        notes,
+        traits,
+        contentScore: 0,
+        contentMax: maxContent,
+        gated: false,
+      }
+    }
     return {
       ratio: 0,
       notes: [...notes, 'Content scored 0, so the item scores zero regardless of delivery.'],
       traits,
       gated: true,
       contentScore: 0,
-      contentMax: CONTENT_MAX[item.type],
+      contentMax: maxContent,
     }
   }
 
@@ -398,8 +415,8 @@ function scoreSpoken(
     ratio,
     notes,
     traits,
-    contentScore: contentResult.content * (CONTENT_MAX[item.type] ?? 5),
-    contentMax: CONTENT_MAX[item.type],
+    contentScore: contentResult.content * maxContent,
+    contentMax: maxContent,
   }
 }
 

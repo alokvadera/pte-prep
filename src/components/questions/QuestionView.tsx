@@ -457,8 +457,10 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
 function TextQuestion({ item, response, onChange, examMode }: Props) {
   const isDictation = item.type === 'write-from-dictation'
   const isEssay = item.type === 'write-essay'
-  const min = isDictation ? undefined : isEssay ? 200 : item.type === 'summarize-spoken-text' ? 50 : 20
-  const max = isDictation ? undefined : isEssay ? 300 : item.type === 'summarize-spoken-text' ? 90 : 45
+  const isSwt = item.type === 'summarize-written-text'
+  const isSst = item.type === 'summarize-spoken-text'
+  const min = isDictation ? undefined : isEssay ? 200 : isSwt ? 5 : isSst ? 50 : 20
+  const max = isDictation ? undefined : isEssay ? 300 : isSwt ? 75 : isSst ? 90 : 45
 
   return (
     <div>
@@ -527,7 +529,7 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
 
       {item.chartId ? <ChartRenderer chartId={item.chartId} className="mb-4" /> : null}
 
-      {item.tokens && !hasTarget ? (
+      {item.tokens && !hasTarget && !isShort ? (
         <p className="passage mb-4 font-semibold">{item.tokens.filter((t) => t !== '___').join(' ')}</p>
       ) : null}
 
@@ -570,6 +572,7 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
       <div className="mt-4">
         <Recorder
           key={item.id}
+          itemId={item.id}
           seconds={item.seconds}
           prepSeconds={item.prepSeconds ?? 0}
           onRecorded={(analysis, transcript) => onChange({ audio: analysis, transcript })}

@@ -20,9 +20,10 @@ export default function TestPage() {
   }, [status, restore])
 
   useEffect(() => {
+    if (status !== 'running') return
     const id = window.setInterval(tick, 1000)
     return () => window.clearInterval(id)
-  }, [tick])
+  }, [status, tick])
 
   useEffect(() => {
     const onBeforeUnload = (e: BeforeUnloadEvent) => {

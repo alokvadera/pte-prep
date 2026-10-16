@@ -62,7 +62,8 @@ function TestRoute({ children }: { children?: ReactNode }) {
 
 export default function App() {
   useMagneticControls()
-  const { settings } = useSettings()
+  const theme = useSettings((s) => s.settings.theme)
+  const textScale = useSettings((s) => s.settings.textScale)
   const checkSession = useAuth((s) => s.checkSession)
 
   // Validate a persisted login on load and whenever the tab becomes visible
@@ -84,9 +85,9 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    const dark = settings.theme === 'dark'
+    const dark = theme === 'dark'
     document.documentElement.classList.toggle('dark', dark)
-    document.documentElement.style.fontSize = `${16 * settings.textScale}px`
+    document.documentElement.style.fontSize = `${16 * textScale}px`
 
     // Keep the browser chrome on the same ground as the page. Without a system
     // theme to fall back on, this is the only signal the address bar gets.
@@ -121,7 +122,7 @@ export default function App() {
       document.documentElement.classList.remove('dark')
     }
     const afterPrint = () => {
-      if (settings.theme === 'dark') {
+      if (theme === 'dark') {
         document.documentElement.classList.add('dark')
       }
     }
@@ -131,7 +132,7 @@ export default function App() {
       window.removeEventListener('beforeprint', beforePrint)
       window.removeEventListener('afterprint', afterPrint)
     }
-  }, [settings.theme, settings.textScale])
+  }, [theme, textScale])
 
   return (
     // This boundary is shared by the server render and the client, so its

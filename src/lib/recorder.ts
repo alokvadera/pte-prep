@@ -169,17 +169,31 @@ export class VoiceRecorder {
       return false
     }
 
-    const Ctor =
-      window.AudioContext ??
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
-    if (Ctor) {
-      this.ctx = new Ctor()
-      if (this.ctx.state === 'suspended') await this.ctx.resume().catch(() => undefined)
-      const source = this.ctx.createMediaStreamSource(this.stream)
-      this.analyser = this.ctx.createAnalyser()
-      this.analyser.fftSize = 1024
-      this.analyser.smoothingTimeConstant = 0.4
-      source.connect(this.analyser)
+    if (this.stopping || this.state !== 'requesting') {
+      this.stream.getTracks().forEach((t) => t.stop())
+      this.stream = null
+      return false
+    }
+
+    try {
+      const Ctor =
+        window.AudioContext ??
+        (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+      if (Ctor) {
+        this.ctx = new Ctor()
+        if (this.ctx.state === 'suspended') await this.ctx.resume().catch(() => undefined)
+        const source = this.ctx.createMediaStreamSource(this.stream)
+        this.analyser = this.ctx.createAnalyser()
+        this.analyser.fftSize = 1024
+        this.analyser.smoothingTimeConstant = 0.4
+        source.connect(this.analyser)
+      }
+    } catch {
+      this.stream.getTracks().forEach((t) => t.stop())
+      this.stream = null
+      this.setState('error')
+      this.events.onError?.('Failed to initialize audio analyzer.')
+      return false
     }
 
     this.startedAt = performance.now()
@@ -215,8 +229,8 @@ export class VoiceRecorder {
       }
     }
 
-    // Web Speech recognition gives us a transcript on Chrome/Edge. Safari and
-    // Firefox do not, and the scorer degrades to acoustic-only in that case.
+    // Web Speech recognition provides transcripts on Chrome/Edge. In Safari and Firefox,
+    // the scorer gracefully degrades to delivery traits (oral fluency + pronunciation).
     const Recognition = getRecognitionCtor()
     if (Recognition) {
       try {
@@ -288,7 +302,7 @@ export class VoiceRecorder {
         this.inPause = false
       }
       this.silentFrames = 0
-      const pitch = detectPitch(buffer)
+      const pitch = detectPitch(buffer, this.ctx?.sampleRate ?? 44100)
       if (pitch !== null) {
         this.pitchSum += pitch
         this.pitchCount += 1

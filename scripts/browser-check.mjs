@@ -51,7 +51,7 @@ const QUESTION_TYPE_SLUGS = [
 
 const ROUTES = [
   '/', '/mock', '/practice', '/format', '/scoring', '/guide', '/about', '/dashboard', '/not-a-page',
-  '/question-types/', '/privacy/',
+  '/question-types/', '/privacy/', '/login/', '/register/', '/ui-elements/',
   ...QUESTION_TYPE_SLUGS.map((s) => `/question-types/${s}/`),
 ]
 
@@ -537,7 +537,8 @@ report(
   let advanced = 0
   for (let i = 0; i < 6; i++) {
     const moved = await evaluate(`(() => {
-      const btn = [...document.querySelectorAll('button')].find(b => /^(Next|Finish test|End section)/i.test(b.textContent.trim()));
+      const btn = [...document.querySelectorAll('button.btn-primary')].find(b => /^(Next|Finish test|End section)/i.test(b.textContent.trim()))
+        ?? [...document.querySelectorAll('button')].find(b => /^(Next|Finish test|End section)/i.test(b.textContent.trim()) && !b.hasAttribute('aria-pressed'));
       if (!btn) return false;
       btn.click();
       return true;
@@ -665,9 +666,11 @@ report(
   while (Date.now() < deadline) {
     const outcome = await evaluate(`(() => {
       if (location.pathname === '/result') return 'done';
-      const begin = [...document.querySelectorAll('button')].find(b => /^(Begin |Start )/i.test(b.textContent.trim()));
+      const begin = [...document.querySelectorAll('button.btn-primary')].find(b => /^(Begin |Start )/i.test(b.textContent.trim()))
+        ?? [...document.querySelectorAll('button')].find(b => /^(Begin |Start )/i.test(b.textContent.trim()) && !b.hasAttribute('aria-pressed'));
       if (begin) { begin.click(); return 'begin'; }
-      const next = [...document.querySelectorAll('button')].find(b => /^(Next|End section|Finish test)/i.test(b.textContent.trim()));
+      const next = [...document.querySelectorAll('button.btn-primary')].find(b => /^(Next|End section|Finish test)/i.test(b.textContent.trim()))
+        ?? [...document.querySelectorAll('button')].find(b => /^(Next|End section|Finish test)/i.test(b.textContent.trim()) && !b.hasAttribute('aria-pressed'));
       if (next) { next.click(); return 'next'; }
       return 'stuck';
     })()`)

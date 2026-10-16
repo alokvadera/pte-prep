@@ -29,9 +29,11 @@ function evictOldestCache() {
   }
 }
 
-function hashAnswer(itemId: string, text: string): string {
+const RUBRIC_VERSION = 'v1'
+
+function hashAnswer(itemId: string, text: string, model: string, rubricVersion = RUBRIC_VERSION): string {
   let hash = 5381
-  const str = `${itemId}:${text.trim().toLowerCase()}`
+  const str = `${itemId}:${rubricVersion}:${model}:${text.trim().toLowerCase()}`
   for (let i = 0; i < str.length; i++) {
     hash = ((hash << 5) + hash) ^ str.charCodeAt(i)
   }
@@ -69,7 +71,7 @@ export async function evaluateWithAi(
   const text = (userText ?? '').trim()
   if (!text || !apiKey) return null
 
-  const cacheKey = hashAnswer(item.id, text)
+  const cacheKey = hashAnswer(item.id, text, model, RUBRIC_VERSION)
   const cached = evaluationCache.get(cacheKey)
   if (cached) return cached
 
@@ -248,8 +250,15 @@ export async function transcribeWithWhisper(
   if (!apiKey || audioBlob.size === 0) return null
 
   try {
+    const ext = audioBlob.type.includes('mp4')
+      ? 'mp4'
+      : audioBlob.type.includes('ogg')
+        ? 'ogg'
+        : audioBlob.type.includes('wav')
+          ? 'wav'
+          : 'webm'
     const formData = new FormData()
-    formData.append('file', audioBlob, 'audio.webm')
+    formData.append('file', audioBlob, `audio.${ext}`)
     formData.append('model', 'whisper-large-v3-turbo')
     formData.append('response_format', 'verbose_json')
     formData.append('timestamp_granularities[]', 'word')

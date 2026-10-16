@@ -253,8 +253,9 @@ function main() {
 
     // Score all scenarios
     const scoreCorrect = scoreItem(item, key, correctResp)
+    const isTraitComposite = meta.scoring === 'trait-composite'
     assert(
-      scoreCorrect.points === item.maxPoints || scoreCorrect.ratio >= 0.75,
+      isTraitComposite ? scoreCorrect.ratio >= 0.75 : scoreCorrect.points === item.maxPoints,
       `${meta.short} Full Credit: awards ${scoreCorrect.points.toFixed(2)}/${item.maxPoints} pts (ratio: ${scoreCorrect.ratio.toFixed(2)}, status: ${scoreCorrect.status})`,
     )
 

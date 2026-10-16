@@ -225,7 +225,7 @@ function PieChart({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-function ProcessChart({ data }: { data: Record<string, unknown> }) {
+function ProcessChart({ data, chartId = 'process' }: { data: Record<string, unknown>; chartId?: string }) {
   const steps = data.steps as Array<{ label: string; detail: string }>
   const loop = data.loop as string
   const boxW = 128
@@ -233,6 +233,7 @@ function ProcessChart({ data }: { data: Record<string, unknown> }) {
   const gap = 18
   const startX = (W - (steps.length * boxW + (steps.length - 1) * gap)) / 2
   const y = 92
+  const arrowId = `arrow-${chartId}`
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="presentation">
@@ -255,7 +256,7 @@ function ProcessChart({ data }: { data: Record<string, unknown> }) {
                 stroke="currentColor"
                 strokeOpacity={0.45}
                 strokeWidth={2}
-                markerEnd="url(#arrow)"
+                markerEnd={`url(#${arrowId})`}
                 className="animate-fade-in"
                 style={{ animationDelay: `${300 + i * 100}ms` }}
               />
@@ -264,7 +265,7 @@ function ProcessChart({ data }: { data: Record<string, unknown> }) {
         )
       })}
       <defs>
-        <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+        <marker id={arrowId} markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
           <path d="M0,0 L0,6 L7,3 z" className="fill-current" opacity={0.5} />
         </marker>
       </defs>
@@ -275,7 +276,7 @@ function ProcessChart({ data }: { data: Record<string, unknown> }) {
         strokeOpacity={0.3}
         strokeDasharray="4 4"
         strokeWidth={1.5}
-        markerEnd="url(#arrow)"
+        markerEnd={`url(#${arrowId})`}
       />
       <text x={W / 2} y={y + boxH + 66} textAnchor="middle" className="fill-current text-[10.5px] italic opacity-65">
         {loop}
@@ -284,11 +285,12 @@ function ProcessChart({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-function DiagramChart({ data }: { data: Record<string, unknown> }) {
+function DiagramChart({ data, chartId = 'diagram' }: { data: Record<string, unknown>; chartId?: string }) {
   const nodes = data.nodes as Node[]
   const edges = data.edges as Array<[string, string]>
   const note = data.note as string
   const byId = new Map(nodes.map((n) => [n.id, n]))
+  const edgeId = `fedge-${chartId}`
   const fills: Record<Node['kind'], string> = {
     source: 'fill-amber-500/15 stroke-amber-500/60',
     producer: 'fill-mint-500/15 stroke-mint-500/60',
@@ -301,7 +303,7 @@ function DiagramChart({ data }: { data: Record<string, unknown> }) {
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="presentation">
       <defs>
-        <marker id="fedge" markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto">
+        <marker id={edgeId} markerWidth="7" markerHeight="7" refX="6" refY="2.5" orient="auto">
           <path d="M0,0 L0,5 L6,2.5 z" className="fill-current" opacity={0.4} />
         </marker>
       </defs>
@@ -322,7 +324,7 @@ function DiagramChart({ data }: { data: Record<string, unknown> }) {
             stroke="currentColor"
             strokeOpacity={0.28}
             strokeWidth={1.4}
-            markerEnd="url(#fedge)"
+            markerEnd={`url(#${edgeId})`}
             className="animate-fade-in"
             style={{ animationDelay: `${i * 60}ms` }}
           />
@@ -404,8 +406,8 @@ export function ChartRenderer({ chartId, className }: Props) {
         {chart.kind === 'bar' || chart.kind === 'scatter' ? <BarChart data={data} /> : null}
         {chart.kind === 'line' ? <LineChart data={data} /> : null}
         {chart.kind === 'pie' ? <PieChart data={data} /> : null}
-        {chart.kind === 'process' ? <ProcessChart data={data} /> : null}
-        {chart.kind === 'diagram' ? <DiagramChart data={data} /> : null}
+        {chart.kind === 'process' ? <ProcessChart data={data} chartId={chartId} /> : null}
+        {chart.kind === 'diagram' ? <DiagramChart data={data} chartId={chartId} /> : null}
         {chart.kind === 'table-chart' ? <TableChart data={data} /> : null}
       </div>
       <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-center text-xs">{chart.caption}</p>

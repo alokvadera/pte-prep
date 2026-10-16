@@ -138,22 +138,25 @@ const DEMO_ATTEMPTS: AttemptRecord[] = [
   },
 ]
 
+import { useClientReady } from '../lib/useClientReady'
+
 const RECENT_DATES = (() => {
   const out: string[] = []
   const now = new Date()
-  for (let i = 0; i < 26; i++) {
+  const offsets = [0, 1, 2, 3, 6, 7, 8, 9, 10, 11, 12, 16, 17, 18]
+  for (const offset of offsets) {
     const d = new Date(now)
-    d.setDate(d.getDate() - Math.floor(Math.random() * 20))
+    d.setDate(d.getDate() - offset)
     out.push(d.toISOString().slice(0, 10))
   }
-  return Array.from(new Set(out))
+  return out
 })()
 
 const HEAT_DATES = (() => {
   const out: string[] = []
   const now = new Date()
   for (let i = 0; i < 90; i++) {
-    if (Math.random() > 0.45) {
+    if ((i * 7 + 3) % 5 !== 0) {
       const d = new Date(now)
       d.setDate(d.getDate() - i)
       out.push(d.toISOString().slice(0, 10))
@@ -161,6 +164,22 @@ const HEAT_DATES = (() => {
   }
   return out
 })()
+
+function StreakWidgetDemo() {
+  const ready = useClientReady()
+  if (!ready) {
+    return <div className="card-solid h-[106px] animate-pulse rounded-2xl bg-ink-100/50 dark:bg-white/5" />
+  }
+  return <StreakWidget dates={RECENT_DATES} />
+}
+
+function HeatmapDemo() {
+  const ready = useClientReady()
+  if (!ready) {
+    return <div className="card-solid h-[150px] animate-pulse rounded-2xl bg-ink-100/50 dark:bg-white/5" />
+  }
+  return <ActivityHeatmap dates={HEAT_DATES} weeks={20} />
+}
 
 function DemoShell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -520,10 +539,10 @@ export default function UiElements() {
         <SectionHeading eyebrow="Gamification" title="Momentum, made visible" description="Streaks, heatmaps, badges and the burst that celebrates a finish." />
         <div className="grid gap-5 md:grid-cols-2">
           <DemoShell title="StreakWidget">
-            <StreakWidget dates={RECENT_DATES} />
+            <StreakWidgetDemo />
           </DemoShell>
           <DemoShell title="ActivityHeatmap">
-            <ActivityHeatmap dates={HEAT_DATES} weeks={20} />
+            <HeatmapDemo />
           </DemoShell>
           <DemoShell title="AchievementBadges">
             <AchievementBadges attempts={DEMO_ATTEMPTS} />
@@ -589,7 +608,7 @@ export default function UiElements() {
             </HoverCard>
           </DemoShell>
           <DemoShell title="Popover">
-            <Popover label="Options" trigger={<Button variant="secondary">Open popover</Button>}>
+            <Popover label="Options" trigger={<span className="btn-secondary px-6 py-3 text-sm inline-flex items-center justify-center">Open popover</span>}>
               <p className="max-w-xs text-sm text-ink-700 dark:text-ink-100">A small panel anchored to its trigger.</p>
             </Popover>
           </DemoShell>

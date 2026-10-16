@@ -12,6 +12,7 @@
 
 import { mkdir, readFile, writeFile, rm, readdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
+import { execSync } from 'node:child_process'
 import path from 'node:path'
 import { pathToFileURL } from 'node:url'
 
@@ -92,6 +93,7 @@ const ROUTES = [
   { path: '/dashboard/', file: 'dashboard/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
   { path: '/login/', file: 'login/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
   { path: '/register/', file: 'register/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
+  { path: '/ui-elements/', file: 'ui-elements/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
 ]
 
 // The per-question-type hub and spokes. The slug list mirrors the keys in
@@ -127,6 +129,24 @@ if (QUESTION_TYPE_SLUGS.length !== EXPECTED_QUESTION_TYPE_COUNT) {
   throw new Error(
     `Expected ${EXPECTED_QUESTION_TYPE_COUNT} question-type slugs in prerender.mjs, found ${QUESTION_TYPE_SLUGS.length}. ` +
       'Keep this list in step with src/content/questionTypeDetail.ts.',
+  )
+}
+
+const canonicalSlugs = execSync('npx tsx scripts/print-type-slugs.ts', { encoding: 'utf8' })
+  .split('\n')
+  .map((s) => s.trim())
+  .filter(Boolean)
+
+const sourceSet = new Set(canonicalSlugs)
+const prerenderSet = new Set(QUESTION_TYPE_SLUGS)
+const missingInPrerender = canonicalSlugs.filter((s) => !prerenderSet.has(s))
+const extraInPrerender = QUESTION_TYPE_SLUGS.filter((s) => !sourceSet.has(s))
+
+if (missingInPrerender.length > 0 || extraInPrerender.length > 0) {
+  throw new Error(
+    `Question-type slugs in prerender.mjs drifted from src/content/questionTypeDetail.ts.\n` +
+      (missingInPrerender.length ? `Missing in prerender: ${missingInPrerender.join(', ')}\n` : '') +
+      (extraInPrerender.length ? `Extra in prerender: ${extraInPrerender.join(', ')}\n` : ''),
   )
 }
 

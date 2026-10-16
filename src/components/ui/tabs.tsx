@@ -40,15 +40,26 @@ export function Tabs({
   // Roving tabindex, the same contract every tab strip
   // owes a keyboard user: arrows move focus and select.
   const onListKey = (e: React.KeyboardEvent) => {
-    if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return
     const triggers = Array.from(
       listRef.current?.querySelectorAll('[role="tab"]') ?? [],
     ) as HTMLButtonElement[]
+    if (triggers.length === 0) return
     const i = triggers.findIndex((t) => t.getAttribute('aria-selected') === 'true')
-    const next = e.key === 'ArrowRight' ? (i + 1) % triggers.length : (i - 1 + triggers.length) % triggers.length
-    triggers[next]?.focus()
-    triggers[next]?.click()
-    e.preventDefault()
+    let next = -1
+    if (e.key === 'ArrowRight') {
+      next = (i + 1) % triggers.length
+    } else if (e.key === 'ArrowLeft') {
+      next = (i - 1 + triggers.length) % triggers.length
+    } else if (e.key === 'Home') {
+      next = 0
+    } else if (e.key === 'End') {
+      next = triggers.length - 1
+    }
+    if (next !== -1) {
+      triggers[next]?.focus()
+      triggers[next]?.click()
+      e.preventDefault()
+    }
   }
 
   return (
@@ -59,9 +70,12 @@ export function Tabs({
           return (
             <button
               key={t.id}
+              id={`tab-${t.id}`}
               type="button"
               role="tab"
               aria-selected={isActive}
+              aria-controls={`panel-${t.id}`}
+              tabIndex={isActive ? 0 : -1}
               onClick={() => onChange(t.id)}
               className={cn(
                 'relative cursor-pointer px-4 py-2.5 text-sm font-semibold transition-colors',
@@ -83,7 +97,7 @@ export function Tabs({
         })}
       </div>
       {hasPanels ? (
-        <div key={active.id} role="tabpanel" aria-label={active.label} className={cn('pt-5 animate-tab-enter', panelClassName)}>
+        <div key={active.id} id={`panel-${active.id}`} role="tabpanel" aria-labelledby={`tab-${active.id}`} className={cn('pt-5 animate-tab-enter', panelClassName)}>
           {active.content}
         </div>
       ) : null}

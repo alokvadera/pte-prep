@@ -38,12 +38,17 @@ function openDb(): Promise<AppDb> {
   }
   if (!dbPromise) {
     dbPromise = (async () => {
-      const [{ default: Dexie }] = await Promise.all([import('dexie')])
-      const db = new Dexie('pte-prep') as unknown as AppDb & {
-        version(v: number): { stores(schema: Record<string, string>): unknown }
+      try {
+        const [{ default: Dexie }] = await Promise.all([import('dexie')])
+        const db = new Dexie('pte-prep') as unknown as AppDb & {
+          version(v: number): { stores(schema: Record<string, string>): unknown }
+        }
+        db.version(1).stores({ attempts: 'id, finishedAt, mockId', kv: 'key' })
+        return db
+      } catch (err) {
+        dbPromise = null
+        throw err
       }
-      db.version(1).stores({ attempts: 'id, finishedAt, mockId', kv: 'key' })
-      return db
     })()
   }
   return dbPromise

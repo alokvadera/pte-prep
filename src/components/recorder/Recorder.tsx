@@ -6,6 +6,7 @@ import { useSettings } from '../../store/useSettings'
 import { transcribeWithWhisper } from '../../lib/aiScorer'
 
 interface Props {
+  itemId?: string
   /** Seconds allowed for the take. */
   seconds: number
   /** Seconds of preparation before recording may start. */
@@ -25,7 +26,8 @@ type Phase = 'idle' | 'prep' | 'recording' | 'done'
  * the candidate can still record, and a text box is offered so the response can
  * be scored on content rather than dropped entirely.
  */
-export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabled }: Props) {
+export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped, disabled }: Props) {
+  const inputId = itemId ? `typed-${itemId}` : 'typed-response'
   const { settings } = useSettings()
   const [phase, setPhase] = useState<Phase>('idle')
   const [state, setState] = useState<RecorderState>('idle')
@@ -349,11 +351,11 @@ export function Recorder({ seconds, prepSeconds = 0, onRecorded, onTyped, disabl
 
           {!sttSupported || !transcript ? (
             <div className="mt-3">
-              <label className="label" htmlFor={`typed-${seconds}`}>
+              <label className="label" htmlFor={inputId}>
                 Type what you said (required for content scoring when speech-to-text isn't available)
               </label>
               <textarea
-                id={`typed-${seconds}`}
+                id={inputId}
                 className="field min-h-20 resize-y"
                 value={typed}
                 placeholder="Write your answer in full so content can be scored."

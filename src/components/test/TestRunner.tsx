@@ -234,8 +234,12 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
-    if (status !== 'running') return
-    const id = window.setInterval(() => setNow(Date.now()), 250)
+    if (status !== 'running' || sectionEndsAt === null || sectionEndsAt <= Date.now()) return
+    const id = window.setInterval(() => {
+      const current = Date.now()
+      setNow(current)
+      if (sectionEndsAt <= current) window.clearInterval(id)
+    }, 250)
     return () => window.clearInterval(id)
   }, [status, sectionEndsAt])
 
@@ -368,10 +372,14 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
 
       <TestHeader
         untimed={Boolean(mock.untimed)}
-        onExtend={(seconds) => {
-          useTest.getState().extendSection(seconds)
-          setAnnouncement(`Time extended by ${seconds / 60} minutes.`)
-        }}
+        onExtend={
+          !examMode
+            ? (seconds) => {
+                useTest.getState().extendSection(seconds)
+                setAnnouncement(`Time extended by ${seconds / 60} minutes.`)
+              }
+            : undefined
+        }
         secondsRemaining={remaining}
         totalSeconds={section.seconds}
         sectionTitle={section.title}
@@ -507,9 +515,6 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
       </div>
 
       <Navigator open={navOpen} onClose={onCloseNav} />
-      <button type="button" className="sr-only" onClick={onExit}>
-        Exit test
-      </button>
     </div>
   )
 }

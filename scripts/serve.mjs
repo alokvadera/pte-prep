@@ -84,7 +84,7 @@ const server = createServer(async (req, res) => {
     'x-content-type-options': 'nosniff',
     'referrer-policy': 'strict-origin-when-cross-origin',
     'x-frame-options': 'SAMEORIGIN',
-    'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' https://api.groq.com; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';",
+    'content-security-policy': "default-src 'self'; script-src 'self' 'sha256-cY5WgIhtXwIGboRrbJmxLeNZFOgNzbD6ciTLFeTeV+g='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' https://api.groq.com; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';",
   }
   // Hashed assets are immutable; HTML and the service worker must revalidate.
   if (file.includes(`${path.sep}assets${path.sep}`)) {
@@ -96,6 +96,14 @@ const server = createServer(async (req, res) => {
   const body = await readFile(file)
   res.writeHead(200, headers)
   res.end(body)
+})
+
+server.on('error', (err) => {
+  if (err && err.code === 'EADDRINUSE') {
+    console.error(`\n  Port ${PORT} is already in use. Stop the existing process or choose another port.\n`)
+    process.exit(1)
+  }
+  throw err
 })
 
 server.listen(PORT, () => {

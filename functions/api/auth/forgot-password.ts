@@ -136,7 +136,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       apiKey: brevoKey,
       senderEmail,
       senderName,
-      to: escHtml(user.email),
+      to: user.email,
       subject: 'Reset your PTE Prep password',
       htmlContent,
       textContent: `Reset your PTE Prep password by visiting: ${resetLink} (Expires in 15 minutes).`,

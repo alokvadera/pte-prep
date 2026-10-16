@@ -82,8 +82,8 @@ export async function fetchAttemptFromCloud(id: string): Promise<AttemptRecord |
 }
 
 export async function deleteAttemptEverywhere(id: string): Promise<boolean> {
-  await deleteAttempt(id)
   await markDeleted(id)
+  await deleteAttempt(id)
 
   const token = useAuth.getState().token
   if (!token) return true

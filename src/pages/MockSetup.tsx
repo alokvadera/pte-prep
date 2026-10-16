@@ -6,7 +6,7 @@ import {
   SECTION_META,
   describeMockPreview,
 } from '../domain/blueprint'
-import type { MockMode, QuestionType, SectionId } from '../domain/types'
+import type { QuestionType, SectionId } from '../domain/types'
 import { manifestCapacityByType } from '../content/manifest'
 import { Seo } from '../seo/Seo'
 import { Badge, Button, PageWrapper } from '../components/ui/primitives'
@@ -69,14 +69,13 @@ export default function MockSetup() {
   const activeStatus = useTest((s) => s.status)
   
   const [length, setLength] = useState<Length>('full')
-  const [mode] = useState<MockMode>('exam')
   const [singleSection, setSingleSection] = useState<SectionId | null>(null)
   const [timing, setTiming] = useState<TimingId>('standard')
-  const [forwardOnly] = useState(false)
   // The assembler and the content bank it reads are only fetched when the
   // candidate actually starts a session, so the ~10 000 LOC bank never
   // lands on this page's initial JavaScript.
   const [starting, setStarting] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const capacity = useMemo(() => manifestCapacityByType(), [])
 
@@ -138,6 +137,7 @@ export default function MockSetup() {
   const begin = async () => {
     if (starting) return
     setStarting(true)
+    setLoadError(null)
     try {
       const t = TIMINGS[timing]
       const seed = Math.floor(Math.random() * 0x1_0000_0000)
@@ -146,16 +146,18 @@ export default function MockSetup() {
         ? buildSectionMock(seed, singleSection, counts, {
             timeScale: t.scale,
             untimed: t.untimed,
-            forwardOnly,
+            forwardOnly: false,
           })
         : buildFullMock(seed, {
             counts,
             timeScale: t.scale,
             untimed: t.untimed,
-            forwardOnly,
+            forwardOnly: false,
           })
-      start(mock, mode)
+      start(mock, 'exam')
       navigate('/test')
+    } catch {
+      setLoadError('Failed to assemble mock test. Please check your connection and try again.')
     } finally {
       setStarting(false)
     }
@@ -385,6 +387,12 @@ export default function MockSetup() {
               <Button size="lg" className="w-full justify-center text-sm font-bold shadow-md shadow-mark-500/20" onClick={handleStart} disabled={starting}>
                 {starting ? 'Preparing your mock…' : 'Start mock test'}
               </Button>
+
+              {loadError ? (
+                <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">
+                  {loadError}
+                </div>
+              ) : null}
 
               <details className="border-ink-200 dark:border-white/10 group mt-5 border-t pt-4">
                 <summary className="text-ink-700 dark:text-ink-200 flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold">
