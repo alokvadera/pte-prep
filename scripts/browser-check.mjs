@@ -192,8 +192,16 @@ for (const route of ROUTES) {
   await send('Log.enable', {}, sessionId)
   await send('Network.enable', {}, sessionId)
   // Never let a stale build be tested against a previous one.
-  await send('Network.setCacheDisabled', { cacheDisabled: true }, sessionId)
   await send('Page.enable', {}, sessionId)
+  await send(
+    'Page.addScriptToEvaluateOnNewDocument',
+    {
+      source: `window.addEventListener('securitypolicyviolation', (e) => {
+        console.error('CSP violation: ' + e.effectiveDirective + ' blocked ' + e.blockedURI);
+      });`,
+    },
+    sessionId,
+  )
 
   const collect = (msg) => {
     if (msg.sessionId !== sessionId) return
@@ -351,6 +359,8 @@ report(
 )
   report(!hydrationWarning, `${label.padEnd(14)} hydrates without mismatch`, hydrationWarning ?? '')
   report(pageErrors.length === 0, `${label.padEnd(14)} has no uncaught exceptions`, pageErrors.join(' | '))
+  const cspViolations = consoleErrors.filter((e) => /CSP violation/i.test(e))
+  report(cspViolations.length === 0, `${label.padEnd(14)} has no CSP violations`, cspViolations.join(' | '))
   report(realErrors.length === 0, `${label.padEnd(14)} has no console errors`, realErrors.join(' | ').slice(0, 160))
   const expectedStatus = route.startsWith('/not-') ? 404 : 200
   report(
@@ -1334,7 +1344,8 @@ report(
   // Unlike the hero CTA, the format page's secondary action has no wrapper.
   // Its pointer pull is delegated site-wide, without changing its box or link.
   await send('Page.navigate', { url: `${BASE}/format` }, sessionId)
-  await waitUntil(sessionId, "document.documentElement.dataset.appReady === 'true'")
+  await sleep(1000)
+  await waitUntil(sessionId, "document.documentElement.dataset.appReady === 'true' && !!document.querySelector('main a.btn-secondary')")
   const action = JSON.parse((await evaluate(`(() => {
     const a = document.querySelector('main a.btn-secondary')
     if (!a) return '{}'

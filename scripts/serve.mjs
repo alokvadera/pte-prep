@@ -84,6 +84,7 @@ const server = createServer(async (req, res) => {
     'x-content-type-options': 'nosniff',
     'referrer-policy': 'strict-origin-when-cross-origin',
     'x-frame-options': 'SAMEORIGIN',
+    'content-security-policy': "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' https://api.groq.com; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';",
   }
   // Hashed assets are immutable; HTML and the service worker must revalidate.
   if (file.includes(`${path.sep}assets${path.sep}`)) {

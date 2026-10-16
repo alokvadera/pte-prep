@@ -1,6 +1,26 @@
-import { deleteAttempt, listAttempts, saveAttempt } from '../db/db'
+import { deleteAttempt, listAttempts, readKv, saveAttempt, writeKv } from '../db/db'
 import type { AttemptRecord } from '../domain/types'
 import { useAuth } from '../store/useAuth'
+
+const DELETED_IDS_KEY = 'deleted_attempt_ids'
+
+async function getDeletedIds(): Promise<Set<string>> {
+  const list = await readKv<string[]>(DELETED_IDS_KEY, [])
+  return new Set(Array.isArray(list) ? list : [])
+}
+
+async function markDeleted(id: string): Promise<void> {
+  const set = await getDeletedIds()
+  set.add(id)
+  await writeKv(DELETED_IDS_KEY, Array.from(set))
+}
+
+async function unmarkDeleted(id: string): Promise<void> {
+  const set = await getDeletedIds()
+  if (set.delete(id)) {
+    await writeKv(DELETED_IDS_KEY, Array.from(set))
+  }
+}
 
 export async function syncAttemptToCloud(attempt: AttemptRecord): Promise<boolean> {
   const token = useAuth.getState().token
@@ -49,10 +69,12 @@ export async function fetchAttemptFromCloud(id: string): Promise<AttemptRecord |
   return null
 }
 
-export async function deleteAttemptEverywhere(id: string): Promise<void> {
+export async function deleteAttemptEverywhere(id: string): Promise<boolean> {
   await deleteAttempt(id)
+  await markDeleted(id)
+
   const token = useAuth.getState().token
-  if (!token) return
+  if (!token) return true
 
   try {
     const res = await fetch(`/api/attempts/${id}`, {
@@ -61,9 +83,16 @@ export async function deleteAttemptEverywhere(id: string): Promise<void> {
     })
     if (res.status === 401) {
       useAuth.getState().logout()
+      return false
     }
+    if (res.ok || res.status === 404) {
+      await unmarkDeleted(id)
+      return true
+    }
+    return false
   } catch {
-    /* offline */
+    /* offline: tombstone stays in kv and will be purged on next sync */
+    return false
   }
 }
 
@@ -72,6 +101,26 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
   if (!token) return { pushed: 0, pulled: 0 }
 
   try {
+    // 1. Replay any pending tombstones to cloud first
+    const pendingDeletes = await getDeletedIds()
+    for (const delId of pendingDeletes) {
+      try {
+        const delRes = await fetch(`/api/attempts/${delId}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        if (delRes.status === 401) {
+          useAuth.getState().logout()
+          return { pushed: 0, pulled: 0 }
+        }
+        if (delRes.ok || delRes.status === 404) {
+          await unmarkDeleted(delId)
+        }
+      } catch {
+        /* offline / retry next time */
+      }
+    }
+
     const res = await fetch('/api/attempts', {
       headers: { Authorization: `Bearer ${token}` },
     })
@@ -88,20 +137,22 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
     const localAttempts = await listAttempts(100)
     const localIds = new Set(localAttempts.map((a) => a.id))
 
+    const activeTombstones = await getDeletedIds()
+
     let pulled = 0
     let pushed = 0
 
-    // Pull missing attempts from cloud into local IndexedDB
+    // Pull missing attempts from cloud into local IndexedDB (skip tombstoned attempts)
     for (const ca of cloudAttempts) {
-      if (!localIds.has(ca.id)) {
+      if (!localIds.has(ca.id) && !activeTombstones.has(ca.id)) {
         await saveAttempt(ca)
         pulled++
       }
     }
 
-    // Push local attempts not yet in cloud
+    // Push local attempts not yet in cloud (skip tombstoned attempts)
     for (const la of localAttempts) {
-      if (!cloudIds.has(la.id)) {
+      if (!cloudIds.has(la.id) && !activeTombstones.has(la.id)) {
         const ok = await syncAttemptToCloud(la)
         if (ok) pushed++
       }

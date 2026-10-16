@@ -129,6 +129,10 @@ export async function hashPassword(password: string): Promise<{ hash: string; sa
   return { hash, salt }
 }
 
+/** Precomputed valid 16-byte salt and 256-bit hash for timing-equalized fake verifications */
+export const DUMMY_PASSWORD_SALT = '6yV17wuGQ4mpYEsFDXukPg'
+export const DUMMY_PASSWORD_HASH = 'aqL9u0wJ9aGNyCB5VH8aS0J-H9wUNqsMqqyC-Dw15DE'
+
 export async function verifyPassword(password: string, hash: string, salt: string): Promise<boolean> {
   try {
     const saltBytes = base64UrlDecode(salt)

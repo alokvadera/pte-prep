@@ -1,6 +1,7 @@
 import type { Env, UserRecord } from '../../types'
 import { sha256Hex } from '../../lib/auth'
 import { sendBrevoEmail } from '../../lib/brevo'
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   if (context.request.method !== 'POST') {
@@ -34,6 +35,13 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })
+  }
+
+  // Rate limit: 10 requests per 10 minutes per IP
+  const clientIp = getClientIp(context.request)
+  const ipCheck = await checkRateLimit(db, `forgot-password:ip:${clientIp}`, 10, 600)
+  if (!ipCheck.allowed) {
+    return rateLimitExceededResponse(ipCheck.retryAfter)
   }
 
   const genericSuccess = new Response(

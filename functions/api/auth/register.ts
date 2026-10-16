@@ -1,5 +1,6 @@
 import type { Env, UserRecord } from '../../types'
 import { createSessionToken, hashPassword, requireSecret } from '../../lib/auth'
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 interface ExtendedUserRecord extends UserRecord {
   password_hash: string | null
@@ -54,6 +55,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
+  // Rate limit: 10 registrations per hour per IP, 3 attempts per 10m per email
+  const clientIp = getClientIp(context.request)
+  const ipCheck = await checkRateLimit(db, `register:ip:${clientIp}`, 10, 3600)
+  if (!ipCheck.allowed) {
+    return rateLimitExceededResponse(ipCheck.retryAfter)
+  }
+  const emailCheck = await checkRateLimit(db, `register:email:${email}`, 3, 600)
+  if (!emailCheck.allowed) {
+    return rateLimitExceededResponse(emailCheck.retryAfter)
+  }
+
   const existing = await db
     .prepare('SELECT id, email, target_score, password_hash, password_salt FROM users WHERE email = ?')
     .bind(email)
@@ -63,8 +75,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   if (existing) {
     return new Response(
-      JSON.stringify({ error: 'An account with this email already exists. Please sign in.' }),
-      { status: 409, headers: { 'Content-Type': 'application/json' } },
+      JSON.stringify({ error: 'Unable to create account. If you already have an account, please sign in or reset your password.' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
     )
   }
 

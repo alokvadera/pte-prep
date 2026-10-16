@@ -41,10 +41,36 @@ export class ErrorBoundary extends Component<Props, State> {
     try {
       window.localStorage.removeItem('pte-prep-settings')
       window.localStorage.removeItem('pte-prep-active-test')
+      window.localStorage.removeItem('pte-prep-auth')
     } catch {
-      /* storage unavailable; the reload below still recovers the app */
+      /* storage unavailable */
     }
-    window.location.assign('/')
+
+    const proceed = () => window.location.assign('/')
+
+    try {
+      if (typeof window !== 'undefined' && 'indexedDB' in window) {
+        const req = window.indexedDB.deleteDatabase('pte-prep')
+        const timer = setTimeout(proceed, 500)
+        req.onsuccess = () => {
+          clearTimeout(timer)
+          proceed()
+        }
+        req.onerror = () => {
+          clearTimeout(timer)
+          proceed()
+        }
+        req.onblocked = () => {
+          clearTimeout(timer)
+          proceed()
+        }
+        return
+      }
+    } catch {
+      /* ignore */
+    }
+
+    proceed()
   }
 
   override render(): ReactNode {

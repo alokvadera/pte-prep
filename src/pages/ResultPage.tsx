@@ -294,6 +294,9 @@ export default function ResultPage() {
               </div>
               <div className="text-ink-500 dark:text-ink-on-dark-muted mb-3 text-xs font-bold">Overall score, 10 to 90</div>
               <div className="h-px bg-ink-200 dark:bg-white/10 w-full my-3"></div>
+              <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-medium">
+                <span className="font-bold text-ink-900 dark:text-white">{attempt.overallScore60}</span> / 120 (TOEFL scale)
+              </p>
             </div>
           </div>
         </header>

@@ -1,5 +1,6 @@
 import type { Env, UserRecord } from '../../types'
 import { createSessionToken, hashPassword, requireSecret, sha256Hex } from '../../lib/auth'
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 interface ResetTokenRecord {
   id: string
@@ -42,6 +43,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     })
+  }
+
+  // Rate limit: 10 attempts per 10 minutes per IP
+  const clientIp = getClientIp(context.request)
+  const ipCheck = await checkRateLimit(db, `reset-password:ip:${clientIp}`, 10, 600)
+  if (!ipCheck.allowed) {
+    return rateLimitExceededResponse(ipCheck.retryAfter)
   }
 
   const tokenHash = await sha256Hex(token)

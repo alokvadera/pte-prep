@@ -1,5 +1,6 @@
 import type { Env, UserRecord } from '../../types'
-import { createSessionToken, requireSecret, verifyPassword } from '../../lib/auth'
+import { DUMMY_PASSWORD_HASH, DUMMY_PASSWORD_SALT, createSessionToken, requireSecret, verifyPassword } from '../../lib/auth'
+import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 interface ExtendedUserRecord extends UserRecord {
   password_hash: string | null
@@ -35,6 +36,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
+  // Rate limit: 30 attempts per 10m per IP, 5 attempts per 5m per email
+  const clientIp = getClientIp(context.request)
+  const ipCheck = await checkRateLimit(db, `login:ip:${clientIp}`, 30, 600)
+  if (!ipCheck.allowed) {
+    return rateLimitExceededResponse(ipCheck.retryAfter)
+  }
+  const emailCheck = await checkRateLimit(db, `login:email:${rawEmail}`, 5, 300)
+  if (!emailCheck.allowed) {
+    return rateLimitExceededResponse(emailCheck.retryAfter)
+  }
+
   const existing = await db
     .prepare(
       'SELECT id, email, target_score, password_hash, password_salt, created_at, updated_at FROM users WHERE email = ?',
@@ -42,24 +54,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .bind(rawEmail)
     .first<ExtendedUserRecord>()
 
-  // Timing equalization: always do a comparable work if needed? but we already verify password
-  // For unknown user, do a quick dummy check to avoid timing leak
-  if (!existing) {
-    try {
-      await verifyPassword(password, 'dummyhash', 'dummysalt')
-    } catch {
-      // ignore
-    }
-    return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-
-  let user: UserRecord
-
-  // Existing user
-  if (!existing.password_hash) {
+  // Timing equalization: always run real 100k-iteration PBKDF2 derivation
+  if (!existing || !existing.password_hash) {
+    await verifyPassword(password, DUMMY_PASSWORD_HASH, DUMMY_PASSWORD_SALT)
     return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
