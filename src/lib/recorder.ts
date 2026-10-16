@@ -379,7 +379,7 @@ export class VoiceRecorder {
     // minimum sample so fluency never reports confidence from noise.
     const totalSamples = this.speechFrames + this.silentFrames
     const reliable =
-      (this.state === 'recording' || this.stopping) && durationMs >= 1500 && totalSamples >= 10
+      this.stopping && durationMs >= 1500 && totalSamples >= 10
 
     const analysis: AudioAnalysis = {
       durationMs: Math.round(durationMs),

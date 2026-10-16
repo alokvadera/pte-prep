@@ -78,13 +78,20 @@ export function CommandPalette() {
 
   if (!open) return null
 
-  const actions = [
-    { id: 'home', name: 'Go to Home', shortcut: 'G H', run: () => navigate('/') },
-    { id: 'dashboard', name: 'Go to Dashboard', shortcut: 'G D', run: () => navigate('/dashboard') },
-    { id: 'practice', name: 'Practice specific skills', shortcut: 'G P', run: () => navigate('/practice') },
-    { id: 'mock', name: 'Start a Mock Test', shortcut: 'G M', run: () => navigate('/mock') },
-    { id: 'format', name: 'Read the Format Guide', shortcut: 'G F', run: () => navigate('/format') },
-    ...(hasActiveMock ? [{ id: 'resume', name: 'Resume Active Test', shortcut: 'R T', run: () => navigate('/test') }] : []),
+  interface Action {
+    id: string
+    name: string
+    shortcut?: string
+    run: () => void
+  }
+
+  const actions: Action[] = [
+    { id: 'home', name: 'Go to Home', run: () => navigate('/') },
+    { id: 'dashboard', name: 'Go to Dashboard', run: () => navigate('/dashboard') },
+    { id: 'practice', name: 'Practice specific skills', run: () => navigate('/practice') },
+    { id: 'mock', name: 'Start a Mock Test', run: () => navigate('/mock') },
+    { id: 'format', name: 'Read the Format Guide', run: () => navigate('/format') },
+    ...(hasActiveMock ? [{ id: 'resume', name: 'Resume Active Test', run: () => navigate('/test') }] : []),
   ]
 
   const filtered = query

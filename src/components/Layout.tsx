@@ -59,21 +59,21 @@ export function Layout() {
     ? '/login'
     : `${hasLoggedInBefore ? '/login' : '/register'}?from=${encodeURIComponent(returnPath)}`
 
-  // The mobile menu closes on navigation. The new path arrives as a prop,
-  // so the state is adjusted during render — before paint, with no extra
-  // pass through an effect — rather than inside the scroll effect.
-  const [seenPath, setSeenPath] = useState(currentPath)
-  if (currentPath !== seenPath) {
-    setSeenPath(currentPath)
+  useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
     setIsMenuOpen(false)
-  }
+  }, [currentPath])
 
   useEffect(() => {
     if (location.hash) {
-      const el = document.querySelector(location.hash)
-      if (el) {
-        el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
-        return
+      try {
+        const el = document.querySelector(location.hash)
+        if (el) {
+          el.scrollIntoView({ behavior: scrollBehavior(), block: 'start' })
+          return
+        }
+      } catch {
+        // Ignore malformed hash selectors (e.g. '#' or invalid CSS ID syntax)
       }
     }
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })

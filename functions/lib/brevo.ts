@@ -55,11 +55,17 @@ export async function sendBrevoEmail(options: BrevoSendOptions): Promise<BrevoSe
       }),
     })
 
-    const data = await response.json().catch(() => ({})) as { messageId?: string; message?: string; code?: string }
+    const rawText = await response.text()
+    let data: { messageId?: string; message?: string; code?: string } = {}
+    try {
+      data = JSON.parse(rawText) as { messageId?: string; message?: string; code?: string }
+    } catch {
+      console.warn('Brevo API response is not valid JSON:', response.status, rawText)
+    }
 
     if (!response.ok) {
-      const errorMessage = data.message || `Brevo API error (${response.status})`
-      console.error('Brevo API delivery failed:', response.status, data)
+      const errorMessage = data.message || `Brevo API error (${response.status}): ${rawText.slice(0, 200)}`
+      console.error('Brevo API delivery failed:', response.status, data, rawText)
       return { ok: false, error: errorMessage }
     }
 

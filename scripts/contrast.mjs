@@ -11,10 +11,20 @@
 // pair that misses its threshold. Run with: node scripts/contrast.mjs
 // ---------------------------------------------------------------------------
 
-import { readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 
 const CSS = await readFile(path.resolve('src/index.css'), 'utf8')
+
+function normalizeHex(hex) {
+  let h = hex.slice(1).toLowerCase()
+  if (h.length === 3) {
+    h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2]
+  } else if (h.length === 8) {
+    h = h.slice(0, 6)
+  }
+  return `#${h}`
+}
 
 /**
  * Pulls `--color-<name>: #hex;` out of the @theme block.
@@ -27,19 +37,28 @@ const CSS = await readFile(path.resolve('src/index.css'), 'utf8')
  */
 async function tokens() {
   const out = new Map()
-  const re = /--color-([a-z0-9-]+):\s*(#[0-9a-fA-F]{6})\s*;/g
+  const re = /--color-([a-z0-9-]+):\s*(#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3}))\s*;/g
   let m
-  while ((m = re.exec(CSS))) out.set(m[1], m[2].toLowerCase())
+  while ((m = re.exec(CSS))) out.set(m[1], normalizeHex(m[2]))
 
-  const charts = await readFile(path.resolve('src/content/charts.ts'), 'utf8')
-  const chartRe = /color:\s*['"]?(#[0-9a-fA-F]{6})['"]?/g
-  while ((m = chartRe.exec(charts))) out.set(`chart${m[1].toLowerCase()}`, m[1].toLowerCase())
+  const contentDir = path.resolve('src/content')
+  const files = (await readdir(contentDir)).filter((f) => /^charts.*\.ts$/.test(f))
+  const chartRe = /color:\s*(['"]?)(#(?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3}))\1/g
+  for (const file of files) {
+    const charts = await readFile(path.join(contentDir, file), 'utf8')
+    chartRe.lastIndex = 0
+    while ((m = chartRe.exec(charts))) {
+      const normalized = normalizeHex(m[2])
+      out.set(`chart${normalized}`, normalized)
+    }
+  }
 
   return out
 }
 
 function hexToRgb(hex) {
-  const n = parseInt(hex.slice(1), 16)
+  const norm = normalizeHex(hex).slice(1)
+  const n = parseInt(norm, 16)
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255]
 }
 

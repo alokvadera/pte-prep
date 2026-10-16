@@ -40,15 +40,23 @@ const TYPES = {
 }
 
 async function resolveFile(urlPath) {
-  const decoded = decodeURIComponent(urlPath.split('?')[0] ?? '/')
+  let decoded
+  try {
+    decoded = decodeURIComponent(urlPath.split('?')[0] ?? '/')
+  } catch (err) {
+    if (err instanceof URIError) return 'BAD_REQUEST'
+    throw err
+  }
   // Reject traversal outright rather than relying on path normalisation.
   if (decoded.includes('..')) return null
 
-  const base = path.join(ROOT, decoded)
+  // Strip leading slashes to guarantee path remains strictly relative to ROOT.
+  const cleanPath = decoded.replace(/^\/+/, '')
+  const base = path.join(ROOT, cleanPath)
   if (!base.startsWith(ROOT)) return null
 
   const candidates = []
-  if (decoded.endsWith('/')) {
+  if (decoded.endsWith('/') || cleanPath === '') {
     candidates.push(path.join(base, 'index.html'))
   } else {
     candidates.push(base, path.join(base, 'index.html'), `${base}.html`)
@@ -63,7 +71,25 @@ async function resolveFile(urlPath) {
 }
 
 const server = createServer(async (req, res) => {
-  const file = await resolveFile(req.url ?? '/')
+  let file
+  try {
+    file = await resolveFile(req.url ?? '/')
+  } catch (err) {
+    if (err instanceof URIError) {
+      res.writeHead(400, { 'content-type': 'text/plain' })
+      res.end('Bad Request')
+      return
+    }
+    res.writeHead(500, { 'content-type': 'text/plain' })
+    res.end('Internal Server Error')
+    return
+  }
+
+  if (file === 'BAD_REQUEST') {
+    res.writeHead(400, { 'content-type': 'text/plain' })
+    res.end('Bad Request')
+    return
+  }
 
   if (!file) {
     const notFound = path.join(ROOT, '404.html')

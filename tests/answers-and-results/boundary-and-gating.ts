@@ -43,17 +43,30 @@ function main() {
   const split2 = splitSentences(s2)
   assert(split2.length === 3, 'Multiple sentence splits correctly count 3 sentences', `got ${split2.length}`)
 
+  const s3 = 'Research by e.g. Watson et al. demonstrated high efficacy, i.e. over 90% accuracy.'
+  const split3 = splitSentences(s3)
+  assert(split3.length === 1, 'Sentence with e.g., et al., i.e. counts as exactly 1 sentence', `got ${split3.length}`)
+
+  const s4 = 'Mr. Davis met Mrs. Gable and Ms. Chen at 4 p.m.'
+  const split4 = splitSentences(s4)
+  assert(split4.length === 1, 'Sentence with Mr., Mrs., Ms. counts as exactly 1 sentence', `got ${split4.length}`)
+
   // --------------------------------------------------------------------------
   // TEST 2: Word Count Form Bands (SWT, WE, SST)
   // --------------------------------------------------------------------------
   console.log('\n--- 2. Word Count Form Bands ---')
 
   // Summarize Written Text (SWT: 1 sentence, 5–75 words)
+  const wordsN = (n: number) => Array.from({ length: n }, (_, i) => `word${i}`).join(' ') + '.'
+
   const swtTooShort = formBand('summarize-written-text', 'Too short.') // 2 words
   assert(swtTooShort.score === 0, 'SWT < 5 words receives Form 0')
 
   const swtValid = formBand('summarize-written-text', 'Human language regulates information density to maintain a uniform communication rate across diverse grammars.')
   assert(swtValid.score === 1, 'SWT 1 sentence of 15 words receives Form 1')
+
+  assert(formBand('summarize-written-text', wordsN(75)).score === 1, 'SWT with 75 words receives Form 1')
+  assert(formBand('summarize-written-text', wordsN(76)).score === 0, 'SWT with 76 words (>75) receives Form 0')
 
   const swtTwoSentences = formBand('summarize-written-text', 'This is sentence one. This is sentence two.')
   assert(swtTwoSentences.score === 0, 'SWT 2 sentences receives Form 0')
@@ -62,8 +75,6 @@ function main() {
   assert(swtNoPunctuation.score === 0, 'SWT without end punctuation receives Form 0')
 
   // Write Essay (WE: 200–300 = Form 1.0; 120–199 or 301–380 = Form 0.5; outside = Form 0)
-  const wordsN = (n: number) => Array.from({ length: n }, (_, i) => `word${i}`).join(' ') + '.'
-
   assert(formBand('write-essay', wordsN(119)).score === 0, 'Essay with 119 words (<120) receives Form 0')
   assert(formBand('write-essay', wordsN(120)).score === 0.5, 'Essay with 120 words receives Form 0.5 (Band 1)')
   assert(formBand('write-essay', wordsN(199)).score === 0.5, 'Essay with 199 words receives Form 0.5 (Band 1)')
@@ -95,7 +106,7 @@ function main() {
     responseKind: 'choice',
     prompt: 'Select two options',
     options: ['Opt A', 'Opt B', 'Opt C', 'Opt D'],
-    maxPoints: 1,
+    maxPoints: 2,
     seconds: 60,
   }
   const dummyKey: AnswerKey = {
@@ -111,9 +122,32 @@ function main() {
   const scoreAllWrong = scoreItem(dummyItem, dummyKey, { choices: ['Opt C', 'Opt D'] })
   assert(scoreAllWrong.points === 0, 'All incorrect selections floor cleanly at 0 points')
 
-  // 2 correct + 1 wrong -> 2 - 1 = 1 out of 2 = 0.5 points
+  // 2 correct + 1 wrong -> 2 - 1 = 1 out of 2 = 0.5 ratio, 1 point
   const scorePartialNeg = scoreItem(dummyItem, dummyKey, { choices: ['Opt A', 'Opt B', 'Opt C'] })
-  assert(scorePartialNeg.points === 0.5, '2 correct + 1 incorrect yields net 0.5 points')
+  assert(scorePartialNeg.points === 1, '2 correct + 1 incorrect yields net 1 point out of 2')
+  assert(scorePartialNeg.ratio === 0.5, '2 correct + 1 incorrect yields ratio 0.5')
+
+  // Highlight Incorrect Words (HIW: negative marking on token indices)
+  const hiwItem: Item = {
+    id: 'test-hiw',
+    type: 'highlight-incorrect-words',
+    section: 'listening',
+    groupId: 'g-hiw',
+    responseKind: 'highlight',
+    prompt: 'Highlight incorrect words',
+    maxPoints: 2,
+    seconds: 45,
+  }
+  const hiwKey: AnswerKey = {
+    correctHighlighted: [2, 5],
+  }
+  const scoreHiwNeg = scoreItem(hiwItem, hiwKey, { highlighted: [2, 3, 4] }) // 1 correct, 2 wrong -> net 0
+  assert(scoreHiwNeg.points === 0, 'HIW net negative selections floor cleanly at 0 points')
+  assert(scoreHiwNeg.ratio === 0, 'HIW net negative ratio floors at 0')
+
+  const scoreHiwPartial = scoreItem(hiwItem, hiwKey, { highlighted: [2, 5, 3] }) // 2 correct, 1 wrong -> 1 point
+  assert(scoreHiwPartial.points === 1, 'HIW 2 correct + 1 incorrect yields net 1 point out of 2')
+  assert(scoreHiwPartial.ratio === 0.5, 'HIW 2 correct + 1 incorrect yields ratio 0.5')
 
   // --------------------------------------------------------------------------
   // TEST 4: Content = 0 Gating Rule (Zeroes entire item regardless of delivery)
@@ -158,6 +192,7 @@ function main() {
   const cefrTests: Array<[number, string]> = [
     [10, 'A1'],
     [29.5, 'A1'],
+    [29.999, 'A1'],
     [30, 'A2'],
     [42.5, 'A2'],
     [43, 'B1'],
@@ -166,6 +201,7 @@ function main() {
     [75.5, 'B2'],
     [76, 'C1'],
     [84.5, 'C1'],
+    [84.999, 'C1'],
     [85, 'C2'],
     [90, 'C2'],
   ]
@@ -178,10 +214,14 @@ function main() {
   // Scale bounds & raw accuracy mapping
   assert(rawToPteScale(0) === 10, '0% raw accuracy maps to PTE baseline 10')
   assert(rawToPteScale(1) === 90, '100% raw accuracy maps to PTE maximum 90')
+  assert(rawToPteScale(0.25) > 10 && rawToPteScale(0.25) < 50, '25% raw accuracy maps to lower-intermediate band')
   assert(rawToPteScale(0.5) >= 50 && rawToPteScale(0.5) <= 60, '50% raw accuracy maps to realistic middle band (50-60)')
+  assert(rawToPteScale(0.75) > 60 && rawToPteScale(0.75) < 90, '75% raw accuracy maps to upper-intermediate band')
 
   const band = scoreBand(0.75, 70)
   assert(band.low <= band.mid && band.mid <= band.high, 'Score estimation uncertainty band is monotonic')
+  assert(band.mid === 70, 'scoreBand midpoint anchors on displayed score')
+  assert(band.low < band.high, 'scoreBand defines a non-empty range')
 
   console.log(`\n========================================================================`)
   console.log(`  BOUNDARY & GATING RESULTS: ${passed}/${total} passed (100%)`)

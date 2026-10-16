@@ -1,5 +1,13 @@
 import type { Env, UserRecord } from '../../types'
-import { DUMMY_PASSWORD_HASH, DUMMY_PASSWORD_SALT, createSessionToken, requireSecret, verifyPassword } from '../../lib/auth'
+import {
+  DUMMY_PASSWORD_HASH,
+  DUMMY_PASSWORD_SALT,
+  createSessionToken,
+  requireSecret,
+  resolvePbkdf2Iterations,
+  resolveSessionExpiry,
+  verifyPassword,
+} from '../../lib/auth'
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 interface ExtendedUserRecord extends UserRecord {
@@ -7,7 +15,15 @@ interface ExtendedUserRecord extends UserRecord {
   password_salt: string | null
 }
 
+async function padDuration(startMs: number, targetMs = 250): Promise<void> {
+  const elapsed = Date.now() - startMs
+  if (elapsed < targetMs) {
+    await new Promise((r) => setTimeout(r, targetMs - elapsed))
+  }
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+  const start = Date.now()
   let body: { email?: string; password?: string }
   try {
     body = (await context.request.json()) as { email?: string; password?: string }
@@ -36,7 +52,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  // Rate limit: 30 attempts per 10m per IP, 5 attempts per 5m per IP+email
+  // Rate limit: 30 attempts per 10m per IP, 5 attempts per 5m per IP+email, 10 attempts per 5m per email
   const clientIp = getClientIp(context.request)
   const ipCheck = await checkRateLimit(db, `login:ip:${clientIp}`, 30, 600)
   if (!ipCheck.allowed) {
@@ -46,6 +62,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   if (!emailCheck.allowed) {
     return rateLimitExceededResponse(emailCheck.retryAfter)
   }
+  const emailOnlyCheck = await checkRateLimit(db, `login:email:${rawEmail}`, 10, 300)
+  if (!emailOnlyCheck.allowed) {
+    return rateLimitExceededResponse(emailOnlyCheck.retryAfter)
+  }
 
   const existing = await db
     .prepare(
@@ -54,17 +74,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .bind(rawEmail)
     .first<ExtendedUserRecord>()
 
-  // Timing equalization: always run real 100k-iteration PBKDF2 derivation
+  const iterations = resolvePbkdf2Iterations(context.env)
+
+  // Timing equalization: always run real PBKDF2 derivation and pad response duration
   if (!existing || !existing.password_hash) {
-    await verifyPassword(password, DUMMY_PASSWORD_HASH, DUMMY_PASSWORD_SALT)
+    await verifyPassword(password, DUMMY_PASSWORD_HASH, DUMMY_PASSWORD_SALT, iterations)
+    await padDuration(start)
     return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     })
   }
 
-  const valid = await verifyPassword(password, existing.password_hash, existing.password_salt ?? '')
+  const valid = await verifyPassword(password, existing.password_hash, existing.password_salt ?? '', iterations)
   if (!valid) {
+    await padDuration(start)
     return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
@@ -76,6 +100,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const token = await createSessionToken(
     { userId: user.id, email: user.email },
     requireSecret(context.env),
+    resolveSessionExpiry(context.env),
+    db,
   )
 
   return new Response(

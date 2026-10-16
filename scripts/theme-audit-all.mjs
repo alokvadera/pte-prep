@@ -73,6 +73,11 @@ const CHROME_CANDIDATES = [
 const bin = CHROME_CANDIDATES.find((p) => existsSync(p))
 if (!bin) {
   console.log('\n  Theme audit — no Chrome binary found, skipping.\n')
+  const allowSkip = process.argv.includes('--allow-skip') || process.env.ALLOW_SKIP_BROWSER === '1'
+  if ((process.env.CI || process.argv.includes('--strict')) && !allowSkip) {
+    console.error('  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.\n')
+    process.exit(1)
+  }
   process.exit(0)
 }
 

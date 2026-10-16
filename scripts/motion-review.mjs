@@ -57,8 +57,30 @@ const CANDIDATES = [
 
 const binary = CANDIDATES.find((p) => existsSync(p))
 if (!binary) {
-  console.log('\n  No Chrome binary found — skipping the motion review.\n')
-  process.exit(0)
+  console.error('\n  No Chrome binary found — skipping the motion review.')
+  console.error('  Set CHROME_PATH to run, or pass --allow-skip to skip.\n')
+  if (process.argv.includes('--allow-skip')) {
+    process.exit(0)
+  }
+  process.exit(1)
+}
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+
+// Wait for the server rather than assuming it is up. Without this the first
+// route can be fetched before the static server is listening, and the review
+// reports confident findings about a page that was never rendered.
+const deadline = Date.now() + 20_000
+for (;;) {
+  try {
+    const r = await fetch(BASE, { signal: AbortSignal.timeout(2000) })
+    if (r.ok) break
+  } catch {}
+  if (Date.now() > deadline) {
+    console.error(`No server at ${BASE}. Start one with: npm run serve`)
+    process.exit(2)
+  }
+  await sleep(300)
 }
 
 const ROUTES = [
@@ -98,8 +120,6 @@ const chrome = spawn(
   ],
   { stdio: 'ignore' },
 )
-
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 
 async function waitForDevTools() {
   for (let i = 0; i < 60; i++) {

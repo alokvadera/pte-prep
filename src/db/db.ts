@@ -58,8 +58,12 @@ async function withDb<T>(fn: (db: AppDb) => Promise<T>, fallback: T): Promise<T>
   try {
     const db = await openDb()
     return await fn(db)
-  } catch {
+  } catch (err) {
     // Private browsing, storage disabled, or running during prerender.
+    const isTest = (import.meta as unknown as { env?: { MODE?: string } }).env?.MODE === 'test'
+    if (!isTest) {
+      console.warn('[db] withDb operation failed, falling back:', err)
+    }
     return fallback
   }
 }

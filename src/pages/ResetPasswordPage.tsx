@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../store/useAuth'
 import { Button, Card, PageWrapper } from '../components/ui/primitives'
@@ -18,6 +18,13 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
+  const navTimer = useRef<number | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (navTimer.current !== null) window.clearTimeout(navTimer.current)
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,7 +72,8 @@ export default function ResetPasswordPage() {
         setSession(data.user, data.token)
       }
 
-      setTimeout(() => {
+      if (navTimer.current !== null) window.clearTimeout(navTimer.current)
+      navTimer.current = window.setTimeout(() => {
         navigate('/dashboard')
       }, 2000)
     } catch {

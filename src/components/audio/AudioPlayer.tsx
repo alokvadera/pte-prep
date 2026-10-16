@@ -72,16 +72,19 @@ export function AudioPlayer({
   }, [onPlayStateChange])
 
   const stimulusKey = `${audioId ?? ''}:${utterance ?? ''}:${fromTurn ?? ''}:${toTurn ?? ''}:${beepWord ?? ''}:${replays}`
-  const [prevStimulusKey, setPrevStimulusKey] = useState(stimulusKey)
 
-  if (stimulusKey !== prevStimulusKey) {
-    setPrevStimulusKey(stimulusKey)
+  useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
     setPlaysLeft(replays + 1)
+    // oxlint-disable-next-line react/set-state-in-effect
     setState('idle')
+    // oxlint-disable-next-line react/set-state-in-effect
     setShowText(false)
+    // oxlint-disable-next-line react/set-state-in-effect
     setTurnIndex(0)
+    // oxlint-disable-next-line react/set-state-in-effect
     setUnsupported(false)
-  }
+  }, [stimulusKey, replays])
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== null) {

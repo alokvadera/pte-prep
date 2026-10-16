@@ -49,7 +49,16 @@ async function loadEnv() {
 await loadEnv()
 
 const FALLBACK_ORIGIN = 'https://pte-prep.pages.dev'
-const ORIGIN = ((process.env.SITE_ORIGIN ?? process.env.VITE_SITE_ORIGIN ?? '').replace(/\/+$/, '')) || FALLBACK_ORIGIN
+const rawOrigin = process.env.SITE_ORIGIN ?? process.env.VITE_SITE_ORIGIN ?? ''
+const isProd =
+  process.env.NODE_ENV === 'production' ||
+  process.env.CF_PAGES === '1' ||
+  process.env.CI === 'true' ||
+  process.env.CI === '1'
+if (isProd && !rawOrigin) {
+  throw new Error('SITE_ORIGIN must be set in production or on Cloudflare Pages/CI.')
+}
+const ORIGIN = rawOrigin.replace(/\/+$/, '') || FALLBACK_ORIGIN
 
 // A Netlify placeholder origin would bake wrong canonicals into every page.
 // Fail here, with the fix, rather than deploying bad metadata silently.
@@ -162,7 +171,8 @@ ROUTES.push(
 
 /** Absolute URLs are only emitted when the origin is known at build time. */
 function abs(p) {
-  return ORIGIN ? `${ORIGIN}${p}` : p
+  const norm = p.startsWith('/') ? p : `/${p}`
+  return ORIGIN ? `${ORIGIN}${norm}` : norm
 }
 
 function escapeXml(value) {
@@ -232,25 +242,36 @@ async function main() {
   const { render } = await import(pathToFileURL(SSR_BUNDLE).href)
 
   let written = 0
+  const routeErrors = []
 
   for (const route of ROUTES) {
-    const page = await render(route.path)
-    const html = buildPage(template, {
-      html: page.html,
-      head: page.head,
-      canonical: abs(route.path),
-      noindex: Boolean(route.noindex) || page.noindex,
-    })
+    try {
+      const page = await render(route.path)
+      const html = buildPage(template, {
+        html: page.html,
+        head: page.head,
+        canonical: abs(route.path),
+        noindex: Boolean(route.noindex) || page.noindex,
+      })
 
-    const target = path.join(DIST, route.file)
-    await mkdir(path.dirname(target), { recursive: true })
-    await writeFile(target, applyBase(html), 'utf8')
-    written += 1
+      const target = path.join(DIST, route.file)
+      await mkdir(path.dirname(target), { recursive: true })
+      await writeFile(target, applyBase(html), 'utf8')
+      written += 1
 
-    const kb = (Buffer.byteLength(html) / 1024).toFixed(0)
-    const inner = (Buffer.byteLength(page.html) / 1024).toFixed(0)
-    const ld = page.structuredData.length
-    console.log(`  \u2713 ${route.path.padEnd(12)} ${route.file.padEnd(22)} ${kb} kB (${inner} kB markup, ${ld} JSON-LD)`)
+      const kb = (Buffer.byteLength(html) / 1024).toFixed(0)
+      const inner = (Buffer.byteLength(page.html) / 1024).toFixed(0)
+      const ld = page.structuredData.length
+      console.log(`  \u2713 ${route.path.padEnd(12)} ${route.file.padEnd(22)} ${kb} kB (${inner} kB markup, ${ld} JSON-LD)`)
+    } catch (err) {
+      console.error(`  \u2717 Failed to prerender ${route.path}:`, err)
+      routeErrors.push({ path: route.path, error: err })
+    }
+  }
+
+  if (routeErrors.length > 0) {
+    console.error(`Prerendering failed for ${routeErrors.length} route(s).`)
+    process.exit(1)
   }
 
   // --- sitemap.xml -------------------------------------------------------
@@ -291,7 +312,7 @@ ${sitemapLine}
 
   // --- 404 ---------------------------------------------------------------
   // Hosters that serve a custom 404 still need real content, not an empty shell.
-  {
+  try {
     const notFound = await render('/this-page-does-not-exist', { known: false })
     const html = buildPage(template, {
       html: notFound.html,
@@ -301,6 +322,9 @@ ${sitemapLine}
     })
     await writeFile(path.join(DIST, '404.html'), applyBase(html), 'utf8')
     console.log('  ✓ 404.html')
+  } catch (err) {
+    console.error('  ✗ Failed to prerender 404.html:', err)
+    routeErrors.push({ path: '/404.html', error: err })
   }
 
   // --- app shells ----------------------------------------------------------
@@ -314,17 +338,22 @@ ${sitemapLine}
     { path: '/result/', file: 'result/index.html', title: 'Your mock score — PTE Prep', h1: 'Your PTE Academic mock score' },
     { path: '/reset-password/', file: 'reset-password/index.html', title: 'Reset Your PTE Prep Password', h1: 'Reset your PTE Prep password' },
   ]) {
-    const shellHtml = buildPage(template, {
-      html: `<h1 class="sr-only">${shell.h1}</h1>`,
-      head: `<title>${shell.title}</title>\n    <meta name="description" content="PTE Prep runs in your browser." />`,
-      canonical: null,
-      noindex: true,
-      hydrate: false,
-    })
-    const target = path.join(DIST, shell.file)
-    await mkdir(path.dirname(target), { recursive: true })
-    await writeFile(target, applyBase(shellHtml), 'utf8')
-    console.log(`  ✓ ${shell.path.padEnd(12)} ${shell.file.padEnd(22)} app shell`)
+    try {
+      const shellHtml = buildPage(template, {
+        html: `<h1 class="sr-only">${shell.h1}</h1>`,
+        head: `<title>${shell.title}</title>\n    <meta name="description" content="PTE Prep runs in your browser." />`,
+        canonical: null,
+        noindex: true,
+        hydrate: false,
+      })
+      const target = path.join(DIST, shell.file)
+      await mkdir(path.dirname(target), { recursive: true })
+      await writeFile(target, applyBase(shellHtml), 'utf8')
+      console.log(`  ✓ ${shell.path.padEnd(12)} ${shell.file.padEnd(22)} app shell`)
+    } catch (err) {
+      console.error(`  ✗ Failed to prerender app shell ${shell.path}:`, err)
+      routeErrors.push({ path: shell.path, error: err })
+    }
   }
 
   // --- base-path rewrite -------------------------------------------------

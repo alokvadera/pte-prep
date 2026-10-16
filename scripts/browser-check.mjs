@@ -11,7 +11,7 @@
 // Requires a Chrome/Chromium binary; skips cleanly when none is found.
 // ---------------------------------------------------------------------------
 
-import { spawn } from 'node:child_process'
+import { execSync, spawn } from 'node:child_process'
 import { mkdtemp, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -33,21 +33,18 @@ const binary = CANDIDATES.find((p) => existsSync(p))
 if (!binary) {
   console.log('\n  No Chrome binary found — skipping browser checks.')
   console.log('  Set CHROME_PATH to run them.\n')
-  if (process.argv.includes('--strict')) {
-    console.log('  Failing because --strict was passed.\n')
+  const allowSkip = process.argv.includes('--allow-skip') || process.env.ALLOW_SKIP_BROWSER === '1'
+  if ((process.env.CI || process.argv.includes('--strict')) && !allowSkip) {
+    console.error('  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.\n')
     process.exit(1)
   }
   process.exit(0)
 }
 
-const QUESTION_TYPE_SLUGS = [
-  'read-aloud', 'repeat-sentence', 'describe-image', 'retell-lecture', 'answer-short-question',
-  'summarize-group-discussion', 'respond-to-situation', 'summarize-written-text', 'write-essay',
-  'fill-in-blanks-dropdown', 'fill-in-blanks-table', 'multiple-choice-single', 'multiple-choice-multiple',
-  'reorder-paragraphs', 'summarize-spoken-text', 'fill-in-blanks-listening', 'highlight-correct-summary',
-  'listening-multiple-choice-single', 'listening-multiple-choice-multiple', 'select-missing-word',
-  'highlight-incorrect-words', 'write-from-dictation',
-]
+const QUESTION_TYPE_SLUGS = execSync('npx tsx scripts/print-type-slugs.ts', { encoding: 'utf8' })
+  .split('\n')
+  .map((s) => s.trim())
+  .filter(Boolean)
 
 const ROUTES = [
   '/', '/mock', '/practice', '/format', '/scoring', '/guide', '/about', '/dashboard', '/not-a-page',

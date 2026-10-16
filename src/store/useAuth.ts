@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { createJSONStorage, persist } from 'zustand/middleware'
 
 export interface User {
   id: string
@@ -26,6 +26,8 @@ interface AuthStore {
   checkSession: () => Promise<void>
   clearError: () => void
 }
+
+type PersistedAuth = Pick<AuthStore, 'user' | 'token' | 'expiresAt' | 'hasLoggedInBefore' | 'lastEmail'>
 
 interface AuthStorage {
   getItem: (name: string) => string | null
@@ -59,7 +61,8 @@ function createAuthStorage(): AuthStorage {
   }
 }
 
-const authStorage: AuthStorage = createAuthStorage()
+let targetScoreSeq = 0
+let lastConfirmedScore: number | undefined
 
 export const useAuth = create<AuthStore>()(
   persist(
@@ -143,6 +146,8 @@ export const useAuth = create<AuthStore>()(
       },
 
       logout: () => {
+        lastConfirmedScore = undefined
+        targetScoreSeq = 0
         set({
           user: null,
           token: null,
@@ -178,13 +183,21 @@ export const useAuth = create<AuthStore>()(
             },
             body: JSON.stringify({ currentPassword, newPassword }),
           })
-          if (!res.ok) {
-            const data = (await res.json().catch(() => null)) as { error?: string } | null
+          const data = (await res.json().catch(() => null)) as {
+            ok?: boolean
+            error?: string
+            token?: string
+            expiresAt?: number
+          } | null
+          if (!res.ok || !data?.ok) {
             return data?.error ?? 'Could not change the password.'
           }
-          // The server keeps the current session valid after a password
-          // change (no token versioning yet), so keep the local session
-          // intact. Other devices stay signed in until their tokens expire.
+          if (data.token) {
+            set((s) => ({
+              token: data.token!,
+              expiresAt: data.expiresAt ?? (s.expiresAt ? s.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000),
+            }))
+          }
           return true
         } catch {
           return 'Could not connect to authentication service.'
@@ -194,9 +207,12 @@ export const useAuth = create<AuthStore>()(
       setTargetScore: async (score: number) => {
         const { token, user } = get()
         if (!token || !user) return
-        const previous = user.targetScore
-        const updated = { ...user, targetScore: score }
-        set({ user: updated })
+        if (lastConfirmedScore === undefined) {
+          lastConfirmedScore = user.targetScore
+        }
+        const rollbackScore = lastConfirmedScore
+        const seq = ++targetScoreSeq
+        set({ user: { ...user, targetScore: score } })
         try {
           const res = await fetch('/api/auth/me', {
             method: 'PATCH',
@@ -206,9 +222,21 @@ export const useAuth = create<AuthStore>()(
             },
             body: JSON.stringify({ targetScore: score }),
           })
-          if (!res.ok) set({ user: { ...updated, targetScore: previous } })
+          if (res.ok) {
+            if (seq === targetScoreSeq) {
+              lastConfirmedScore = undefined
+            }
+          } else if (seq === targetScoreSeq) {
+            lastConfirmedScore = undefined
+            const current = get().user
+            if (current) set({ user: { ...current, targetScore: rollbackScore } })
+          }
         } catch {
-          set({ user: { ...updated, targetScore: previous } })
+          if (seq === targetScoreSeq) {
+            lastConfirmedScore = undefined
+            const current = get().user
+            if (current) set({ user: { ...current, targetScore: rollbackScore } })
+          }
         }
       },
 
@@ -251,16 +279,16 @@ export const useAuth = create<AuthStore>()(
     }),
     {
       name: 'pte-prep-auth',
-      partialize: (s) => ({
+      partialize: (s): PersistedAuth => ({
         user: s.user,
         token: s.token,
         expiresAt: s.expiresAt,
         hasLoggedInBefore: Boolean(s.hasLoggedInBefore || s.user || s.token),
         lastEmail: s.lastEmail ?? s.user?.email ?? null,
-      } as unknown as AuthStore),
-      storage: authStorage as any,
+      }),
+      storage: createJSONStorage(() => createAuthStorage()),
       merge: (persistedState, currentState) => {
-        const p = persistedState as Partial<AuthStore> | null
+        const p = persistedState as Partial<PersistedAuth> | null | undefined
         const hasPrev = Boolean(p?.hasLoggedInBefore || p?.user || p?.token || p?.expiresAt)
         return {
           ...currentState,

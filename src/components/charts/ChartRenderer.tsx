@@ -44,10 +44,18 @@ function GridLines({ max, left, right, top, bottom, ticks = 5 }: { max: number; 
 }
 
 function BarChart({ data }: { data: Record<string, unknown> }) {
-  const categories = data.categories as string[]
-  const series = data.series as Array<{ name: string; values: number[]; color: string }>
+  const categories = (data.categories as string[]) ?? []
+  const series = (data.series as Array<{ name: string; values: number[]; color: string }>) ?? []
   const unit = (data.unit as string) ?? ''
-  const max = niceMax(Math.max(...series.flatMap((s) => s.values)))
+  const values = series.flatMap((s) => s.values ?? [])
+  if (categories.length === 0 || series.length === 0 || values.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center text-xs opacity-60">
+        No chart data available
+      </div>
+    )
+  }
+  const max = niceMax(Math.max(...values))
   const plotW = W - PAD.left - PAD.right
   const plotH = H - PAD.top - PAD.bottom
   const groupW = plotW / categories.length
@@ -105,10 +113,17 @@ function BarChart({ data }: { data: Record<string, unknown> }) {
 }
 
 function LineChart({ data }: { data: Record<string, unknown> }) {
-  const x = data.x as string[]
-  const series = data.series as Array<{ name: string; values: number[]; color: string }>
+  const x = (data.x as string[]) ?? []
+  const series = (data.series as Array<{ name: string; values: number[]; color: string }>) ?? []
   const unit = (data.unit as string) ?? ''
-  const all = series.flatMap((s) => s.values)
+  const all = series.flatMap((s) => s.values ?? [])
+  if (x.length === 0 || series.length === 0 || all.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center text-xs opacity-60">
+        No chart data available
+      </div>
+    )
+  }
   const rawMax = Math.max(...all)
   const rawMin = Math.min(...all)
   const max = niceMax(rawMax)
@@ -170,8 +185,15 @@ function LineChart({ data }: { data: Record<string, unknown> }) {
 }
 
 function PieChart({ data }: { data: Record<string, unknown> }) {
-  const slices = data.slices as Array<{ name: string; value: number; color: string }>
-  const total = slices.reduce((a, s) => a + s.value, 0)
+  const slices = (data.slices as Array<{ name: string; value: number; color: string }>) ?? []
+  const total = slices.reduce((a, s) => a + (s.value || 0), 0)
+  if (slices.length === 0 || total <= 0) {
+    return (
+      <div className="flex h-48 items-center justify-center text-xs opacity-60">
+        No chart data available
+      </div>
+    )
+  }
   const cx = 210
   const cy = H / 2
   const r = 118
@@ -226,7 +248,14 @@ function PieChart({ data }: { data: Record<string, unknown> }) {
 }
 
 function ProcessChart({ data, chartId = 'process' }: { data: Record<string, unknown>; chartId?: string }) {
-  const steps = data.steps as Array<{ label: string; detail: string }>
+  const steps = (data.steps as Array<{ label: string; detail: string }>) ?? []
+  if (steps.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center text-xs opacity-60">
+        No chart data available
+      </div>
+    )
+  }
   const loop = data.loop as string
   const boxW = 128
   const boxH = 104
@@ -286,8 +315,15 @@ function ProcessChart({ data, chartId = 'process' }: { data: Record<string, unkn
 }
 
 function DiagramChart({ data, chartId = 'diagram' }: { data: Record<string, unknown>; chartId?: string }) {
-  const nodes = data.nodes as Node[]
-  const edges = data.edges as Array<[string, string]>
+  const nodes = (data.nodes as Node[]) ?? []
+  if (nodes.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center text-xs opacity-60">
+        No chart data available
+      </div>
+    )
+  }
+  const edges = (data.edges as Array<[string, string]>) ?? []
   const note = data.note as string
   const byId = new Map(nodes.map((n) => [n.id, n]))
   const edgeId = `fedge-${chartId}`
@@ -346,8 +382,15 @@ function DiagramChart({ data, chartId = 'diagram' }: { data: Record<string, unkn
 }
 
 function TableChart({ data }: { data: Record<string, unknown> }) {
-  const headers = data.headers as string[]
-  const rows = data.rows as string[][]
+  const headers = (data.headers as string[]) ?? []
+  const rows = (data.rows as string[][]) ?? []
+  if (headers.length === 0) {
+    return (
+      <div className="flex h-48 items-center justify-center text-xs opacity-60">
+        No chart data available
+      </div>
+    )
+  }
   const colW = (W - 80) / headers.length
   const rowH = 46
 
@@ -409,6 +452,11 @@ export function ChartRenderer({ chartId, className }: Props) {
         {chart.kind === 'process' ? <ProcessChart data={data} chartId={chartId} /> : null}
         {chart.kind === 'diagram' ? <DiagramChart data={data} chartId={chartId} /> : null}
         {chart.kind === 'table-chart' ? <TableChart data={data} /> : null}
+        {!['bar', 'scatter', 'line', 'pie', 'process', 'diagram', 'table-chart'].includes(chart.kind) ? (
+          <div className="flex h-48 items-center justify-center text-xs opacity-60">
+            Unsupported chart format
+          </div>
+        ) : null}
       </div>
       <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-center text-xs">{chart.caption}</p>
     </figure>

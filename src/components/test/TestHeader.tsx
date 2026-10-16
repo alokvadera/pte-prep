@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cn } from '../../lib/cn'
 import { formatClock } from '../../lib/format'
 import { CountdownRing } from '../../components/ui/countdown-ring'
@@ -19,7 +19,8 @@ import { CountdownRing } from '../../components/ui/countdown-ring'
 const WARN_AT = [300, 60] as const
 
 interface Props {
-  secondsRemaining: number
+  secondsRemaining?: number
+  sectionEndsAt?: number | null
   totalSeconds: number
   sectionTitle: string
   itemNumber: number
@@ -31,10 +32,12 @@ interface Props {
   /** An untimed run shows a counter instead of a clock. */
   untimed?: boolean
   onExit?: () => void
+  onExpire?: () => void
 }
 
 export function TestHeader({
-  secondsRemaining,
+  secondsRemaining: propsSecondsRemaining,
+  sectionEndsAt,
   totalSeconds,
   sectionTitle,
   itemNumber,
@@ -44,22 +47,47 @@ export function TestHeader({
   onExtend,
   untimed = false,
   onExit,
+  onExpire,
 }: Props) {
-  const ratio = totalSeconds > 0 ? secondsRemaining / totalSeconds : 0
+  const [internalRemaining, setInternalRemaining] = useState(() =>
+    sectionEndsAt ? Math.max(0, Math.ceil((sectionEndsAt - Date.now()) / 1000)) : (propsSecondsRemaining ?? 0),
+  )
+
+  useEffect(() => {
+    if (untimed || !sectionEndsAt) return
+    const tick = () => {
+      const rem = Math.max(0, Math.ceil((sectionEndsAt - Date.now()) / 1000))
+      setInternalRemaining(rem)
+      if (rem <= 0) {
+        onExpire?.()
+      }
+    }
+    tick()
+    const id = window.setInterval(tick, 250)
+    return () => window.clearInterval(id)
+  }, [sectionEndsAt, untimed, onExpire])
+
+  const secondsRemaining = sectionEndsAt !== undefined && sectionEndsAt !== null ? internalRemaining : (propsSecondsRemaining ?? 0)
+  const rawRatio = totalSeconds > 0 ? secondsRemaining / totalSeconds : 0
+  const ratio = Math.max(0, Math.min(1, rawRatio))
   const critical = secondsRemaining <= 60
   const warning = secondsRemaining <= 300 && !critical
-  const [prevSection, setPrevSection] = useState(sectionTitle)
   const [canExtend, setCanExtend] = useState(false)
   const [extended, setExtended] = useState(0)
 
   // The extension control appears at each threshold and stays for the rest of
   // the section, so the candidate is never asked to find it under pressure.
-  if (sectionTitle !== prevSection) {
-    setPrevSection(sectionTitle)
+  useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
     setCanExtend(false)
-  } else if (!canExtend && !untimed && WARN_AT.some((t) => secondsRemaining <= t)) {
-    setCanExtend(true)
-  }
+  }, [sectionTitle])
+
+  useEffect(() => {
+    if (!untimed && WARN_AT.some((t) => secondsRemaining <= t)) {
+      // oxlint-disable-next-line react/set-state-in-effect
+      setCanExtend(true)
+    }
+  }, [secondsRemaining, untimed])
 
   const atThreshold = canExtend || (!untimed && WARN_AT.some((t) => secondsRemaining <= t))
 

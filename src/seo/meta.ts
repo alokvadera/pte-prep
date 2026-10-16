@@ -427,17 +427,19 @@ export const PAGE_META: Record<string, PageMeta> = {
   },
 }
 
-/** Metadata for a pathname, falling back to the not-found page. */
 export function getPageMeta(pathname: string): PageMeta {
   // Routes are registered with a trailing slash so the static build emits a real
   // directory index at each path. A visitor may still arrive without one, so
   // both forms resolve to the same entry.
   const clean = pathname.replace(/\/+$/, '') || '/'
+  const withSlash = clean === '/' ? '/' : `${clean}/`
   return (
     PAGE_META[pathname] ??
     PAGE_META[clean] ??
+    PAGE_META[withSlash] ??
     QUESTION_TYPE_META[pathname] ??
     QUESTION_TYPE_META[clean] ??
+    QUESTION_TYPE_META[withSlash] ??
     notFoundMeta(pathname)
   )
 }

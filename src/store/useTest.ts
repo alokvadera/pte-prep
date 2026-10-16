@@ -4,6 +4,7 @@ import { saveAttempt } from '../db/db'
 import { QUESTION_META } from '../domain/blueprint'
 import { buildReport } from '../domain/scoring'
 import type { AttemptRecord, ItemResponse, MockMode, MockTest, SectionId, Skill } from '../domain/types'
+import { throttledStateStorage } from '../lib/storage'
 
 export type RunnerStatus = 'briefing' | 'running' | 'break' | 'finished'
 
@@ -43,9 +44,6 @@ interface TestStore {
 function flatItems(mock: MockTest | null): string[] {
   return mock ? mock.sections.flatMap((s) => s.itemIds) : []
 }
-
-
-import { throttledStateStorage } from '../lib/storage'
 
 const safeJsonStorage = () => createJSONStorage(() => throttledStateStorage(1000))
 

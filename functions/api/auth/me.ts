@@ -1,18 +1,20 @@
 import type { Env, UserRecord } from '../../types'
-import { extractBearerToken, hashPassword, requireSecret, verifyPassword, verifySessionToken } from '../../lib/auth'
+import {
+  createSessionToken,
+  extractBearerToken,
+  hashPassword,
+  requireSecret,
+  resolvePbkdf2Iterations,
+  resolveSessionExpiry,
+  revokeAllUserSessions,
+  verifyPassword,
+  verifySessionToken,
+} from '../../lib/auth'
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const token = extractBearerToken(context.request)
   if (!token) {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-
-  const session = await verifySessionToken(token, requireSecret(context.env))
-  if (!session) {
-    return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
       headers: { 'Content-Type': 'application/json' },
     })
@@ -25,6 +27,15 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     })
   }
+
+  const session = await verifySessionToken(token, requireSecret(context.env), db)
+  if (!session) {
+    return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   const user = await db
     .prepare('SELECT id, email, target_score, created_at, updated_at FROM users WHERE id = ?')
     .bind(session.userId)
@@ -61,7 +72,15 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, requireSecret(context.env))
+  const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const session = await verifySessionToken(token, requireSecret(context.env), db)
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -79,15 +98,20 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const db = context.env.DB
-  if (!db) {
-    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-  if (typeof body.targetScore === 'number') {
+  if (body.targetScore !== undefined) {
+    if (typeof body.targetScore !== 'number' || !Number.isFinite(body.targetScore)) {
+      return new Response(JSON.stringify({ error: 'Target score must be a finite number.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
     const score = Math.max(10, Math.min(90, Math.round(body.targetScore)))
+    if (!Number.isFinite(score)) {
+      return new Response(JSON.stringify({ error: 'Target score must be a finite number.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
     await db
       .prepare('UPDATE users SET target_score = ?, updated_at = datetime("now") WHERE id = ?')
       .bind(score, session.userId)
@@ -114,7 +138,8 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
         headers: { 'Content-Type': 'application/json' },
       })
     }
-    const valid = await verifyPassword(body.currentPassword, userRec.password_hash, userRec.password_salt)
+    const iterations = resolvePbkdf2Iterations(context.env)
+    const valid = await verifyPassword(body.currentPassword, userRec.password_hash, userRec.password_salt, iterations)
     if (!valid) {
       return new Response(JSON.stringify({ error: 'Current password is incorrect.' }), {
         status: 400,
@@ -133,11 +158,35 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
         headers: { 'Content-Type': 'application/json' },
       })
     }
-    const { hash, salt } = await hashPassword(body.newPassword)
+    const { hash, salt } = await hashPassword(body.newPassword, iterations)
     await db
       .prepare('UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime("now") WHERE id = ?')
       .bind(hash, salt, session.userId)
       .run()
+
+    // Revoke all existing sessions so that any stolen tokens lose access
+    await revokeAllUserSessions(db, session.userId)
+
+    const secret = requireSecret(context.env)
+    const expiresIn = resolveSessionExpiry(context.env)
+    const newToken = await createSessionToken(
+      { userId: session.userId, email: session.email },
+      secret,
+      expiresIn,
+      db,
+    )
+
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        token: newToken,
+        expiresAt: Date.now() + expiresIn * 1000,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
   }
 
   return new Response(JSON.stringify({ ok: true }), {

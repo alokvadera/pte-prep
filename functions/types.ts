@@ -6,6 +6,8 @@ export interface Env {
   BREVO_SENDER_EMAIL?: string
   BREVO_SENDER_NAME?: string
   SITE_ORIGIN?: string
+  SESSION_EXPIRY_SECONDS?: string
+  PBKDF2_ITERATIONS?: string
 }
 
 export interface UserRecord {
@@ -20,4 +22,7 @@ export interface AuthSession {
   userId: string
   email: string
   exp: number
+  iat?: number
+  jti?: string
+  aud?: string
 }

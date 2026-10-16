@@ -75,7 +75,12 @@ for (const p of PASSAGES) {
 
   // Summarize Written Text: exactly one sentence, as the real instruction demands.
   const swtWords = p.swt.summary.split(/\s+/).length
-  check(`${at}: SWT reference is one sentence of at most 60 words`, swtWords <= 60, `${swtWords} words`)
+  const swtSentences = p.swt.summary.trim().split(/[.!?]\s+/).filter(Boolean).length
+  check(
+    `${at}: SWT reference is one sentence of at most 60 words`,
+    swtWords <= 60 && swtSentences === 1,
+    `${swtWords} words, ${swtSentences} sentence(s)`,
+  )
   check(`${at}: SWT reference has key terms`, p.swt.keyTerms.length >= 4)
   check(`${at}: SWT excerpt is non-empty`, p.swt.excerpt.length >= 1)
 

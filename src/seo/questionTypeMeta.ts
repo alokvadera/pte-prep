@@ -69,7 +69,7 @@ function spokeMeta(type: QuestionType): PageMeta {
 
   return {
     title: `PTE ${meta.label} — ${section.longTitle}`,
-    description: `${meta.label} is a PTE ${sectionWord(type)} item: ${meta.perTest} per test, ${SCORING_PHRASE[meta.scoring]}. What it is and how to practise it.`,
+    description: `${meta.label} is a PTE ${sectionWord(type)} item: ${meta.perTest} per test, ${SCORING_PHRASE[meta.scoring] ?? 'scored based on performance'}. What it is and how to practise it.`,
     path,
     keywords: [
       `PTE ${meta.label}`,

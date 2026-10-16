@@ -178,15 +178,15 @@ export default function QuestionTypePage() {
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-6 text-sm leading-relaxed">
             <Link to="/question-types/" className="link-inline">
               All {SECTION_META[meta.section].longTitle} question types
-            </Link>{' '}
+            </Link>
             ,{' '}
             <Link to="/guide" className="link-inline">
               tips for all 22 types
-            </Link>{' '}
+            </Link>
             ,{' '}
             <Link to="/format" className="link-inline">
               full test format
-            </Link>{' '}
+            </Link>
             ,{' '}
             <Link to="/scoring" className="link-inline">
               how PTE scores work

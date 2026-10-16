@@ -74,8 +74,8 @@ export default function Privacy() {
                 }
               >
                 <SectionHeading eyebrow={s.eyebrow} title={s.heading} />
-                {s.body.map((p) => (
-                  <p key={p.slice(0, 32)} className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
+                {s.body.map((p, pIdx) => (
+                  <p key={pIdx} className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
                     {p}
                   </p>
                 ))}

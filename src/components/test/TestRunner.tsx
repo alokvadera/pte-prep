@@ -116,14 +116,15 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
         return
       }
       if (e.key === 'Tab' && focusable.length > 0) {
-        const first = focusable[0]!
-        const last = focusable[focusable.length - 1]!
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
+        e.preventDefault()
+        const focusableArr = Array.from(focusable)
+        const curIdx = focusableArr.indexOf(document.activeElement as HTMLElement)
+        if (e.shiftKey) {
+          const nextIdx = curIdx <= 0 ? focusableArr.length - 1 : curIdx - 1
+          focusableArr[nextIdx]?.focus()
+        } else {
+          const nextIdx = curIdx === -1 || curIdx >= focusableArr.length - 1 ? 0 : curIdx + 1
+          focusableArr[nextIdx]?.focus()
         }
       }
     }
@@ -227,33 +228,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
   // SC 4.1.3: question advanced, flag toggled, section changed.
   const [announcement, setAnnouncement] = useState('')
 
-  // A single ticking timestamp, rather than a stored countdown. Deriving the
-  // remaining time from it means the value is correct on the very first render
-  // after a section starts, instead of lagging one tick behind and briefly
-  // reading zero — which would expire the section immediately.
-  const [now, setNow] = useState(() => Date.now())
-
-  useEffect(() => {
-    if (status !== 'running' || sectionEndsAt === null || sectionEndsAt <= Date.now()) return
-    const id = window.setInterval(() => {
-      const current = Date.now()
-      setNow(current)
-      if (sectionEndsAt <= current) window.clearInterval(id)
-    }, 250)
-    return () => window.clearInterval(id)
-  }, [status, sectionEndsAt])
-
-  const remaining = sectionEndsAt ? Math.max(0, Math.ceil((sectionEndsAt - now) / 1000)) : 0
-
-  /**
-   * Record how long each item is on screen.
-   *
-   * The report compares this against the budget the real test allows, which is
-   * the only way to show a candidate *where* their time went rather than telling
-   * them to manage it better. Time is accumulated on leaving an item and written
-   * once, so navigating back and forth does not overwrite a longer stay with a
-   * shorter one.
-   */
+  // Record how long each item is on screen.
   useEffect(() => {
     if (status !== 'running') return
     const startedAt = Date.now()
@@ -271,12 +246,23 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
 
   useEffect(() => {
     if (mock?.untimed || status !== 'running' || !sectionEndsAt || timeExpired) return
-    if (Date.now() >= sectionEndsAt) useTest.getState().expireSection()
-  }, [now, sectionEndsAt, timeExpired, status, mock?.untimed])
+    const msUntilExpiry = Math.max(0, sectionEndsAt - Date.now())
+    const timer = window.setTimeout(() => {
+      useTest.getState().expireSection()
+    }, msUntilExpiry)
+    return () => window.clearTimeout(timer)
+  }, [sectionEndsAt, timeExpired, status, mock?.untimed])
 
   useEffect(() => {
     if (status !== 'running' || !mock) return
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        e.target instanceof HTMLSelectElement ||
+        (e.target as HTMLElement)?.isContentEditable
+      ) return
+
       const curSection = mock.sections[sectionIndex]
       if (!curSection) return
       const curIsLast = itemIndex === curSection.itemIds.length - 1
@@ -380,7 +366,8 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
               }
             : undefined
         }
-        secondsRemaining={remaining}
+        sectionEndsAt={sectionEndsAt}
+        onExpire={() => useTest.getState().expireSection()}
         totalSeconds={section.seconds}
         sectionTitle={section.title}
         itemNumber={itemIndex + 1}

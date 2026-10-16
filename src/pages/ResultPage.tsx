@@ -96,7 +96,7 @@ export default function ResultPage() {
             setAttempt(record)
             setLoading(false)
             setSearchParams({ attempt: record.id }, { replace: true })
-            void syncAttemptToCloud(record)
+            void syncAttemptToCloud(record).catch(() => {})
             // Clear live mock from persisted store upon successful scoring to ensure single scoring
             useTest.setState({ mock: null })
           }

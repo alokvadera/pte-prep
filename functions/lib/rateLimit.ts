@@ -7,22 +7,18 @@ let tableReady = false
 
 async function ensureTable(db: D1Database): Promise<void> {
   if (tableReady) return
-  tableReady = true
   try {
     await db.exec(
       'CREATE TABLE IF NOT EXISTS rate_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL);',
     )
+    tableReady = true
   } catch (err) {
     console.warn('[RateLimit] ensureTable notice (table may already exist):', err)
   }
 }
 
 export function getClientIp(request: Request): string {
-  return (
-    request.headers.get('cf-connecting-ip') ??
-    request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    'unknown'
-  )
+  return request.headers.get('cf-connecting-ip')?.trim() || 'unknown'
 }
 
 export async function checkRateLimit(
@@ -70,8 +66,8 @@ export async function checkRateLimit(
 
     return { allowed: true, retryAfter: 0 }
   } catch (err) {
-    console.error('[RateLimit:DB_ERROR] Rate limit query failed, falling open to preserve user access:', err)
-    return { allowed: true, retryAfter: 0 }
+    console.error('[RateLimit:DB_ERROR] Rate limit query failed, failing closed for protection:', err)
+    return { allowed: false, retryAfter: 60 }
   }
 }
 

@@ -109,12 +109,14 @@ export default function Home() {
   const [latestAttempt, setLatestAttempt] = useState<AttemptRecord | null>(null)
 
   useEffect(() => {
-    void listAttempts(1).then((attempts) => {
-      const first = attempts[0]
-      if (first) {
-        setLatestAttempt(first)
-      }
-    })
+    void listAttempts(1)
+      .then((attempts) => {
+        const first = attempts[0]
+        if (first) {
+          setLatestAttempt(first)
+        }
+      })
+      .catch(() => {})
   }, [])
 
   const STEPS = [
@@ -196,7 +198,7 @@ export default function Home() {
               <h1 className="hero-title">
                 Know your{' '}
                 <span className="ticket" aria-hidden="true">
-                  {latestAttempt ? latestAttempt.overallScore : 76}/90
+                  {latestAttempt ? latestAttempt.overallScore : '--'}/90
                 </span>{' '}
                 PTE score before you pay for the test.
               </h1>

@@ -44,6 +44,14 @@ export function QuestionView({ item, response, onChange, examMode, showTranscrip
           showTranscript={showTranscript}
         />
       )
+    default: {
+      const _exhaustive: never = item.responseKind
+      return (
+        <div role="alert" className="p-4 text-xs text-red-500">
+          Unsupported question type: {String(_exhaustive)}
+        </div>
+      )
+    }
   }
 }
 

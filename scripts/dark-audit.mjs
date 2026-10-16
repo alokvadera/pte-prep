@@ -47,8 +47,12 @@ const CHROME_CANDIDATES = [
 
 const bin = CHROME_CANDIDATES.find((p) => existsSync(p))
 if (!bin) {
-  console.log('\n  Dark audit — no Chrome binary found, skipping.\n')
-  process.exit(0)
+  console.error('\n  Dark audit — no Chrome binary found.')
+  console.error('  Set CHROME_PATH to run it, or pass --allow-skip to skip.\n')
+  if (process.argv.includes('--allow-skip')) {
+    process.exit(0)
+  }
+  process.exit(1)
 }
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-dark-audit-'))

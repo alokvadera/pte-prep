@@ -36,6 +36,7 @@ export function pickN<T>(items: readonly T[], n: number, rng: () => number): T[]
 }
 
 export function pickOne<T>(items: readonly T[], rng: () => number): T {
+  if (items.length === 0) throw new Error('pickOne on empty array')
   return items[Math.floor(rng() * items.length)] as T
 }
 

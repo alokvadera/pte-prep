@@ -156,8 +156,11 @@ export default function LoginPage() {
       const ok = await login(trimmedEmail, password)
       if (ok) {
         setSyncing(true)
-        await syncCloudToLocal()
-        setSyncing(false)
+        try {
+          await syncCloudToLocal()
+        } finally {
+          setSyncing(false)
+        }
         navigate(redirectUrl)
       }
     }
@@ -166,11 +169,14 @@ export default function LoginPage() {
   const handleManualSync = async () => {
     setSyncing(true)
     setSyncSuccess(false)
-    await syncCloudToLocal()
-    setSyncing(false)
-    setSyncSuccess(true)
-    if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
-    syncTimer.current = window.setTimeout(() => setSyncSuccess(false), 3000)
+    try {
+      await syncCloudToLocal()
+      setSyncSuccess(true)
+      if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
+      syncTimer.current = window.setTimeout(() => setSyncSuccess(false), 3000)
+    } finally {
+      setSyncing(false)
+    }
   }
 
   return (
@@ -571,15 +577,18 @@ function PasswordChangeForm() {
       return
     }
     setBusy(true)
-    const result = await changePassword(currentPassword, value)
-    setBusy(false)
-    if (result === true) {
-      setCurrentPassword('')
-      setValue('')
-      setConfirm('')
-      setMessage({ kind: 'ok', text: 'Password changed. Use it next time you sign in.' })
-    } else {
-      setMessage({ kind: 'error', text: result })
+    try {
+      const result = await changePassword(currentPassword, value)
+      if (result === true) {
+        setCurrentPassword('')
+        setValue('')
+        setConfirm('')
+        setMessage({ kind: 'ok', text: 'Password changed. Use it next time you sign in.' })
+      } else {
+        setMessage({ kind: 'error', text: result })
+      }
+    } finally {
+      setBusy(false)
     }
   }
 

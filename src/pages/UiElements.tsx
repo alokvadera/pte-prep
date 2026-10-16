@@ -84,6 +84,7 @@ import { useToast } from '../components/ui/use-toast'
 import { Stepper } from '../components/ui/stepper'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { Avatar } from '../components/ui/avatar'
+import { useClientReady } from '../lib/useClientReady'
 
 /* ---------------------------------------------------------------------------
    A living catalogue of every UI element in the mock. Each section
@@ -137,8 +138,6 @@ const DEMO_ATTEMPTS: AttemptRecord[] = [
     breakdown: {},
   },
 ]
-
-import { useClientReady } from '../lib/useClientReady'
 
 const RECENT_DATES = (() => {
   const out: string[] = []

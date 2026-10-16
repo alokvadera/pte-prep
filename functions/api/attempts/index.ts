@@ -32,7 +32,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, requireSecret(context.env))
+  const session = await verifySessionToken(token, requireSecret(context.env), context.env.DB)
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -137,6 +137,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   })
 }
 
+function isPlainObject(v: unknown): v is Record<string, unknown> {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const token = extractBearerToken(context.request)
   if (!token) {
@@ -146,7 +150,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const session = await verifySessionToken(token, requireSecret(context.env))
+  const session = await verifySessionToken(token, requireSecret(context.env), context.env.DB)
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
@@ -172,14 +176,43 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  // The client generates the attempt id (att-<uuid>) when the test finishes and
-  // reuses it for retries and sync. Using it as the primary key makes pushes
-  // idempotent and lets sync converge; a fresh server id every POST would
-  // create a duplicate on every retry. Ownership is enforced below so one user
-  // cannot overwrite another user's row by guessing its id.
-  const id = typeof attempt.id === 'string' ? attempt.id : 'attempt'
+  // Validate or generate attempt id
+  const rawId = attempt.id
+  const id = typeof rawId === 'string' && rawId.length > 0 ? rawId : `att-${crypto.randomUUID()}`
   if (!ATTEMPT_ID_RE.test(id)) {
     return new Response(JSON.stringify({ error: 'Invalid attempt ID' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  // Validate nested payload shapes
+  if (attempt.skillScores !== undefined && !isPlainObject(attempt.skillScores)) {
+    return new Response(JSON.stringify({ error: 'Invalid skillScores payload' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  if (attempt.breakdown !== undefined && !isPlainObject(attempt.breakdown)) {
+    return new Response(JSON.stringify({ error: 'Invalid breakdown payload' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  if (attempt.responses !== undefined && !isPlainObject(attempt.responses)) {
+    return new Response(JSON.stringify({ error: 'Invalid responses payload' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  if (attempt.details !== undefined && (!Array.isArray(attempt.details) || attempt.details.length > 200)) {
+    return new Response(JSON.stringify({ error: 'Invalid details payload' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  if (attempt.sectionIds !== undefined && (!Array.isArray(attempt.sectionIds) || attempt.sectionIds.length > 50)) {
+    return new Response(JSON.stringify({ error: 'Invalid sectionIds payload' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
@@ -217,52 +250,57 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const existing = await db
-    .prepare('SELECT user_id FROM attempts WHERE id = ?')
-    .bind(id)
-    .first<{ user_id: string }>()
-  if (existing && existing.user_id !== session.userId) {
-    return new Response(JSON.stringify({ error: 'Attempt not found' }), {
-      status: 404,
-      headers: { 'Content-Type': 'application/json' },
-    })
+  try {
+    const res = await db
+      .prepare(
+        `INSERT INTO attempts (
+          id, user_id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,
+          overall_score, overall_score_60, cefr, earned_points, available_points,
+          skill_scores, breakdown, responses, synced_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ON CONFLICT(id) DO UPDATE SET
+          skill_scores = excluded.skill_scores,
+          breakdown = excluded.breakdown,
+          responses = excluded.responses,
+          synced_at = datetime('now')
+        WHERE attempts.user_id = excluded.user_id`,
+      )
+      .bind(
+        id,
+        session.userId,
+        str(attempt.mockId, 'mock', 64),
+        str(attempt.mockTitle, 'PTE Mock Test', 120),
+        str(attempt.mode, 'full', 24),
+        str(attempt.startedAt, new Date().toISOString(), 32),
+        str(attempt.finishedAt, new Date().toISOString(), 32),
+        num(attempt.durationMs, 0),
+        num(attempt.overallScore, 10),
+        num(attempt.overallScore60, 60),
+        str(attempt.cefr, 'A1', 8),
+        num(attempt.earnedPoints, 0),
+        num(attempt.availablePoints, 0),
+        skillScores,
+        breakdown,
+        responses,
+      )
+      .run()
+
+    if (res.meta && res.meta.changes === 0) {
+      return new Response(JSON.stringify({ error: 'Conflict: attempt belongs to another account' }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err)
+    if (message.includes('SQLITE_CONSTRAINT') || message.includes('constraint')) {
+      return new Response(JSON.stringify({ error: 'Conflict' }), {
+        status: 409,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+    throw err
   }
-
-  const idForWrite = id
-
-  await db
-    .prepare(
-      `INSERT INTO attempts (
-        id, user_id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,
-        overall_score, overall_score_60, cefr, earned_points, available_points,
-        skill_scores, breakdown, responses, synced_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
-      ON CONFLICT(id) DO UPDATE SET
-        skill_scores = excluded.skill_scores,
-        breakdown = excluded.breakdown,
-        responses = excluded.responses,
-        synced_at = datetime('now')
-      WHERE attempts.user_id = excluded.user_id`,
-    )
-    .bind(
-      idForWrite,
-      session.userId,
-      str(attempt.mockId, 'mock', 64),
-      str(attempt.mockTitle, 'PTE Mock Test', 120),
-      str(attempt.mode, 'full', 24),
-      str(attempt.startedAt, new Date().toISOString(), 32),
-      str(attempt.finishedAt, new Date().toISOString(), 32),
-      num(attempt.durationMs, 0),
-      num(attempt.overallScore, 10),
-      num(attempt.overallScore60, 60),
-      str(attempt.cefr, 'A1', 8),
-      num(attempt.earnedPoints, 0),
-      num(attempt.availablePoints, 0),
-      skillScores,
-      breakdown,
-      responses,
-    )
-    .run()
 
   return new Response(JSON.stringify({ ok: true, id }), {
     status: 200,

@@ -133,7 +133,8 @@ function main() {
         break
       }
       case 'answer-short-question': {
-        const answer = key.correctChoice ?? key.blanks?.[0]?.[0] ?? ''
+        const answer = key.correctChoice
+        if (!answer) throw new Error('ASQ answer key is missing correctChoice')
         correctResp = { text: answer }
         partialResp = null // ASQ is binary: no partial credit
         zeroResp = { text: 'completely incorrect answer' }
@@ -158,6 +159,8 @@ function main() {
         partialResp = {
           text: `In contemporary society, discussions surrounding ${terms.slice(0, 3).join(' and ')} have become increasingly prominent across educational, social, and governmental institutions.\n\nAdvocates strongly argue that direct addressal yields profound long-term social, environmental, and civic advantages. Consequently, policymakers worldwide have begun reconsidering their historical approaches to balance innovation with sustainable development. In particular, this topic requires urgent attention from educators and local community leaders alike.\n\nFurthermore, significant empirical evidence indicates that focused investment accelerates positive community transformation across multiple demographics. When communities prioritize clear regulation and modernization, civic productivity rises while systemic inefficiencies decrease. In addition, thoughtful analysis demonstrates that structural changes create lasting stability over the coming decades.\n\nIn conclusion, pursuing proactive measures is indispensable for sustainable progress in the modern era. While implementing these reforms involves transitional effort, the benefits remain undeniable.`,
         }
+        const partialWords = partialResp.text.trim().split(/\s+/).length
+        assert(partialWords >= 120 && partialWords <= 199, `Write Essay partial response word count (${partialWords}) is in Form 1 band (120-199)`)
         // Gated: 50 words (< 120 words = Form 0 gated to 0 points)
         zeroResp = { text: 'This topic is very important for modern society. We must consider many different ideas before deciding what to do. Many people agree with this viewpoint, while others disagree. Thank you for reading my essay on this question.' }
         break
@@ -295,7 +298,7 @@ function main() {
   const flatItems = mock.sections
     .flatMap((s) => s.itemIds)
     .map((id) => mock.items[id])
-    .filter((i): i is NonNullable<typeof i> => Boolean(i))
+    .filter((i): i is NonNullable<typeof i> => Boolean(i) && !i.warmup)
 
   const metaById: Record<string, { skills: Skill[]; type: Item['type']; label: string }> = {}
   for (const item of flatItems) {
@@ -325,7 +328,7 @@ function main() {
     } else if (item.type === 'write-from-dictation' || item.type === 'summarize-written-text' || item.type === 'summarize-spoken-text') {
       fullResponses[item.id] = { text: key.reference }
     } else if (item.type === 'answer-short-question') {
-      fullResponses[item.id] = { text: key.correctChoice ?? key.blanks?.[0]?.[0] }
+      fullResponses[item.id] = { text: key.correctChoice ?? '' }
     } else if (item.type === 'write-essay') {
       fullResponses[item.id] = { text: makeEssayText(key.keyTerms ?? []) }
     } else {
@@ -359,9 +362,24 @@ function main() {
     } else if (idx % 3 === 1) {
       // partial
       const key = mock.answers[item.id]
-      if (key?.blanks) midResponses[item.id] = { blanks: [key.blanks[0]?.[0] ?? ''] }
-      else if (key?.correctChoices) midResponses[item.id] = { choices: [key.correctChoices[0] ?? ''] }
-      else if (key?.reference) midResponses[item.id] = { text: key.reference.split(' ').slice(0, 5).join(' ') }
+      if (key?.blanks) {
+        midResponses[item.id] = { blanks: [key.blanks[0]?.[0] ?? ''] }
+      } else if (key?.correctChoices) {
+        midResponses[item.id] = { choices: [key.correctChoices[0] ?? ''] }
+      } else if (key?.order) {
+        midResponses[item.id] = { order: key.order.length > 2 ? [key.order[0]!, key.order[1]!, ...key.order.slice(2).reverse()] : [...key.order].reverse() }
+      } else if (key?.correctHighlighted) {
+        midResponses[item.id] = { highlighted: [key.correctHighlighted[0]!] }
+      } else if (item.skills.includes('speaking')) {
+        const text = item.targetText ?? key?.reference ?? ''
+        const words = text.split(' ')
+        midResponses[item.id] = {
+          transcript: words.slice(0, Math.floor(words.length * 0.5)).join(' '),
+          audio: partialAudio,
+        }
+      } else if (key?.reference) {
+        midResponses[item.id] = { text: key.reference.split(' ').slice(0, 5).join(' ') }
+      }
     } else {
       // correct
       midResponses[item.id] = fullResponses[item.id]!

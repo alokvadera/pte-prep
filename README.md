@@ -61,10 +61,10 @@ The build command is `npm run build` and the publish directory is `dist`.
 edge Pages Functions, and D1 database. `public/_headers` and `public/_redirects`
 are already configured. Set `SITE_ORIGIN` and `JWT_SECRET` in the Pages environment variables.
 
-**GitHub Pages (static only)** — `.github/workflows/deploy.yml` builds and publishes
-static assets on every push to `main` (runs client-side only without cloud sync or accounts).
+**GitHub Pages (static only)** — Build and publish static assets (`dist/`)
+(runs client-side only without cloud sync or accounts).
 Optionally set a `SITE_ORIGIN` repository variable for a custom domain. Without it,
-the workflow deploys to `https://<owner>.github.io/<repo>/` and sets `BASE_PATH=/<repo>/`
+the deployment uses `https://<owner>.github.io/<repo>/` and sets `BASE_PATH=/<repo>/`
 automatically.
 
 ### Cloud sync secret (required)

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { safeStateStorage } from '../lib/storage'
 
 /**
  * The two themes the site ships with. There is deliberately no `system` option:
@@ -24,17 +25,21 @@ export interface AiUsageMetrics {
   serverResetRequests?: string
 }
 
-export const DEFAULT_AI_USAGE: AiUsageMetrics = {
-  totalRequests: 0,
-  promptTokens: 0,
-  completionTokens: 0,
-  totalTokens: 0,
-  whisperRequests: 0,
-  whisperSeconds: 0,
-  lastUsedAt: null,
-  todayDate: new Date().toISOString().slice(0, 10),
-  requestsToday: 0,
+export function createDefaultAiUsage(): AiUsageMetrics {
+  return {
+    totalRequests: 0,
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0,
+    whisperRequests: 0,
+    whisperSeconds: 0,
+    lastUsedAt: null,
+    todayDate: new Date().toISOString().slice(0, 10),
+    requestsToday: 0,
+  }
 }
+
+export const DEFAULT_AI_USAGE: AiUsageMetrics = createDefaultAiUsage()
 
 export interface Settings {
   theme: Theme
@@ -93,8 +98,6 @@ interface SettingsStore {
 }
 
 
-import { safeStateStorage } from '../lib/storage'
-
 const safeJsonStorage = () => createJSONStorage(() => safeStateStorage())
 
 export const useSettings = create<SettingsStore>()(
@@ -136,7 +139,7 @@ export const useSettings = create<SettingsStore>()(
         set((s) => ({
           settings: {
             ...s.settings,
-            aiUsage: DEFAULT_AI_USAGE,
+            aiUsage: createDefaultAiUsage(),
           },
         })),
       reset: () => set({ settings: DEFAULTS }),

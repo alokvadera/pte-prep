@@ -13,7 +13,7 @@ export function organizationLd() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: SITE.name,
-    url: SITE.fallbackOrigin,
+    url: absoluteUrl('/'),
     logo: absoluteUrl('/icon-512.png'),
   }
 }

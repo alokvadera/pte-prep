@@ -16,9 +16,9 @@ quality problems, so they pay twice.
 
 | # | Change | Why now | Cost |
 |---|---|---|---|
-| 1 | **Fix the countdown timer's live-region markup.** `TestHeader.tsx:45-48` puts `aria-label` on an element with `role="timer"`. An `aria-label` replaces the element's text content in the accessibility tree, so the changing number is not what gets announced. The `aria-live="assertive"` branch in critical mode is therefore unreliable. See [Topic 1](#topic-1--wcag-22-for-a-timed-test). | Screen-reader users currently get either nothing or a broken announcement in the one place a 2-hour test can go wrong. | ~1 hour |
+| 1 | **Fix the countdown timer's live-region markup.** `TestHeader.tsx` puts `aria-label` on an element with `role="timer"`. An `aria-label` replaces the element's text content in the accessibility tree, so the changing number is not what gets announced. The `aria-live="assertive"` branch in critical mode is therefore unreliable. See [Topic 1](#topic-1--wcag-22-for-a-timed-test). | Screen-reader users currently get either nothing or a broken announcement in the one place a 2-hour test can go wrong. | ~1 hour |
 | 2 | **Add a time-extension route to mock setup.** SC 2.2.1 has three acceptable routes; the cheapest is *Extend* (warn, ≥20 s, one simple action, ≥10 extensions). TestGorilla gets this with a two-question accommodations screen taken before the test starts. | Closes a Level A failure. Copy the pattern. | 1 day |
-| 3 | **Replace the donut with a linear range bar.** Appears in `ResultPage.tsx:117` and again in the `ScorePreview` on the landing page (`Home.tsx:272`). Both encode one number with arc length. See [Topic 2](#topic-2--score-visualisation). | NN/g is unambiguous that area and angle do not communicate magnitude; a donut of a single value communicates nothing except its own existence. Also removes the two hardest accessibility problems in the product in one change. | 1 day |
+| 3 | **Replace the donut with a linear range bar.** Appears in `ResultPage.tsx` and again in the `ScorePreview` on the landing page (`Home.tsx`). Both encode one number with arc length. See [Topic 2](#topic-2--score-visualisation). | NN/g is unambiguous that area and angle do not communicate magnitude; a donut of a single value communicates nothing except its own existence. Also removes the two hardest accessibility problems in the product in one change. | 1 day |
 | 4 | **Fix four named contrast failures.** Measured ratios in the [contrast audit](#appendix--contrast-audit). `ink-500` on the dark ground is **2.80:1**. `mint-500` on white is **2.54:1** (the four "No signup" checkmarks on the landing page in light mode). `ink-400` on white is **3.95:1** (the stat descriptions). `mint-600` on the mint pill is **3.27:1** (the "Estimated" badge). | 1.4.3 is the most commonly failed criterion in audit, and the fixes are token changes, not layout changes. | 2 hours |
 | 5 | **Add `scroll-padding-bottom` to the test runner.** The sticky bottom bar with Back / Next is a textbook SC 2.4.11 failure mode (technique **F110**). Fix is CSS: `scroll-padding-bottom` equal to the bar height. | Keyboard users tabbing through answer options currently lose the focused control off-screen. | 15 minutes |
 | 6 | **Announce state changes with `role="status"`.** Question advanced, answer saved, flag toggled, section changed, 5-minutes-remaining. All are status messages under SC 4.1.3 and none currently surface. | Fails 4.1.3 and is the difference between "the app is broken" and "the app told me what happened". | Half a day |
@@ -117,7 +117,7 @@ For this product, the status messages that exist today and are not surfaced:
 | Auto-submit at 0:00 | `role="alert"` + focus moved to the review screen |
 
 Note the SC explicitly excepts changes of context (modals, expanding components, tab switches). The
-`ResultPage.tsx:207` tab list is covered by 4.1.2 Name, Role, Value instead, which is already satisfied
+`ResultPage.tsx` tab list is covered by 4.1.2 Name, Role, Value instead, which is already satisfied
 by `role="tablist"` / `role="tab"` / `aria-selected`.
 
 ### 1.3 The critical question: should the running countdown be announced?
@@ -183,7 +183,7 @@ Source: <https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.
 author-created content."*
 
 - **Named as typical causes: "sticky footers, sticky headers, and non-modal dialogs."** The test runner has
-  both a sticky header (`TestHeader.tsx:20`, `sticky top-0 z-30`) and a sticky bottom bar.
+  both a sticky header (`TestHeader.tsx`, `sticky top-0 z-30`) and a sticky bottom bar.
 - **Failure technique F110** is literally *"Failure of Success Criterion 2.4.11 Focus Not Obscured
   (Minimum) due to a sticky footer or header completely hiding focused elements."*
 - **Sufficient technique C43** is *"Using CSS scroll-padding to un-obscure content."*
@@ -270,7 +270,7 @@ starts automatically and is presented in parallel with other content, there must
 stop, hide, or **control the frequency of** the update — unless the auto-updating is part of an activity
 where it is essential.
 
-The thin progress bar at `TestHeader.tsx:53-61` animates its width every second for the full length of a
+The thin progress bar at `TestHeader.tsx` animates its width every second for the full length of a
 section. It is auto-updating, in parallel with the question, and not user-initiated. The "essential"
 exception arguably covers it, but the frequency-control branch is trivially satisfiable and the failure
 mode is real for readers with ADHD or attention differences — which is a meaningful share of a test
@@ -436,7 +436,7 @@ crossing it.**
   gap between "the band" and "the number my university wants".
 - Nearest-label callout: *"2 points above the B2 boundary."* Not a colour, not a badge, a sentence.
 
-This is also the correct form for the per-item trait scores in `ResultPage.tsx:399-418` ("Estimated
+This is also the correct form for the per-item trait scores in `ResultPage.tsx` ("Estimated
 traits"), which are currently bare percentages. Same component, smaller, without the number repeated as a
 percentage: a trait score should be shown against that trait's maximum, with the target rule.
 
@@ -463,7 +463,7 @@ colour.**
 - Instead: one neutral bar colour, and a single accent used on exactly one bar, the weakest, reinforced by
   the text label. This satisfies the "spend the boldness in one place" rule from
   [Topic 4](#topic-4--design-language-2025-2026).
-- Keep the current behaviour of bars starting at zero. It is correct. `Home.tsx:308` already divides by 90
+- Keep the current behaviour of bars starting at zero. It is correct. `Home.tsx` already divides by 90
   from zero.
 
 This is the case where the current design is **nearly** right. It is four horizontal bars on a shared
@@ -477,7 +477,7 @@ scale. Adding a visible axis, sorting, dropping the four hues, and adding the CE
   ("except when data follows a natural order, like age or time") does not apply; if you want the official
   order, offer it as a sort toggle.
 - **Print `n` on every row.** *"Fill in the Blanks (Table) — 3 of 5"* is already the pattern in
-  `Home.tsx:319` and it is the right one. Accuracy without a denominator is not information: 100% of 2 and
+  `Home.tsx` and it is the right one. Accuracy without a denominator is not information: 100% of 2 and
   71% of 45 are not comparable. The existing copy in the result page already models this well.
 - **One colour.** Highlight the weakest with the accent plus a text label. Same rule as above.
 - **Group by section** with a subheading per section, and let the section name be the group label rather
@@ -636,7 +636,7 @@ returning to previous questions in any section. Pearson's own format material
 (<https://www.pearsonpte.com/pte-academic/test-format/>) offers no revisit affordance and no flagging.
 
 This puts the current runner in an awkward position. The sticky bottom bar with **Back / Next** is a
-fidelity claim the product is simultaneously contradicting: `Home.tsx:137` says the mock *"reproduces the
+fidelity claim the product is simultaneously contradicting: `Home.tsx` says the mock *"reproduces the
 structure, the clock and the pressure of the actual PTE Academic"*, and then gives the user a Back button
 the real test does not have.
 
@@ -652,7 +652,7 @@ There is a defensible resolution, and it is a copy change rather than a feature 
   audience, which is the segment that will leave a review.
 
 On **flag-for-review**: with Back available it is largely redundant, and a flag count in the header
-(`TestHeader.tsx:35-37`) is a second, competing answer to "where am I". The DET's position is the better
+(`TestHeader.tsx`) is a second, competing answer to "where am I". The DET's position is the better
 one: tell the candidate they are not penalised for a blank, and drop the flag. If we keep the flag for
 forward-only mode, it needs a legend in the progress strip and a filter, otherwise it is a second piece of
 chrome nobody reads.
@@ -709,14 +709,14 @@ to look human.
 | Tell | Severity | Where | Why it reads as default |
 |---|---|---|---|
 | **T1: Inter for everything** | **P0** | `index.css` `:root` / body | *"Inter is the default font, which is different"* from a bad font. *"When a reader sees Inter on a marketing site, the message is that nobody chose anything."* A single family with no display face. |
-| **T5 / SD4: tracked ALL-CAPS eyebrow above most headings** | **P1** | `.label` utility, `index.css:214`; used throughout | *"Anthropic ranks all-caps labels among the commonest tells, so this moved from P2 to P1."* Fix: *"Keep a label only when it carries information the heading does not. Set it in the body face, sentence case."* |
-| **C7: dark mode you didn't ask for** | **P1** | `index.css:108` `@apply bg-ink-900` | *"A recurring 2026 tell. The model reaches for a dark hero because its training data is full of them, not because the product wants one."* The caveat applies: an exam hall is dim and a 2-hour test is a long session, so **dark-first is defensible here** — but it must be a themed palette, which brings us to the next row. |
+| **T5 / SD4: tracked ALL-CAPS eyebrow above most headings** | **P1** | `.label` utility, `index.css`; used throughout | *"Anthropic ranks all-caps labels among the commonest tells, so this moved from P2 to P1."* Fix: *"Keep a label only when it carries information the heading does not. Set it in the body face, sentence case."* |
+| **C7: dark mode you didn't ask for** | **P1** | `index.css` `@apply bg-ink-900` | *"A recurring 2026 tell. The model reaches for a dark hero because its training data is full of them, not because the product wants one."* The caveat applies: an exam hall is dim and a 2-hour test is a long session, so **dark-first is defensible here** — but it must be a themed palette, which brings us to the next row. |
 | **C3: the stock "modern dark" cluster** | **P1** | `#0b1120` + `ink-500` body | *"Dark background, low-contrast medium-grey body text... Low body contrast also fails accessibility."* Our 2.80:1 `ink-500` is exactly this. |
 | **SD8: the emerald fallback** | **P1** | `mint-500 #14b88c` | *"With purple ruled out, emerald is the next reflex; tell catalogs now list the 'emerald fallback'."* Our mint accent on a neutral navy ground, with no brand reason, is this. |
 | **K2 / SD4: the SaaS card kit** | **P1** | `.card`, `.card-solid`, `rounded-2xl`, `shadow-card` — on every element | *"Border plus shadow plus white background, applied to everything. If every element is a card, no element is important."* |
-| **L2: three icon cards in a row** | **P0** | `Home.tsx:141` (3 sections), `Home.tsx:175` (3×2 features) | *"The most generic AI layout that exists... The three-column card row is the wrong container for it."* Two instances on one page. |
+| **L2: three icon cards in a row** | **P0** | `Home.tsx` (3 sections), `Home.tsx` (3×2 features) | *"The most generic AI layout that exists... The three-column card row is the wrong container for it."* Two instances on one page. |
 | **L4: the stock section order** | **P1** | hero → stats → features → FAQ → CTA | Named directly in the catalogue as a tell. |
-| **SD7: fake product shot** | **P2** | `Home.tsx:255` `ScorePreview` | *"The stock product shot when there is no product shot; show a real screenshot or a specific, real state of the product."* It is a mock of a state the user has not reached. |
+| **SD7: fake product shot** | **P2** | `Home.tsx` `ScorePreview` | *"The stock product shot when there is no product shot; show a real screenshot or a specific, real state of the product."* It is a mock of a state the user has not reached. |
 | **C1/C2: indigo as the unchosen brand hue** | **P0** (as a default) | `brand-500 #3665f6` | We avoided the *purple* gradient, which puts us one step from `blue-500`. The fix is not "pick a different nice colour"; it is **derive the palette from the subject**. |
 | **Type weight > bold** | craft | `font-extrabold` (800) on the h1, stat numbers, the score, CTA h2 | *"No weights above bold"* is the stated rule; 800 is a reflex, not a decision. |
 | **C4: timid, evenly distributed palette** | P0/P1 | brand + mint + amber + rose all at similar weight | *"AI spreads color evenly and avoids commitment. Intentional brands do the opposite: one dominant color carries the page, an accent punctuates it."* The 60/30/10 rule. |
@@ -806,8 +806,8 @@ which is the CEFR band. Everything else becomes grey.
 - **The 3×2 "What the report shows you" grid becomes a real screenshot of the actual report**, with the
   features called out as annotation on the screenshot. This is simultaneously the anti-tell fix and the
   [Topic 6](#topic-6--landing-page-for-free-tool-seo) conversion fix. One change, two problems.
-- **Delete the pill badges** except where they encode a real state. `Home.tsx:267` has an "Estimated" pill
-  and `Home.tsx:63` a "22 question types" pill; the first is a real state and should become part of the bar
+- **Delete the pill badges** except where they encode a real state. `Home.tsx` has an "Estimated" pill
+  and `Home.tsx` a "22 question types" pill; the first is a real state and should become part of the bar
   itself, the second is decoration and should become text.
 
 **Motion — comprehension only.**
@@ -934,7 +934,7 @@ because people read the wrong end of a bare range (§6.5).
 > `61 / 90` — `Likely 57 to 65.`
 
 **2. Attribute the estimate; do not apologise for it.** The strongest trust signal available to us, and
-`ResultPage.tsx:371-397` already does a version of it. Sharpen it into one sentence with a denominator:
+`ResultPage.tsx` already does a version of it. Sharpen it into one sentence with a denominator:
 
 > `Estimated from 83 items. 51 items are scored exactly; 32 speaking and writing items are estimated from
 > the PTE trait rubric.`
@@ -984,8 +984,8 @@ without a badge, and it is the version a screen reader user gets for free as a t
 |---|---|
 | Page-level caveat, once | "Estimated from 83 items. 51 are scored exactly; 32 speaking and writing items use the PTE trait rubric. Likely 57 to 65." |
 | Method, in the "How this is scored" panel | "Two things make this an estimate: one attempt is a small sample of your ability, and speaking and writing are scored by a model rather than by Pearson raters." |
-| Per-item label | "Model answer" / "Answer key" (already present, `ResultPage.tsx:532`). Keep. |
-| Per-item trait line | "Estimated traits: content 78% of the available credit" (already close, `ResultPage.tsx:549`). Keep, and add the target rule from [2.4b](#2-4-b-a-score-against-a-cefr-band-boundary). |
+| Per-item label | "Model answer" / "Answer key" (already present, `ResultPage.tsx`). Keep. |
+| Per-item trait line | "Estimated traits: content 78% of the available credit" (already close, `ResultPage.tsx`). Keep, and add the target rule from [2.4b](#2-4-b-a-score-against-a-cefr-band-boundary). |
 | Number itself | "61 / 90". No qualifier, no tilde, no asterisk. |
 | CEFR line | "About B2, upper intermediate. The B2 boundary is 60." |
 | Progress / repeat | "Across your last 3 mocks: 58 to 65." |
@@ -997,7 +997,7 @@ machine-written copy in 2026 and appears throughout the current FAQ answers.
 
 ### 5.6 A warning about the FAQ answer already in the product
 
-`Home.tsx:16` currently reads: *"Those are estimates for practice, not official Pearson scores, and the
+`Home.tsx` currently reads: *"Those are estimates for practice, not official Pearson scores, and the
 results page labels every item as either auto-scored or estimated."*
 
 This is a *disclaimer*, not an explanation. It tells the user what the product is not and asks them to go
@@ -1060,7 +1060,7 @@ doorway-page trick.
 
 ### 6.2 What is above the fold now, and what is wrong with it
 
-`Home.tsx:48-106`. The hero has: a pill badge with a pulsing dot, an h1, a subhead, two CTAs, a
+`Home.tsx`. The hero has: a pill badge with a pulsing dot, an h1, a subhead, two CTAs, a
 four-item reassurance list, and a `ScorePreview` card containing a donut.
 
 **What is working, and should be kept:**
@@ -1090,7 +1090,7 @@ four-item reassurance list, and a `ScorePreview` card containing a donut.
 4. **The `radial-gradient` hero washes** (lines 49-59) are the C1/gradient tell, in a product that has no
    business imitating a SaaS hero.
 5. **The section order is the stock order** (hero → stats → features → FAQ → CTA), named as a P1 tell.
-6. **Two three-card grids on one page** (`Home.tsx:141` and `Home.tsx:175`) — the most-cited AI layout
+6. **Two three-card grids on one page** (`Home.tsx` and `Home.tsx`) — the most-cited AI layout
    tell, used twice.
 7. **The "$0 forever" stat tile** is 25% of the stats band spent on the one claim that is already
    covered by the reassurance list above the fold. It dilutes the three substantive tiles.
@@ -1152,7 +1152,7 @@ test?*
 Not "trusted by X users" — worthless at zero users, and a tell. In descending order of credibility for
 this specific product:
 
-1. **The claim that the product is not doing what it isn't.** `Home.tsx:90-92` already has *"No data
+1. **The claim that the product is not doing what it isn't.** `Home.tsx` already has *"No data
    leaves your device"* and *"Works offline once loaded"*. Both are verifiable and both are unusual. Make
    them verifiable: link to the About page, show the item count that is actually stored locally.
 2. **The scoring methodology, published in full, with a date and a name on it.** Anyone can claim
@@ -1160,13 +1160,13 @@ this specific product:
    signal than any testimonial, because it is falsifiable.
 3. **The question-type table with official Pearson timings**, cross-referenced to Pearson's own format
    pages. Citing the source you are imitating is a trust signal.
-4. **Honesty about what is *not* real exam material.** `Home.tsx:31` already says it: *"No real exam
+4. **Honesty about what is *not* real exam material.** `Home.tsx` already says it: *"No real exam
    material can be reproduced."* That sentence is a trust asset and it should be higher on the page, not
    buried in the fourth FAQ. Publishers that admit the limit are trusted more than publishers that do not.
 5. **The item bank size**, stated precisely. `bankCapacity()` is a real number; use it. Per the
    [Topic 4](#4-3-the-directions-and-which-one-this-product-should-take) catalogue: *"Round invented
    numbers. Models produce these when filling a slot. Real numbers are lumpy."*
-6. **The microphone is optional and the test still works.** `Home.tsx:19-22` says this. It is a real
+6. **The microphone is optional and the test still works.** `Home.tsx` says this. It is a real
    differentiator and it removes the top hardware objection. Consider promoting it above the fold.
 
 ---
@@ -1181,11 +1181,11 @@ Thresholds: **4.5:1** normal text, **3:1** large text (≥24px, or ≥18.5px bol
 
 | Pair | Ratio | Needs | Location | Fix |
 |---|---|---|---|---|
-| `ink-500` `#4a5c7d` on `ink-900` `#0b1120` | **2.80** | 4.5 | `Home.tsx:121` (stat descriptions, dark), `Home.tsx:288` ("OF 90"), `Home.tsx:292` ("Overall · CEFR"), `Home.tsx:315` ("Weakest area"), `ResultPage` | Change `dark:text-ink-500` → `dark:text-ink-400` (4.76) or `dark:text-ink-300` (8.56) |
-| `mint-500` `#14b88c` on white | **2.54** | 3 (icon) | `Home.tsx:329` `CheckIcon`, light mode | Use `mint-600` in light mode; add a `--color-mint-700` for text |
-| `ink-400` `#6c81a4` on white | **3.95** | 4.5 | `Home.tsx:121` (stat descriptions, light) | Use `ink-500` (6.73) |
-| `mint-600` `#0d9673` on `mint-500/14` over white | **3.27** | 4.5 | `Home.tsx:267` "Estimated" pill, light | Introduce a darker mint for text-on-tint, or change the pill to `ink`-based with the accent as a rule |
-| `ink-300` `#9fb0cb` on white | **2.20** | 4.5 | `index.css:207` `placeholder:text-ink-300`; any light-mode use | Use `ink-500` |
+| `ink-500` `#4a5c7d` on `ink-900` `#0b1120` | **2.80** | 4.5 | `Home.tsx` (stat descriptions, dark), `Home.tsx` ("OF 90"), `Home.tsx` ("Overall · CEFR"), `Home.tsx` ("Weakest area"), `ResultPage` | Change `dark:text-ink-500` → `dark:text-ink-400` (4.76) or `dark:text-ink-300` (8.56) |
+| `mint-500` `#14b88c` on white | **2.54** | 3 (icon) | `Home.tsx` `CheckIcon`, light mode | Use `mint-600` in light mode; add a `--color-mint-700` for text |
+| `ink-400` `#6c81a4` on white | **3.95** | 4.5 | `Home.tsx` (stat descriptions, light) | Use `ink-500` (6.73) |
+| `mint-600` `#0d9673` on `mint-500/14` over white | **3.27** | 4.5 | `Home.tsx` "Estimated" pill, light | Introduce a darker mint for text-on-tint, or change the pill to `ink`-based with the accent as a rule |
+| `ink-300` `#9fb0cb` on white | **2.20** | 4.5 | `index.css` `placeholder:text-ink-300`; any light-mode use | Use `ink-500` |
 
 ### Passes worth recording
 
@@ -1196,7 +1196,7 @@ Thresholds: **4.5:1** normal text, **3:1** large text (≥24px, or ≥18.5px bol
 | `ink-500` on white | 6.73 | Light-mode body text. Fine. |
 | `ink-500` on `ink-50` | 6.33 | Fine. |
 | white on `brand-500` `#3665f6` | 4.83 | Primary button. Passes, but with almost no margin. Any opacity reduction or a lighter hover state fails. Hover `brand-600` is 7.01. |
-| `brand-500` on `ink-900` | 3.90 | Passes 1.4.11 (3:1) for the section dots at `Home.tsx:154`. Does **not** pass 4.5:1 if ever used as text in dark mode. |
+| `brand-500` on `ink-900` | 3.90 | Passes 1.4.11 (3:1) for the section dots at `Home.tsx`. Does **not** pass 4.5:1 if ever used as text in dark mode. |
 | `mint-500` on `ink-900` | 7.41 | Progress-bar fill. Passes 1.4.11 comfortably. |
 | `mint-300` on `ink-900` | 12.49 | Fine. |
 | `brand-300` on `ink-900` | 9.18 | Fine. |

@@ -1,5 +1,5 @@
 import type { Env, UserRecord } from '../../types'
-import { createSessionToken, hashPassword, requireSecret } from '../../lib/auth'
+import { createSessionToken, hashPassword, requireSecret, resolvePbkdf2Iterations, resolveSessionExpiry } from '../../lib/auth'
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 interface ExtendedUserRecord extends UserRecord {
@@ -65,13 +65,18 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   if (!emailCheck.allowed) {
     return rateLimitExceededResponse(emailCheck.retryAfter)
   }
+  const emailOnlyCheck = await checkRateLimit(db, `register:email:${email}`, 5, 600)
+  if (!emailOnlyCheck.allowed) {
+    return rateLimitExceededResponse(emailOnlyCheck.retryAfter)
+  }
 
   const existing = await db
     .prepare('SELECT id, email, target_score, password_hash, password_salt FROM users WHERE email = ?')
     .bind(email)
     .first<ExtendedUserRecord>()
 
-  const { hash, salt } = await hashPassword(password)
+  const iterations = resolvePbkdf2Iterations(context.env)
+  const { hash, salt } = await hashPassword(password, iterations)
 
   if (existing) {
     return new Response(
@@ -100,7 +105,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     throw err
   }
 
-  const token = await createSessionToken({ userId, email }, requireSecret(context.env))
+  const token = await createSessionToken(
+    { userId, email },
+    requireSecret(context.env),
+    resolveSessionExpiry(context.env),
+    db,
+  )
 
   return new Response(
     JSON.stringify({

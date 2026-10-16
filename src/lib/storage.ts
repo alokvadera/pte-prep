@@ -37,8 +37,9 @@ export function safeStateStorage(): SafeStorage {
       if (!hasLs()) return
       try {
         window.localStorage.setItem(name, value)
-      } catch {
+      } catch (err) {
         /* quota exceeded or private browsing mode */
+        console.warn('[storage] localStorage setItem failed:', err)
       }
     },
     removeItem: (name: string): void => {
@@ -46,8 +47,9 @@ export function safeStateStorage(): SafeStorage {
       if (!hasLs()) return
       try {
         window.localStorage.removeItem(name)
-      } catch {
+      } catch (err) {
         /* ignore */
+        console.warn('[storage] localStorage removeItem failed:', err)
       }
     },
   }

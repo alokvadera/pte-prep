@@ -11,8 +11,21 @@ async function getDeletedIds(): Promise<Set<string>> {
 
 let tombstoneQueue = Promise.resolve()
 
+/**
+ * Serializes tombstone array updates to prevent read-modify-write races
+ * when multiple attempt deletions occur concurrently (e.g. bulk clear).
+ *
+ * `op` is passed to both the onfulfilled and onrejected positions of `.then()`
+ * so that it executes once per call regardless of whether the preceding operation
+ * succeeded or failed (a rejection in one tombstone must not abort the queue).
+ *
+ * The trailing `.then(() => {}, () => {})` swallows errors on the queue tail so
+ * the serialized chain never permanently breaks; failing tombstone operations
+ * will be retried on the next sync rather than crashing subsequent operations.
+ */
 function serializeTombstone<T>(op: () => Promise<T>): Promise<T> {
   const next = tombstoneQueue.then(op, op)
+  // Swallow errors on the internal queue tail so subsequent operations still run
   tombstoneQueue = next.then(() => {}, () => {})
   return next
 }

@@ -78,6 +78,27 @@ const routeOf = (f) => {
 }
 
 const pick = (html, re) => (html.match(re) ?? [])[1]
+function getMetaContent(html, nameOrProp, attrName = 'name') {
+  const metaTags = html.match(/<meta\s+[^>]*>/gi) ?? []
+  for (const tag of metaTags) {
+    if (new RegExp(`${attrName}=["']${nameOrProp}["']`, 'i').test(tag)) {
+      const contentMatch = tag.match(/content=["']([^"']*)["']/i)
+      if (contentMatch) return contentMatch[1]
+    }
+  }
+  return ''
+}
+function getLinkHref(html, rel) {
+  const linkTags = html.match(/<link\s+[^>]*>/gi) ?? []
+  for (const tag of linkTags) {
+    if (new RegExp(`rel=["']${rel}["']`, 'i').test(tag)) {
+      const hrefMatch = tag.match(/href=["']([^"']*)["']/i)
+      if (hrefMatch) return hrefMatch[1]
+    }
+  }
+  return ''
+}
+
 const records = pages.map((file) => {
   const html = fs.readFileSync(file, 'utf8')
   return {
@@ -85,12 +106,12 @@ const records = pages.map((file) => {
     route: routeOf(file),
     html,
     title: pick(html, /<title>([\s\S]*?)<\/title>/) ?? '',
-    desc: pick(html, /<meta name="description" content="([^"]*)"/) ?? '',
-    canonical: pick(html, /<link rel="canonical" href="([^"]*)"/) ?? '',
-    robots: pick(html, /<meta name="robots" content="([^"]*)"/) ?? '',
-    ogUrl: pick(html, /<meta property="og:url" content="([^"]*)"/) ?? '',
-    lang: pick(html, /<html lang="([^"]*)"/) ?? '',
-    viewport: pick(html, /<meta name="viewport" content="([^"]*)"/) ?? '',
+    desc: getMetaContent(html, 'description', 'name'),
+    canonical: getLinkHref(html, 'canonical'),
+    robots: getMetaContent(html, 'robots', 'name'),
+    ogUrl: getMetaContent(html, 'og:url', 'property'),
+    lang: pick(html, /<html\s+[^>]*lang=["']([^"']*)["']/i) ?? '',
+    viewport: getMetaContent(html, 'viewport', 'name'),
     h1s: [...html.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/g)].map((m) => m[1].replace(/<[^>]+>/g, '').trim()),
     headings: [...html.matchAll(/<h([1-6])[^>]*>/g)].map((m) => Number(m[1])),
     jsonld: [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].map((m) => m[1]),
@@ -260,10 +281,11 @@ for (const r of indexable) {
 }
 
 // --- 11. Language & viewport ------------------------------------------------
-const anyRecord = records[0]
-if (!anyRecord?.lang) add('Technical', '<html> has no lang attribute', 'Medium', 'missing lang', 'Add lang="en"')
-if (!anyRecord?.viewport) add('Technical', 'No viewport meta tag', 'High', 'missing viewport', 'Add width=device-width, initial-scale=1')
-else if (!/width=device-width/.test(anyRecord.viewport)) add('Technical', 'Viewport is not device-width aware', 'Medium', anyRecord.viewport, 'Use width=device-width')
+for (const r of records) {
+  if (!r.lang) add('Technical', `${r.route}: <html> has no lang attribute`, 'Medium', 'missing lang', 'Add lang="en"')
+  if (!r.viewport) add('Technical', `${r.route}: No viewport meta tag`, 'High', 'missing viewport', 'Add width=device-width, initial-scale=1')
+  else if (!/width=device-width/.test(r.viewport)) add('Technical', `${r.route}: Viewport is not device-width aware`, 'Medium', r.viewport, 'Use width=device-width')
+}
 
 // --- 12. Font payload ------------------------------------------------------
 // Self-hosted faces mean no third-party request, but they are also the heaviest

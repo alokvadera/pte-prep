@@ -1,13 +1,14 @@
 import type { Env, UserRecord } from '../../types'
-import { createSessionToken, hashPassword, requireSecret, sha256Hex } from '../../lib/auth'
+import {
+  createSessionToken,
+  hashPassword,
+  requireSecret,
+  resolvePbkdf2Iterations,
+  resolveSessionExpiry,
+  revokeAllUserSessions,
+  sha256Hex,
+} from '../../lib/auth'
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
-
-interface ResetTokenRecord {
-  id: string
-  user_id: string
-  expires_at: string
-  used_at: string | null
-}
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   let body: { token?: string; password?: string }
@@ -23,15 +24,15 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const token = typeof body.token === 'string' ? body.token.trim() : ''
   const password = typeof body.password === 'string' ? body.password : ''
 
-  if (!token) {
-    return new Response(JSON.stringify({ error: 'Reset token is required.' }), {
+  if (!token || token.length < 16 || token.length > 128) {
+    return new Response(JSON.stringify({ error: 'Reset token is invalid or missing.' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
 
-  if (!password || password.length < 8) {
-    return new Response(JSON.stringify({ error: 'Password must be at least 8 characters.' }), {
+  if (!password || password.length < 8 || password.length > 128) {
+    return new Response(JSON.stringify({ error: 'Password must be between 8 and 128 characters.' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
@@ -54,11 +55,26 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   const tokenHash = await sha256Hex(token)
 
-  // Find valid unused token
-  const resetRecord = await db
-    .prepare('SELECT id, user_id, expires_at, used_at FROM password_resets WHERE token_hash = ?')
+  // Atomically claim the token first to prevent race condition replay and eliminate TOCTOU window
+  const claimRes = await db
+    .prepare(
+      "UPDATE password_resets SET used_at = datetime('now') WHERE token_hash = ? AND used_at IS NULL AND datetime(expires_at) > datetime('now')",
+    )
     .bind(tokenHash)
-    .first<ResetTokenRecord>()
+    .run()
+
+  if (claimRes.meta.changes === 0) {
+    return new Response(
+      JSON.stringify({ error: 'Invalid or expired password reset link. Please request a new one.' }),
+      { status: 400, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
+  // Find user_id associated with token
+  const resetRecord = await db
+    .prepare('SELECT user_id FROM password_resets WHERE token_hash = ?')
+    .bind(tokenHash)
+    .first<{ user_id: string }>()
 
   if (!resetRecord) {
     return new Response(
@@ -67,36 +83,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     )
   }
 
-  if (resetRecord.used_at) {
-    return new Response(
-      JSON.stringify({ error: 'This password reset link has already been used. Please request a new one.' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } },
-    )
-  }
-
-  const expiresTime = new Date(resetRecord.expires_at).getTime()
-  if (isNaN(expiresTime) || expiresTime < Date.now()) {
-    return new Response(
-      JSON.stringify({ error: 'This password reset link has expired. Please request a new one.' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } },
-    )
-  }
-
-  // Atomically claim the token first to prevent race condition replay
-  const claimRes = await db
-    .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE id = ? AND used_at IS NULL")
-    .bind(resetRecord.id)
-    .run()
-
-  if (claimRes.meta.changes === 0) {
-    return new Response(
-      JSON.stringify({ error: 'This password reset link has already been used. Please request a new one.' }),
-      { status: 400, headers: { 'Content-Type': 'application/json' } },
-    )
-  }
+  // Revoke all existing sessions for this user before issuing a fresh session
+  await revokeAllUserSessions(db, resetRecord.user_id)
 
   // Hash new password
-  const { hash, salt } = await hashPassword(password)
+  const iterations = resolvePbkdf2Iterations(context.env)
+  const { hash, salt } = await hashPassword(password, iterations)
 
   // Update user's password
   await db
@@ -122,6 +114,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const sessionToken = await createSessionToken(
     { userId: user.id, email: user.email },
     requireSecret(context.env),
+    resolveSessionExpiry(context.env),
+    db,
   )
 
   return new Response(

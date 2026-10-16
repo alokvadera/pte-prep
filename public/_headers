@@ -10,5 +10,6 @@
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: SAMEORIGIN
+  # connect-src includes https://api.groq.com for client-side BYOK AI scoring (src/lib/aiScorer.ts)
   Content-Security-Policy: default-src 'self'; script-src 'self' 'sha256-cY5WgIhtXwIGboRrbJmxLeNZFOgNzbD6ciTLFeTeV+g='; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' https://api.groq.com; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self';
 

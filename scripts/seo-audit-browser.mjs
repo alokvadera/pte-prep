@@ -27,11 +27,11 @@ const chromeBinary = [
 
 if (!chromeBinary) {
   console.error('No Chrome binary found; skipping rendered-DOM audit.')
-  if (process.argv.includes('--strict')) {
-    console.error('Failing because --strict was passed.')
-    process.exit(1)
+  console.error('Set CHROME_PATH to run, or pass --allow-skip to skip.')
+  if (process.argv.includes('--allow-skip')) {
+    process.exit(0)
   }
-  process.exit(0)
+  process.exit(1)
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))

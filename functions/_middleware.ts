@@ -2,30 +2,22 @@ import type { Env } from './types'
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const origin = context.request.headers.get('Origin')
-  const allowedOrigin =
-    context.env.CORS_ORIGIN ??
-    (origin &&
-    (origin === 'https://pte-prep.pages.dev' ||
-      origin.endsWith('.pte-prep.pages.dev') ||
-      origin.startsWith('http://localhost:'))
-      ? origin
-      : 'https://pte-prep.pages.dev')
+  const allowedOrigin = resolveAllowedOrigin(origin, context.env.CORS_ORIGIN ?? context.env.SITE_ORIGIN)
+
   if (context.request.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': allowedOrigin,
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Max-Age': '600',
-      },
-    })
+    const headers: Record<string, string> = {
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '600',
+    }
+    if (allowedOrigin) headers['Access-Control-Allow-Origin'] = allowedOrigin
+    return new Response(null, { status: 204, headers })
   }
 
   try {
     const response = await context.next()
     const newHeaders = new Headers(response.headers)
-    newHeaders.set('Access-Control-Allow-Origin', allowedOrigin)
+    if (allowedOrigin) newHeaders.set('Access-Control-Allow-Origin', allowedOrigin)
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -33,12 +25,28 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     })
   } catch (err: unknown) {
     console.error('Unhandled API error:', err)
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    if (allowedOrigin) headers['Access-Control-Allow-Origin'] = allowedOrigin
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': allowedOrigin,
-      },
+      headers,
     })
   }
+}
+
+function resolveAllowedOrigin(origin: string | null, configured?: string): string | null {
+  if (!origin) return null
+  if (configured) {
+    const list = configured.split(',').map((s) => s.trim())
+    if (list.includes('*') || list.includes(origin)) return origin
+  }
+  if (
+    origin === 'https://pte-prep.pages.dev' ||
+    origin.endsWith('.pte-prep.pages.dev') ||
+    origin.startsWith('http://localhost:') ||
+    origin === 'http://localhost'
+  ) {
+    return origin
+  }
+  return null
 }

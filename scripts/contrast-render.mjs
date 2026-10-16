@@ -53,9 +53,12 @@ const CANDIDATES = [
 
 const binary = CANDIDATES.find((p) => existsSync(p))
 if (!binary) {
-  console.log('\n  No Chrome binary found — skipping the dark audit.')
-  console.log('  Set CHROME_PATH to run it.\n')
-  process.exit(0)
+  console.error('\n  No Chrome binary found — skipping the contrast render.')
+  console.error('  Set CHROME_PATH to run it, or pass --allow-skip to skip.\n')
+  if (process.argv.includes('--allow-skip')) {
+    process.exit(0)
+  }
+  process.exit(1)
 }
 
 // Same route list as browser-check: every prerendered page. /test and /result

@@ -299,7 +299,7 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
           audioLeadIn: 3,
           replays: 1,
         },
-        { blanks: [[q.correct]], reference: q.correct, minWords: 1, maxWords: 4 },
+        { correctChoice: q.correct, blanks: [[q.correct]], reference: q.correct, minWords: 1, maxWords: 4 },
       )
       groups.push(
       group({
@@ -391,7 +391,7 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
 
   // Summarize Written Text
   {
-    const pool = passages.length > 0 ? passages : PASSAGES
+    const pool = passages
     const picks = pickN(pool, counts['summarize-written-text'] ?? MOCK_BLUEPRINT['summarize-written-text'], makeRng(ctx.seed + 8))
     for (const p of picks) {
       const id = itemId('summarize-written-text', p.swt.id)
@@ -640,7 +640,7 @@ if (itemIds.length > 0) {
       group({
         id: gid,
         section: 'reading',
-        type: 'fill-in-blanks-table',
+        type: (itemIds[0] ? ctx.items[itemIds[0]]?.type : undefined) ?? 'fill-in-blanks-table',
         order: order++,
         stimulus: { passageId: p.id, passageTitle: p.title, passageParagraphs: p.paragraphs },
         itemIds,
@@ -652,6 +652,7 @@ if (itemIds.length > 0) {
   // Re-order Paragraphs presents the paragraphs on screen, so it needs no passage.
   const reorderCount = counts['reorder-paragraphs'] ?? MOCK_BLUEPRINT['reorder-paragraphs']
   const reorderSources = shuffle(PASSAGES, makeRng(ctx.seed + 21))
+  if (reorderSources.length === 0) return groups
   for (let i = 0; i < reorderCount; i++) {
     const p = reorderSources[i % reorderSources.length]
     if (!p) break
@@ -1009,6 +1010,8 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
 // Helpers
 // ---------------------------------------------------------------------------
 
+const BLANK_MARKER = /______/
+
 /** Rebuilds the authored text with each blank filled in, for per-word scoring. */
 function completedText(text: string, answers: string[][]): string {
   const parts = text.split(BLANK_MARKER)
@@ -1018,8 +1021,6 @@ function completedText(text: string, answers: string[][]): string {
     .replace(/\s+/g, ' ')
     .trim()
 }
-
-const BLANK_MARKER = /______/
 
 function audioStimulus(audioId: string, title?: string): Stimulus {
   return { audioId, passageTitle: title, note: AUDIO_INDEX.get(audioId)?.scene }
@@ -1079,6 +1080,7 @@ export interface BuildOptions {
   untimed?: boolean
   /** True when the runner forbids going back, like the real test. */
   forwardOnly?: boolean
+  createdAt?: string
 }
 
 export function buildMock(opts: BuildOptions): MockTest {
@@ -1126,7 +1128,7 @@ export function buildMock(opts: BuildOptions): MockTest {
     seed: opts.seed,
     title: opts.title ?? 'Full Mock Test',
     kind: opts.kind,
-    createdAt: new Date().toISOString(),
+    createdAt: opts.createdAt ?? new Date(Date.UTC(2026, 0, 1) + (Math.abs(opts.seed) % 365) * 86400000).toISOString(),
     sections,
     items: ctx.items,
     answers: ctx.answers,

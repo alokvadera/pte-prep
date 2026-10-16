@@ -48,8 +48,12 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
   const micSupported = isRecordingSupported()
   const finishRef = useRef<(() => Promise<void>) | null>(null)
 
+  const mountedRef = useRef(true)
+
   useEffect(() => {
+    mountedRef.current = true
     return () => {
+      mountedRef.current = false
       if (timerRef.current !== null) {
         window.clearInterval(timerRef.current)
         timerRef.current = null
@@ -71,8 +75,10 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
     }
     const rec = recorderRef.current
     const result = rec ? await rec.stop() : null
-    setPhase('done')
-    setLastDurationMs(result?.analysis?.durationMs ?? 0)
+    if (mountedRef.current) {
+      setPhase('done')
+      setLastDurationMs(result?.analysis?.durationMs ?? 0)
+    }
 
     const baseAnalysis = result?.analysis ?? {
       durationMs: 0,
@@ -90,28 +96,34 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
     // STT STRATEGY:
     // 1. If user has entered their Groq API Key, Whisper Turbo is FIRST PREFERENCE!
     if (key && result?.audioBlob && result.audioBlob.size > 0) {
-      setTranscribing(true)
+      if (mountedRef.current) setTranscribing(true)
       try {
         const whisperRes = await transcribeWithWhisper(result.audioBlob, key)
         if (whisperRes && whisperRes.text.trim()) {
           const whisperText = whisperRes.text.trim()
-          setTranscript(whisperText)
-          setSttSource('whisper')
+          if (mountedRef.current) {
+            setTranscript(whisperText)
+            setSttSource('whisper')
+            setTranscribing(false)
+          }
           onRecorded(baseAnalysis, whisperText)
-          setTranscribing(false)
           return
         }
       } catch {
         /* fallback to browser recognition */
       }
-      setTranscribing(false)
-      setSttSource(browserTranscript ? 'browser-fallback' : null)
+      if (mountedRef.current) {
+        setTranscribing(false)
+        setSttSource(browserTranscript ? 'browser-fallback' : null)
+      }
       onRecorded(baseAnalysis, browserTranscript)
       return
     }
 
     // 2. If no API key, use Browser Web Speech API directly (100% free)
-    setSttSource(browserTranscript ? 'browser' : null)
+    if (mountedRef.current) {
+      setSttSource(browserTranscript ? 'browser' : null)
+    }
     onRecorded(baseAnalysis, browserTranscript)
   }, [onRecorded, settings.groqApiKey])
 
@@ -123,33 +135,44 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
     setError(null)
     let recError: string | null = null
     const rec = new VoiceRecorder({
-      onStateChange: (s) => setState(s),
-      onLevel: (l) => setLevel(l),
-      onTranscript: (t) => setTranscript(t),
+      onStateChange: (s) => {
+        if (mountedRef.current) setState(s)
+      },
+      onLevel: (l) => {
+        if (mountedRef.current) setLevel(l)
+      },
+      onTranscript: (t) => {
+        if (mountedRef.current) setTranscript(t)
+      },
       onError: (msg) => {
         recError = msg
-        setError(msg)
+        if (mountedRef.current) setError(msg)
       },
     })
     recorderRef.current = rec
     const ok = await rec.start()
     if (!ok) {
-      if (!recError) {
+      if (!recError && mountedRef.current) {
         setError('Microphone unavailable. Type your answer below instead — it will still be scored on content.')
       }
-      setPhase('done')
+      if (mountedRef.current) setPhase('done')
       return
     }
     setPhase('recording')
     setRecLeft(seconds)
+    let remainingTime = seconds
     timerRef.current = window.setInterval(() => {
-      setRecLeft((n) => {
-        if (n <= 1) {
-          void finish()
-          return 0
+      remainingTime -= 1
+      if (remainingTime <= 0) {
+        if (timerRef.current !== null) {
+          window.clearInterval(timerRef.current)
+          timerRef.current = null
         }
-        return n - 1
-      })
+        if (mountedRef.current) setRecLeft(0)
+        void finish()
+      } else if (mountedRef.current) {
+        setRecLeft(remainingTime)
+      }
     }, 1000)
   }, [seconds, finish])
 

@@ -17,10 +17,22 @@ export interface AiEvaluationResult {
   maxScore: number
 }
 
-const evaluationCache = new Map<string, AiEvaluationResult>()
+interface CacheEntry {
+  result: AiEvaluationResult
+  expiresAt: number
+}
+
+const evaluationCache = new Map<string, CacheEntry>()
 const MAX_EVAL_CACHE = 500
+const EVAL_CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
 
 function evictOldestCache() {
+  const now = Date.now()
+  for (const [key, entry] of evaluationCache) {
+    if (entry.expiresAt <= now) {
+      evaluationCache.delete(key)
+    }
+  }
   if (evaluationCache.size >= MAX_EVAL_CACHE) {
     const first = evaluationCache.keys().next().value
     if (first !== undefined) {
@@ -73,7 +85,10 @@ export async function evaluateWithAi(
 
   const cacheKey = hashAnswer(item.id, text, model, RUBRIC_VERSION)
   const cached = evaluationCache.get(cacheKey)
-  if (cached) return cached
+  if (cached) {
+    if (cached.expiresAt > Date.now()) return cached.result
+    evaluationCache.delete(cacheKey)
+  }
 
   const isEssay = item.type === 'write-essay'
   const isSWT = item.type === 'summarize-written-text'
@@ -231,7 +246,7 @@ Output ONLY a JSON object with this exact format:
     }
 
     evictOldestCache()
-    evaluationCache.set(cacheKey, result)
+    evaluationCache.set(cacheKey, { result, expiresAt: Date.now() + EVAL_CACHE_TTL_MS })
     return result
   } catch (err) {
     console.error('Failed to evaluate with AI:', err)

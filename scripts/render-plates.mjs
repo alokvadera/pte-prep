@@ -27,8 +27,9 @@ const CHROME = [
 
 if (!CHROME) {
   console.log('  No Chrome binary found — skipping the plates.')
-  if (process.argv.includes('--strict')) {
-    console.log('  Failing because --strict was passed.')
+  const allowSkip = process.argv.includes('--allow-skip') || process.env.ALLOW_SKIP_BROWSER === '1'
+  if ((process.env.CI || process.argv.includes('--strict')) && !allowSkip) {
+    console.error('  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.')
     process.exit(1)
   }
   process.exit(0)

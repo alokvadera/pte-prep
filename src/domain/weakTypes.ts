@@ -42,7 +42,7 @@ const WINDOW = 5
 /** Attempts are dated strings, so ordering them needs a parse rather than a compare. */
 function timeOf(attempt: AttemptRecord): number {
   const t = Date.parse(attempt.finishedAt)
-  return Number.isNaN(t) ? 0 : t
+  return Number.isNaN(t) ? -Infinity : t
 }
 
 /**

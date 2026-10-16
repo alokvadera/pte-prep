@@ -70,7 +70,7 @@ function syncHead(pathname: string): void {
       : `${el.tagName.toLowerCase()}:${identity}`
     if (!wanted.has(key)) el.remove()
   }
-  for (const el of Array.from(head.querySelectorAll(`[${JSONLD}]`))) el.remove()
+  for (const el of Array.from(head.querySelectorAll(`script[type="application/ld+json"], [${JSONLD}]`))) el.remove()
 
   for (const tag of tags) {
     if (tag.tag === 'script') {

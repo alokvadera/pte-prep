@@ -589,9 +589,13 @@ export default function Dashboard() {
                                 onClick={() => {
                                   setDeletingId(null)
                                   void (async () => {
-                                    await deleteAttemptEverywhere(a.id)
-                                    setAttempts(await listAttempts(100))
-                                    toast.push('Attempt deleted')
+                                    try {
+                                      await deleteAttemptEverywhere(a.id)
+                                      setAttempts(await listAttempts(100))
+                                      toast.push('Attempt deleted')
+                                    } catch {
+                                      toast.push('Could not delete attempt', 'rose')
+                                    }
                                   })()
                                 }}
                               >

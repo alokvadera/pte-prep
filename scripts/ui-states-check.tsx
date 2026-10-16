@@ -81,7 +81,8 @@ console.log(`\n== Score band (conversion sensitivity) ==\n`)
 let outsideRail = 0
 let degenerateMidRange = 0
 let widest = 0
-for (let f = 0; f <= 1.0001; f += 0.005) {
+for (let i = 0; i <= 200; i++) {
+  const f = i / 200
   const shown = rawToPteScale(f)
   const b = scoreBand(f, shown)
   if (b.low > b.mid || b.mid > b.high) outsideRail++
