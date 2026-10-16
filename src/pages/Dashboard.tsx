@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { clearAttempts, listAttempts } from '../db/db'
-import { deleteAttemptEverywhere, syncCloudToLocal } from '../lib/sync'
+import { listAttempts } from '../db/db'
+import { clearAllAttemptsEverywhere, deleteAttemptEverywhere, syncCloudToLocal } from '../lib/sync'
 import { useAuth } from '../store/useAuth'
 import { QUESTION_META } from '../domain/blueprint'
 import type { AttemptRecord, QuestionType, Skill } from '../domain/types'
@@ -641,11 +641,10 @@ export default function Dashboard() {
                     setClearingAll(true)
                     void (async () => {
                       try {
-                        const current = attempts ?? []
-                        for (const a of current) {
-                          await deleteAttemptEverywhere(a.id)
-                        }
-                        await clearAttempts()
+                        // Acting on the loaded page alone would leave older
+                        // attempts behind to be re-synced, so the whole store is
+                        // cleared through the tombstone-aware path.
+                        await clearAllAttemptsEverywhere()
                         setAttempts([])
                         setConfirmClearAll(false)
                         toast.push('All attempt history cleared', 'rose')

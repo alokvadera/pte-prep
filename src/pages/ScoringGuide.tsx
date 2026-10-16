@@ -170,7 +170,7 @@ export default function ScoringGuide() {
             },
             {
               title: 'The zero rules are respected',
-              body: 'The score guide states that when Content or Form scores zero, no points are awarded for the item at all. So an off-topic essay, an essay under 120 words, a summary that is not a single sentence, and a response with no content from the source all score zero however fluently they were delivered. That gate is implemented, not approximated.',
+              body: 'The score guide states that when Content or Form scores zero, no points are awarded for the item at all. So an off-topic essay, an essay under 120 words (or written in all capitals, without punctuation, or as bullets), a summary that is not a single sentence, and a response with no content from the source all score zero however fluently they were delivered. That gate is implemented, not approximated.',
             },
             {
               title: 'Eight types feed two skills at once',

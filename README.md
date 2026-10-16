@@ -130,7 +130,8 @@ Score Guide. The full transcription, with sources, is in
   run of three boxes earns two points and the item maximum is one less than the
   number of boxes. Not all-or-nothing.
 - **The zero gates**: when Content or Form scores 0, the item scores nothing,
-  however well the other traits scored. An essay under 120 words is a zero.
+  however well the other traits scored. An essay under 120 words, in all capitals,
+  without sentence-ending punctuation, or written as bullets is a zero.
 - **Form bands** are type-specific: 200–300 words for the essay, 50–70 for
   Summarize Spoken Text, one complete sentence for Summarize Written Text.
 - **Eight types are integrated** and feed two communicative skills each.

@@ -110,6 +110,17 @@ export async function revokeAllUserSessions(db: D1Database, userId: string): Pro
     .run()
 }
 
+/**
+ * Revokes a single session by its token id, leaving other devices signed in.
+ *
+ * Sign-out needs this: clearing the token in the browser does not stop the
+ * bearer token being replayed, so the server-side row has to go too.
+ */
+export async function revokeSession(db: D1Database, jti: string): Promise<void> {
+  await ensureSessionsTable(db)
+  await db.prepare('DELETE FROM user_sessions WHERE jti = ?').bind(jti).run()
+}
+
 export async function createSessionToken(
   session: Omit<AuthSession, 'exp' | 'iat' | 'jti' | 'aud'>,
   secret: string,

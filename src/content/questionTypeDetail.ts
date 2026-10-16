@@ -120,7 +120,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
     what: 'A prompt gives you a situation to discuss and an opinion to defend. You write a discursive essay of 200 to 300 words in twenty minutes.',
     how: 'This is the only constructed-response item in the whole test and the only one that scores Writing without a companion skill. You get twenty minutes, which is generous for the length, but there is no second chance to restructure.',
     scoring:
-      'The widest trait set on the test: content, form, development/structure/coherence, general linguistic range, vocabulary range, spelling and grammar. Form is 2 points at 200 to 300 words, 1 point at 120 to 199 or 301 to 380, and 0 outside that — and form 0 zeroes the entire essay.',
+      'The widest trait set on the test: content, form, development/structure/coherence, general linguistic range, vocabulary range, spelling and grammar. Form is the 0/1/2 band Pearson publishes — 2 at 200 to 300 words, 1 at 120 to 199 or 301 to 380, and 0 outside that — and this app applies it as a weight of 1.0, 0.5 or 0 on the item, which is why your report shows the essay out of one point. Form 0 zeroes the entire essay, and all caps, no punctuation or a list of bullets are form 0 however long the essay is.',
     mistakes: [
       'Running under 120 words, which zeroes everything else you earned.',
       'Listing arguments without developing any of them, which costs coherence as well as content.',
@@ -186,7 +186,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
     what: 'You hear a short academic passage — often a lecture introduction — and write a 50 to 70 word summary.',
     how: 'You have a short preparation window before the audio, and you may take notes. This is the only written response in the Listening section, and it is the only item there that scores Writing.',
     scoring:
-      'Form is 2 points at 50 to 70 words, 1 point at 40 to 49 or 71 to 100, and 0 outside that — form 0 zeroes the whole item. Content runs 0 to 4, with grammar, vocabulary and spelling scored alongside.',
+      'Form is the 0/1/2 band Pearson publishes — 2 at 50 to 70 words, 1 at 40 to 49 or 71 to 100, and 0 outside that — applied here as a weight of 1.0, 0.5 or 0 on the item. Form 0 zeroes the whole item, and all caps, no punctuation or a list of bullets are form 0 at any length. Content runs 0 to 4, with grammar, vocabulary and spelling scored alongside.',
     mistakes: [
       'Dropping to 39 words while trying to be precise, losing all form points.',
       'Writing the summary as a list, which the form band treats as zero.',
@@ -263,7 +263,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
     what: 'You hear a recording and write down exactly what is said.',
     how: 'These are the final items in the Listening section, there is no preparation time, and you may take notes. Nothing is corrected or paraphrased — the transcription must match.',
     scoring:
-      'One point per word spelled correctly, with no deduction for the words you miss. Capitalisation and a single missing full stop each cost one word.',
+      'One point per word spelled correctly, with no deduction for the words you miss. Words are matched on their own, ignoring capitalisation and surrounding punctuation, so typing in the wrong case or omitting the final full stop does not cost you a word — the words themselves do.',
     mistakes: [
       'Correcting what you hear into grammatical English, which is exactly wrong here.',
       'Dropping the final word or two as the recording ends.',

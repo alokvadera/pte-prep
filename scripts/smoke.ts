@@ -2,7 +2,7 @@
 // exercises every scoring path. Run with: npx tsx scripts/smoke.ts
 import { buildDrillMock, buildFullMock, buildSectionMock } from '../src/domain/assemble'
 import { ALL_QUESTION_TYPES, MOCK_BLUEPRINT, NEGATIVE_MARKING_TYPES, QUESTION_META } from '../src/domain/blueprint'
-import { buildReport, formBand, pteToIelts, rawToPteScale, scoreItem, toCefr } from '../src/domain/scoring'
+import { buildReport, expectedMaxPoints, formBand, pteToIelts, rawToPteScale, scoreItem, toCefr } from '../src/domain/scoring'
 import { BANK, bankCapacity, capacityByType } from '../src/content/bank'
 import { formatSeconds, paceReport, paceWarnings } from '../src/domain/pace'
 import { keyTermCoverage } from '../src/lib/text'
@@ -218,13 +218,60 @@ console.log('\n== Pearson rule conformance ==')
 {
   // Re-order Paragraphs: 1 point per correctly ordered adjacent pair, max N-1.
   const key4 = ['a', 'b', 'c', 'd']
-  const item4 = { ...rop, id: 'rop-test', maxPoints: 3 }
+  const item4 = { ...rop, id: 'rop-test', maxPoints: key4.length - 1 }
   const key4k = { order: key4 }
   check('ROP: a perfect order earns every adjacent pair', scoreItem(item4, key4k, { order: key4 }).ratio === 1)
   check('ROP: one broken link costs exactly one point', Math.abs(scoreItem(item4, key4k, { order: ['a', 'b', 'd', 'c'] }).ratio - 1 / 3) < 0.001, String(scoreItem(item4, key4k, { order: ['a', 'b', 'd', 'c'] }).ratio))
   check('ROP: a chain of three correct boxes earns two points', Math.abs(scoreItem(item4, key4k, { order: ['d', 'a', 'b', 'c'] }).ratio - 2 / 3) < 0.001)
   check('ROP: no correct adjacency scores zero', scoreItem(item4, key4k, { order: ['c', 'a', 'd', 'b'] }).ratio === 0)
-  check('ROP: the maximum is N-1, not 1', item4.maxPoints === 3)
+
+  // The item maximum has to come from the assembled item's own content. Every
+  // per-unit type used to be a flat single point, so this asserts the derived
+  // maxima on the real items rather than on a number the test wrote itself.
+  const refWords = (id: string) => (key(id).reference ?? '').split(/\s+/).filter(Boolean).length
+  const perWordItems = scored.filter((i) => QUESTION_META[i.type].scoring === 'per-word')
+  const perPairItems = scored.filter((i) => QUESTION_META[i.type].scoring === 'per-adjacent-pair')
+  const negatedItems = scored.filter((i) => QUESTION_META[i.type].scoring === 'per-unit-negated')
+  check('the mock carries per-word items to check', perWordItems.length > 0, String(perWordItems.length))
+  check('the mock carries per-adjacent-pair items to check', perPairItems.length > 0, String(perPairItems.length))
+  check('the mock carries negatively marked items to check', negatedItems.length > 0, String(negatedItems.length))
+  check(
+    'every dictation item is worth one point per reference word',
+    perWordItems.every((i) => i.maxPoints === refWords(i.id)),
+    perWordItems.map((i) => `${i.maxPoints}/${refWords(i.id)}`).join(' '),
+  )
+  check(
+    'every re-order item is worth one point per adjacent pair (N-1)',
+    perPairItems.every((i) => i.maxPoints === Math.max(1, (key(i.id).order ?? []).length - 1)),
+    perPairItems.map((i) => `${i.maxPoints} vs ${(key(i.id).order ?? []).length - 1}`).join(' '),
+  )
+  check(
+    'every negatively marked item is worth one point per correct unit',
+    negatedItems.every((i) =>
+      i.type === 'highlight-incorrect-words'
+        ? i.maxPoints === Math.max(1, (key(i.id).correctHighlighted ?? []).length)
+        : i.maxPoints === Math.max(1, (key(i.id).correctChoices ?? []).length),
+    ),
+    negatedItems.map((i) => `${i.type}:${i.maxPoints}`).join(' '),
+  )
+  check(
+    'no scored item is worth a flat single point unless it is a single-unit type',
+    scored
+      .filter((i) => ['per-word', 'per-adjacent-pair', 'per-unit-negated', 'per-blank'].includes(QUESTION_META[i.type].scoring))
+      .every((i) => i.maxPoints >= 1),
+  )
+  check(
+    'ROP item with 5 boxes reports maxPoints: 4',
+    expectedMaxPoints('reorder-paragraphs', { order: ['p0', 'p1', 'p2', 'p3', 'p4'] }) === 4,
+  )
+  check(
+    'WFD item reports maxPoints equal to its reference word count',
+    expectedMaxPoints('write-from-dictation', { reference: 'The professor explained the theory to the students.' }) === 8,
+  )
+  check(
+    'every assembled item maxPoints equals expectedMaxPoints',
+    scored.every((i) => i.maxPoints === expectedMaxPoints(i.type, key(i.id))),
+  )
 
   // Only three of 22 types carry negative marking, at -1 each.
   check('exactly three types use negative marking', NEGATIVE_MARKING_TYPES.length === 3, NEGATIVE_MARKING_TYPES.join(', '))
@@ -252,8 +299,10 @@ console.log('\n== Pearson rule conformance ==')
   )
 
   // Write from Dictation: one point per correct reference word (multiset frequency match).
+  // The real assembled item is used, not one whose maximum the test set, so the
+  // ratio below is measured against the item the app actually ships.
   const wfdSentence = 'The professor explained the theory to the students.'
-  const wfdItem = { ...wfd, maxPoints: 1 }
+  const wfdItem = { ...wfd }
   const wfdKey = { reference: wfdSentence }
   // Missing the first word ("The") must score 7/8, not zero.
   const wfdMissingFirst = 'professor explained the theory to the students.'
@@ -274,17 +323,54 @@ console.log('\n== Pearson rule conformance ==')
     scoreItem(rtl, key(rtl.id), { transcript: 'so anyway it was basically that in the end you know', audio: MIC }).ratio === 0,
   )
 
-  // Form bands are type-specific and hard-edged.
-  check('essay: 250 words scores Form 2', formBand('write-essay', 'word '.repeat(250)).score === 1)
-  check('essay: 174 words scores Form 1', formBand('write-essay', 'word '.repeat(174)).score === 0.5)
-  check('essay: 100 words scores Form 0 and gates the item', formBand('write-essay', 'word '.repeat(100)).score === 0)
-  check('essay: 400 words scores Form 0', formBand('write-essay', 'word '.repeat(400)).score === 0)
-  check('SST: 60 words scores Form 2', formBand('summarize-spoken-text', 'word '.repeat(60)).score === 1)
-  check('SST: 30 words scores Form 0', formBand('summarize-spoken-text', 'word '.repeat(30)).score === 0)
+  // Form bands are type-specific and hard-edged. The fillers end with a full
+  // stop on purpose: prose with no sentence-ending punctuation is Form 0 in its
+  // own right, which is asserted separately below, so an unterminated filler
+  // would test that rule rather than the word-count band.
+  const filler = (n: number) => `${'word '.repeat(n).trim()} .`.replace(' .', '.')
+  check('essay: 250 words scores the top form band', formBand('write-essay', filler(250)).score === 1)
+  check('essay: 174 words scores the middle form band', formBand('write-essay', filler(174)).score === 0.5)
+  check('essay: 100 words scores Form 0 and gates the item', formBand('write-essay', filler(100)).score === 0)
+  check('essay: 400 words scores Form 0', formBand('write-essay', filler(400)).score === 0)
+  check('SST: 60 words scores the top form band', formBand('summarize-spoken-text', filler(60)).score === 1)
+  check('SST: 30 words scores Form 0', formBand('summarize-spoken-text', filler(30)).score === 0)
   check('SWT: one complete sentence scores Form 1', formBand('summarize-written-text', 'This is one complete sentence.').score === 1)
   check('SWT: sentence with abbreviations scores Form 1', formBand('summarize-written-text', 'Dr. Smith showed that the U.S. economy grew by three percent.').score === 1)
   check('SWT: two sentences score Form 0', formBand('summarize-written-text', 'One sentence. And another.').score === 0)
   check('SWT: no final punctuation scores Form 0', formBand('summarize-written-text', 'This is one complete sentence').score === 0)
+
+  // Form 0 zeroes the whole item, and it is not only about word count: an
+  // all-caps, punctuation-free or bulleted response scores 0 however long it
+  // is. These are the four conditions the scorer originally ignored.
+  const longBody = filler(250)
+  check('essay: 250 words in ALL CAPS is Form 0, not the top band', formBand('write-essay', longBody.toUpperCase()).score === 0)
+  check(
+    'essay: 250 words with no sentence-ending punctuation is Form 0',
+    formBand('write-essay', longBody.replace(/\.$/, '')).score === 0,
+  )
+  check(
+    'essay: a bullet list is Form 0',
+    formBand('write-essay', Array.from({ length: 30 }, (_, i) => `- point ${i} about the topic`).join('\n')).score === 0,
+  )
+  check(
+    'essay: nothing but very short sentences is Form 0',
+    formBand('write-essay', 'It is good. That is true. This is fine. '.repeat(20).trim()).score === 0,
+  )
+  check('SST: 60 words in ALL CAPS is Form 0', formBand('summarize-spoken-text', filler(60).toUpperCase()).score === 0)
+  check('SWT: all caps is Form 0', formBand('summarize-written-text', 'This is one complete sentence.'.toUpperCase()).score === 0)
+  // The message has to say which condition fired, not just "Form 0".
+  check(
+    'a Form 0 note names the condition that triggered it',
+    /all capitals/i.test(formBand('write-essay', longBody.toUpperCase()).note),
+    formBand('write-essay', longBody.toUpperCase()).note,
+  )
+  // Controls: the same lengths and the same shape still score normally.
+  check('a normally formed 250-word essay still scores the top band', formBand('write-essay', longBody).score === 1)
+  check('a normally formed 250-word essay carries no Form 0 note', formBand('write-essay', longBody).note === '')
+  check(
+    'all-caps 250-word essay gates the item to 0',
+    scoreItem(essay, key(essay.id), { text: longBody.toUpperCase() }).ratio === 0,
+  )
 
   // Integrated items feed two skills each.
   const integrated = ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].skills.length > 1)
@@ -418,6 +504,10 @@ const objectiveDetails = perfect.details.filter((d) => objectiveKinds.has(scored
 console.log(`  ${objectiveDetails.length} objective items scored exactly`)
 check('every objective item scores exactly full marks in a perfect run', objectiveDetails.every((d) => d.ratio === 1), objectiveDetails.filter((d) => d.ratio !== 1).map((d) => d.label).join(', '))
 check('a dictation answer of the exact sentence scores 85% or better', perfect.details.filter((d) => d.type === 'write-from-dictation').every((d) => d.ratio >= 0.85), String(Math.min(...perfect.details.filter((d) => d.type === 'write-from-dictation').map((d) => d.ratio))))
+check(
+  'no response with score > 0 carries a "scores zero" note',
+  perfect.details.every((d) => d.points === 0 || !d.notes.some((n) => /scores zero/i.test(n))),
+)
 
 // With a recording and a transcript, constructed items should reach near full marks.
 const micReport = buildReport(
@@ -442,10 +532,29 @@ const empty = buildReport(scored, mock.answers, {}, metaById)
 check('an empty run scores 10', empty.overall === 10, String(empty.overall))
 check('an empty run has no details', empty.details.length === scored.length)
 
-const halfResponses: Record<string, ItemResponse> = { ...responses }
-for (const id of Object.keys(halfResponses).slice(0, Math.floor(scored.length / 2))) delete halfResponses[id]
+// A half-completed attempt should land near the middle of the scale. Answer
+// every second item rather than a contiguous block: question types are not
+// evenly weighted, so deleting the first N responses can strip out most of the
+// marks and leave a run that is half answered but not half weighted. The
+// assertion is about the scale, so the fixture has to be a representative half.
+const halfResponses: Record<string, ItemResponse> = {}
+Object.keys(responses).forEach((id, i) => {
+  if (i % 2 === 0) halfResponses[id] = responses[id]!
+})
 const half = buildReport(scored, mock.answers, halfResponses, metaById)
 check('a half run lands in the middle of the scale', half.overall > 30 && half.overall < 65, String(half.overall))
+// Skipping a question must not remove it from the pool the score is measured
+// against, or leaving items blank would raise the score instead of lowering it.
+check(
+  'unanswered items stay in the denominator',
+  Math.abs(half.availablePoints - perfect.availablePoints) < 0.01,
+  `${half.availablePoints} vs ${perfect.availablePoints}`,
+)
+check(
+  'an unanswered run earns fewer points than a complete one',
+  half.earnedPoints < perfect.earnedPoints,
+  `${half.earnedPoints} vs ${perfect.earnedPoints}`,
+)
 check('breakdown covers every type in the report', Object.keys(perfect.breakdown).length === Object.keys(typeCounts).length, `${Object.keys(perfect.breakdown).length} vs ${Object.keys(typeCounts).length}`)
 check('breakdown totals match the available points', Math.abs(Object.values(perfect.breakdown).reduce((a, r) => a + r.maxPoints, 0) - perfect.availablePoints) < 0.01)
 

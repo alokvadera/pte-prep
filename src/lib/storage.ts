@@ -13,6 +13,10 @@ export interface SafeStorage {
 
 export function safeStateStorage(): SafeStorage {
   const memory = new Map<string, string>()
+  // Keys whose localStorage write failed (quota exhausted, private mode). For
+  // those the in-memory copy is the current value, so reads have to prefer it:
+  // reading localStorage back would return the value from before the failure.
+  const unsynced = new Set<string>()
   const hasLs = (): boolean =>
     typeof window !== 'undefined' &&
     (() => {
@@ -25,7 +29,7 @@ export function safeStateStorage(): SafeStorage {
 
   return {
     getItem: (name: string): string | null => {
-      if (!hasLs()) return memory.get(name) ?? null
+      if (unsynced.has(name) || !hasLs()) return memory.get(name) ?? null
       try {
         return window.localStorage.getItem(name)
       } catch {
@@ -37,13 +41,16 @@ export function safeStateStorage(): SafeStorage {
       if (!hasLs()) return
       try {
         window.localStorage.setItem(name, value)
+        unsynced.delete(name)
       } catch (err) {
         /* quota exceeded or private browsing mode */
+        unsynced.add(name)
         console.warn('[storage] localStorage setItem failed:', err)
       }
     },
     removeItem: (name: string): void => {
       memory.delete(name)
+      unsynced.delete(name)
       if (!hasLs()) return
       try {
         window.localStorage.removeItem(name)
@@ -59,13 +66,22 @@ export function throttledStateStorage(delayMs = 1000): SafeStorage {
   const base = safeStateStorage()
   const pending = new Map<string, { value: string; timer: ReturnType<typeof setTimeout> }>()
 
+  function flushPending(): void {
+    for (const [name, p] of pending) {
+      clearTimeout(p.timer)
+      base.setItem(name, p.value)
+    }
+    pending.clear()
+  }
+
   if (typeof window !== 'undefined') {
-    window.addEventListener('beforeunload', () => {
-      for (const [name, p] of pending) {
-        clearTimeout(p.timer)
-        base.setItem(name, p.value)
-      }
-      pending.clear()
+    // `beforeunload` alone is not enough: mobile Safari does not fire it when a
+    // tab is closed or swiped away, so the newest throttled state could be
+    // dropped. The page-lifecycle events below are the ones browsers guarantee.
+    window.addEventListener('beforeunload', flushPending)
+    window.addEventListener('pagehide', flushPending)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') flushPending()
     })
   }
 

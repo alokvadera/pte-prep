@@ -18,7 +18,12 @@ interface AppDb {
     get(id: string): Promise<AttemptRecord | undefined>
     delete(id: string): Promise<unknown>
     clear(): Promise<unknown>
-    orderBy(key: 'finishedAt'): { reverse(): { limit(n: number): { toArray(): Promise<AttemptRecord[]> } } }
+    orderBy(key: 'finishedAt'): {
+      reverse(): {
+        limit(n: number): { toArray(): Promise<AttemptRecord[]> }
+        toArray(): Promise<AttemptRecord[]>
+      }
+    }
   }
   kv: {
     get(key: string): Promise<KvRow | undefined>
@@ -76,6 +81,17 @@ export function saveAttempt(attempt: AttemptRecord): Promise<void> {
 
 export function listAttempts(limit = 60): Promise<AttemptRecord[]> {
   return withDb(async (db) => db.attempts.orderBy('finishedAt').reverse().limit(limit).toArray(), [])
+}
+
+/**
+ * Every stored attempt, newest first and unpaged.
+ *
+ * Clearing history has to act on the whole store. Reading through
+ * `listAttempts` would only ever see a page of it, which is how older attempts
+ * used to survive a "clear all" and reappear on the next sync.
+ */
+export function listAllAttempts(): Promise<AttemptRecord[]> {
+  return withDb(async (db) => db.attempts.orderBy('finishedAt').reverse().toArray(), [])
 }
 
 export function getAttempt(id: string): Promise<AttemptRecord | undefined> {

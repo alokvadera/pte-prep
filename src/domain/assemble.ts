@@ -14,6 +14,7 @@ import {
   variantRng,
 } from '../content/bank'
 import { MOCK_BLUEPRINT, QUESTION_META, SECTION_META, primarySkill } from './blueprint'
+import { expectedMaxPoints } from './scoring'
 import type {
   AnswerKey,
   Item,
@@ -54,7 +55,10 @@ function skillsFor(type: QuestionType): Skill[] {
 function addItem(ctx: Ctx, item: Omit<Item, 'skills'>, answer: AnswerKey): void {
   // Skill routing lives in exactly one place — the blueprint, transcribed from
   // Pearson's score guide — so an item can never disagree with it.
-  ctx.items[item.id] = { ...item, skills: skillsFor(item.type) }
+  // Maximum points are derived from the published scoring spec via expectedMaxPoints
+  // so the assembler and the scorer cannot drift. Unscored items (warm-up / intro) remain 0.
+  const maxPoints = item.warmup ? 0 : expectedMaxPoints(item.type, answer)
+  ctx.items[item.id] = { ...item, maxPoints, skills: skillsFor(item.type) }
   ctx.answers[item.id] = answer
 }
 
@@ -597,7 +601,12 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
           responseKind: 'multi-choice',
           prompt: p.mcqMultiple.question,
           options: entries.map((e) => e.text),
-          maxPoints: 1,
+          // One point per correct option: the published basis is +1 per correct
+          // choice, -1 per wrong one, so the item is worth the number of
+          // correct options and not a flat single point.
+          maxPoints: expectedMaxPoints('multiple-choice-multiple', {
+            correctChoices: entries.filter((e) => e.isCorrect).map((e) => e.text),
+          }),
           seconds: 0,
         },
         {
@@ -670,7 +679,10 @@ if (itemIds.length > 0) {
         responseKind: 'order',
         prompt: 'The paragraphs below are in the wrong order. Read them and put them in the correct sequence.',
         blocks: shuffle(correctBlocks, rng),
-        maxPoints: 1,
+        // N boxes yield N-1 adjacent pairs, so the item maximum is N-1.
+        maxPoints: expectedMaxPoints('reorder-paragraphs', {
+          order: correctBlocks.map((b) => b.id),
+        }),
         seconds: 0,
       },
       { order: correctBlocks.map((b) => b.id) },
@@ -875,7 +887,10 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
           prompt: q.question,
           options: entries.map((e) => e.t),
           stimulusId: q.audioId,
-          maxPoints: 1,
+          // As in Reading: one point per correct option, -1 per wrong one.
+          maxPoints: expectedMaxPoints('listening-multiple-choice-multiple', {
+            correctChoices: entries.filter((e) => e.ok).map((e) => e.t),
+          }),
           seconds: 0,
           audioLeadIn: 4,
           replays: 1,
@@ -951,7 +966,11 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         prompt: 'The transcript below contains two words that differ from the audio. Highlight the two words that are wrong.',
           tokens: tokenizeWithPunctuation(h.transcript),
           stimulusId: h.audioId,
-          maxPoints: 1,
+          // One point per incorrect word the candidate has to find, minus one
+          // for each word highlighted wrongly.
+          maxPoints: expectedMaxPoints('highlight-incorrect-words', {
+            correctHighlighted: h.incorrect,
+          }),
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,
@@ -984,7 +1003,11 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         responseKind: 'text',
           prompt: 'Listen and type exactly what you hear. The recording plays once.',
           stimulusId: d.audioId,
-          maxPoints: 1,
+          // The dictation is a single sentence, so that sentence is what gets
+          // spoken. Playing the whole source conversation would leave the
+          // candidate guessing which of forty sentences to transcribe.
+          audioUtterance: d.text,
+          maxPoints: expectedMaxPoints('write-from-dictation', { reference: d.text }),
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,

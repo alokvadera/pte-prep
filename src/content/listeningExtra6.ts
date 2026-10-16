@@ -35,32 +35,32 @@ export const EXTRA_DICTATION_6: DictationItem[] = [
   {
     id: 'wfd-601',
     audioId: 'lec-bees',
-    turnIndex: 3,
-    text: 'The practical upshot for growers is that pollination should be budgeted like irrigation: as an input to be secured rather than a service assumed to be free. Fields with managed margins consistently out-yield comparable fields without them, and the margin costs less than a single season of hired hives. Thank you.',
+    turnIndex: 1,
+    text: 'Each stressor multiplies the others rather than adding to them.',
   },
   {
     id: 'wfd-602',
     audioId: 'con-bus-pass',
-    turnIndex: 3,
-    text: 'If you apply online before noon, the digital pass is active the same evening. The plastic card follows by post within five working days.',
+    turnIndex: 5,
+    text: 'The first replacement in an academic year costs twelve pounds.',
   },
   {
     id: 'wfd-603',
     audioId: 'lec-shift-work',
-    turnIndex: 4,
-    text: 'So the conclusion is not that night work should end, which would close every hospital at sunset. It is that rosters are a health intervention with measurable effects, and they should be designed the way drug doses are designed: with attention to timing, direction and recovery. Thank you.',
+    turnIndex: 1,
+    text: 'The circadian system controls far more than sleep.',
   },
   {
     id: 'wfd-604',
     audioId: 'con-supervisor-meeting',
-    turnIndex: 5,
-    text: 'Answer it in one paragraph before they ask. State the reason — access was withdrawn in March — give the consequence, and name what you did instead. Reviewers pursue what you appear to hide.',
+    turnIndex: 4,
+    text: 'One reviewer will ask why I did not use the longitudinal data.',
   },
   {
     id: 'wfd-605',
     audioId: 'con-flatmate-notice',
-    turnIndex: 7,
-    text: 'The landlord returns it within two weeks of the new tenant signing, minus any cleaning charge. Photograph everything on the day you leave.',
+    turnIndex: 4,
+    text: 'Should we offer the room at the same rent?',
   },
 ]
 

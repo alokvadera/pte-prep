@@ -148,12 +148,27 @@ export const useAuth = create<AuthStore>()(
       logout: () => {
         lastConfirmedScore = undefined
         targetScoreSeq = 0
+        const { token } = get()
+        // Drop the local session first so a slow or failed request cannot leave
+        // the user appearing signed in, then revoke it on the server. Without
+        // that second step the bearer token stays valid until it expires, so a
+        // copy of it would keep working after the user had signed out.
         set({
           user: null,
           token: null,
           expiresAt: null,
           error: null,
         })
+        if (token) {
+          void fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+          })
+            .then((res) => {
+              if (!res.ok) console.warn('[auth] Session revocation returned', res.status)
+            })
+            .catch((err) => console.warn('[auth] Session revocation failed:', err))
+        }
       },
 
       setSession: (user: User, token: string, expiresAt?: number) => {

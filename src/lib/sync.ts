@@ -1,4 +1,4 @@
-import { deleteAttempt, listAttempts, readKv, saveAttempt, writeKv } from '../db/db'
+import { clearAttempts, deleteAttempt, listAllAttempts, listAttempts, readKv, saveAttempt, writeKv } from '../db/db'
 import type { AttemptRecord } from '../domain/types'
 import { useAuth } from '../store/useAuth'
 
@@ -119,6 +119,41 @@ export async function deleteAttemptEverywhere(id: string): Promise<boolean> {
     /* offline: tombstone stays in kv and will be purged on next sync */
     return false
   }
+}
+
+/**
+ * Deletes every attempt the account has, locally and in the cloud.
+ *
+ * Each id is tombstoned before anything is removed. Dropping the local rows
+ * alone used to let the next sync pull them straight back from the cloud, and
+ * the caller only knew about the page of attempts it had loaded — so a history
+ * longer than one page came back after a clear that claims to be permanent.
+ * The union below is what makes the clear stick: every local attempt, plus
+ * every attempt the cloud still lists (which is what a pull can resurrect).
+ */
+export async function clearAllAttemptsEverywhere(): Promise<void> {
+  const token = useAuth.getState().token
+
+  const ids = new Set((await listAllAttempts()).map((a) => a.id))
+
+  if (token) {
+    try {
+      const res = await fetch('/api/attempts', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        const data = (await res.json()) as { attempts?: AttemptRecord[] }
+        for (const a of data.attempts ?? []) ids.add(a.id)
+      }
+    } catch {
+      /* offline: the local tombstones still replay on the next sync */
+    }
+  }
+
+  for (const id of ids) {
+    await deleteAttemptEverywhere(id)
+  }
+  await clearAttempts()
 }
 
 export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: number }> {

@@ -384,26 +384,26 @@ export const EXTRA_DICTATION: DictationItem[] = [
   {
     id: 'wfd-lab-1',
     audioId: 'con-lab-booking',
-    turnIndex: 5,
-    text: 'The machine time is free for internal users, which covers funded students and staff. You pay only for the sample preparation consumables, and those are charged at cost. External users pay an hourly rate instead, though I would check whether your project is eligible for the internal rate before assuming not.',
+    turnIndex: 3,
+    text: 'For a straightforward panel, about ninety minutes including setup.',
   },
   {
     id: 'wfd-clinic-1',
     audioId: 'con-clinic-handover',
-    turnIndex: 2,
-    text: 'Whether the tachycardia we saw overnight is a feature of the infection or something separate. We have had an episode rate of over a hundred and thirty, which settled with rest but returned when they were moved.',
+    turnIndex: 0,
+    text: 'I am ringing about the patient in bay four.',
   },
   {
     id: 'wfd-library-1',
     audioId: 'con-library-fine',
-    turnIndex: 5,
-    text: 'That is the usual explanation. I can see the reshelving trolley record puts it on a shelf on the Friday, so it was definitely on site from the Thursday. Can I ask what you would like to do about the fine?',
+    turnIndex: 3,
+    text: 'Then there should be a scan record from that desk.',
   },
   {
     id: 'wfd-transfer-1',
     audioId: 'con-course-transfer',
-    turnIndex: 5,
-    text: 'Three to four weeks around this time of year, because the committee meets fortnightly. If you are applying on a scholarship, check the deadline separately, because they often want confirmation of the new course before they will release the next instalment.',
+    turnIndex: 0,
+    text: 'Could I move to the design engineering course instead?',
   },
 ]
 

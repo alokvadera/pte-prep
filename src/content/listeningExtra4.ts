@@ -390,12 +390,12 @@ export const EXTRA_HIGHLIGHT_INCORRECT_4: HighlightIncorrectItem[] = [
 ]
 
 export const EXTRA_DICTATION_4: DictationItem[] = [
-  { id: 'wfd-dental-1', audioId: 'con-dental-appointment', turnIndex: 1, text: 'We keep two emergency slots each day, and the morning one has just been taken, so I can offer you half past three this afternoon.' },
-  { id: 'wfd-dental-2', audioId: 'con-dental-appointment', turnIndex: 5, text: 'The pharmacist can sell you a temporary filling kit, and covering the edge with dental wax usually stops it catching.' },
-  { id: 'wfd-internship-1', audioId: 'con-internship-interview', turnIndex: 3, text: 'It is ideal, provided you quantify it. Saying you grew readership by thirty per cent in a term beats saying you wrote articles, because the number proves the claim.' },
-  { id: 'wfd-permit-1', audioId: 'con-parking-permit', turnIndex: 5, text: 'The first permit is ninety pounds for twelve months from the date of issue, not the calendar year. A second permit for the same household is one hundred and forty pounds.' },
-  { id: 'wfd-supervisor-1', audioId: 'con-supervisor-meeting', turnIndex: 1, text: 'Freeze the structure, not the sentences. Fix your headings and the word budget per section now, and allow the wording to move until the results are stable.' },
-  { id: 'wfd-supervisor-2', audioId: 'con-supervisor-meeting', turnIndex: 9, text: 'Exactly. A chapter is finished in the order structure, evidence, wording — never the reverse.' },
+  { id: 'wfd-dental-1', audioId: 'con-dental-appointment', turnIndex: 4, text: 'And what should I do about the sharp edge until then?' },
+  { id: 'wfd-dental-2', audioId: 'con-dental-appointment', turnIndex: 7, text: 'The examination is forty-five pounds, and any treatment is charged separately.' },
+  { id: 'wfd-internship-1', audioId: 'con-internship-interview', turnIndex: 1, text: 'Start with the job description, not the company history.' },
+  { id: 'wfd-permit-1', audioId: 'con-parking-permit', turnIndex: 0, text: 'Can I apply before my council tax bill arrives?' },
+  { id: 'wfd-supervisor-1', audioId: 'con-supervisor-meeting', turnIndex: 3, text: 'The analysis is novel, so it earns the two thousand.' },
+  { id: 'wfd-supervisor-2', audioId: 'con-supervisor-meeting', turnIndex: 8, text: 'I will stop polishing sentences I am about to move.' },
 ]
 
 export const EXTRA_MISSING_WORD_4: MissingWordItem[] = [

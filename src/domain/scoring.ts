@@ -157,6 +157,10 @@ function pronunciation(a: ItemResponse['audio'], wordsSpoken: number): { score: 
  * Write Essay:  2 = 200–300 words · 1 = 120–199 or 301–380 · 0 = outside
  * Summarize Spoken Text: 2 = 50–70 · 1 = 40–49 or 71–100 · 0 = outside
  * Summarize Written Text: 1 = a single complete sentence · 0 = otherwise
+ *
+ * Every written type also scores Form 0 — zeroing the whole item — for all
+ * caps, missing sentence-ending punctuation, bullet lists, or nothing but very
+ * short sentences.
  */
 /**
  * Splits text into sentences while protecting standard honorifics, abbreviations,
@@ -173,24 +177,61 @@ export function splitSentences(text: string): string[] {
     .filter((s) => s.trim().length > 0)
 }
 
+/**
+ * The published Form 0 conditions that are not word counts: all caps, no
+ * sentence-ending punctuation, bullet lists, and very-short-sentences-only.
+ *
+ * Form 0 zeroes the whole item, so these have to be decided before any band is
+ * applied. Returns the trigger in prose, or null when none of them applies.
+ */
+function formZeroTrigger(text: string): string | null {
+  const letters = text.replace(/[^A-Za-z]/g, '')
+  // A one- or two-word answer is legitimately capitalised, so only an extended
+  // response with no lower-case letter at all counts as "all caps".
+  if (letters.length >= 20 && letters === letters.toUpperCase()) {
+    return 'the response is in all capitals'
+  }
+
+  const trimmed = text.trim()
+  if (trimmed && !/[.!?"')\]]\s*$/.test(trimmed)) {
+    return 'the response has no sentence-ending punctuation'
+  }
+
+  const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0)
+  const bullets = lines.filter((l) => /^[-*•]/.test(l)).length
+  if (lines.length >= 3 && bullets >= Math.max(3, Math.ceil(lines.length * 0.6))) {
+    return 'the response is a list of bullets'
+  }
+
+  const sentences = splitSentences(text)
+  if (sentences.length >= 3 && sentences.every((s) => wordCount(s) < 5)) {
+    return 'the response is only very short sentences'
+  }
+
+  return null
+}
+
 export function formBand(type: Item['type'], text: string): { score: number; max: number; note: string } {
   const wc = wordCount(text)
   const hasEndPunctuation = /[.!?"')\]]\s*$/.test(text.trim())
   const sentenceCount = splitSentences(text).length
-  const bulletsOnly = text.trim().split('\n').filter((l) => l.trim().length > 0).length > 3 &&
-    text.split('\n').filter((l) => /^\s*[-*•]/.test(l)).length >= 3
+  // Form 0 gates the entire item, so it dominates every word-count band below.
+  const formZero = formZeroTrigger(text)
 
   if (type === 'summarize-written-text') {
     // Form is 0–1 here: a single complete sentence, and 5–75 words.
-    const ok = sentenceCount === 1 && hasEndPunctuation && wc >= 5 && wc <= 75
+    const ok = sentenceCount === 1 && hasEndPunctuation && wc >= 5 && wc <= 75 && formZero === null
     return {
       score: ok ? 1 : 0,
       max: 1,
-      note: ok ? '' : 'Form 0: the summary must be one complete sentence of 5–75 words, and form 0 scores the item at zero.',
+      note: ok
+        ? ''
+        : `Form 0: ${formZero ?? 'the summary must be one complete sentence of 5–75 words'} — form 0 scores the item at zero.`,
     }
   }
 
   if (type === 'write-essay') {
+    if (formZero) return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
     if (wc >= 200 && wc <= 300) return { score: 1, max: 1, note: '' }
     if ((wc >= 120 && wc <= 199) || (wc >= 301 && wc <= 380)) {
       return { score: 0.5, max: 1, note: `Form 1: ${wc} words — the top band is 200 to 300.` }
@@ -203,6 +244,7 @@ export function formBand(type: Item['type'], text: string): { score: number; max
   }
 
   if (type === 'summarize-spoken-text') {
+    if (formZero) return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
     if (wc >= 50 && wc <= 70) return { score: 1, max: 1, note: '' }
     if ((wc >= 40 && wc <= 49) || (wc >= 71 && wc <= 100)) {
       return { score: 0.5, max: 1, note: `Form 1: ${wc} words — the top band is 50 to 70.` }
@@ -214,7 +256,8 @@ export function formBand(type: Item['type'], text: string): { score: number; max
     }
   }
 
-  if (bulletsOnly) return { score: 0, max: 1, note: 'Form 0: a list of bullets scores zero.' }
+  // Any remaining written type keeps the generic band, Form 0 still dominant.
+  if (formZero) return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
   return { score: 0.5, max: 1, note: '' }
 }
 
@@ -303,7 +346,11 @@ function contentAgainstTerms(spoken: string, keyTerms: string[]): { content: num
   const match = softF1(spoken, keyTerms)
   const content = clamp(coverage * 0.6 + match * 0.4, 0, 1)
   const notes: string[] = []
-  if (coverage < 0.25) notes.push('Almost nothing from the source made it into the response, so Content scores 0 and the item scores zero however well it was delivered.')
+  // This note is only shown when Content itself is zero. A low-but-non-zero
+  // coverage still earns `match * 0.4`, so the item does NOT score zero here
+  // and the feedback must not claim that it does.
+  if (content <= 0) notes.push('Nothing from the source made it into the response, so Content scores 0 and the item scores zero however well it was delivered.')
+  else if (coverage < 0.25) notes.push('Very few of the main points from the source were captured.')
   else if (coverage < 0.5) notes.push('Only some of the main points were captured.')
   else if (coverage < 0.8) notes.push('Most main points were captured, with some important detail missing.')
   return { content, note: notes.join(' ') }
@@ -674,6 +721,37 @@ function scoreAdjacentPairs(response: ItemResponse, key: AnswerKey): Constructed
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
+
+/**
+ * Published maximum points for an item given its question type and answer key.
+ *
+ * Shared between the assembler and the scorer so they cannot drift:
+ *   - Re-order Paragraphs: 1 point per correctly ordered adjacent pair (N-1)
+ *   - Write from Dictation: 1 point per reference word
+ *   - Multiple Choice Multiple (Reading & Listening): 1 point per correct option
+ *   - Highlight Incorrect Words: 1 point per incorrect word in transcript
+ *   - Fill in the Blanks (all 3 types): 1 point per blank
+ *   - Binary & trait-composite: 1 point (or 0 for personal introduction)
+ */
+export function expectedMaxPoints(type: Item['type'], key: AnswerKey): number {
+  switch (type) {
+    case 'reorder-paragraphs':
+      return Math.max(1, (key.order?.length ?? 1) - 1)
+    case 'write-from-dictation':
+      return Math.max(1, words(key.reference ?? '').length)
+    case 'multiple-choice-multiple':
+    case 'listening-multiple-choice-multiple':
+      return Math.max(1, key.correctChoices?.length ?? 1)
+    case 'highlight-incorrect-words':
+      return Math.max(1, key.correctHighlighted?.length ?? 1)
+    case 'fill-in-blanks-dropdown':
+    case 'fill-in-blanks-table':
+    case 'fill-in-blanks-listening':
+      return Math.max(1, key.blanks?.length ?? 1)
+    default:
+      return 1
+  }
+}
 
 export function scoreItem(item: Item, key: AnswerKey, response: ItemResponse | undefined): ItemScoreDetail {
   const meta = QUESTION_META[item.type]

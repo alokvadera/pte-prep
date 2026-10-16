@@ -310,10 +310,10 @@ export const EXTRA_HIGHLIGHT_INCORRECT_3: HighlightIncorrectItem[] = [
 ]
 
 export const EXTRA_DICTATION_3: DictationItem[] = [
-  { id: 'wfd-pharmacy-1', audioId: 'con-pharmacy-repeat', turnIndex: 2, text: 'That is right. I have had a monthly review by phone for the last year, and nothing has changed.' },
-  { id: 'wfd-theatre-1', audioId: 'con-theatre-booking', turnIndex: 2, text: 'And is the theatre suitable for someone who cannot manage loud sound?' },
-  { id: 'wfd-rental-1', audioId: 'con-rental-contract', turnIndex: 3, text: 'If you serve notice on the thirty-first, a calendar month takes you to the end of the following month, so thirty-two days.' },
-  { id: 'wfd-rental-2', audioId: 'con-rental-contract', turnIndex: 7, text: 'Then the break clause is not available to you this year, whatever else is true.' },
+  { id: 'wfd-pharmacy-1', audioId: 'con-pharmacy-repeat', turnIndex: 8, text: 'Is there anything I should bring to the call?' },
+  { id: 'wfd-theatre-1', audioId: 'con-theatre-booking', turnIndex: 5, text: 'About three weeks for the centre of the stalls.' },
+  { id: 'wfd-rental-1', audioId: 'con-rental-contract', turnIndex: 6, text: 'I was thirty-one days late in the second month.' },
+  { id: 'wfd-rental-2', audioId: 'con-rental-contract', turnIndex: 7, text: 'That is worth knowing before you plan around it.' },
 ]
 
 export const EXTRA_MISSING_WORD_3: MissingWordItem[] = [

@@ -51,8 +51,10 @@ jobs:
             echo "BASE_PATH=/${{ github.event.repository.name }}/" >> "$GITHUB_ENV"
           fi
 
+      # `seo:audit` is deliberately not here: it needs the built site, and the
+      # "Audit static output" step below runs it after the build.
       - name: Verify
-        run: npm run typecheck && npm run lint && npm run test && npm run contrast
+        run: npm run typecheck && npm run lint && npm run test && npm run test:bank && npm run test:boundary && npm run test:answers && npm run contrast
 
       - name: Build and prerender
         run: npm run build

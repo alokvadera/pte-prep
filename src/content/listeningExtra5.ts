@@ -395,12 +395,12 @@ export const EXTRA_HIGHLIGHT_INCORRECT_5: HighlightIncorrectItem[] = [
 ]
 
 export const EXTRA_DICTATION_5: DictationItem[] = [
-  { id: 'wfd-bus-1', audioId: 'con-bus-pass', turnIndex: 1, text: 'You can, and because it is a photo pass the old one will be cancelled the moment I issue the new one. Nobody else can use it.' },
-  { id: 'wfd-bus-2', audioId: 'con-bus-pass', turnIndex: 5, text: 'The first replacement in an academic year costs twelve pounds. A second one costs twenty-five, which is meant to encourage people to look a little harder.' },
-  { id: 'wfd-flatmate-1', audioId: 'con-flatmate-notice', turnIndex: 3, text: 'The agreement makes you responsible for the rent until a replacement signs, even after the notice period ends. So the sooner we advertise, the less you pay.' },
-  { id: 'wfd-printer-1', audioId: 'con-printer-credits', turnIndex: 1, text: 'Top up through the student portal, not the machines, because portal payments clear instantly while machine payments take up to an hour to appear.' },
-  { id: 'wfd-module-1', audioId: 'con-module-change', turnIndex: 1, text: 'You can, because switches are allowed until the end of week three. After Friday the enrolment locks and no changes are possible.' },
-  { id: 'wfd-module-2', audioId: 'con-module-change', turnIndex: 7, text: 'Week two work does not count toward the final grade in either module — it is formative only. Nothing transfers, but equally nothing is lost.' },
+  { id: 'wfd-bus-1', audioId: 'con-bus-pass', turnIndex: 6, text: 'How do I travel this afternoon in the meantime?' },
+  { id: 'wfd-bus-2', audioId: 'con-bus-pass', turnIndex: 3, text: 'The plastic card follows by post within five working days.' },
+  { id: 'wfd-flatmate-1', audioId: 'con-flatmate-notice', turnIndex: 3, text: 'So the sooner we advertise, the less you pay.' },
+  { id: 'wfd-printer-1', audioId: 'con-printer-credits', turnIndex: 2, text: 'How much should I add for roughly eighty pages?' },
+  { id: 'wfd-module-1', audioId: 'con-module-change', turnIndex: 1, text: 'After Friday the enrolment locks and no changes are possible.' },
+  { id: 'wfd-module-2', audioId: 'con-module-change', turnIndex: 2, text: 'Will I have missed too much of the new module?' },
 ]
 
 export const EXTRA_MISSING_WORD_5: MissingWordItem[] = [
