@@ -149,7 +149,12 @@ export function connectiveCount(text: string): number {
   return singles + phrases
 }
 
-/** Longest run of consecutive simple present/past finite verbs — rough repetition penalty. */
+/**
+ * Share of content words that occur more than once.
+ *
+ * Higher means a narrower vocabulary: the same words come back instead of new
+ * ones carrying the argument forward.
+ */
 export function repetitionRatio(text: string): number {
   const list = contentWords(text)
   if (list.length === 0) return 0

@@ -162,6 +162,16 @@ const rop = byType('reorder-paragraphs')
 check('correct order scores 1', scoreItem(rop, key(rop.id), { order: key(rop.id).order }).ratio === 1)
 check('reversed order is partial at best', scoreItem(rop, key(rop.id), { order: [...(key(rop.id).order ?? [])].reverse() }).ratio < 1)
 check('wrong order scores 0', scoreItem(rop, key(rop.id), { order: ['x', 'y', 'z', 'w', 'v'] }).ratio === 0)
+// A one-box item has no adjacent pair to score, so its ratio would be 0/0. A
+// NaN there is not local: it flows into the skill and overall aggregates and
+// renders as NaN across the results page, so the scorer must return a number.
+const singleBox = { ...rop, maxPoints: 1 } as typeof rop
+const singleBoxDetail = scoreItem(singleBox, { order: ['only'] }, { order: ['only'] })
+check(
+  'a re-order item with a single box does not produce a NaN score',
+  Number.isFinite(singleBoxDetail.ratio) && Number.isFinite(singleBoxDetail.points),
+  `${singleBoxDetail.ratio} / ${singleBoxDetail.points}`,
+)
 
 const fibd = byType('fill-in-blanks-dropdown')
 const fibdAll = (key(fibd.id).blanks ?? []).map((a) => a[0]!)

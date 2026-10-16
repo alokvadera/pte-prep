@@ -708,6 +708,12 @@ function scoreAdjacentPairs(response: ItemResponse, key: AnswerKey): Constructed
   if (correct.length === 0) return { ratio: 0, notes: ['Not scored.'] }
 
   const maxPairs = correct.length - 1
+  // A single box has no adjacency to check, so there is no ratio to form. It
+  // would otherwise be 0/0, and a NaN here does not stay local: it propagates
+  // through the skill and overall aggregates and renders as NaN everywhere.
+  // No bank passage has fewer than four paragraphs, so this is unreachable in
+  // practice, but the guard costs nothing and the failure mode is severe.
+  if (maxPairs <= 0) return { ratio: 0, notes: ['Not scored: the item has no paragraph pairs.'] }
   if (given.length !== correct.length) {
     return { ratio: 0, notes: ['All the boxes must be placed before the item can score.'] }
   }

@@ -1,4 +1,4 @@
-import { clearAttempts, deleteAttempt, listAllAttempts, listAttempts, readKv, saveAttempt, writeKv } from '../db/db'
+import { clearAttempts, deleteAttempt, listAllAttempts, readKv, saveAttempt, writeKv } from '../db/db'
 import type { AttemptRecord } from '../domain/types'
 import { useAuth } from '../store/useAuth'
 
@@ -224,7 +224,7 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
     const cloudAttempts = data.attempts ?? []
     const cloudIds = new Set(cloudAttempts.map((a) => a.id))
 
-    const localAttempts = await listAttempts(100)
+    const localAttempts = await listAllAttempts()
     const localIds = new Set(localAttempts.map((a) => a.id))
 
     const activeTombstones = await getDeletedIds()
