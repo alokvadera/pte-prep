@@ -9,17 +9,29 @@ async function getDeletedIds(): Promise<Set<string>> {
   return new Set(Array.isArray(list) ? list : [])
 }
 
+let tombstoneQueue = Promise.resolve()
+
+function serializeTombstone<T>(op: () => Promise<T>): Promise<T> {
+  const next = tombstoneQueue.then(op, op)
+  tombstoneQueue = next.then(() => {}, () => {})
+  return next
+}
+
 async function markDeleted(id: string): Promise<void> {
-  const set = await getDeletedIds()
-  set.add(id)
-  await writeKv(DELETED_IDS_KEY, Array.from(set))
+  return serializeTombstone(async () => {
+    const set = await getDeletedIds()
+    set.add(id)
+    await writeKv(DELETED_IDS_KEY, Array.from(set))
+  })
 }
 
 async function unmarkDeleted(id: string): Promise<void> {
-  const set = await getDeletedIds()
-  if (set.delete(id)) {
-    await writeKv(DELETED_IDS_KEY, Array.from(set))
-  }
+  return serializeTombstone(async () => {
+    const set = await getDeletedIds()
+    if (set.delete(id)) {
+      await writeKv(DELETED_IDS_KEY, Array.from(set))
+    }
+  })
 }
 
 export async function syncAttemptToCloud(attempt: AttemptRecord): Promise<boolean> {

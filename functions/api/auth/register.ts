@@ -61,7 +61,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   if (!ipCheck.allowed) {
     return rateLimitExceededResponse(ipCheck.retryAfter)
   }
-  const emailCheck = await checkRateLimit(db, `register:email:${email}`, 3, 600)
+  const emailCheck = await checkRateLimit(db, `register:ip_email:${clientIp}:${email}`, 3, 600)
   if (!emailCheck.allowed) {
     return rateLimitExceededResponse(emailCheck.retryAfter)
   }

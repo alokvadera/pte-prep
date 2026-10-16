@@ -7,13 +7,13 @@ let tableReady = false
 
 async function ensureTable(db: D1Database): Promise<void> {
   if (tableReady) return
+  tableReady = true
   try {
     await db.exec(
-      'CREATE TABLE IF NOT EXISTS rate_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL);'
+      'CREATE TABLE IF NOT EXISTS rate_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, reset_at INTEGER NOT NULL);',
     )
-    tableReady = true
-  } catch {
-    // If table already exists or D1 exec fails, ignore
+  } catch (err) {
+    console.warn('[RateLimit] ensureTable notice (table may already exist):', err)
   }
 }
 
@@ -33,6 +33,14 @@ export async function checkRateLimit(
 ): Promise<RateLimitResult> {
   await ensureTable(db)
   const now = Math.floor(Date.now() / 1000)
+
+  // Opportunistic cleanup: 5% chance to prune expired rate limit keys
+  if (Math.random() < 0.05) {
+    db.prepare('DELETE FROM rate_limits WHERE reset_at < ?')
+      .bind(now)
+      .run()
+      .catch((err) => console.warn('[RateLimit] Cleanup failed:', err))
+  }
 
   try {
     const row = await db
@@ -62,7 +70,7 @@ export async function checkRateLimit(
 
     return { allowed: true, retryAfter: 0 }
   } catch (err) {
-    console.warn('Rate limit query failed:', err)
+    console.error('[RateLimit:DB_ERROR] Rate limit query failed, falling open to preserve user access:', err)
     return { allowed: true, retryAfter: 0 }
   }
 }

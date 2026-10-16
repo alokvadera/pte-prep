@@ -638,9 +638,12 @@ export default function Dashboard() {
                     void (async () => {
                       try {
                         const current = attempts ?? []
-                        await Promise.all(current.map((a) => deleteAttemptEverywhere(a.id)))
+                        for (const a of current) {
+                          await deleteAttemptEverywhere(a.id)
+                        }
                         await clearAttempts()
                         setAttempts([])
+                        setConfirmClearAll(false)
                         toast.push('All attempt history cleared', 'rose')
                       } finally {
                         setClearingAll(false)
