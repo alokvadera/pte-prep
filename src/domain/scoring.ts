@@ -178,6 +178,20 @@ export function splitSentences(text: string): string[] {
 }
 
 /**
+ * Whether a response ends in sentence-ending punctuation.
+ *
+ * Trailing closing marks are stripped first, so a sentence that ends inside a
+ * quotation or a bracket still counts. The terminator set includes the
+ * typographic forms a word processor — or this app's own copy, which uses curly
+ * quotes and em dashes — produces: treating “sentence.”” or “sentence…” as
+ * unpunctuated would zero a perfectly good answer.
+ */
+export function endsWithSentencePunctuation(text: string): boolean {
+  const stripped = text.trim().replace(/['"’”»)\]）]+$/, '')
+  return /[.!?…。？！]$/.test(stripped)
+}
+
+/**
  * The published Form 0 conditions that are not word counts: all caps, no
  * sentence-ending punctuation, bullet lists, and very-short-sentences-only.
  *
@@ -192,8 +206,7 @@ function formZeroTrigger(text: string): string | null {
     return 'the response is in all capitals'
   }
 
-  const trimmed = text.trim()
-  if (trimmed && !/[.!?"')\]]\s*$/.test(trimmed)) {
+  if (text.trim() && !endsWithSentencePunctuation(text)) {
     return 'the response has no sentence-ending punctuation'
   }
 
@@ -213,7 +226,7 @@ function formZeroTrigger(text: string): string | null {
 
 export function formBand(type: Item['type'], text: string): { score: number; max: number; note: string } {
   const wc = wordCount(text)
-  const hasEndPunctuation = /[.!?"')\]]\s*$/.test(text.trim())
+  const hasEndPunctuation = endsWithSentencePunctuation(text)
   const sentenceCount = splitSentences(text).length
   // Form 0 gates the entire item, so it dominates every word-count band below.
   const formZero = formZeroTrigger(text)

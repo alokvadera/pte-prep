@@ -367,6 +367,30 @@ console.log('\n== Pearson rule conformance ==')
   // Controls: the same lengths and the same shape still score normally.
   check('a normally formed 250-word essay still scores the top band', formBand('write-essay', longBody).score === 1)
   check('a normally formed 250-word essay carries no Form 0 note', formBand('write-essay', longBody).note === '')
+
+  // Punctuation a word processor produces is still punctuation. Reading a curly
+  // quote or an ellipsis as "no sentence-ending punctuation" would score a
+  // complete answer as Form 0 and zero the item.
+  const openEnded = longBody.replace(/\.$/, '')
+  for (const [label, tail] of [
+    ['a straight double quote', '."'],
+    ['a curly double quote', '.\u201d'],
+    ['a curly single quote', '.\u2019'],
+    ['a closing bracket', '.)'],
+    ['an ellipsis character', '\u2026'],
+  ] as const) {
+    const text = `${openEnded}${tail}`
+    check(
+      `a 250-word essay ending in ${label} is not Form 0`,
+      formBand('write-essay', text).score === 1,
+      formBand('write-essay', text).note,
+    )
+  }
+  check('a response with genuinely no end punctuation is still Form 0', formBand('write-essay', openEnded).score === 0)
+  check(
+    'a curly-quoted summary is not treated as unpunctuated',
+    formBand('summarize-written-text', 'This is one complete sentence.\u201d').score === 1,
+  )
   check(
     'all-caps 250-word essay gates the item to 0',
     scoreItem(essay, key(essay.id), { text: longBody.toUpperCase() }).ratio === 0,
