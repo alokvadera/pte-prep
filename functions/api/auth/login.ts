@@ -71,7 +71,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  user = existing
+  const user = existing
 
   const token = await createSessionToken(
     { userId: user.id, email: user.email },
