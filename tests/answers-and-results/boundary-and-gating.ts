@@ -2,7 +2,7 @@ import { formBand, rawToPteScale, scoreBand, scoreItem, splitSentences, toCefr }
 import type { AnswerKey, Item, ItemResponse } from '../../src/domain/types'
 import { hasResponse } from '../../src/store/useTest'
 import { softF1 } from '../../src/lib/text'
-import { validateGroqKey } from '../../src/lib/aiScorer'
+import { computeAiRawScore, validateGroqKey } from '../../src/lib/aiScorer'
 import { useAuth } from '../../src/store/useAuth'
 import { playSuccessTone } from '../../src/lib/speech'
 import fs from 'node:fs'
@@ -397,6 +397,47 @@ async function main() {
   const fnSinkFindings = scanSources(path.resolve(process.cwd(), 'functions'), forbiddenSinks)
   assert(srcSinkFindings.length === 0, 'zero unsafe DOM sinks in src/ directory')
   assert(fnSinkFindings.length === 0, 'zero unsafe DOM sinks in functions/ directory')
+
+  // --------------------------------------------------------------------------
+  // TEST 12: AI Scorer Trait Isolation & Extraneous Key Protection
+  // --------------------------------------------------------------------------
+  console.log('\n--- 12. AI Scorer Trait Isolation & Extraneous Key Protection ---')
+  const speakingTraits = { content: 3, pronunciation: 4, oralFluency: 5 }
+  assert(computeAiRawScore(speakingTraits, 'speaking') === 12, 'speaking traits sum correctly')
+
+  const speakingWithExtra = {
+    content: 3,
+    pronunciation: 4,
+    oralFluency: 5,
+    total: 12,
+    overallScore: 90,
+    confidence: 0.95,
+    unrelatedField: 10,
+  }
+  assert(
+    computeAiRawScore(speakingWithExtra, 'speaking') === 12,
+    'extraneous numeric keys do not inflate speaking rawScore',
+  )
+
+  const essayWithExtra = {
+    content: 3,
+    grammar: 2,
+    vocabulary: 2,
+    spelling: 2,
+    development: 2,
+    range: 2,
+    hallucinatedKey: 99,
+  }
+  assert(computeAiRawScore(essayWithExtra, 'essay') === 13, 'extraneous keys do not inflate essay rawScore')
+
+  const negativeTraits = { content: -5, pronunciation: 4, oralFluency: 3 }
+  assert(computeAiRawScore(negativeTraits, 'speaking') === 7, 'negative trait values floor cleanly at 0')
+
+  const nonNumericTraits = { content: 'high', pronunciation: null, oralFluency: 5 }
+  assert(
+    computeAiRawScore(nonNumericTraits as unknown as Record<string, unknown>, 'speaking') === 5,
+    'non-numeric trait values ignored safely',
+  )
 
   console.log(`\n========================================================================`)
   console.log(`  BOUNDARY & GATING RESULTS: ${passed}/${total} passed (100%)`)

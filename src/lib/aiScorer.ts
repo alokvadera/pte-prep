@@ -70,6 +70,29 @@ export async function validateGroqKey(apiKey: string): Promise<{ ok: boolean; er
 }
 
 /**
+ * Computes raw score exclusively from expected traits for each question category,
+ * preventing score inflation if an LLM returns extra numeric properties in the JSON.
+ */
+export function computeAiRawScore(
+  traits: Record<string, unknown>,
+  category: 'speaking' | 'essay' | 'sst' | 'swt',
+): number {
+  const expectedKeys =
+    category === 'speaking'
+      ? ['content', 'pronunciation', 'oralFluency']
+      : category === 'essay'
+        ? ['content', 'grammar', 'vocabulary', 'spelling', 'development', 'range']
+        : category === 'sst'
+          ? ['content', 'grammar', 'vocabulary', 'spelling']
+          : ['content', 'form', 'grammar', 'vocabulary']
+
+  return expectedKeys.reduce((acc, k) => {
+    const v = traits[k]
+    return acc + (typeof v === 'number' && Number.isFinite(v) ? Math.max(0, v) : 0)
+  }, 0)
+}
+
+/**
  * Evaluates a written or spoken response using calibrated Pearson PTE rubrics
  * with temperature: 0.0 for 100% deterministic, reproducible scoring.
  */
@@ -238,7 +261,8 @@ Output ONLY a JSON object with this exact format:
           range: isEssay ? (t.range ?? 0) / 2 : undefined,
         }
 
-    const rawScore = Object.values(t).reduce((acc: number, v) => acc + (typeof v === 'number' ? v : 0), 0)
+    const category = isSpeaking ? 'speaking' : isEssay ? 'essay' : isSST ? 'sst' : 'swt'
+    const rawScore = computeAiRawScore(t, category)
     const maxScore = isEssay ? 13 : isSpeaking ? 13 : isSST ? 8 : 7
 
     const result: AiEvaluationResult = {

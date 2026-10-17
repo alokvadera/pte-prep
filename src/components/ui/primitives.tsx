@@ -137,16 +137,6 @@ export function ButtonLink(props: ButtonBaseProps & ComponentPropsWithoutRef<typ
   return magnetic ? <Magnetic>{control}</Magnetic> : control
 }
 
-export function ButtonAnchor(props: ButtonBaseProps & { href: string }) {
-  const { variant = 'secondary', size = 'md', magnetic = false, className, children, href, ...rest } = props
-  const control = (
-    <a href={href} className={buttonClasses(variant, size, className)} {...rest}>
-      {children}
-    </a>
-  )
-  return magnetic ? <Magnetic>{control}</Magnetic> : control
-}
-
 /* ---------------------------------------------------------------------------
    Accordion.
 

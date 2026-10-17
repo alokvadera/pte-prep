@@ -7,7 +7,6 @@ export { Reveal, CountUp, Tilt, PointerField, Magnetic } from './motion'
 export {
   Button,
   ButtonLink,
-  ButtonAnchor,
   Card,
   CardTitle,
   CtaBand,
