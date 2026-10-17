@@ -23,6 +23,16 @@ import { existsSync } from 'node:fs'
 const BASE = (process.argv[2] ?? 'http://localhost:5200').replace(/\/+$/, '')
 const TYPE = process.argv[3] ?? 'select-missing-word'
 
+// Clip ids are prefixed by the type that produced them; the parent scripts
+// (con-*, lec-*) are what the player must never fall back to. Listening Fill in
+// Blanks has two entry points, so it carries two prefixes.
+const PREFIXES = {
+  'select-missing-word': /^smw-/,
+  'write-from-dictation': /^wfd-/,
+  'highlight-incorrect-words': /^hiw-/,
+  'fill-in-blanks-listening': /^(fibl|lfib)-/,
+}
+
 const CANDIDATES = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
   '/Applications/Chromium.app/Contents/MacOS/Chromium',
@@ -239,11 +249,24 @@ report(
 report(audioFailures.length === 0, 'no media request failed', audioFailures.join(', '))
 
 const requested = clip.map((r) => decodeURIComponent(r.url.split('/').pop() ?? '').replace(/\.(m4a|mp3)$/, ''))
+// The risk this check exists for: a listening item whose own clip does not load
+// falls back to the parent conversation, a minute of audio that for Select
+// Missing Word speaks the very word the blank asks for. The clip id carries the
+// item type, the parent script does not.
+const DERIVED = /^(smw|wfd|hiw|fibl|lfib)-/
 report(
-  requested.some((id) => id.startsWith('smw-')),
-  'the Select Missing Word clip played, not the parent conversation',
+  requested.some((id) => DERIVED.test(id)),
+  "the item's own clip played, not the parent conversation",
   requested.join(', '),
 )
+const expectedPrefix = PREFIXES[TYPE]
+if (expectedPrefix) {
+  report(
+    requested.every((id) => expectedPrefix.test(id)),
+    `every clip belongs to ${TYPE}`,
+    requested.join(', '),
+  )
+}
 
 console.log(`\n  clips requested: ${requested.join(', ') || 'none'}`)
 console.log(`\n${failures === 0 ? 'AUDIO PLAYBACK CHECK PASSED' : `${failures} FAILED`}\n`)

@@ -283,7 +283,11 @@ export const DottedGlowBackground = ({
 
     const observer = new IntersectionObserver(
       (entries) => {
+        const wasVisible = isVisible
         isVisible = entries[0]?.isIntersecting ?? true
+        if (!wasVisible && isVisible && !stopped && !raf) {
+          raf = requestAnimationFrame(draw)
+        }
       },
       { threshold: 0.1 },
     )
@@ -292,11 +296,8 @@ export const DottedGlowBackground = ({
     window.addEventListener('resize', handleResize)
 
     const draw = (now: number) => {
-      if (stopped) return
-      if (!isVisible) {
-        raf = requestAnimationFrame(draw)
-        return
-      }
+      raf = 0
+      if (stopped || !isVisible) return
 
       clear()
 

@@ -61,8 +61,17 @@ const ACHIEVEMENTS: Achievement[] = [
     icon: <TrendingUp className="size-5" />,
     earned: (a) => {
       if (a.length < 2) return false
-      const scores = a.map((x) => x.overallScore)
-      return Math.max(...scores) - Math.min(...scores) >= 5
+      const sorted = [...a].sort((x, y) => new Date(x.startedAt).getTime() - new Date(y.startedAt).getTime())
+      const first = sorted[0]
+      if (!first) return false
+      let bestSoFar = first.overallScore
+      for (let i = 1; i < sorted.length; i++) {
+        const item = sorted[i]
+        if (!item) continue
+        if (item.overallScore - bestSoFar >= 5) return true
+        if (item.overallScore > bestSoFar) bestSoFar = item.overallScore
+      }
+      return false
     },
   },
   {

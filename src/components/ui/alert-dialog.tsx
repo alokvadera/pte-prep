@@ -27,10 +27,10 @@ export function AlertDialog({
   confirmLabel?: string
   className?: string
 }) {
-  const confirm = useRef<HTMLButtonElement | null>(null)
+  const cancel = useRef<HTMLButtonElement | null>(null)
 
   useEffect(() => {
-    if (open) confirm.current?.focus()
+    if (open) cancel.current?.focus()
   }, [open])
 
   return (
@@ -41,11 +41,10 @@ export function AlertDialog({
       className={className}
       footer={
         <>
-          <button type="button" className="btn-secondary" onClick={onClose}>
+          <button ref={cancel} type="button" className="btn-secondary" onClick={onClose}>
             Cancel
           </button>
           <button
-            ref={confirm}
             type="button"
             className="btn-danger"
             onClick={() => {

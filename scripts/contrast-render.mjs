@@ -372,7 +372,25 @@ async function screenshot(file) {
   await writeFile(file, Buffer.from(data, 'base64'))
 }
 
-// --- run -------------------------------------------------------------------
+async function waitForServer(url, timeoutMs = 15000) {
+  const start = Date.now()
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const res = await fetch(url)
+      if (res.ok) return true
+    } catch {
+      /* not up yet */
+    }
+    await sleep(250)
+  }
+  return false
+}
+
+if (!(await waitForServer(BASE + '/'))) {
+  chrome.kill()
+  console.error(`\n  Server at ${BASE} is not reachable. Start the preview server first.`)
+  process.exit(1)
+}
 
 if (SHOTS) await mkdir(OUT_DIR, { recursive: true })
 

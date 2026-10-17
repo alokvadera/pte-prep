@@ -44,24 +44,43 @@ export function ParallaxVisual({
     let cx = 0
     let cy = 0
 
+    const startLoop = () => {
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+
     const onMove = (e: PointerEvent) => {
       const rect = el.getBoundingClientRect()
       tx = ((e.clientX - (rect.left + rect.width / 2)) / rect.width) * depth
       ty = ((e.clientY - (rect.top + rect.height / 2)) / rect.height) * depth
+      startLoop()
+    }
+
+    const onLeave = () => {
+      tx = 0
+      ty = 0
+      startLoop()
     }
 
     const tick = () => {
       cx += (tx - cx) * 0.06
       cy += (ty - cy) * 0.06
+      if (Math.abs(tx - cx) < 0.01 && Math.abs(ty - cy) < 0.01) {
+        cx = tx
+        cy = ty
+        el.style.transform = cx === 0 && cy === 0 ? '' : `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`
+        raf = 0
+        return
+      }
       el.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`
       raf = requestAnimationFrame(tick)
     }
 
     el.addEventListener('pointermove', onMove)
-    raf = requestAnimationFrame(tick)
+    el.addEventListener('pointerleave', onLeave)
     return () => {
       el.removeEventListener('pointermove', onMove)
-      cancelAnimationFrame(raf)
+      el.removeEventListener('pointerleave', onLeave)
+      if (raf) cancelAnimationFrame(raf)
     }
   }, [depth])
 
