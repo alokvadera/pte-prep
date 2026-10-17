@@ -61,13 +61,14 @@ export function RenderType({
   const [displayText, setDisplayText] = useState(() => (prefersReducedMotion() ? (phrases[0] ?? '') : ''))
   const [isDeleting, setIsDeleting] = useState(false)
 
+  const isReduced = prefersReducedMotion()
   const currentPhrase = phrases[phraseIndex] ?? ''
-  const isTypingActive = displayText.length > 0 && displayText.length < currentPhrase.length
+  const renderedText = isReduced ? (phrases[0] ?? '') : displayText
+  const isTypingActive = !isReduced && displayText.length > 0 && displayText.length < currentPhrase.length
 
   useEffect(() => {
-    // If the candidate prefers reduced motion, render the full text immediately
+    // If the candidate prefers reduced motion, notify completion immediately without typing loop
     if (prefersReducedMotion()) {
-      setDisplayText(phrases[0] ?? '')
       onComplete?.()
       return
     }
@@ -139,7 +140,7 @@ export function RenderType({
       {prefix}
 
       <span aria-hidden="true" className="whitespace-pre-wrap">
-        {displayText}
+        {renderedText}
       </span>
 
       {cursor && (

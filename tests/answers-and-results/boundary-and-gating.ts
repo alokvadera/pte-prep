@@ -5,6 +5,16 @@ import { softF1 } from '../../src/lib/text'
 import { validateGroqKey } from '../../src/lib/aiScorer'
 import { useAuth } from '../../src/store/useAuth'
 import { playSuccessTone } from '../../src/lib/speech'
+import fs from 'node:fs'
+import path from 'node:path'
+import { resolveAllowedOrigin } from '../../functions/_middleware'
+import {
+  createSessionToken,
+  hashPassword,
+  requireSecret,
+  verifyPassword,
+  verifySessionToken,
+} from '../../functions/lib/auth'
 
 // ============================================================================
 // Boundary, Gating, Negative-Marking, and Scoring Scale Test Suite
@@ -306,6 +316,87 @@ async function main() {
     toneError = true
   }
   assert(!toneError, 'playSuccessTone executes safely in SSR/node environment')
+
+  // --------------------------------------------------------------------------
+  // TEST 10: Backend Auth & Session Security Contract
+  // --------------------------------------------------------------------------
+  console.log('\n--- 10. Backend Auth & Session Security Contract ---')
+  const testSecret = '0123456789abcdef0123456789abcdef0123456789abcdef'
+  const sessionData = { userId: 'usr-auth-test', email: 'candidate@pte-prep.com' }
+  const validToken = await createSessionToken(sessionData, testSecret, 3600)
+  assert(typeof validToken === 'string' && validToken.includes('.'), 'createSessionToken creates signed token')
+
+  const verifiedSession = await verifySessionToken(validToken, testSecret)
+  assert(verifiedSession !== null && verifiedSession.userId === 'usr-auth-test', 'valid token verifies successfully')
+  assert(verifiedSession?.aud === 'pte-api', 'session audience matches pte-api')
+
+  const tamperedSig = validToken.slice(0, -4) + 'zzzz'
+  const badSigResult = await verifySessionToken(tamperedSig, testSecret)
+  assert(badSigResult === null, 'tampered signature is rejected')
+
+  const [head, tail] = validToken.split('.')
+  const tamperedPayload = 'eyJ1c2VySWQiOiJoYWNrZWQifQ.' + tail
+  const badPayloadResult = await verifySessionToken(tamperedPayload, testSecret)
+  assert(badPayloadResult === null, 'tampered payload is rejected')
+
+  const wrongSecretResult = await verifySessionToken(validToken, testSecret + '_wrong_secret_bytes')
+  assert(wrongSecretResult === null, 'token signed with wrong secret is rejected')
+
+  const expiredToken = await createSessionToken(sessionData, testSecret, -100)
+  const expiredResult = await verifySessionToken(expiredToken, testSecret)
+  assert(expiredResult === null, 'expired token is rejected')
+
+  const { hash, salt } = await hashPassword('StudentSecretP@ss2026')
+  const validPass = await verifyPassword('StudentSecretP@ss2026', hash, salt)
+  assert(validPass === true, 'correct password verifies successfully')
+  const invalidPass = await verifyPassword('WrongPassword123!', hash, salt)
+  assert(invalidPass === false, 'incorrect password is rejected')
+
+  let secretRejected = false
+  try {
+    requireSecret({ JWT_SECRET: 'short' } as unknown as import('../../functions/types').Env)
+  } catch {
+    secretRejected = true
+  }
+  assert(secretRejected, 'short JWT_SECRET is strictly rejected')
+
+  assert(resolveAllowedOrigin('https://pte-prep.pages.dev') === 'https://pte-prep.pages.dev', 'canonical domain is allowed')
+  assert(resolveAllowedOrigin('https://preview-123.pte-prep.pages.dev') === 'https://preview-123.pte-prep.pages.dev', 'pages.dev subdomains allowed')
+  assert(resolveAllowedOrigin('http://localhost:5173') === 'http://localhost:5173', 'localhost is allowed for dev')
+  assert(resolveAllowedOrigin('https://evil.com') === null, 'arbitrary third party origin is rejected')
+  assert(resolveAllowedOrigin('https://pte-prep.pages.dev.attacker.com') === null, 'subdomain spoofing origin is rejected')
+
+  // --------------------------------------------------------------------------
+  // TEST 11: Static XSS & Unsafe DOM Sink Audit
+  // --------------------------------------------------------------------------
+  console.log('\n--- 11. Static XSS & Unsafe DOM Sink Audit ---')
+  const scanSources = (dir: string, sinks: string[]): string[] => {
+    let findings: string[] = []
+    const entries = fs.readdirSync(dir, { withFileTypes: true })
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) {
+        if (!['node_modules', 'dist', '.git'].includes(entry.name)) {
+          findings = findings.concat(scanSources(full, sinks))
+        }
+      } else if (/\.(ts|tsx|js|mjs)$/.test(entry.name)) {
+        if (full.endsWith('boundary-and-gating.ts')) continue
+        const text = fs.readFileSync(full, 'utf8')
+        for (const sink of sinks) {
+          if (text.includes(sink)) {
+            findings.push(`${full}: ${sink}`)
+          }
+        }
+      }
+    }
+    return findings
+  }
+
+  const forbiddenSinks = ['dangerouslySetInnerHTML', '.innerHTML =', '.outerHTML =', 'document.write(']
+  const srcSinkFindings = scanSources(path.resolve(process.cwd(), 'src'), forbiddenSinks)
+  const fnSinkFindings = scanSources(path.resolve(process.cwd(), 'functions'), forbiddenSinks)
+  assert(srcSinkFindings.length === 0, 'zero unsafe DOM sinks in src/ directory')
+  assert(fnSinkFindings.length === 0, 'zero unsafe DOM sinks in functions/ directory')
 
   console.log(`\n========================================================================`)
   console.log(`  BOUNDARY & GATING RESULTS: ${passed}/${total} passed (100%)`)

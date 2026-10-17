@@ -24,6 +24,8 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       newHeaders.set('Access-Control-Allow-Origin', allowedOrigin)
       newHeaders.set('Vary', 'Origin')
     }
+    newHeaders.set('X-Content-Type-Options', 'nosniff')
+    newHeaders.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -31,7 +33,11 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     })
   } catch (err: unknown) {
     console.error('Unhandled API error:', err)
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Content-Type-Options': 'nosniff',
+      'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
+    }
     if (allowedOrigin) {
       headers['Access-Control-Allow-Origin'] = allowedOrigin
       headers['Vary'] = 'Origin'
@@ -43,7 +49,7 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   }
 }
 
-function resolveAllowedOrigin(origin: string | null, configured?: string): string | null {
+export function resolveAllowedOrigin(origin: string | null, configured?: string): string | null {
   if (!origin) return null
   if (configured) {
     const list = configured.split(',').map((s) => s.trim())

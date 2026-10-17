@@ -18,9 +18,15 @@ export function CommandPalette() {
   const lastTrigger = useRef<HTMLElement | null>(null)
   const dialogRef = useRef<HTMLDivElement>(null)
 
+  const closePalette = () => {
+    setOpen(false)
+    setQuery('')
+  }
+
   useEffect(() => {
     const handleOpen = () => {
       lastTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+      setQuery('')
       setOpen(true)
     }
     const down = (e: KeyboardEvent) => {
@@ -28,11 +34,14 @@ export function CommandPalette() {
         e.preventDefault()
         if (!open) {
           lastTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+          setQuery('')
+          setOpen(true)
+        } else {
+          closePalette()
         }
-        setOpen((o) => !o)
       }
       if (e.key === 'Escape' && open) {
-        setOpen(false)
+        closePalette()
       }
     }
     window.addEventListener('open-command-palette', handleOpen)
@@ -43,14 +52,11 @@ export function CommandPalette() {
     }
   }, [open])
 
-  // Close: reset query and hand focus back to whatever opened the palette.
+  // Close: hand focus back to whatever opened the palette.
   useEffect(() => {
-    if (!open) {
-      setQuery('')
-      if (lastTrigger.current) {
-        lastTrigger.current.focus()
-        lastTrigger.current = null
-      }
+    if (!open && lastTrigger.current) {
+      lastTrigger.current.focus()
+      lastTrigger.current = null
     }
   }, [open])
 
@@ -108,7 +114,7 @@ export function CommandPalette() {
         tabIndex={-1}
         aria-label="Close quick actions"
         className="fixed inset-0 bg-ink-950/60 backdrop-blur-sm animate-fade-in cursor-default"
-        onClick={() => setOpen(false)}
+        onClick={() => closePalette()}
       />
       <div
         ref={dialogRef}
@@ -140,7 +146,7 @@ export function CommandPalette() {
               if (e.key === 'Enter' && filtered[0]) {
                 e.preventDefault()
                 filtered[0].run()
-                setOpen(false)
+                closePalette()
               }
             }}
           />
@@ -158,7 +164,7 @@ export function CommandPalette() {
                 style={{ animationDelay: `${30 + i * 35}ms` }}
                 onClick={() => {
                   action.run()
-                  setOpen(false)
+                  closePalette()
                 }}
               >
                 <span className="text-ink-700 dark:text-ink-200 group-hover:text-ink-900 dark:group-hover:text-white font-medium">
