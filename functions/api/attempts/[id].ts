@@ -58,7 +58,11 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   const row = await db
     .prepare(
-      `SELECT * FROM attempts WHERE id = ? AND user_id = ?`,
+      `SELECT id, user_id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,
+              overall_score, overall_score_60, cefr, earned_points, available_points,
+              skill_scores, breakdown, responses, synced_at
+       FROM attempts
+       WHERE id = ? AND user_id = ?`,
     )
     .bind(id, session.userId)
     .first<RawAttemptRow>()

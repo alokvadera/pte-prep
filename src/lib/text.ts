@@ -70,7 +70,7 @@ export function softF1(candidate: string, referenceTerms: readonly string[]): nu
 
   const recall = hits / ref.size
   const lengthFit = Math.min(1, cand.size / ref.size)
-  return recall + lengthFit === 0 ? 0 : (2 * recall * lengthFit) / (recall + lengthFit)
+  return (recall + lengthFit === 0) ? 0 : (2 * recall * lengthFit) / (recall + lengthFit)
 }
 
 /** Proportion of reference key terms present in the candidate. */

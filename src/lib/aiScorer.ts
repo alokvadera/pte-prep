@@ -86,7 +86,11 @@ export async function evaluateWithAi(
   const cacheKey = hashAnswer(item.id, text, model, RUBRIC_VERSION)
   const cached = evaluationCache.get(cacheKey)
   if (cached) {
-    if (cached.expiresAt > Date.now()) return cached.result
+    if (cached.expiresAt > Date.now()) {
+      evaluationCache.delete(cacheKey)
+      evaluationCache.set(cacheKey, cached)
+      return cached.result
+    }
     evaluationCache.delete(cacheKey)
   }
 
@@ -213,7 +217,8 @@ Output ONLY a JSON object with this exact format:
     const content = data.choices?.[0]?.message?.content
     if (!content) return null
 
-    const parsed = JSON.parse(content)
+    const jsonStr = content.match(/\{[\s\S]*\}/)?.[0] ?? content
+    const parsed = JSON.parse(jsonStr)
     const t = parsed.traits || {}
 
     // Normalise traits onto the 0..1 scale used by ItemScoreDetail

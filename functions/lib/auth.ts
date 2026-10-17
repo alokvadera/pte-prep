@@ -91,7 +91,8 @@ export async function recordSession(
   await ensureSessionsTable(db)
   if (Math.random() < 0.05) {
     const now = Math.floor(Date.now() / 1000)
-    db.prepare('DELETE FROM user_sessions WHERE expires_at < ?')
+    await db
+      .prepare('DELETE FROM user_sessions WHERE expires_at < ?')
       .bind(now)
       .run()
       .catch((err) => console.warn('[Auth] Session cleanup failed:', err))

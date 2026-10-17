@@ -136,7 +136,7 @@ export const useAuth = create<AuthStore>()(
           expiresAt: null,
           error: null,
         })
-        if (token) {
+        if (token && typeof window !== 'undefined') {
           void fetch('/api/auth/logout', {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },

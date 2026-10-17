@@ -32,7 +32,8 @@ export async function checkRateLimit(
 
   // Opportunistic cleanup: 5% chance to prune expired rate limit keys
   if (Math.random() < 0.05) {
-    db.prepare('DELETE FROM rate_limits WHERE reset_at < ?')
+    await db
+      .prepare('DELETE FROM rate_limits WHERE reset_at < ?')
       .bind(now)
       .run()
       .catch((err) => console.warn('[RateLimit] Cleanup failed:', err))

@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { saveAttempt } from '../db/db'
 import { QUESTION_META } from '../domain/blueprint'
 import { buildReport } from '../domain/scoring'
-import type { AttemptRecord, ItemResponse, MockMode, MockTest, SectionId, Skill } from '../domain/types'
+import type { AttemptRecord, ItemResponse, MockMode, MockTest, QuestionType, SectionId, Skill } from '../domain/types'
 import { throttledStateStorage } from '../lib/storage'
 
 export type RunnerStatus = 'briefing' | 'running' | 'break' | 'finished'
@@ -193,7 +193,7 @@ export const useTest = create<TestStore>()(
           .map((id) => mock.items[id])
           .filter((i): i is NonNullable<typeof i> => Boolean(i))
 
-        const metaById: Record<string, { skills: Skill[]; type: NonNullable<typeof items>[number]['type']; label: string }> = {}
+        const metaById: Record<string, { skills: Skill[]; type: QuestionType; label: string }> = {}
         for (const item of items) {
           metaById[item.id] = {
             skills: item.skills,
@@ -287,7 +287,7 @@ export function hasResponse(r: ItemResponse | undefined): boolean {
   if (r.highlighted && r.highlighted.length > 0) return true
   if (r.text && r.text.trim().length > 0) return true
   if (r.transcript && r.transcript.trim().length > 0) return true
-  if (r.audio && r.audio.durationMs > 500) return true
+  if (r.audio && (r.audio.durationMs !== undefined ? r.audio.durationMs > 500 : true)) return true
   return false
 }
 

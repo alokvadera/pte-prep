@@ -1,5 +1,9 @@
 import { formBand, rawToPteScale, scoreBand, scoreItem, splitSentences, toCefr } from '../../src/domain/scoring'
 import type { AnswerKey, Item, ItemResponse } from '../../src/domain/types'
+import { hasResponse } from '../../src/store/useTest'
+import { softF1 } from '../../src/lib/text'
+import { validateGroqKey } from '../../src/lib/aiScorer'
+import { useAuth } from '../../src/store/useAuth'
 
 // ============================================================================
 // Boundary, Gating, Negative-Marking, and Scoring Scale Test Suite
@@ -10,9 +14,12 @@ import type { AnswerKey, Item, ItemResponse } from '../../src/domain/types'
 // 3. Negative marking floors (never below 0)
 // 4. Content = 0 gating rule (zeroes entire item regardless of delivery)
 // 5. PTE 10–90 scale transformation and CEFR benchmarks
+// 6. hasResponse Presence & Duration Guards
+// 7. softF1 Bounds & Operator Precedence
+// 8. Auth Store Contract & Groq Validation
 // ============================================================================
 
-function main() {
+async function main() {
   console.log('='.repeat(80))
   console.log('  PTE ACADEMIC BOUNDARY, GATING & NEGATIVE MARKING TEST SUITE')
   console.log('='.repeat(80))
@@ -222,6 +229,60 @@ function main() {
   assert(band.low <= band.mid && band.mid <= band.high, 'Score estimation uncertainty band is monotonic')
   assert(band.mid === 70, 'scoreBand midpoint anchors on displayed score')
   assert(band.low < band.high, 'scoreBand defines a non-empty range')
+
+  // --------------------------------------------------------------------------
+  // TEST 6: Response Presence & Audio Duration Guards
+  // --------------------------------------------------------------------------
+  console.log('\n--- 6. hasResponse Presence & Duration Guards ---')
+  assert(!hasResponse(undefined), 'undefined response is false')
+  assert(!hasResponse({}), 'empty response is false')
+  assert(hasResponse({ choice: 'A' }), 'single choice is true')
+  assert(!hasResponse({ choice: null as unknown as string }), 'null choice is false')
+  assert(hasResponse({ choices: ['A'] }), 'multiple choices is true')
+  assert(!hasResponse({ choices: [] }), 'empty choices array is false')
+  assert(hasResponse({ blanks: ['answer'] }), 'filled blank is true')
+  assert(!hasResponse({ blanks: ['   '] }), 'whitespace-only blank is false')
+  assert(hasResponse({ order: ['p1', 'p2'] }), 'order blocks is true')
+  assert(hasResponse({ highlighted: [1] }), 'highlighted tokens is true')
+  assert(hasResponse({ text: 'Valid essay text' }), 'written text is true')
+  assert(!hasResponse({ text: '    ' }), 'whitespace-only text is false')
+  assert(hasResponse({ transcript: 'Spoken transcript' }), 'transcript is true')
+  assert(hasResponse({ audio: { durationMs: 600, wordsPerMinute: 120, speechRatio: 0.8, pauseCount: 0, meanPitchHz: 180, energyVariance: 0.5, reliable: true } }), 'audio > 500ms is true')
+  assert(!hasResponse({ audio: { durationMs: 300, wordsPerMinute: 120, speechRatio: 0.8, pauseCount: 0, meanPitchHz: 180, energyVariance: 0.5, reliable: true } }), 'audio <= 500ms is false')
+
+  // --------------------------------------------------------------------------
+  // TEST 7: softF1 Mathematical Bounds & Operator Precedence
+  // --------------------------------------------------------------------------
+  console.log('\n--- 7. softF1 Bounds & Operator Precedence ---')
+  assert(softF1('', ['term1', 'term2']) === 0, 'empty candidate gives 0')
+  assert(softF1('random words here', []) === 0, 'empty reference terms gives 0')
+  assert(softF1('energy climate renewable', ['energy', 'climate', 'renewable']) === 1, 'perfect match gives 1')
+  const partialF1 = softF1('energy climate', ['energy', 'climate', 'renewable'])
+  assert(partialF1 > 0 && partialF1 < 1, 'partial match is in (0, 1)')
+  assert(Number.isFinite(partialF1), 'partial score is finite number')
+
+  // --------------------------------------------------------------------------
+  // TEST 8: Auth Store Contract & Groq Validation
+  // --------------------------------------------------------------------------
+  console.log('\n--- 8. Auth Store Contract & Groq Validation ---')
+  const authState = useAuth.getState()
+  assert(authState.user === null, 'initial user is null')
+  assert(authState.token === null, 'initial token is null')
+  assert(authState.error === null, 'initial error is null')
+
+  authState.setSession({ id: 'usr-test-1', email: 'test@example.com', targetScore: 79 }, 'mock-token-xyz', Date.now() + 3600000)
+  assert(useAuth.getState().user?.email === 'test@example.com', 'setSession sets user email')
+  assert(useAuth.getState().token === 'mock-token-xyz', 'setSession sets token')
+  assert(useAuth.getState().hasLoggedInBefore === true, 'hasLoggedInBefore is true')
+
+  useAuth.getState().logout()
+  assert(useAuth.getState().user === null, 'logout clears user')
+  assert(useAuth.getState().token === null, 'logout clears token')
+  assert(useAuth.getState().expiresAt === null, 'logout clears expiresAt')
+
+  const emptyKeyValidation = await validateGroqKey('   ')
+  assert(!emptyKeyValidation.ok, 'empty Groq API key is rejected')
+  assert(emptyKeyValidation.error === 'API key is required', 'empty Groq API key gives descriptive error')
 
   console.log(`\n========================================================================`)
   console.log(`  BOUNDARY & GATING RESULTS: ${passed}/${total} passed (100%)`)

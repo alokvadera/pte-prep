@@ -14,49 +14,51 @@
 export function RouteFallback() {
   return (
     <div className="bg-ink-50 dark:bg-ink-900 flex min-h-dvh flex-col">
-      {/* Status bar */}
-      <div className="border-ink-200 dark:border-white/10 border-b">
-        <div className="site-header-row page-shell-wide flex h-14 items-center gap-4">
-          <div className="bg-ink-200 dark:bg-white/12 h-3 w-24 animate-pulse rounded-sm" />
-          <div className="ml-auto flex items-center gap-3">
-            <div className="bg-ink-200 dark:bg-white/12 h-3 w-16 animate-pulse rounded-sm" />
-            <div className="bg-ink-200 dark:bg-white/12 h-8 w-20 animate-pulse rounded-sm" />
+      <div aria-hidden="true" className="flex flex-1 flex-col">
+        {/* Status bar */}
+        <div className="border-ink-200 dark:border-white/10 border-b">
+          <div className="site-header-row page-shell-wide flex h-14 items-center gap-4">
+            <div className="bg-ink-200 dark:bg-white/12 h-3 w-24 animate-pulse rounded-sm" />
+            <div className="ml-auto flex items-center gap-3">
+              <div className="bg-ink-200 dark:bg-white/12 h-3 w-16 animate-pulse rounded-sm" />
+              <div className="bg-ink-200 dark:bg-white/12 h-8 w-20 animate-pulse rounded-sm" />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Question column */}
-      <div className="page-shell-app flex-1 py-10">
-        <div className="bg-ink-200 dark:bg-white/12 h-2 w-24 animate-pulse rounded-sm" />
-        <div className="mt-4 space-y-3">
-          {[92, 84, 78, 88, 70].map((w, i) => (
-            <div
-              key={i}
-              className="bg-ink-200 dark:bg-white/12 h-4 animate-pulse rounded-sm"
-              style={{ width: `${w}%`, animationDelay: `${i * 90}ms` }}
-            />
-          ))}
-        </div>
-
-        <div className="border-ink-200 dark:border-white/10 mt-10 border-t pt-6">
-          <div className="bg-ink-200 dark:bg-white/12 h-2 w-32 animate-pulse rounded-sm" />
+        {/* Question column */}
+        <div className="page-shell-app flex-1 py-10">
+          <div className="bg-ink-200 dark:bg-white/12 h-2 w-24 animate-pulse rounded-sm" />
           <div className="mt-4 space-y-3">
-            {[80, 86, 74].map((w, i) => (
+            {[92, 84, 78, 88, 70].map((w, i) => (
               <div
                 key={i}
-                className="border-ink-200 dark:border-white/10 h-11 animate-pulse rounded-lg border"
-                style={{ width: `${w}%`, animationDelay: `${(i + 2) * 90}ms` }}
+                className="bg-ink-200 dark:bg-white/12 h-4 animate-pulse rounded-sm"
+                style={{ width: `${w}%`, animationDelay: `${i * 90}ms` }}
               />
             ))}
           </div>
-        </div>
-      </div>
 
-      {/* Action bar */}
-      <div className="border-ink-200 dark:border-white/10 border-t">
-        <div className="page-shell-wide flex h-20 items-center gap-3">
-          <div className="bg-ink-200 dark:bg-white/12 h-11 w-32 animate-pulse rounded-sm" />
-          <div className="bg-ink-200 dark:bg-white/12 h-11 w-24 animate-pulse rounded-sm" />
+          <div className="border-ink-200 dark:border-white/10 mt-10 border-t pt-6">
+            <div className="bg-ink-200 dark:bg-white/12 h-2 w-32 animate-pulse rounded-sm" />
+            <div className="mt-4 space-y-3">
+              {[80, 86, 74].map((w, i) => (
+                <div
+                  key={i}
+                  className="border-ink-200 dark:border-white/10 h-11 animate-pulse rounded-lg border"
+                  style={{ width: `${w}%`, animationDelay: `${(i + 2) * 90}ms` }}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Action bar */}
+        <div className="border-ink-200 dark:border-white/10 border-t">
+          <div className="page-shell-wide flex h-20 items-center gap-3">
+            <div className="bg-ink-200 dark:bg-white/12 h-11 w-32 animate-pulse rounded-sm" />
+            <div className="bg-ink-200 dark:bg-white/12 h-11 w-24 animate-pulse rounded-sm" />
+          </div>
         </div>
       </div>
 
