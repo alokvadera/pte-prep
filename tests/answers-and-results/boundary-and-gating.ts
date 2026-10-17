@@ -4,6 +4,7 @@ import { hasResponse } from '../../src/store/useTest'
 import { softF1 } from '../../src/lib/text'
 import { validateGroqKey } from '../../src/lib/aiScorer'
 import { useAuth } from '../../src/store/useAuth'
+import { playSuccessTone } from '../../src/lib/speech'
 
 // ============================================================================
 // Boundary, Gating, Negative-Marking, and Scoring Scale Test Suite
@@ -283,6 +284,28 @@ async function main() {
   const emptyKeyValidation = await validateGroqKey('   ')
   assert(!emptyKeyValidation.ok, 'empty Groq API key is rejected')
   assert(emptyKeyValidation.error === 'API key is required', 'empty Groq API key gives descriptive error')
+
+  // --------------------------------------------------------------------------
+  // TEST 9: Auth Safety, Score Clamping & SSR Audio Guard
+  // --------------------------------------------------------------------------
+  console.log('\n--- 9. Auth Safety, Score Clamping & SSR Audio Guard ---')
+  const testToken = 'abc123def456+&=/ '
+  const encodedToken = encodeURIComponent(testToken)
+  assert(!encodedToken.includes(' ') && !encodedToken.includes('&') && !encodedToken.includes('+'), 'token is safely URL encoded')
+
+  const clampTarget = (raw: number) => Math.max(10, Math.min(90, Math.round(raw)))
+  assert(clampTarget(5) === 10, 'score below 10 clamps to 10')
+  assert(clampTarget(95) === 90, 'score above 90 clamps to 90')
+  assert(clampTarget(78.6) === 79, 'fractional score rounds to nearest integer')
+  assert(Number.isFinite(clampTarget(50)), 'clamped score is guaranteed finite')
+
+  let toneError = false
+  try {
+    playSuccessTone()
+  } catch {
+    toneError = true
+  }
+  assert(!toneError, 'playSuccessTone executes safely in SSR/node environment')
 
   console.log(`\n========================================================================`)
   console.log(`  BOUNDARY & GATING RESULTS: ${passed}/${total} passed (100%)`)

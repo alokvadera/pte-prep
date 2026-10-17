@@ -119,7 +119,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // Build reset link
   const origin = context.env.SITE_ORIGIN || new URL(context.request.url).origin
-  const resetLink = `${origin}/reset-password?token=${rawToken}`
+  const resetLink = `${origin}/reset-password?token=${encodeURIComponent(rawToken)}`
 
   const escHtml = (s: string): string => {
     return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')

@@ -393,7 +393,9 @@ export function playCountdownBeep(remaining: number): void {
 
 export function playSuccessTone(): void {
   playTone(700, 110, 0.05)
-  setTimeout(() => playTone(940, 140, 0.05), 100)
+  if (typeof window !== 'undefined') {
+    window.setTimeout(() => playTone(940, 140, 0.05), 100)
+  }
 }
 
 export function playErrorTone(): void {

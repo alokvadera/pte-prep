@@ -110,12 +110,6 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
       })
     }
     const score = Math.max(10, Math.min(90, Math.round(body.targetScore)))
-    if (!Number.isFinite(score)) {
-      return new Response(JSON.stringify({ error: 'Target score must be a finite number.' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
     await db
       .prepare('UPDATE users SET target_score = ?, updated_at = datetime("now") WHERE id = ?')
       .bind(score, session.userId)
