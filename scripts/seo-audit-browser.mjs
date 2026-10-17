@@ -59,8 +59,10 @@ const chrome = spawn(
     `--remote-debugging-port=${PORT}`,
     `--user-data-dir=${profile}`,
     '--no-first-run',
+    '--no-default-browser-check',
     '--disable-gpu',
     '--hide-scrollbars',
+    'about:blank',
   ],
   { stdio: 'ignore' },
 )
