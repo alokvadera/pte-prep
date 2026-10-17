@@ -61,6 +61,27 @@ for (const t of ALL_QUESTION_TYPES) {
   console.log(`    ${(QUESTION_META[t]?.label ?? t).padEnd(42)} ${String(typeCounts[t] ?? 0).padStart(3)}`)
 }
 
+console.log('\n== Mock length and clock ==')
+// A short mock used to keep the full official clock: section time was scaled
+// against the mock's own item count, so the ratio was always 1 and choosing
+// "Half mock" only removed questions from the same two hours.
+{
+  const halfCounts = Object.fromEntries(
+    ALL_QUESTION_TYPES.map((t) => [t, Math.max(1, Math.round(MOCK_BLUEPRINT[t] / 2))]),
+  ) as Record<QuestionType, number>
+  const half = buildFullMock(12345, { counts: halfCounts })
+  const halfScored = half.sections
+    .flatMap((s) => s.itemIds)
+    .filter((id) => (half.items[id]?.maxPoints ?? 0) > 0).length
+  const fullScored = mock.sections
+    .flatMap((s) => s.itemIds)
+    .filter((id) => (mock.items[id]?.maxPoints ?? 0) > 0).length
+  check('a half mock has about half the scored items', halfScored <= Math.ceil(fullScored * 0.65), `${halfScored} vs ${fullScored}`)
+  check('a half mock runs shorter than a full one', half.totalSeconds < mock.totalSeconds * 0.7, `${Math.round(half.totalSeconds / 60)} vs ${Math.round(mock.totalSeconds / 60)} min`)
+  check('every section keeps a usable clock', half.sections.every((s) => s.seconds >= 180), half.sections.map((s) => String(s.seconds)).join(','))
+  check('no section exceeds the official clock', mock.sections.every((s) => s.seconds <= 96 * 60), mock.sections.map((s) => String(s.seconds)).join(','))
+}
+
 console.log('\n== Drill integrity ==')
 // A single-skill drill used to build all three sections and then filter groups by
 // their nominal type. Because one reading group holds the table and both multiple
@@ -83,6 +104,23 @@ console.log('\n== Drill integrity ==')
   }
   check('every drill type produces questions', noItems.length === 0, `empty: ${noItems.join(', ')}`)
   check('no drill section is left empty', emptySections.length === 0, `empty: ${emptySections.join(', ')}`)
+
+  // Filtering groups used to leave the rest of the assembled mock behind, so a
+  // two-item drill reported every point in the bank and persisted all 84 items.
+  const drill = buildDrillMock(7, ['reorder-paragraphs'], 2)
+  const drillIds = drill.sections.flatMap((s) => s.itemIds)
+  check('a drill keeps only the items it includes', Object.keys(drill.items).length === drillIds.length, `${Object.keys(drill.items).length} vs ${drillIds.length}`)
+  check('a drill keeps only the answers it includes', Object.keys(drill.answers).length === drillIds.length, `${Object.keys(drill.answers).length} vs ${drillIds.length}`)
+  check(
+    'a drill totals only the points it includes',
+    drill.totalPoints === drillIds.reduce((sum, id) => sum + (drill.items[id]?.maxPoints ?? 0), 0),
+    `${drill.totalPoints} vs ${drillIds.reduce((sum, id) => sum + (drill.items[id]?.maxPoints ?? 0), 0)}`,
+  )
+  check(
+    'a drill totals only the seconds it includes',
+    drill.totalSeconds === drill.sections.reduce((sum, s) => sum + s.seconds, 0),
+    `${drill.totalSeconds}`,
+  )
 }
 
 console.log('\n== Stimulus integrity ==')
@@ -128,6 +166,25 @@ check('single-choice keys point at real options', scored.filter((i) => i.respons
 check('select-missing-word has exactly one ___ token', scored.filter((i) => i.type === 'select-missing-word').every((i) => (i.tokens ?? []).filter((t) => t === '___').length === 1))
 check('highlight-incorrect targets exactly two tokens', scored.filter((i) => i.type === 'highlight-incorrect-words').every((i) => (mock.answers[i.id]?.correctHighlighted?.length ?? 0) === 2 && (mock.answers[i.id]?.correctHighlighted ?? []).every((n) => n < (i.tokens?.length ?? 0))))
 check('every audio-backed item resolves to a script', scored.filter((i) => i.stimulusId).every((i) => BANK.lectures.concat(BANK.conversations, BANK.groupDiscussions).some((a) => a.id === i.stimulusId) || i.stimulusId?.startsWith('asq-') || i.stimulusId?.startsWith('rs-') || i.stimulusId?.startsWith('wfd-') || i.stimulusId?.startsWith('hiw-') || i.stimulusId?.startsWith('fibl-') || i.stimulusId?.startsWith('lfib-') || i.stimulusId?.startsWith('smw-')))
+
+// Derived listening items ship a clip of just the material they test. Playing
+// the parent conversation instead runs for over a minute, and for Select
+// Missing Word it speaks the word the item blanks out.
+const CLIP_TYPES: QuestionType[] = [
+  'write-from-dictation',
+  'select-missing-word',
+  'fill-in-blanks-listening',
+  'highlight-incorrect-words',
+]
+check(
+  'every derived listening item plays its own clip',
+  CLIP_TYPES.every((t) => scored.filter((i) => i.type === t).every((i) => Boolean(i.audioClipId))),
+  CLIP_TYPES.map((t) => `${t}:${scored.filter((i) => i.type === t && !i.audioClipId).length} missing`).join(' '),
+)
+check(
+  'no clip points back at the parent recording',
+  scored.every((i) => !i.audioClipId || i.audioClipId !== i.stimulusId),
+)
 check('every describe-image item resolves to a chart', scored.filter((i) => i.type === 'describe-image').every((i) => Boolean(i.chartId)))
 check('describer targets have reference answers', scored.filter((i) => i.responseKind === 'audio').every((i) => Boolean(mock.answers[i.id]?.reference)))
 check('writing items have key terms', scored.filter((i) => i.responseKind === 'text' && i.type !== 'write-from-dictation').every((i) => (mock.answers[i.id]?.keyTerms?.length ?? 0) > 0))

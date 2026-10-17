@@ -771,6 +771,9 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
           prompt: 'Listen and fill in the blanks. The recording plays once.',
           targetText: f.text,
           stimulusId: f.audioId,
+          // The clip reads the gapped passage; the parent conversation also
+          // contains material the passage does not ask about.
+          audioClipId: f.id,
           maxPoints: f.answers.length,
         seconds: 0,
         audioLeadIn: 4,
@@ -932,6 +935,9 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
           tokens,
           options: optOrder.map((i) => m.options[i] as string),
           stimulusId: m.audioId,
+          // The conversation recording speaks the word the item blanks out, so
+          // the beeped single-turn clip is the only asset that can be played.
+          audioClipId: m.id,
           maxPoints: 1,
           seconds: 0,
           audioLeadIn: 4,
@@ -966,6 +972,9 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         prompt: 'The transcript below contains two words that differ from the audio. Highlight the two words that are wrong.',
           tokens: tokenizeWithPunctuation(h.transcript),
           stimulusId: h.audioId,
+          // The item tests two substituted words in one sentence. The full
+          // conversation buries that sentence among a minute of others.
+          audioClipId: h.id,
           // One point per incorrect word the candidate has to find, minus one
           // for each word highlighted wrongly.
           maxPoints: expectedMaxPoints('highlight-incorrect-words', {
@@ -1003,9 +1012,10 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         responseKind: 'text',
           prompt: 'Listen and type exactly what you hear. The recording plays once.',
           stimulusId: d.audioId,
-          // The dictation is a single sentence, so that sentence is what gets
-          // spoken. Playing the whole source conversation would leave the
-          // candidate guessing which of forty sentences to transcribe.
+          // The dictation is a single sentence, so the rendered clip of that
+          // sentence is what plays. The parent conversation is seventy seconds
+          // long and would leave the candidate guessing which sentence to write.
+          audioClipId: d.id,
           audioUtterance: d.text,
           maxPoints: expectedMaxPoints('write-from-dictation', { reference: d.text }),
         seconds: 0,
@@ -1079,14 +1089,32 @@ const ASQ_AUDIO = new Map<string, string>(
 
 const SECTION_ORDER: SectionId[] = ['speaking-writing', 'reading', 'listening']
 
-/** Seconds allowed for a section, scaled to the items actually included. */
+/** Scored items a complete mock puts in one section, from the blueprint. */
+function blueprintScoredIn(section: SectionId): number {
+  let total = 0
+  for (const type of Object.keys(MOCK_BLUEPRINT) as QuestionType[]) {
+    if (QUESTION_META[type].section === section) total += MOCK_BLUEPRINT[type] ?? 0
+  }
+  return total
+}
+
+/**
+ * Seconds allowed for a section, scaled to the items actually included.
+ *
+ * The reference count has to be the full blueprint's total for the section,
+ * not the number of items inside this mock. Counted from `items`, both sides of
+ * the ratio were always the same mock, so it always evaluated to 1: a half or
+ * quick mock kept the full official clock, and choosing a short length only
+ * packed fewer questions into the same two hours. `describeMockPreview` applies
+ * the same arithmetic, and scripts/bank-check.ts asserts the two agree.
+ */
 function sectionSeconds(section: SectionId, groups: ItemGroup[], items: Record<string, Item>): number {
-  const scored = groups.flatMap((g) => g.itemIds).filter((id) => (items[id]?.maxPoints ?? 0) > 0)
+  const scored = groups.flatMap((g) => g.itemIds).filter((id) => (items[id]?.maxPoints ?? 0) > 0).length
   const base = SECTION_META[section].minSeconds
-  const reference = Object.values(items).filter((i) => i.section === section && i.maxPoints > 0).length
+  const reference = blueprintScoredIn(section)
   if (reference === 0) return base
-  // Scale proportionally but keep a floor so a drill is still usable.
-  return Math.max(180, Math.round((base * scored.length) / reference))
+  // Never exceed the official clock, and keep a floor so a drill stays usable.
+  return Math.max(180, Math.round(base * Math.min(1, scored / reference)))
 }
 
 export interface BuildOptions {
@@ -1238,5 +1266,24 @@ export function buildDrillMock(seed: number, types: QuestionType[], perType = 3)
   // and rendered nothing at all, which presented as a blank screen rather than
   // an error. Only sections that actually contain an item are kept.
   const populated = mock.sections.filter((s) => s.itemIds.length > 0)
-  return populated.length > 0 ? { ...mock, sections: populated } : mock
+  if (populated.length === 0) return mock
+
+  // The filtered items are no longer part of the session, so the maps and the
+  // totals have to be rebuilt from what survived. Leaving them behind made a
+  // two-item drill report every point in the bank (170 rather than 6) and
+  // persisted a full 84-item mock in localStorage for it.
+  const kept = new Set(populated.flatMap((s) => s.itemIds))
+  const items: Record<string, Item> = {}
+  for (const [id, item] of Object.entries(mock.items)) if (kept.has(id)) items[id] = item
+  const answers: Record<string, AnswerKey> = {}
+  for (const [id, key] of Object.entries(mock.answers)) if (kept.has(id)) answers[id] = key
+
+  return {
+    ...mock,
+    sections: populated,
+    items,
+    answers,
+    totalPoints: Object.values(items).reduce((sum, item) => sum + item.maxPoints, 0),
+    totalSeconds: populated.reduce((sum, section) => sum + section.seconds, 0),
+  }
 }

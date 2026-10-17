@@ -64,7 +64,7 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
       <legend className="passage mb-4 font-semibold">{item.prompt}</legend>
       {item.stimulusId ? (
         <div className="mb-4">
-          <AudioPlayer audioId={item.stimulusId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} allowSpeedControl={!examMode} compact />
+          <AudioPlayer audioId={item.stimulusId} clipId={item.audioClipId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} allowSpeedControl={!examMode} compact />
         </div>
       ) : null}
       <div className="space-y-2">
@@ -122,7 +122,7 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
       <legend className="passage mb-4 font-semibold">{item.prompt}</legend>
       {item.stimulusId ? (
         <div className="mb-4">
-          <AudioPlayer audioId={item.stimulusId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} allowSpeedControl={!examMode} compact />
+          <AudioPlayer audioId={item.stimulusId} clipId={item.audioClipId} replays={item.replays ?? 0} leadIn={item.audioLeadIn ?? 4} allowSpeedControl={!examMode} compact />
         </div>
       ) : null}
       <div className="space-y-2">
@@ -232,6 +232,7 @@ function InlineBlanks({ item, response, onChange, examMode }: Props) {
       <p className="passage mb-4 font-semibold">{item.prompt}</p>
       <AudioPlayer
         audioId={item.stimulusId}
+        clipId={item.audioClipId}
         fromTurn={item.audioFromTurn}
         replays={item.replays ?? 0}
         leadIn={item.audioLeadIn ?? 4}
@@ -413,6 +414,7 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
       <p className="passage mb-4 font-semibold">{item.prompt}</p>
       <AudioPlayer
         audioId={item.stimulusId}
+        clipId={item.audioClipId}
         utterance={item.audioUtterance}
         fromTurn={item.audioFromTurn}
         toTurn={item.audioToTurn}
@@ -477,6 +479,7 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
         <div className="mb-4">
           <AudioPlayer
             audioId={item.stimulusId}
+            clipId={item.audioClipId}
             utterance={item.audioUtterance}
             fromTurn={item.audioFromTurn}
             toTurn={item.audioToTurn}
@@ -545,6 +548,7 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
         <div className="mb-4">
           <AudioPlayer
             audioId={item.stimulusId}
+            clipId={item.audioClipId}
             utterance={item.audioUtterance}
             fromTurn={item.audioFromTurn}
             toTurn={item.audioToTurn}

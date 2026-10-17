@@ -6,6 +6,11 @@ import { isSpeechSupported, playCountdownBeep, speakScript, speakText, speakWith
 interface Props {
   audioId?: string
   /**
+   * The item's own rendered recording. When set it is preferred over
+   * `audioId`, because the parent recording can include the answer.
+   */
+  clipId?: string
+  /**
    * Speak this literal text instead of a bank script. Used by Repeat Sentence
    * (the sentence has no recorded conversation of its own) and by Highlight
    * Incorrect Words (the recording is the single correct sentence, not the
@@ -33,6 +38,7 @@ type PlayState = 'idle' | 'countdown' | 'playing'
 
 export function AudioPlayer({
   audioId,
+  clipId,
   utterance,
   fromTurn,
   toTurn,
@@ -71,7 +77,7 @@ export function AudioPlayer({
     }
   }, [onPlayStateChange])
 
-  const stimulusKey = `${audioId ?? ''}:${utterance ?? ''}:${fromTurn ?? ''}:${toTurn ?? ''}:${beepWord ?? ''}:${replays}`
+  const stimulusKey = `${clipId ?? ''}:${audioId ?? ''}:${utterance ?? ''}:${fromTurn ?? ''}:${toTurn ?? ''}:${beepWord ?? ''}:${replays}`
 
   useEffect(() => {
     // oxlint-disable-next-line react/set-state-in-effect
@@ -116,7 +122,7 @@ export function AudioPlayer({
   // previously consumed a replay, which silently stole attempts.
   useEffect(() => {
     if (state !== 'countdown') return
-    if (!script && !utterance && !audioId) return
+    if (!script && !utterance && !audioId && !clipId) return
     let n = leadIn
 
     const step = () => {
@@ -133,11 +139,11 @@ export function AudioPlayer({
 
     timerRef.current = window.setTimeout(step, 500)
     return () => clearTimer()
-  }, [state, leadIn, script, utterance, audioId, clearTimer])
+  }, [state, leadIn, script, utterance, audioId, clipId, clearTimer])
 
   useEffect(() => {
     if (state !== 'playing') return
-    if (!script && !utterance && !audioId) return
+    if (!script && !utterance && !audioId && !clipId) return
     let cancelled = false
     void (async () => {
       stopAllSpeech()
@@ -195,7 +201,7 @@ export function AudioPlayer({
         failed()
       }
 
-      if (audioId) {
+      if (audioId || clipId) {
         let fallbackTriggered = false
         const triggerFallback = () => {
           if (fallbackTriggered || cancelled) return
@@ -236,7 +242,16 @@ export function AudioPlayer({
             })
           }
 
-          tryPlay([`/audio/${audioId}.m4a`, `/audio/${audioId}.mp3`])
+          // A per-item clip is the only file worth trying: the parent
+          // conversation for a dictation is seventy seconds of unrelated
+          // speech, and for a missing word it contains the answer. Otherwise
+          // fall back from the m4a to the mp3.
+          const audioBase = import.meta.env.BASE_URL
+          tryPlay(
+            clipId
+              ? [`${audioBase}audio/${clipId}.m4a`]
+              : [`${audioBase}audio/${audioId}.m4a`, `${audioBase}audio/${audioId}.mp3`],
+          )
           return
         } catch {
           triggerFallback()
@@ -251,9 +266,9 @@ export function AudioPlayer({
       controllerRef.current?.stop()
       controllerRef.current = null
     }
-  }, [state, script, utterance, audioId, fromTurn, toTurn, beepWord, speed])
+  }, [state, script, utterance, audioId, clipId, fromTurn, toTurn, beepWord, speed])
 
-  if (!script && !utterance && !audioId) return null
+  if (!script && !utterance && !audioId && !clipId) return null
 
   const speaker = script?.speakers.find((s) => s.id === script.turns[turnIndex]?.speaker)
   const exhausted = playsLeft <= 0
@@ -308,7 +323,7 @@ export function AudioPlayer({
               className="btn-primary"
               disabled={exhausted}
               onClick={() => {
-                if (!audioId && !isSpeechSupported()) {
+                if (!audioId && !clipId && !isSpeechSupported()) {
                   setUnsupported(true)
                   return
                 }

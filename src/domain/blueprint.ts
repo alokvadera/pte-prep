@@ -401,8 +401,11 @@ export const SECTION_META: Record<SectionId, SectionMeta> = {
  *
  * Pearson states a test contains 65–75 questions, and that each version is
  * balanced for total length so counts vary between sittings. Taking the maximum
- * of every published range produces 85 items, which is longer than a real test;
- * taking the midpoint lands inside the band and is a more honest simulation.
+ * of every published range produces 85 items. The midpoints, rounded, produce
+ * 84 — the closest whole-number reading of the same ranges, and still above the
+ * stated band: the 22 current types each vary independently, so their midpoints
+ * do not shrink together. A shorter mock has to invent a count below the range
+ * the guide publishes for some type, which is why the midpoints are used.
  */
 export const MOCK_BLUEPRINT: Record<QuestionType, number> = Object.fromEntries(
   ALL_QUESTION_TYPES.map((t) => {
@@ -410,6 +413,21 @@ export const MOCK_BLUEPRINT: Record<QuestionType, number> = Object.fromEntries(
     return [t, Math.round((min + max) / 2)]
   }),
 ) as Record<QuestionType, number>
+
+/**
+ * Scored items a complete mock puts in each section.
+ *
+ * This is the denominator a section's clock is scaled against: a mock with half
+ * the blueprint's items gets half the section's official time. Duplicated in
+ * `domain/assemble.ts` (where the same figure is computed from the blueprint at
+ * build time); scripts/bank-check.ts asserts the preview and the assembler
+ * agree on every length, so the two cannot drift.
+ */
+const BLUEPRINT_SCORED_BY_SECTION: Record<SectionId, number> = (() => {
+  const out: Record<SectionId, number> = { 'speaking-writing': 0, reading: 0, listening: 0 }
+  for (const type of ALL_QUESTION_TYPES) out[QUESTION_META[type].section] += MOCK_BLUEPRINT[type]
+  return out
+})()
 
 // ---------------------------------------------------------------------------
 // Mock preview, computed without the content bank.
@@ -492,12 +510,12 @@ export interface MockPreview {
  *
  * Every count contributes exactly one scored item (the only unscored item
  * in a mock is the personal introduction, which is not part of the counts),
- * and a section's clock is its official minimum scaled by the timing — the
- * assembler sizes each section to its official minimum once the item count
- * reaches the full blueprint, and the preview only ever needs that figure.
- * Both relationships are asserted against the real assembler by
- * scripts/bank-check.ts, so this stays faithful to the mock that will
- * actually be built when the session starts.
+ * and a section's clock is its official minimum scaled by both the share of the
+ * blueprint's items actually included and the timing multiplier. A half mock
+ * therefore gets about half the official time rather than the same two hours
+ * with half the questions. Both relationships are asserted against the real
+ * assembler by scripts/bank-check.ts, so this stays faithful to the mock that
+ * will actually be built when the session starts.
  */
 export function describeMockPreview(
   counts: Partial<Record<QuestionType, number>>,
@@ -507,14 +525,19 @@ export function describeMockPreview(
   const untimed = opts.untimed ?? false
   const sectionIds = opts.singleSection ? [opts.singleSection] : [...SECTION_IDS]
 
-  const totalSeconds = sectionIds.reduce(
-    (sum, id) =>
-      sum +
-      (untimed
-        ? SECTION_META[id].minSeconds
-        : Math.round(SECTION_META[id].minSeconds * timeScale)),
-    0,
-  )
+  const totalSeconds = sectionIds.reduce((sum, id) => {
+    const reference = BLUEPRINT_SCORED_BY_SECTION[id]
+    const scored = MOCK_TYPE_ORDER.reduce(
+      (n, type) => n + (QUESTION_META[type].section === id ? (counts[type] ?? 0) : 0),
+      0,
+    )
+    const full = SECTION_META[id].minSeconds
+    // Mirrors `sectionSeconds` in domain/assemble.ts: official minimum scaled by
+    // the share of the blueprint's items, floored for a drill, then by timing.
+    const base =
+      reference > 0 ? Math.max(180, Math.round(full * Math.min(1, scored / reference))) : full
+    return sum + (untimed ? base : Math.round(base * timeScale))
+  }, 0)
 
   const inScope = (type: QuestionType) =>
     !opts.singleSection || QUESTION_META[type].section === opts.singleSection

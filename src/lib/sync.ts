@@ -211,7 +211,12 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
       }
     }
 
-    const res = await fetch('/api/attempts', {
+    // Ask which attempts exist rather than downloading the list. The list
+    // endpoint pages at the newest 100 rows, so using it here meant attempts
+    // older than that were never seen: they looked missing locally, were
+    // re-uploaded on every sync, and a new device could not pull them at all.
+    // Missing rows are fetched individually below.
+    const res = await fetch('/api/attempts?ids=1', {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (res.status === 401) {
@@ -220,9 +225,8 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
     }
     if (!res.ok) return { pushed: 0, pulled: 0 }
 
-    const data = (await res.json()) as { attempts?: AttemptRecord[] }
-    const cloudAttempts = data.attempts ?? []
-    const cloudIds = new Set(cloudAttempts.map((a) => a.id))
+    const data = (await res.json()) as { ids?: string[] }
+    const cloudIds = new Set(Array.isArray(data.ids) ? data.ids : [])
 
     const localAttempts = await listAllAttempts()
     const localIds = new Set(localAttempts.map((a) => a.id))
@@ -233,11 +237,10 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
     let pushed = 0
 
     // Pull missing attempts from cloud into local IndexedDB (skip tombstoned attempts)
-    for (const ca of cloudAttempts) {
-      if (!localIds.has(ca.id) && !activeTombstones.has(ca.id)) {
-        await saveAttempt(ca)
-        pulled++
-      }
+    for (const id of cloudIds) {
+      if (localIds.has(id) || activeTombstones.has(id)) continue
+      const attempt = await fetchAttemptFromCloud(id)
+      if (attempt) pulled++
     }
 
     // Push local attempts not yet in cloud (skip tombstoned attempts)

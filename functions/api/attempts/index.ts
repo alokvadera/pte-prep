@@ -47,6 +47,23 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     })
   }
+  // The sync client needs to know which attempts exist, not what is inside
+  // them: every row below carries its full responses, which makes a page of
+  // them hundreds of times larger than the id list. Without this mode the
+  // client could only ever see the newest 100 ids, so anything older looked
+  // missing and was re-uploaded on every sync — and a new device could never
+  // pull past the first hundred. `?ids=1` returns every id for the account.
+  if (new URL(context.request.url).searchParams.get('ids') === '1') {
+    const rows = await db
+      .prepare('SELECT id FROM attempts WHERE user_id = ? ORDER BY finished_at DESC')
+      .bind(session.userId)
+      .all<{ id: string }>()
+    return new Response(JSON.stringify({ ids: (rows.results ?? []).map((row) => row.id) }), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   const results = await db
     .prepare(
       `SELECT id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,

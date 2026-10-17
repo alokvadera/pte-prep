@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+
 import { PASSAGES } from '../src/content/passages'
 import { CHARTS } from '../src/content/charts'
 import { AUDIO_INDEX, bankCapacity, capacityByType } from '../src/content/bank'
@@ -480,6 +483,30 @@ for (const c of CHARTS) {
     check(`situation ${st.id}: has a reference answer`, st.reference.trim().length > 0)
     check(`situation ${st.id}: has key terms`, st.keyTerms.length >= 4, `${st.keyTerms.length}`)
   }
+}
+
+// --- Rendered clips --------------------------------------------------------
+// Four listening types are cut from a longer conversation and each has its own
+// rendered clip in public/audio. The item must play that clip: the parent
+// conversation is a minute or more of unrelated speech, and for Select Missing
+// Word it speaks the word the item blanks out. A missing file degrades to
+// speech synthesis, which cannot reproduce the beep or the deliberate errors,
+// so the asset is part of the item's correctness, not an optimisation.
+{
+  const clips = [
+    ...DICTATION.map((d) => ({ id: d.id, type: 'dictation' })),
+    ...MISSING_WORD.map((m) => ({ id: m.id, type: 'missing word' })),
+    ...LISTENING_FIB.map((f) => ({ id: f.id, type: 'listening fib' })),
+    ...HIGHLIGHT_INCORRECT.map((h) => ({ id: h.id, type: 'highlight incorrect' })),
+  ]
+  let present = 0
+  for (const clip of clips) {
+    const file = path.join('public', 'audio', `${clip.id}.m4a`)
+    const ok = existsSync(file)
+    if (ok) present += 1
+    check(`${clip.type} ${clip.id}: rendered clip exists`, ok, file)
+  }
+  console.log(`  ${present}/${clips.length} per-item listening clips rendered`)
 }
 
 // --- Capacity --------------------------------------------------------------

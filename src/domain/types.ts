@@ -154,6 +154,21 @@ export interface Item {
   /** Audio script id backing this item, if any. */
   stimulusId?: string
   /**
+   * The recording rendered for this item itself, when the bank ships one.
+   *
+   * Four listening types are cut from a longer conversation: Write from
+   * Dictation (one sentence), Select Missing Word (one turn, with a beep where
+   * the word was), Fill in Blanks (the gapped passage) and Highlight Incorrect
+   * Words (the sentence with its two substitutions). Each has its own clip in
+   * `public/audio`, and playback must prefer it. Playing the parent
+   * conversation instead runs for a minute or more, and for Select Missing Word
+   * it speaks the missing word, which gives the answer away.
+   *
+   * `stimulusId` stays pointed at the parent script so the speech-synthesis
+   * fallback still has a transcript to read from.
+   */
+  audioClipId?: string
+  /**
    * Literal sentence to speak when no bank script backs the item. Repeat
    * Sentence has no recorded conversation of its own, and Highlight Incorrect
    * Words tests a single sentence rather than the conversation it came from.
