@@ -411,16 +411,18 @@ export const EXTRA_MISSING_WORD: MissingWordItem[] = [
   {
     id: 'smw-lab-1',
     audioId: 'con-lab-booking',
-    turnIndex: 6,
-    wordIndex: 18,
+    // The keyed word is spoken in turn 4, not turn 6.
+    turnIndex: 4,
+    wordIndex: 6,
     options: ['charge', 'choir', 'charger', 'charm'],
     correct: 0,
   },
   {
     id: 'smw-clinic-1',
     audioId: 'con-clinic-handover',
-    turnIndex: 7,
-    wordIndex: 2,
+    // The keyed word is spoken in turn 3, not turn 7.
+    turnIndex: 3,
+    wordIndex: 5,
     options: ['twelve', 'twelfth', 'twelves', 'twelved'],
     correct: 0,
   },
@@ -428,7 +430,8 @@ export const EXTRA_MISSING_WORD: MissingWordItem[] = [
     id: 'smw-library-1',
     audioId: 'con-library-fine',
     turnIndex: 3,
-    wordIndex: 11,
+    // "record", not the "is" the previous index pointed at.
+    wordIndex: 6,
     options: ['record', 'recorded', 'recording', 'records'],
     correct: 0,
   },
@@ -436,7 +439,8 @@ export const EXTRA_MISSING_WORD: MissingWordItem[] = [
     id: 'smw-transfer-1',
     audioId: 'con-course-transfer',
     turnIndex: 3,
-    wordIndex: 9,
+    // "critically,", not the "the" the previous index pointed at.
+    wordIndex: 8,
     options: ['critically', 'critical', 'criticallyly', 'critic'],
     correct: 0,
   },

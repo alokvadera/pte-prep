@@ -70,6 +70,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     return rateLimitExceededResponse(emailOnlyCheck.retryAfter)
   }
 
+  // Resolve the signing secret before writing anything: a deployment with no
+  // JWT_SECRET must fail before the INSERT, or it leaves behind an account whose
+  // owner cannot sign in and cannot re-register.
+  const secret = requireSecret(context.env)
+
   const existing = await db
     .prepare('SELECT id, email, target_score, password_hash, password_salt FROM users WHERE email = ?')
     .bind(email)
@@ -105,10 +110,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     throw err
   }
 
+  const expiresIn = resolveSessionExpiry(context.env)
   const token = await createSessionToken(
     { userId, email },
-    requireSecret(context.env),
-    resolveSessionExpiry(context.env),
+    secret,
+    expiresIn,
     db,
   )
 
@@ -116,6 +122,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     JSON.stringify({
       ok: true,
       token,
+      expiresAt: Date.now() + expiresIn * 1000,
       user: { id: userId, email, targetScore },
     }),
     { status: 201, headers: { 'Content-Type': 'application/json' } },

@@ -10,14 +10,20 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Max-Age': '600',
     }
-    if (allowedOrigin) headers['Access-Control-Allow-Origin'] = allowedOrigin
+    if (allowedOrigin) {
+      headers['Access-Control-Allow-Origin'] = allowedOrigin
+      headers['Vary'] = 'Origin'
+    }
     return new Response(null, { status: 204, headers })
   }
 
   try {
     const response = await context.next()
     const newHeaders = new Headers(response.headers)
-    if (allowedOrigin) newHeaders.set('Access-Control-Allow-Origin', allowedOrigin)
+    if (allowedOrigin) {
+      newHeaders.set('Access-Control-Allow-Origin', allowedOrigin)
+      newHeaders.set('Vary', 'Origin')
+    }
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -26,7 +32,10 @@ export const onRequest: PagesFunction<Env> = async (context) => {
   } catch (err: unknown) {
     console.error('Unhandled API error:', err)
     const headers: Record<string, string> = { 'Content-Type': 'application/json' }
-    if (allowedOrigin) headers['Access-Control-Allow-Origin'] = allowedOrigin
+    if (allowedOrigin) {
+      headers['Access-Control-Allow-Origin'] = allowedOrigin
+      headers['Vary'] = 'Origin'
+    }
     return new Response(JSON.stringify({ error: 'Internal server error' }), {
       status: 500,
       headers,

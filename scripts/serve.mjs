@@ -37,6 +37,13 @@ const TYPES = {
   '.txt': 'text/plain; charset=utf-8',
   '.woff2': 'font/woff2',
   '.map': 'application/json; charset=utf-8',
+  // The listening bank is .m4a, and every response carries nosniff. Without the
+  // audio type here a clip arrives as application/octet-stream, which Chrome
+  // refuses to play, so the player silently dropped to speech synthesis on local
+  // verification runs while the same file played fine once deployed.
+  '.m4a': 'audio/mp4',
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
 }
 
 async function resolveFile(urlPath) {

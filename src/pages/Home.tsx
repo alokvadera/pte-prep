@@ -236,19 +236,19 @@ export default function Home() {
               {/* High-trust assurance strip */}
               <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[13.5px] font-semibold text-ink-600 dark:text-ink-on-dark-muted">
                 <span className="inline-flex items-center gap-2">
-                  <svg className="size-4 text-mint-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="size-4 text-mint-600 dark:text-mint-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   Official 10–90 Pearson scale
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <svg className="size-4 text-mint-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="size-4 text-mint-600 dark:text-mint-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   Real 2h 15m countdown timers
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <svg className="size-4 text-mint-500 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                  <svg className="size-4 text-mint-600 dark:text-mint-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
                   100% Free · No card or login

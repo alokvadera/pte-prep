@@ -111,10 +111,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
+  const expiresIn = resolveSessionExpiry(context.env)
   const sessionToken = await createSessionToken(
     { userId: user.id, email: user.email },
     requireSecret(context.env),
-    resolveSessionExpiry(context.env),
+    expiresIn,
     db,
   )
 
@@ -123,6 +124,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       ok: true,
       message: 'Password reset successful.',
       token: sessionToken,
+      expiresAt: Date.now() + expiresIn * 1000,
       user: {
         id: user.id,
         email: user.email,

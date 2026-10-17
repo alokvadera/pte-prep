@@ -97,16 +97,21 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   const user = existing
 
+  const expiresIn = resolveSessionExpiry(context.env)
   const token = await createSessionToken(
     { userId: user.id, email: user.email },
     requireSecret(context.env),
-    resolveSessionExpiry(context.env),
+    expiresIn,
     db,
   )
 
   return new Response(
     JSON.stringify({
       token,
+      // Absolute expiry of the token above. Without it the client has to guess,
+      // and a guess longer than the token's life means it keeps sending a dead
+      // bearer token until the first 401 instead of signing out locally.
+      expiresAt: Date.now() + expiresIn * 1000,
       user: {
         id: user.id,
         email: user.email,

@@ -79,7 +79,7 @@ export default function Dashboard() {
     const res = await validateGroqKey(settings.groqApiKey)
     setValidatingGroq(false)
     if (res.ok) {
-      setGroqStatus({ ok: true, message: 'Valid Groq API key! Active models: Qwen 27B & Whisper Turbo.' })
+      setGroqStatus({ ok: true, message: 'Valid Groq API key! Active models: Llama 3.3 70B & Whisper Turbo.' })
     } else {
       setGroqStatus({ ok: false, message: res.error ?? 'Failed to validate key' })
     }
@@ -836,7 +836,7 @@ export default function Dashboard() {
                       </div>
 
                       {groqStatus ? (
-                        <p className={cn('text-xs font-medium', groqStatus.ok ? 'text-mint-600 dark:text-mint-400' : 'text-rose-600 dark:text-rose-400')}>
+                        <p className={cn('text-xs font-medium', groqStatus.ok ? 'text-mint-700 dark:text-mint-400' : 'text-rose-600 dark:text-rose-400')}>
                           {groqStatus.ok ? '✓ ' : '✕ '}
                           {groqStatus.message}
                         </p>
@@ -885,7 +885,7 @@ export default function Dashboard() {
                             <p className="text-[10px] font-bold uppercase tracking-wider text-ink-500 dark:text-ink-on-dark-muted">
                               Remaining Today
                             </p>
-                            <p className="text-base font-extrabold text-mint-600 dark:text-mint-400 mt-0.5">
+                            <p className="text-base font-extrabold text-mint-700 dark:text-mint-400 mt-0.5">
                               {settings.aiUsage?.serverRemainingRequests !== undefined
                                 ? `${settings.aiUsage.serverRemainingRequests}`
                                 : `~${Math.max(0, 1000 - (settings.aiUsage?.requestsToday ?? 0))}`}

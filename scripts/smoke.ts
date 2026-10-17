@@ -181,9 +181,21 @@ check(
   CLIP_TYPES.every((t) => scored.filter((i) => i.type === t).every((i) => Boolean(i.audioClipId))),
   CLIP_TYPES.map((t) => `${t}:${scored.filter((i) => i.type === t && !i.audioClipId).length} missing`).join(' '),
 )
-check(
-  'no clip points back at the parent recording',
+
+check('no clip points back at the parent recording',
   scored.every((i) => !i.audioClipId || i.audioClipId !== i.stimulusId),
+)
+// When that clip cannot play, the player falls back to speech synthesis over the
+// parent script. Select Missing Word is the one type where an unscoped fallback
+// is worse than silence: it would read out the word the blank asks for, so the
+// item has to carry the turn scope and the beep position to the player.
+check(
+  'select-missing-word scopes its speech fallback to the blanked word',
+  scored.filter((i) => i.type === 'select-missing-word').every((i) => {
+    const blank = (i.tokens ?? []).indexOf('___')
+    return typeof i.audioFromTurn === 'number' && i.audioFromTurn === i.audioToTurn && i.audioBeepWord === blank
+  }),
+  scored.filter((i) => i.type === 'select-missing-word' && i.audioBeepWord !== (i.tokens ?? []).indexOf('___')).map((i) => i.id).join(' '),
 )
 check('every describe-image item resolves to a chart', scored.filter((i) => i.type === 'describe-image').every((i) => Boolean(i.chartId)))
 check('describer targets have reference answers', scored.filter((i) => i.responseKind === 'audio').every((i) => Boolean(mock.answers[i.id]?.reference)))

@@ -317,9 +317,11 @@ export const EXTRA_DICTATION_3: DictationItem[] = [
 ]
 
 export const EXTRA_MISSING_WORD_3: MissingWordItem[] = [
-  { id: 'smw-pharmacy-1', audioId: 'con-pharmacy-repeat', turnIndex: 5, wordIndex: 7, options: ['usually', 'unusual', 'usuallyly', 'user'], correct: 0 },
-  { id: 'smw-theatre-1', audioId: 'con-theatre-booking', turnIndex: 5, wordIndex: 6, options: ['ahead', 'head', 'aheadly', 'heade'], correct: 0 },
-  { id: 'smw-rental-1', audioId: 'con-rental-contract', turnIndex: 1, wordIndex: 10, options: ['define', 'refine', 'defined', 'defining'], correct: 0 },
+  // Both of these blanked a position that was not the keyed word. The word the
+  // option family describes is spoken in the turn named here.
+  { id: 'smw-pharmacy-1', audioId: 'con-pharmacy-repeat', turnIndex: 7, wordIndex: 24, options: ['usually', 'unusual', 'usuallyly', 'user'], correct: 0 },
+  { id: 'smw-theatre-1', audioId: 'con-theatre-booking', turnIndex: 4, wordIndex: 2, options: ['ahead', 'head', 'aheadly', 'heade'], correct: 0 },
+  { id: 'smw-rental-1', audioId: 'con-rental-contract', turnIndex: 1, wordIndex: 8, options: ['define', 'refine', 'defined', 'defining'], correct: 0 },
 ]
 
 export const EXTRA_SITUATIONS_3: SituationItem[] = [

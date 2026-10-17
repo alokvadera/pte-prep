@@ -2162,8 +2162,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 102826,
-      "durationSec": 12.6
+      "byteSize": 116943,
+      "durationSec": 13.4
     },
     {
       "id": "smw-2",
@@ -2174,8 +2174,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 101414,
-      "durationSec": 12
+      "byteSize": 115687,
+      "durationSec": 13.3
     },
     {
       "id": "smw-3",
@@ -2186,8 +2186,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 146341,
-      "durationSec": 17
+      "byteSize": 110684,
+      "durationSec": 12.8
     },
     {
       "id": "smw-4",
@@ -2198,8 +2198,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 37085,
-      "durationSec": 4
+      "byteSize": 146238,
+      "durationSec": 16.9
     },
     {
       "id": "smw-5",
@@ -2210,8 +2210,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 92183,
-      "durationSec": 10.7
+      "byteSize": 86643,
+      "durationSec": 10.2
     },
     {
       "id": "smw-6",
@@ -2222,8 +2222,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 124367,
-      "durationSec": 14.3
+      "byteSize": 107995,
+      "durationSec": 12.7
     },
     {
       "id": "smw-lab-1",
@@ -2234,8 +2234,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 71739,
-      "durationSec": 8.4
+      "byteSize": 38925,
+      "durationSec": 4.3
     },
     {
       "id": "smw-clinic-1",
@@ -2246,8 +2246,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 77481,
-      "durationSec": 8.9
+      "byteSize": 80739,
+      "durationSec": 9.5
     },
     {
       "id": "smw-library-1",
@@ -2258,8 +2258,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 75840,
-      "durationSec": 8.8
+      "byteSize": 80034,
+      "durationSec": 9.4
     },
     {
       "id": "smw-transfer-1",
@@ -2270,8 +2270,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 116086,
-      "durationSec": 13.4
+      "byteSize": 129749,
+      "durationSec": 15
     },
     {
       "id": "smw-pharmacy-1",
@@ -2282,8 +2282,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 75162,
-      "durationSec": 8.8
+      "byteSize": 88741,
+      "durationSec": 10.4
     },
     {
       "id": "smw-theatre-1",
@@ -2294,8 +2294,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 73772,
-      "durationSec": 8.7
+      "byteSize": 35467,
+      "durationSec": 4
     },
     {
       "id": "smw-rental-1",
@@ -2306,8 +2306,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 87050,
-      "durationSec": 10.1
+      "byteSize": 98726,
+      "durationSec": 11.7
     },
     {
       "id": "smw-dental-1",
@@ -2318,8 +2318,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 75857,
-      "durationSec": 8.9
+      "byteSize": 74004,
+      "durationSec": 8.8
     },
     {
       "id": "smw-dental-2",
@@ -2330,8 +2330,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 119064,
-      "durationSec": 13.6
+      "byteSize": 114935,
+      "durationSec": 13.2
     },
     {
       "id": "smw-internship-1",
@@ -2342,8 +2342,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 87296,
-      "durationSec": 10.2
+      "byteSize": 98915,
+      "durationSec": 11.9
     },
     {
       "id": "smw-permit-1",
@@ -2354,8 +2354,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 111948,
-      "durationSec": 12.8
+      "byteSize": 100759,
+      "durationSec": 11.8
     },
     {
       "id": "smw-supervisor-1",
@@ -2366,8 +2366,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 92628,
-      "durationSec": 10.7
+      "byteSize": 92201,
+      "durationSec": 11.1
     },
     {
       "id": "smw-supervisor-2",
@@ -2378,8 +2378,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 120239,
-      "durationSec": 13.8
+      "byteSize": 101831,
+      "durationSec": 12.2
     },
     {
       "id": "smw-bus-1",
@@ -2390,8 +2390,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 78662,
-      "durationSec": 9.1
+      "byteSize": 88486,
+      "durationSec": 10.6
     },
     {
       "id": "smw-bus-2",
@@ -2402,8 +2402,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 95301,
-      "durationSec": 11.3
+      "byteSize": 112598,
+      "durationSec": 13
     },
     {
       "id": "smw-flatmate-1",
@@ -2414,8 +2414,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 71155,
-      "durationSec": 8.2
+      "byteSize": 74355,
+      "durationSec": 8.7
     },
     {
       "id": "smw-printer-1",
@@ -2426,8 +2426,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 90730,
-      "durationSec": 10.6
+      "byteSize": 89022,
+      "durationSec": 10.3
     },
     {
       "id": "smw-module-1",
@@ -2438,8 +2438,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 77302,
-      "durationSec": 9
+      "byteSize": 87669,
+      "durationSec": 10.6
     },
     {
       "id": "smw-module-2",
@@ -2450,8 +2450,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 90204,
-      "durationSec": 10.7
+      "byteSize": 98169,
+      "durationSec": 11.6
     },
     {
       "id": "smw-601",
@@ -2462,8 +2462,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 84202,
-      "durationSec": 10
+      "byteSize": 90835,
+      "durationSec": 10.9
     },
     {
       "id": "smw-602",
@@ -2474,8 +2474,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 252356,
-      "durationSec": 30.1
+      "byteSize": 261926,
+      "durationSec": 31.4
     },
     {
       "id": "smw-603",
@@ -2486,8 +2486,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 99687,
-      "durationSec": 11.9
+      "byteSize": 104694,
+      "durationSec": 12.3
     },
     {
       "id": "smw-604",
@@ -2498,8 +2498,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 115316,
-      "durationSec": 13.1
+      "byteSize": 123272,
+      "durationSec": 14.2
     },
     {
       "id": "smw-605",
@@ -2510,8 +2510,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 133540,
-      "durationSec": 15.3
+      "byteSize": 112050,
+      "durationSec": 12.9
     },
     {
       "id": "smw-701",
@@ -2522,8 +2522,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 84403,
-      "durationSec": 9.9
+      "byteSize": 94300,
+      "durationSec": 11
     },
     {
       "id": "smw-702",
@@ -2534,8 +2534,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 103333,
-      "durationSec": 12.3
+      "byteSize": 106337,
+      "durationSec": 12.7
     },
     {
       "id": "smw-703",
@@ -2546,8 +2546,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 79329,
-      "durationSec": 9.3
+      "byteSize": 82060,
+      "durationSec": 9.9
     },
     {
       "id": "smw-704",
@@ -2558,8 +2558,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 79776,
-      "durationSec": 9.5
+      "byteSize": 96733,
+      "durationSec": 11.3
     },
     {
       "id": "smw-705",
@@ -2570,8 +2570,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 70402,
-      "durationSec": 8.1
+      "byteSize": 76978,
+      "durationSec": 9
     },
     {
       "id": "smw-706",
@@ -2582,8 +2582,8 @@
       "charCount": 100,
       "status": "ready",
       "format": "m4a",
-      "byteSize": 95715,
-      "durationSec": 11.2
+      "byteSize": 99955,
+      "durationSec": 11.8
     },
     {
       "id": "asq-urban-1",

@@ -367,7 +367,7 @@ export function HeroScoreCard({ className }: { className?: string }) {
                 className="text-left text-ink-500 dark:text-ink-on-dark-muted text-xs font-bold uppercase tracking-wider hover:text-brand-600 dark:hover:text-brand-300 transition-colors cursor-pointer group flex items-center gap-1.5"
               >
                 <span>Official Simulation · Mock 03</span>
-                <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-mint-500 font-mono">
+                <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-mint-700 font-mono">
                   [Simulate]
                 </span>
               </button>
@@ -441,7 +441,7 @@ export function HeroScoreCard({ className }: { className?: string }) {
             </div>
             <div className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs font-bold flex items-center gap-1.5">
               <span>Overall, 10 to 90 scale</span>
-              <span className="text-[10px] text-mint-600 dark:text-mint-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+              <span className="text-[10px] text-mint-700 dark:text-mint-400 font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                 ↻
               </span>
             </div>

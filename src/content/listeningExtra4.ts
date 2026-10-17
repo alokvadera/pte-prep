@@ -399,12 +399,19 @@ export const EXTRA_DICTATION_4: DictationItem[] = [
 ]
 
 export const EXTRA_MISSING_WORD_4: MissingWordItem[] = [
-  { id: 'smw-dental-1', audioId: 'con-dental-appointment', turnIndex: 1, wordIndex: 4, options: ['slot', 'slots', 'slotted', 'sloth'], correct: 0 },
-  { id: 'smw-dental-2', audioId: 'con-dental-appointment', turnIndex: 7, wordIndex: 9, options: ['plan', 'planes', 'planned', 'plank'], correct: 0 },
-  { id: 'smw-internship-1', audioId: 'con-internship-interview', turnIndex: 1, wordIndex: 8, options: ['verb', 'verbs', 'verbal', 'verse'], correct: 0 },
-  { id: 'smw-permit-1', audioId: 'con-parking-permit', turnIndex: 3, wordIndex: 5, options: ['zone', 'zones', 'zoned', 'zonal'], correct: 0 },
-  { id: 'smw-supervisor-1', audioId: 'con-supervisor-meeting', turnIndex: 3, wordIndex: 6, options: ['cite', 'cites', 'cited', 'city'], correct: 0 },
-  { id: 'smw-supervisor-2', audioId: 'con-supervisor-meeting', turnIndex: 5, wordIndex: 4, options: ['state', 'states', 'stated', 'stately'], correct: 0 },
+  // The rendered clip beeps the plural spoken in that turn, so the key has to
+  // be the plural too.
+  { id: 'smw-dental-1', audioId: 'con-dental-appointment', turnIndex: 1, wordIndex: 4, options: ['slot', 'slots', 'slotted', 'sloth'], correct: 1 },
+  // Every index below pointed at a word other than the one its option family
+  // describes, which left the item unanswerable: the clip omitted one word and
+  // the key asked for another. Each now blanks the keyed word in its own turn.
+  { id: 'smw-dental-2', audioId: 'con-dental-appointment', turnIndex: 7, wordIndex: 17, options: ['plan', 'planes', 'planned', 'plank'], correct: 0 },
+  { id: 'smw-internship-1', audioId: 'con-internship-interview', turnIndex: 1, wordIndex: 11, options: ['verb', 'verbs', 'verbal', 'verse'], correct: 0 },
+  { id: 'smw-permit-1', audioId: 'con-parking-permit', turnIndex: 3, wordIndex: 8, options: ['zone', 'zones', 'zoned', 'zonal'], correct: 0 },
+  // The turn says "citation", so that is the word to blank; the authored family
+  // was the root "cite", which the conversation never says.
+  { id: 'smw-supervisor-1', audioId: 'con-supervisor-meeting', turnIndex: 3, wordIndex: 16, options: ['citation', 'citations', 'citing', 'citizen'], correct: 0 },
+  { id: 'smw-supervisor-2', audioId: 'con-supervisor-meeting', turnIndex: 5, wordIndex: 8, options: ['state', 'states', 'stated', 'stately'], correct: 0 },
 ]
 
 export const EXTRA_SITUATIONS_4: SituationItem[] = [

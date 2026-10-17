@@ -39,30 +39,30 @@ export async function checkRateLimit(
   }
 
   try {
+    // A read-then-write pair lets two concurrent requests at the limit both see
+    // `count = limit - 1` and both be allowed. Do the reset/increment decision
+    // in one statement so D1 serialises it; the window is started or reset in
+    // the same row lock that counts the request.
+    const resetAt = now + windowSeconds
     const row = await db
-      .prepare('SELECT count, reset_at FROM rate_limits WHERE key = ?')
-      .bind(key)
+      .prepare(
+        `INSERT INTO rate_limits (key, count, reset_at) VALUES (?1, 1, ?2)
+         ON CONFLICT(key) DO UPDATE SET
+           count = CASE WHEN rate_limits.reset_at <= ?3 THEN 1 ELSE rate_limits.count + 1 END,
+           reset_at = CASE WHEN rate_limits.reset_at <= ?3 THEN ?2 ELSE rate_limits.reset_at END
+         RETURNING count, reset_at`,
+      )
+      .bind(key, resetAt, now)
       .first<{ count: number; reset_at: number }>()
 
-    if (!row || now >= row.reset_at) {
-      const resetAt = now + windowSeconds
-      await db
-        .prepare(
-          'INSERT INTO rate_limits (key, count, reset_at) VALUES (?, 1, ?) ON CONFLICT(key) DO UPDATE SET count = 1, reset_at = excluded.reset_at',
-        )
-        .bind(key, resetAt)
-        .run()
-      return { allowed: true, retryAfter: 0 }
+    if (!row) {
+      console.error('[RateLimit:NO_ROW] Rate limit upsert returned no row, failing closed.')
+      return { allowed: false, retryAfter: 60 }
     }
 
-    if (row.count >= limit) {
+    if (row.count > limit) {
       return { allowed: false, retryAfter: Math.max(1, row.reset_at - now) }
     }
-
-    await db
-      .prepare('UPDATE rate_limits SET count = count + 1 WHERE key = ?')
-      .bind(key)
-      .run()
 
     return { allowed: true, retryAfter: 0 }
   } catch (err) {

@@ -58,6 +58,7 @@ export default function ResetPasswordPage() {
         ok?: boolean
         error?: string
         token?: string
+        expiresAt?: number
         user?: { id: string; email: string; targetScore: number }
       }
 
@@ -69,7 +70,7 @@ export default function ResetPasswordPage() {
 
       setSuccess(true)
       if (data.token && data.user) {
-        setSession(data.user, data.token)
+        setSession(data.user, data.token, data.expiresAt)
       }
 
       if (navTimer.current !== null) window.clearTimeout(navTimer.current)

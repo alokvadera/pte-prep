@@ -296,7 +296,7 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
             <div className="flex items-center justify-between mt-3 text-xs">
               <p className="text-ink-500 dark:text-ink-on-dark-muted line-clamp-2 italic">“{transcript}”</p>
               {settings.groqApiKey ? (
-                <span className="text-[10px] font-semibold text-mint-600 dark:text-mint-400 shrink-0 ml-2">
+                <span className="text-[10px] font-semibold text-mint-700 dark:text-mint-400 shrink-0 ml-2">
                   Whisper on stop
                 </span>
               ) : null}

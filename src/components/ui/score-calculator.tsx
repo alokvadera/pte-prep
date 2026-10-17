@@ -96,7 +96,7 @@ export function ScoreCalculator({ className, hideEyebrow = false }: { className?
           <p
             className={cn(
               'font-display mt-1 text-2xl font-extrabold tabular-nums',
-              gap <= 0 ? 'text-mint-600 dark:text-mint-300' : 'text-amber-600 dark:text-amber-400',
+              gap <= 0 ? 'text-mint-700 dark:text-mint-300' : 'text-amber-600 dark:text-amber-400',
             )}
           >
             {gap <= 0 ? `+${Math.abs(gap)}` : `−${gap}`}

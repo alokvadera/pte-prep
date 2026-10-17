@@ -1119,7 +1119,10 @@
   @apply font-display inline-flex w-fit items-center rounded-full px-3.5 py-1.5 text-[15px] font-extrabold leading-none;
 }
 @utility dur-sm-mint {
-  @apply bg-mint-50 text-mint-600 dark:bg-mint-500/15 dark:text-mint-300;
+  /* mint-700 on mint-50 (9.9:1), not mint-600 (3.48:1): the pill's label is
+     text, so it needs 4.5:1, while mint-600 is only safe for fills and icon
+     strokes at 3:1. */
+  @apply bg-mint-50 text-mint-700 dark:bg-mint-500/15 dark:text-mint-300;
 }
 @utility dur-sm-lav {
   @apply bg-ink-100 text-mark-600 dark:bg-mark-500/15 dark:text-mark-300;

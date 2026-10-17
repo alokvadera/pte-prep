@@ -38,7 +38,7 @@ const premiumHeader = `<header className="relative overflow-hidden rounded-3xl b
               <p className="mt-4 text-ink-500 dark:text-ink-300 text-base max-w-xl mx-auto md:mx-0 leading-relaxed">
                 You achieved <CountUp value={Math.round(accuracy * 100)} suffix="%" duration={1100} className="font-bold text-ink-900 dark:text-white" /> of the available points. 
                 Your weakest area is <span className="font-bold capitalize text-rose-600 dark:text-rose-400">{weakest?.skill ?? '—'}</span>, 
-                and your strongest is <span className="font-bold capitalize text-mint-600 dark:text-mint-400">{strongest?.skill ?? '—'}</span>.
+                and your strongest is <span className="font-bold capitalize text-mint-700 dark:text-mint-400">{strongest?.skill ?? '—'}</span>.
               </p>
             </div>
 

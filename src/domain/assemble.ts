@@ -938,6 +938,12 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
           // The conversation recording speaks the word the item blanks out, so
           // the beeped single-turn clip is the only asset that can be played.
           audioClipId: m.id,
+          // If that clip is missing, the speech fallback must not read the whole
+          // conversation: it would speak the answer the item is testing. Scope
+          // it to the one turn and beep over the blanked word instead.
+          audioFromTurn: m.turnIndex,
+          audioToTurn: m.turnIndex,
+          audioBeepWord: m.wordIndex,
           maxPoints: 1,
           seconds: 0,
           audioLeadIn: 4,

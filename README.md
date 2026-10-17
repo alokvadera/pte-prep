@@ -61,11 +61,18 @@ The build command is `npm run build` and the publish directory is `dist`.
 edge Pages Functions, and D1 database. `public/_headers` and `public/_redirects`
 are already configured. Set `SITE_ORIGIN` and `JWT_SECRET` in the Pages environment variables.
 
-**GitHub Pages (static only)** — Build and publish static assets (`dist/`)
-(runs client-side only without cloud sync or accounts).
-Optionally set a `SITE_ORIGIN` repository variable for a custom domain. Without it,
-the deployment uses `https://<owner>.github.io/<repo>/` and sets `BASE_PATH=/<repo>/`
-automatically.
+**Static hosting (no accounts, no cloud sync)** — The pre-existing static bundle
+in `dist/` runs client-side only. Publish it to any static host (GitHub Pages, S3,
+Netlify) with its own build step:
+
+```bash
+SITE_ORIGIN=https://<owner>.github.io/<repo> BASE_PATH=/<repo>/ npm run build
+```
+
+`BASE_PATH` rewrites asset URLs, the router basename and the manifest for a
+sub-path deployment; leave it unset when the site is served from a domain root.
+There is no workflow in this repository that deploys this way — run the build and
+publish `dist/` yourself.
 
 ### Cloud sync secret (required)
 

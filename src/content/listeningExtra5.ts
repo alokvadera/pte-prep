@@ -404,12 +404,18 @@ export const EXTRA_DICTATION_5: DictationItem[] = [
 ]
 
 export const EXTRA_MISSING_WORD_5: MissingWordItem[] = [
-  { id: 'smw-bus-1', audioId: 'con-bus-pass', turnIndex: 3, wordIndex: 6, options: ['pass', 'passes', 'passing', 'past'], correct: 0 },
-  { id: 'smw-bus-2', audioId: 'con-bus-pass', turnIndex: 9, wordIndex: 4, options: ['zone', 'zones', 'zoned', 'zebra'], correct: 0 },
-  { id: 'smw-flatmate-1', audioId: 'con-flatmate-notice', turnIndex: 5, wordIndex: 2, options: ['list', 'lists', 'listed', 'listener'], correct: 0 },
-  { id: 'smw-printer-1', audioId: 'con-printer-credits', turnIndex: 5, wordIndex: 9, options: ['side', 'sides', 'sided', 'signal'], correct: 0 },
-  { id: 'smw-module-1', audioId: 'con-module-change', turnIndex: 3, wordIndex: 7, options: ['block', 'blocks', 'blocked', 'blank'], correct: 0 },
-  { id: 'smw-module-2', audioId: 'con-module-change', turnIndex: 5, wordIndex: 3, options: ['meet', 'meets', 'meeting', 'meter'], correct: 0 },
+  // The index pointed at "the"; the keyed word "pass" is four words later.
+  { id: 'smw-bus-1', audioId: 'con-bus-pass', turnIndex: 3, wordIndex: 8, options: ['pass', 'passes', 'passing', 'past'], correct: 0 },
+  // The rendered clip beeps the plural spoken in that turn, so the key has to
+  // be the plural too.
+  { id: 'smw-bus-2', audioId: 'con-bus-pass', turnIndex: 9, wordIndex: 4, options: ['zone', 'zones', 'zoned', 'zebra'], correct: 1 },
+  // The turn opens with "List", so the sentence's first word is the blank.
+  { id: 'smw-flatmate-1', audioId: 'con-flatmate-notice', turnIndex: 5, wordIndex: 0, options: ['list', 'lists', 'listed', 'listener'], correct: 0 },
+  // The keyed word is spoken in turn 3, not turn 5.
+  { id: 'smw-printer-1', audioId: 'con-printer-credits', turnIndex: 3, wordIndex: 7, options: ['side', 'sides', 'sided', 'signal'], correct: 0 },
+  { id: 'smw-module-1', audioId: 'con-module-change', turnIndex: 3, wordIndex: 10, options: ['block', 'blocks', 'blocked', 'blank'], correct: 0 },
+  // The turn says "meets", so the key is the third person form rather than the root.
+  { id: 'smw-module-2', audioId: 'con-module-change', turnIndex: 5, wordIndex: 1, options: ['meet', 'meets', 'meeting', 'meter'], correct: 1 },
 ]
 
 export const EXTRA_SITUATIONS_5: SituationItem[] = [

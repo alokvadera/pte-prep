@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import { safeStateStorage } from '../lib/storage'
 
 export interface User {
   id: string
@@ -29,37 +30,13 @@ interface AuthStore {
 
 type PersistedAuth = Pick<AuthStore, 'user' | 'token' | 'expiresAt' | 'hasLoggedInBefore' | 'lastEmail'>
 
-interface AuthStorage {
-  getItem: (name: string) => string | null
-  setItem: (name: string, value: string) => void
-  removeItem: (name: string) => void
-}
-
-function createAuthStorage(): AuthStorage {
-  return {
-    getItem: (name: string): string | null => {
-      try {
-        return window.localStorage.getItem(name)
-      } catch {
-        return null
-      }
-    },
-    setItem: (name: string, value: string): void => {
-      try {
-        window.localStorage.setItem(name, value)
-      } catch {
-        /* quota exceeded or private mode */
-      }
-    },
-    removeItem: (name: string): void => {
-      try {
-        window.localStorage.removeItem(name)
-      } catch {
-        /* ignore */
-      }
-    },
-  }
-}
+/**
+ * Fallback session lifetime when the API does not return `expiresAt`.
+ * Mirrors the server's DEFAULT_SESSION_EXPIRY_SECONDS (7 days): guessing longer
+ * than the real token life keeps sending a dead bearer token until a 401,
+ * whereas guessing shorter only means an unnecessary re-login.
+ */
+const SESSION_FALLBACK_MS = 7 * 24 * 60 * 60 * 1000
 
 let targetScoreSeq = 0
 let lastConfirmedScore: number | undefined
@@ -93,7 +70,7 @@ export const useAuth = create<AuthStore>()(
             set({ loading: false, error: data.error ?? 'Invalid email or password' })
             return false
           }
-          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
+          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + SESSION_FALLBACK_MS
           set({
             user: data.user,
             token: data.token,
@@ -128,7 +105,7 @@ export const useAuth = create<AuthStore>()(
             set({ loading: false, error: data.error ?? 'Registration failed' })
             return false
           }
-          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
+          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + SESSION_FALLBACK_MS
           set({
             user: data.user,
             token: data.token,
@@ -172,7 +149,7 @@ export const useAuth = create<AuthStore>()(
       },
 
       setSession: (user: User, token: string, expiresAt?: number) => {
-        const exp = typeof expiresAt === 'number' && expiresAt > 0 ? expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
+        const exp = typeof expiresAt === 'number' && expiresAt > 0 ? expiresAt : Date.now() + SESSION_FALLBACK_MS
         set({
           user,
           token,
@@ -210,7 +187,7 @@ export const useAuth = create<AuthStore>()(
           if (data.token) {
             set((s) => ({
               token: data.token!,
-              expiresAt: data.expiresAt ?? (s.expiresAt ? s.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000),
+              expiresAt: data.expiresAt ?? s.expiresAt ?? Date.now() + SESSION_FALLBACK_MS,
             }))
           }
           return true
@@ -272,7 +249,7 @@ export const useAuth = create<AuthStore>()(
             const data = (await res.json()) as { user?: User; expiresAt?: number }
             if (data.user) {
               const freshExpiresAt =
-                typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + 30 * 24 * 60 * 60 * 1000
+                typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + SESSION_FALLBACK_MS
               set({
                 user: data.user,
                 hasLoggedInBefore: true,
@@ -301,7 +278,7 @@ export const useAuth = create<AuthStore>()(
         hasLoggedInBefore: Boolean(s.hasLoggedInBefore || s.user || s.token),
         lastEmail: s.lastEmail ?? s.user?.email ?? null,
       }),
-      storage: createJSONStorage(() => createAuthStorage()),
+      storage: createJSONStorage(() => safeStateStorage()),
       merge: (persistedState, currentState) => {
         const p = persistedState as Partial<PersistedAuth> | null | undefined
         const hasPrev = Boolean(p?.hasLoggedInBefore || p?.user || p?.token || p?.expiresAt)

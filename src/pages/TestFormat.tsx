@@ -163,7 +163,7 @@ export default function TestFormat() {
                 </TimelineHeader>
               </TimelineItem>
               <TimelineItem step={4}>
-                <TimelineIndicator className="border-mint-500 text-mint-600 dark:border-mint-400 dark:text-mint-300">✓</TimelineIndicator>
+                <TimelineIndicator className="border-mint-500 text-mint-700 dark:border-mint-400 dark:text-mint-300">✓</TimelineIndicator>
                 <TimelineHeader>
                   <TimelineDate>Instant report · 10 to 90 scale</TimelineDate>
                   <TimelineTitle>Automated Diagnostic Report</TimelineTitle>

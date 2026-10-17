@@ -64,11 +64,14 @@ export const EXTRA_DICTATION_8: DictationItem[] = [
 ]
 
 export const EXTRA_MISSING_WORD_8: MissingWordItem[] = [
+  // smw-701, smw-704, smw-705 and smw-706 blanked a position other than the
+  // word their option family describes, so each clip removed a different word
+  // from the one the key asked for. The indices below are the keyed words.
   {
     id: 'smw-701',
     audioId: 'con-workplace-training',
     turnIndex: 7,
-    wordIndex: 14,
+    wordIndex: 18,
     options: ['portal', 'portion', 'portrait', 'postage'],
     correct: 0,
   },
@@ -92,7 +95,7 @@ export const EXTRA_MISSING_WORD_8: MissingWordItem[] = [
     id: 'smw-704',
     audioId: 'con-street-party',
     turnIndex: 5,
-    wordIndex: 10,
+    wordIndex: 12,
     options: ['marshals', 'markets', 'margins', 'marbles'],
     correct: 0,
   },
@@ -100,7 +103,7 @@ export const EXTRA_MISSING_WORD_8: MissingWordItem[] = [
     id: 'smw-705',
     audioId: 'con-workplace-training',
     turnIndex: 1,
-    wordIndex: 13,
+    wordIndex: 17,
     options: ['standard', 'standing', 'standoff', 'stanza'],
     correct: 0,
   },
@@ -108,7 +111,7 @@ export const EXTRA_MISSING_WORD_8: MissingWordItem[] = [
     id: 'smw-706',
     audioId: 'con-street-party',
     turnIndex: 7,
-    wordIndex: 26,
+    wordIndex: 27,
     options: ['certificate', 'certainty', 'certified', 'cervical'],
     correct: 0,
   },

@@ -50,6 +50,10 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
   return new Response(
     JSON.stringify({
+      // The verified token carries the authoritative expiry (`exp`, seconds).
+      // Echoing it lets a returning client replace a guessed expiry with the
+      // real one instead of discovering it through a 401.
+      expiresAt: session.exp * 1000,
       user: {
         id: user.id,
         email: user.email,

@@ -1,11 +1,14 @@
-# Cloudflare Pages / Netlify SPA fallback.
-# /test/ and /result/ are real prerendered shells (see scripts/prerender.mjs),
-# so these rules only rewrite the bare paths to their documents.
-# Every other unknown path falls through to the 404 page.
+# Static-host fallback for the app-shell routes.
+#
+# /test, /result and /reset-password are prerendered shells (see
+# scripts/prerender.mjs).
+#
+# On Cloudflare Pages these three rules are inert — Pages 308-redirects a bare
+# directory path to its trailing-slash form and serves the index file itself
+# before `_redirects` is consulted — but they are what makes the same bundle work
+# unchanged on a host that does not do that (Netlify). Rewriting `/test/` to
+# `/test/index.html` is pointless on Pages and is reported as an infinite loop,
+# and `404` is not a valid status here: Pages serves dist/404.html itself.
 /test            /test/index.html             200
-/test/           /test/index.html             200
 /result          /result/index.html           200
-/result/         /result/index.html           200
 /reset-password  /reset-password/index.html   200
-/reset-password/ /reset-password/index.html   200
-/*               /404.html                    404

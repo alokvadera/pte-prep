@@ -408,6 +408,13 @@ for (const c of CHARTS) {
     )
   }
 
+  // The rendered clip is the sentence with the word at `wordIndex` left out,
+  // and the on-screen tokens blank the same index, so the keyed option has to be
+  // that word. Nothing else here catches it when it is not: the item still has
+  // four plausible options and an in-range key, it is simply unanswerable,
+  // because the candidate never hears the word the key asks for.
+  const bare = (v: string) => v.toLowerCase().replace(/[^a-z']/g, '')
+
   for (const m of MISSING_WORD) {
     const turns = turnsOf(m.audioId)
     check(`missing word ${m.id}: script exists`, !!turns)
@@ -423,6 +430,16 @@ for (const c of CHARTS) {
     const stem = m.options[m.correct]!.toLowerCase()
     const confusable = m.options.filter((o) => o.toLowerCase().startsWith(stem.slice(0, 3))).length
     check(`missing word ${m.id}: distractors share the stem of the answer`, confusable >= 2, `${confusable} share "${stem.slice(0, 3)}"`)
+    // The rendered clip is the sentence with the word at `wordIndex` left out,
+    // and the on-screen tokens blank the same index, so the keyed option has to
+    // be that word. Nothing above catches it when it is not: the item still has
+    // four plausible options and an in-range key, it is simply unanswerable,
+    // because the candidate never hears the word the key asks for.
+    check(
+      `missing word ${m.id}: the keyed option is the word the clip removes`,
+      bare(words[m.wordIndex] ?? '') === bare(m.options[m.correct] ?? ''),
+      `clip omits "${words[m.wordIndex]}" but the key answers "${m.options[m.correct]}"`,
+    )
   }
 
   for (const f of LISTENING_FIB) {

@@ -704,8 +704,11 @@ export const MISSING_WORD: MissingWordItem[] = [
     id: 'smw-1',
     audioId: 'con-student-accommodation',
     turnIndex: 3,
-    wordIndex: 12,
-    options: ['facetious', 'factious', 'fatuous', 'fastuous'],
+    // The authored family tested "facetious", a word this conversation never
+    // says, so no clip of it could ever contain the keyed answer. The blank now
+    // falls on a word the turn actually speaks, keeping the "fac-" pairs.
+    wordIndex: 11,
+    options: ['factor', 'factors', 'factory', 'faction'],
     correct: 0,
   },
   {
@@ -720,16 +723,18 @@ export const MISSING_WORD: MissingWordItem[] = [
   {
     id: 'smw-3',
     audioId: 'con-archive-visit',
-    turnIndex: 3,
-    wordIndex: 11,
+    // The keyed word is spoken in turn 7, not turn 3.
+    turnIndex: 7,
+    wordIndex: 26,
     options: ['conservation', 'conversation', 'conservative', 'conserve'],
     correct: 0,
   },
   {
     id: 'smw-4',
     audioId: 'con-volcano-visit',
-    turnIndex: 2,
-    wordIndex: 9,
+    // The keyed word is spoken in turn 1, not turn 2.
+    turnIndex: 1,
+    wordIndex: 28,
     options: ['compacted', 'conducted', 'computed', 'compounded'],
     correct: 0,
   },

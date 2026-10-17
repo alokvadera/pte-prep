@@ -78,7 +78,7 @@ export async function evaluateWithAi(
   referenceOrKey: AnswerKey | string | undefined,
   userText: string,
   apiKey: string,
-  model = 'qwen/qwen3.8-27b',
+  model = 'llama-3.3-70b-versatile',
 ): Promise<AiEvaluationResult | null> {
   const text = (userText ?? '').trim()
   if (!text || !apiKey) return null
