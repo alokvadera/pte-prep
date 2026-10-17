@@ -67,15 +67,20 @@ export function AudioPlayer({
     onPlayedRef.current = onPlayed
   }, [onPlayed])
 
+  const onPlayStateChangeRef = useRef(onPlayStateChange)
   useEffect(() => {
-    onPlayStateChange?.(state !== 'idle')
-  }, [state, onPlayStateChange])
+    onPlayStateChangeRef.current = onPlayStateChange
+  }, [onPlayStateChange])
+
+  useEffect(() => {
+    onPlayStateChangeRef.current?.(state !== 'idle')
+  }, [state])
 
   useEffect(() => {
     return () => {
-      onPlayStateChange?.(false)
+      onPlayStateChangeRef.current?.(false)
     }
-  }, [onPlayStateChange])
+  }, [])
 
   const stimulusKey = `${clipId ?? ''}:${audioId ?? ''}:${utterance ?? ''}:${fromTurn ?? ''}:${toTurn ?? ''}:${beepWord ?? ''}:${replays}`
 

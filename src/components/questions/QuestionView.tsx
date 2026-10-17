@@ -150,17 +150,21 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
       <div className="space-y-2">
         {options.map((opt, i) => {
           const isOn = selected.includes(opt)
+          const inputId = `${item.id}-opt-${i}`
           return (
             <label
               key={opt}
+              htmlFor={inputId}
               className={cn(
                 'choice-row',
+                'has-[input:focus-visible]:border-brand-500 has-[input:focus-visible]:shadow-[0_0_0_1px_var(--color-brand-500)]',
                 isOn
                   ? 'choice-active'
                   : 'choice-idle-solid',
               )}
             >
               <input
+                id={inputId}
                 type="checkbox"
                 className="accent-brand-500 mt-0.5 size-4 cursor-pointer"
                 checked={isOn}

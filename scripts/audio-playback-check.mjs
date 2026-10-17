@@ -188,10 +188,17 @@ report(
 await evaluate(
   sessionId,
   `window.__audioInstances = [];
+   window.__playErrors = [];
    const origPlay = HTMLAudioElement.prototype.play;
    HTMLAudioElement.prototype.play = function() {
      window.__audioInstances.push(this);
-     return origPlay.apply(this, arguments);
+     const res = origPlay.apply(this, arguments);
+     if (res && res.catch) {
+       res.catch((e) => {
+         window.__playErrors.push({ name: e.name, message: e.message });
+       });
+     }
+     return res;
    };`,
 )
 
@@ -223,6 +230,12 @@ report(
   await waitUntil(sessionId, `[...document.querySelectorAll('button')].some((b) => /^Play/.test((b.textContent ?? '').trim()))`),
   'the listening item offers a play control',
 )
+
+// Dispatch a trusted user click on the document to satisfy Chrome's autoplay user activation policy
+await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: 200, y: 200, button: 'left', clickCount: 1 }, sessionId)
+await sleep(50)
+await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: 200, y: 200, button: 'left', clickCount: 1 }, sessionId)
+await sleep(50)
 
 const started = await evaluate(
   sessionId,
