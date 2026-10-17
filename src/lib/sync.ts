@@ -186,6 +186,32 @@ export async function clearAllAttemptsEverywhere(): Promise<void> {
   await clearAttempts()
 }
 
+/**
+ * Calculates which attempts need to be pulled from the cloud or pushed from local
+ * storage, strictly respecting active tombstones to prevent resurrecting deleted rows.
+ */
+export function planSyncReconciliation(
+  cloudIds: Iterable<string>,
+  localIds: Iterable<string>,
+  tombstones: Iterable<string>,
+): { toPull: string[]; toPush: string[] } {
+  const cloud = new Set(cloudIds)
+  const local = new Set(localIds)
+  const dead = new Set(tombstones)
+
+  const toPull: string[] = []
+  for (const id of cloud) {
+    if (!local.has(id) && !dead.has(id)) toPull.push(id)
+  }
+
+  const toPush: string[] = []
+  for (const id of local) {
+    if (!cloud.has(id) && !dead.has(id)) toPush.push(id)
+  }
+
+  return { toPull, toPush }
+}
+
 export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: number }> {
   const token = useAuth.getState().token
   if (!token) return { pushed: 0, pulled: 0 }
@@ -236,16 +262,18 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
     let pulled = 0
     let pushed = 0
 
+    const { toPull, toPush } = planSyncReconciliation(cloudIds, localIds, activeTombstones)
+    const toPushSet = new Set(toPush)
+
     // Pull missing attempts from cloud into local IndexedDB (skip tombstoned attempts)
-    for (const id of cloudIds) {
-      if (localIds.has(id) || activeTombstones.has(id)) continue
+    for (const id of toPull) {
       const attempt = await fetchAttemptFromCloud(id)
       if (attempt) pulled++
     }
 
     // Push local attempts not yet in cloud (skip tombstoned attempts)
     for (const la of localAttempts) {
-      if (!cloudIds.has(la.id) && !activeTombstones.has(la.id)) {
+      if (toPushSet.has(la.id)) {
         const ok = await syncAttemptToCloud(la)
         if (ok) pushed++
       }

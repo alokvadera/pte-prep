@@ -5,6 +5,23 @@ import { Button, Card, PageWrapper } from '../components/ui/primitives'
 import { Reveal } from '../components/ui/motion'
 import { Seo } from '../seo/Seo'
 
+export function validateResetPasswordForm(
+  token: string | null | undefined,
+  password: string,
+  confirmPassword: string,
+): { valid: boolean; error?: string } {
+  if (!token) {
+    return { valid: false, error: 'Missing or invalid reset token. Please request a new link.' }
+  }
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters long.' }
+  }
+  if (password !== confirmPassword) {
+    return { valid: false, error: 'Passwords do not match.' }
+  }
+  return { valid: true }
+}
+
 export default function ResetPasswordPage() {
   const [params] = useSearchParams()
   const navigate = useNavigate()
@@ -30,18 +47,9 @@ export default function ResetPasswordPage() {
     e.preventDefault()
     setError(null)
 
-    if (!token) {
-      setError('Missing or invalid reset token. Please request a new link.')
-      return
-    }
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters long.')
-      return
-    }
-
-    if (password !== confirmPassword) {
-      setError('Passwords do not match.')
+    const check = validateResetPasswordForm(token, password, confirmPassword)
+    if (!check.valid) {
+      setError(check.error ?? 'Invalid input')
       return
     }
 

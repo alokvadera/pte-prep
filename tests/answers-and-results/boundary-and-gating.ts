@@ -15,6 +15,8 @@ import {
   verifyPassword,
   verifySessionToken,
 } from '../../functions/lib/auth'
+import { planSyncReconciliation } from '../../src/lib/sync'
+import { validateResetPasswordForm } from '../../src/pages/ResetPasswordPage'
 
 // ============================================================================
 // Boundary, Gating, Negative-Marking, and Scoring Scale Test Suite
@@ -438,6 +440,39 @@ async function main() {
     computeAiRawScore(nonNumericTraits as unknown as Record<string, unknown>, 'speaking') === 5,
     'non-numeric trait values ignored safely',
   )
+
+  // --------------------------------------------------------------------------
+  // TEST 13: Sync Reconciliation & Tombstone Conflict Resolution Contract
+  // --------------------------------------------------------------------------
+  console.log('\n--- 13. Sync Reconciliation & Tombstone Conflict Resolution ---')
+  const cleanSync = planSyncReconciliation(['att-1', 'att-2'], ['att-2', 'att-3'], [])
+  assert(cleanSync.toPull.length === 1 && cleanSync.toPull[0] === 'att-1', 'missing cloud attempt is marked for pull')
+  assert(cleanSync.toPush.length === 1 && cleanSync.toPush[0] === 'att-3', 'new local attempt is marked for push')
+
+  const tombstoneSync = planSyncReconciliation(['att-deleted'], [], ['att-deleted'])
+  assert(tombstoneSync.toPull.length === 0, 'tombstoned cloud attempt is never pulled (prevents resurrection)')
+
+  const tombstonePushSync = planSyncReconciliation([], ['att-deleted'], ['att-deleted'])
+  assert(tombstonePushSync.toPush.length === 0, 'tombstoned local attempt is never pushed to cloud')
+
+  const identicalSync = planSyncReconciliation(['att-1'], ['att-1'], [])
+  assert(identicalSync.toPull.length === 0 && identicalSync.toPush.length === 0, 'identical sets yield zero push and pull')
+
+  // --------------------------------------------------------------------------
+  // TEST 14: Reset Password Form Contract Validation
+  // --------------------------------------------------------------------------
+  console.log('\n--- 14. Reset Password Form Contract Validation ---')
+  const noToken = validateResetPasswordForm('', 'newPassword123', 'newPassword123')
+  assert(!noToken.valid && noToken.error?.includes('Missing or invalid reset token'), 'missing token rejected')
+
+  const shortPass = validateResetPasswordForm('valid-token-xyz', 'short', 'short')
+  assert(!shortPass.valid && shortPass.error?.includes('at least 8 characters'), 'password under 8 chars rejected')
+
+  const mismatchPass = validateResetPasswordForm('valid-token-xyz', 'password123', 'password456')
+  assert(!mismatchPass.valid && mismatchPass.error?.includes('do not match'), 'password mismatch rejected')
+
+  const validForm = validateResetPasswordForm('valid-token-xyz', 'password123', 'password123')
+  assert(validForm.valid && validForm.error === undefined, 'valid reset password submission accepted')
 
   console.log(`\n========================================================================`)
   console.log(`  BOUNDARY & GATING RESULTS: ${passed}/${total} passed (100%)`)

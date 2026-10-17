@@ -8,8 +8,8 @@
  */
 
 function readEnv(): string {
-  const fromEnv =
-    (import.meta.env as unknown as { VITE_SITE_ORIGIN?: string }).VITE_SITE_ORIGIN ?? ''
+  const envObj = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : undefined
+  const fromEnv = (envObj as unknown as { VITE_SITE_ORIGIN?: string })?.VITE_SITE_ORIGIN ?? ''
   return fromEnv.replace(/\/+$/, '')
 }
 
