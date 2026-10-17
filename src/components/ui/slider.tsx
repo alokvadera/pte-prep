@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
 /* ---------------------------------------------------------------------------
@@ -32,14 +32,18 @@ export function Slider({
   hint?: ReactNode
   className?: string
 }) {
+  const id = useId()
   return (
     <div className={cn('flex items-center justify-between gap-4 py-2.5', className)}>
       <div className="min-w-0">
-        <label className="text-ink-800 dark:text-ink-100 block text-sm font-medium">{label}</label>
+        <label htmlFor={id} className="text-ink-800 dark:text-ink-100 block text-sm font-medium cursor-pointer">
+          {label}
+        </label>
         {hint ? <span className="text-ink-500 dark:text-ink-on-dark-muted block text-xs">{hint}</span> : null}
       </div>
       <div className="flex shrink-0 items-center gap-3">
         <input
+          id={id}
           type="range"
           min={min}
           max={max}

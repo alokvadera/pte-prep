@@ -40,6 +40,7 @@ export function ScrollVelocity({
     if (!track) return
 
     let raf = 0
+    let running = false
     let x = 0
     let last = performance.now()
     let boost = 0
@@ -52,6 +53,7 @@ export function ScrollVelocity({
     }
 
     const tick = (now: number) => {
+      if (!running) return
       const dt = Math.min((now - last) / 1000, 0.05)
       last = now
       boost += -boost * 0.025
@@ -61,11 +63,43 @@ export function ScrollVelocity({
       raf = requestAnimationFrame(tick)
     }
 
+    const start = () => {
+      if (running) return
+      running = true
+      last = performance.now()
+      raf = requestAnimationFrame(tick)
+    }
+
+    const stop = () => {
+      running = false
+      if (raf) {
+        cancelAnimationFrame(raf)
+        raf = 0
+      }
+    }
+
+    const observer =
+      typeof IntersectionObserver !== 'undefined'
+        ? new IntersectionObserver(([entry]) => {
+            if (entry?.isIntersecting) {
+              start()
+            } else {
+              stop()
+            }
+          })
+        : null
+
+    if (observer) {
+      observer.observe(track)
+    } else {
+      start()
+    }
+
     window.addEventListener('scroll', onScroll, { passive: true })
-    raf = requestAnimationFrame(tick)
     return () => {
       window.removeEventListener('scroll', onScroll)
-      cancelAnimationFrame(raf)
+      observer?.disconnect()
+      stop()
     }
   }, [])
 

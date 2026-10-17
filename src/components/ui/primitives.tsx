@@ -422,7 +422,7 @@ export function ProgressBar({
   className?: string
   label?: string
 }) {
-  const p = Math.min(100, Math.max(0, (value / max) * 100))
+  const p = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0
   return (
     <div
       role="progressbar"

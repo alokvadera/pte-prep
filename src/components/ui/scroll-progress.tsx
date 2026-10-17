@@ -21,7 +21,7 @@ export function ScrollProgress({ className }: { className?: string }) {
     const update = () => {
       raf = 0
       const scrollable = document.documentElement.scrollHeight - window.innerHeight
-      const p = scrollable > 0 ? (window.scrollY / scrollable) * 100 : 0
+      const p = scrollable > 0 ? Math.min(100, Math.max(0, (window.scrollY / scrollable) * 100)) : 0
       setPct(Math.round(p * 10) / 10)
     }
     const onScroll = () => {
@@ -30,7 +30,7 @@ export function ScrollProgress({ className }: { className?: string }) {
     }
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('resize', onScroll, { passive: true })
     return () => {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)

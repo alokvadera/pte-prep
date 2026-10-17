@@ -67,6 +67,7 @@ export function RenderType({
   useEffect(() => {
     // If the candidate prefers reduced motion, render the full text immediately
     if (prefersReducedMotion()) {
+      setDisplayText(phrases[0] ?? '')
       onComplete?.()
       return
     }

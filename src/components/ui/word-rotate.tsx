@@ -39,15 +39,17 @@ export function WordRotate({
     return () => clearInterval(interval)
   }, [words, duration])
 
+  const currentWord = words[index % (words.length || 1)] ?? ''
+
   return (
     <span className="inline-block overflow-hidden py-1 align-baseline">
       <AnimatePresence mode="wait">
         <motion.span
-          key={words[index]}
+          key={currentWord}
           className={cn('inline-block', className)}
           {...motionProps}
         >
-          {words[index]}
+          {currentWord}
         </motion.span>
       </AnimatePresence>
     </span>

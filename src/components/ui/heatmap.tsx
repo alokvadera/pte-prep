@@ -45,17 +45,17 @@ export function ActivityHeatmap({
       const key = dayKey(iso)
       counts.set(key, (counts.get(key) ?? 0) + 1)
     }
-    // Build the grid backwards from today, column by column,
-    // each column a week running Monday to Sunday.
+    // Build the grid column by column from earliest week to this week,
+    // each column a week running Monday (top) to Sunday (bottom).
     const mondayOffset = (today.getDay() + 6) % 7 // days since Monday
-    const end = new Date(today)
-    end.setDate(today.getDate() - mondayOffset + 6) // this week's Sunday
+    const startMonday = new Date(today)
+    startMonday.setDate(today.getDate() - mondayOffset - (weeks - 1) * 7)
     const cells: Array<{ key: string; count: number; date: Date }> = []
     let maxCount = 0
-    for (let w = weeks - 1; w >= 0; w--) {
+    for (let w = 0; w < weeks; w++) {
       for (let d = 0; d < 7; d++) {
-        const date = new Date(end)
-        date.setDate(end.getDate() - (w * 7 + d))
+        const date = new Date(startMonday)
+        date.setDate(startMonday.getDate() + (w * 7 + d))
         const key = dayKey(date.toISOString())
         const count = counts.get(key) ?? 0
         if (count > maxCount) maxCount = count

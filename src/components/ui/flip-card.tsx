@@ -42,7 +42,8 @@ export function FlipCard({
     <div
       className={cn('flip-card group', className)}
       onClick={(e) => {
-        if ((e.target as HTMLElement).closest('a, button, input, textarea, select')) return
+        const targetEl = e.target instanceof Element ? e.target : (e.target as Node).parentElement
+        if (targetEl?.closest('a, button, input, textarea, select')) return
         setFlipped((f) => !f)
       }}
     >

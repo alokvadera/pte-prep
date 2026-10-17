@@ -143,41 +143,6 @@ export function HeroScoreCard({ className }: { className?: string }) {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
-  // 3D card tilt relative to the container. The mascot itself
-  // stays still: its eyes no longer track the cursor and it no
-  // longer blinks on its own, so nothing on the card moves
-  // unless the candidate asks it to.
-  useEffect(() => {
-    if (reducedMotion) return
-
-    const handlePointerMove = (e: MouseEvent) => {
-      if (containerRef.current) {
-        const cRect = containerRef.current.getBoundingClientRect()
-        const isInside =
-          e.clientX >= cRect.left &&
-          e.clientX <= cRect.right &&
-          e.clientY >= cRect.top &&
-          e.clientY <= cRect.bottom
-
-        if (isInside) {
-          const nx = (e.clientX - cRect.left) / cRect.width // 0 to 1
-          const ny = (e.clientY - cRect.top) / cRect.height // 0 to 1
-          const rY = (nx - 0.5) * 11
-          const rX = -(ny - 0.5) * 11
-          setTilt({
-            rotateX: rX,
-            rotateY: rY,
-            glareX: nx * 100,
-            glareY: ny * 100,
-          })
-        }
-      }
-    }
-
-    window.addEventListener('mousemove', handlePointerMove, { passive: true })
-    return () => window.removeEventListener('mousemove', handlePointerMove)
-  }, [reducedMotion, isMascotHovered])
-
   // Mascot click interaction: squish bounce, thought bubble, sound, sparkles
   const handleMascotClick = useCallback(() => {
     playTactilePop()
@@ -231,10 +196,24 @@ export function HeroScoreCard({ className }: { className?: string }) {
     <div
       ref={containerRef}
       className={cn('relative mx-auto w-full max-w-md pb-5 [perspective:1200px]', className)}
-      onMouseEnter={() => setIsCardHovered(true)}
-      onMouseLeave={() => {
+      onPointerEnter={() => setIsCardHovered(true)}
+      onPointerLeave={() => {
         setIsCardHovered(false)
         setTilt({ rotateX: 0, rotateY: 0, glareX: 50, glareY: 50 })
+      }}
+      onPointerMove={(e) => {
+        if (reducedMotion || !containerRef.current) return
+        const cRect = containerRef.current.getBoundingClientRect()
+        const nx = (e.clientX - cRect.left) / cRect.width
+        const ny = (e.clientY - cRect.top) / cRect.height
+        const rY = (nx - 0.5) * 11
+        const rX = -(ny - 0.5) * 11
+        setTilt({
+          rotateX: rX,
+          rotateY: rY,
+          glareX: nx * 100,
+          glareY: ny * 100,
+        })
       }}
     >
       <ConfettiBurst fire={confettiFire} count={32} />

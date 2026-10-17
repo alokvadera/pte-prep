@@ -43,11 +43,14 @@ export function CommandPalette() {
     }
   }, [open])
 
-  // Close: hand focus back to whatever opened the palette.
+  // Close: reset query and hand focus back to whatever opened the palette.
   useEffect(() => {
-    if (!open && lastTrigger.current) {
-      lastTrigger.current.focus()
-      lastTrigger.current = null
+    if (!open) {
+      setQuery('')
+      if (lastTrigger.current) {
+        lastTrigger.current.focus()
+        lastTrigger.current = null
+      }
     }
   }, [open])
 
@@ -100,7 +103,13 @@ export function CommandPalette() {
 
   return (
     <div className="fixed inset-0 z-[200] flex items-start justify-center pt-[15vh] px-4">
-      <div className="fixed inset-0 bg-ink-950/60 backdrop-blur-sm animate-fade-in" onClick={() => setOpen(false)} />
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-label="Close quick actions"
+        className="fixed inset-0 bg-ink-950/60 backdrop-blur-sm animate-fade-in cursor-default"
+        onClick={() => setOpen(false)}
+      />
       <div
         ref={dialogRef}
         role="dialog"
@@ -127,6 +136,13 @@ export function CommandPalette() {
             placeholder="Type a command or jump to page..."
             value={query}
             onChange={e => setQuery(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && filtered[0]) {
+                e.preventDefault()
+                filtered[0].run()
+                setOpen(false)
+              }
+            }}
           />
           <kbd className="hidden sm:inline-block border border-ink-200 dark:border-white/10 rounded-sm px-1.5 py-0.5 text-xs text-ink-500 dark:text-ink-on-dark-faint font-mono">ESC</kbd>
         </div>

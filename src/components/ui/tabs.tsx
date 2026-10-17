@@ -74,7 +74,7 @@ export function Tabs({
               type="button"
               role="tab"
               aria-selected={isActive}
-              aria-controls={`panel-${t.id}`}
+              aria-controls={hasPanels ? `panel-${t.id}` : undefined}
               tabIndex={isActive ? 0 : -1}
               onClick={() => onChange(t.id)}
               className={cn(

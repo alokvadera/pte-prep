@@ -22,20 +22,21 @@ export function Sparkline({
   tone?: 'brand' | 'mint' | 'amber' | 'rose'
   className?: string
 }) {
-  if (points.length < 2) {
+  const cleanPoints = points.filter(Number.isFinite)
+  if (cleanPoints.length < 2) {
     return <div className={cn('rounded bg-ink-100 dark:bg-white/8', className)} style={{ width, height }} aria-hidden="true" />
   }
 
-  const min = Math.min(...points)
-  const max = Math.max(...points)
+  const min = Math.min(...cleanPoints)
+  const max = Math.max(...cleanPoints)
   const span = max - min || 1
   const pad = 3
-  const stepX = (width - pad * 2) / (points.length - 1)
+  const stepX = (width - pad * 2) / (cleanPoints.length - 1)
   const y = (v: number) => height - pad - ((v - min) / span) * (height - pad * 2)
   const x = (i: number) => pad + i * stepX
 
-  const line = points.map((p, i) => `${x(i).toFixed(1)},${y(p).toFixed(1)}`).join(' ')
-  const area = `${pad},${height - pad} ${line} ${x(points.length - 1).toFixed(1)},${height - pad}`
+  const line = cleanPoints.map((p, i) => `${x(i).toFixed(1)},${y(p).toFixed(1)}`).join(' ')
+  const area = `${pad},${height - pad} ${line} ${x(cleanPoints.length - 1).toFixed(1)},${height - pad}`
 
   const STROKE: Record<string, string> = {
     brand: 'stroke-brand-500 fill-brand-500',
@@ -50,7 +51,7 @@ export function Sparkline({
       width={width}
       height={height}
       role="img"
-      aria-label={`Trend across ${points.length} values, from ${min} to ${max}`}
+      aria-label={`Trend across ${cleanPoints.length} values, from ${min} to ${max}`}
       className={className}
     >
       <polygon points={area} className={cn('fill-current opacity-10', STROKE[tone])} />
@@ -63,7 +64,7 @@ export function Sparkline({
         pathLength={1}
         className={cn('stroke-current animate-draw-line', STROKE[tone])}
       />
-      <circle cx={x(points.length - 1)} cy={y(points[points.length - 1]!)} r={2.5} className={cn('fill-current animate-draw-dot', STROKE[tone])} />
+      <circle cx={x(cleanPoints.length - 1)} cy={y(cleanPoints[cleanPoints.length - 1]!)} r={2.5} className={cn('fill-current animate-draw-dot', STROKE[tone])} />
     </svg>
   )
 }

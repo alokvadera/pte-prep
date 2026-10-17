@@ -4,12 +4,14 @@
 
 function toDay(iso: string): number {
   const d = new Date(iso)
-  return Math.floor(d.getTime() / 86_400_000)
+  if (Number.isNaN(d.getTime())) return NaN
+  return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86_400_000)
 }
 
 export function computeStreaks(dates: string[]): { current: number; longest: number } {
   if (dates.length === 0) return { current: 0, longest: 0 }
-  const days = [...new Set(dates.map(toDay))].sort((a, b) => a - b)
+  const days = [...new Set(dates.map(toDay).filter((d) => !Number.isNaN(d)))].sort((a, b) => a - b)
+  if (days.length === 0) return { current: 0, longest: 0 }
 
   let longest = 1
   let run = 1
@@ -20,7 +22,8 @@ export function computeStreaks(dates: string[]): { current: number; longest: num
 
   // Current: count back from today (or yesterday — a streak
   // survives the morning it is resumed).
-  const today = toDay(new Date().toISOString())
+  const now = new Date()
+  const today = Math.floor(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / 86_400_000)
   const last = days[days.length - 1]!
   if (today - last > 1) return { current: 0, longest }
   let current = 1

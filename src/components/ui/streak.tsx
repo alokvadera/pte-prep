@@ -45,7 +45,7 @@ export function StreakWidget({ dates, className }: { dates: string[]; className?
           Longest: <span className="font-bold text-ink-800 dark:text-ink-100">{longest}</span> days
         </p>
         {/* Milestone rail */}
-        <div className="mt-2.5 flex items-center gap-1.5" aria-label={`Milestones: ${MILESTONES.join(', ')} days`}>
+        <div role="group" className="mt-2.5 flex items-center gap-1.5" aria-label={`Milestones: ${MILESTONES.join(', ')} days`}>
           {MILESTONES.map((m) => {
             const hit = longest >= m
             return (

@@ -33,7 +33,7 @@ export function RadialProgress({
 }) {
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
-  const pct = Math.min(1, Math.max(0, (value - min) / (max - min)))
+  const pct = max > min ? Math.min(1, Math.max(0, (value - min) / (max - min))) : 0
   const offset = circumference * (1 - pct)
 
   const FILL: Record<string, string> = {
