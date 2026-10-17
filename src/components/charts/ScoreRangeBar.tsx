@@ -157,10 +157,10 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
 
       {current ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 text-xs">
-          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{clamped}</span> of 90 ,{' '}
+          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{clamped}</span> of 90,{' '}
           {band} runs {current.from}–{current.to}, so you are{' '}
           {Math.round(Math.max(0, current.to - clamped) * 10) / 10} point{Math.round(current.to - clamped) === 1 ? '' : 's'} short of{' '}
-          {nextBand(band)?.band ?? 'the top of the scale'}.{''}
+          {nextBand(band)?.band ?? 'the top of the scale'}.
         </p>
       ) : null}
       {showRail && bounds ? (

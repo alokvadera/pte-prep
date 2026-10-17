@@ -91,7 +91,7 @@ export default function Privacy() {
             about page
           </Link>
           . PTE Academic and the PTE logo are trademarks of Pearson Education Ltd. This is an independent practice tool
-          and is not affiliated with Pearson          .
+          and is not affiliated with Pearson.
           </p>
         </Reveal>
       </PageWrapper>

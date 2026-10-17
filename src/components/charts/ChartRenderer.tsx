@@ -424,11 +424,6 @@ function TableChart({ data }: { data: Record<string, unknown> }) {
         </g>
       ))}
       <line x1={40} x2={W - 40} y1={98 + rowH * rows.length} y2={98 + rowH * rows.length} stroke="currentColor" strokeOpacity={0.3} />
-      {headers.map((h, c) => (
-        <text key={`h${c}`} x={40 + colW * c + colW / 2} y={40 + rowH * rows.length + 4} textAnchor="middle" className="fill-current text-xs font-bold">
-          {h}
-        </text>
-      ))}
     </svg>
   )
 }

@@ -252,15 +252,16 @@ export default function ScoringGuide() {
             Maximize your preparation efficiency by focusing on the 6 critical question types that generate 70% of your total score, and adopt proven structures for subjective tasks.
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <ButtonLink to="/format/#weightage" variant="primary" size="sm">
+            <ButtonLink to="/format#weightage" variant="primary" size="sm">
               View Score Weightage Matrix
             </ButtonLink>
-            <ButtonLink to="/guide/#templates" variant="secondary" size="sm">
+            <ButtonLink to="/guide#templates" variant="secondary" size="sm">
               2025/2026 Strategy Templates
             </ButtonLink>
-            <ButtonLink to="/guide/#collocations" variant="secondary" size="sm">
+            <ButtonLink to="/guide#collocations" variant="secondary" size="sm">
               Academic Collocations List
-            </ButtonLink>          </div>
+            </ButtonLink>
+          </div>
         </Callout>
           </Tilt>
         </Reveal>
