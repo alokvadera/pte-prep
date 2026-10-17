@@ -17,6 +17,7 @@ import {
 } from '../../functions/lib/auth'
 import { planSyncReconciliation } from '../../src/lib/sync'
 import { validateResetPasswordForm } from '../../src/pages/ResetPasswordPage'
+import { formatResponseEchoLines } from '../../src/pages/ResultPage'
 
 // ============================================================================
 // Boundary, Gating, Negative-Marking, and Scoring Scale Test Suite
@@ -269,6 +270,7 @@ async function main() {
   console.log('\n--- 7. softF1 Bounds & Operator Precedence ---')
   assert(softF1('', ['term1', 'term2']) === 0, 'empty candidate gives 0')
   assert(softF1('random words here', []) === 0, 'empty reference terms gives 0')
+  assert(softF1('completely unrelated text', ['energy', 'climate']) === 0, 'zero term hits gives 0 cleanly')
   assert(softF1('energy climate renewable', ['energy', 'climate', 'renewable']) === 1, 'perfect match gives 1')
   const partialF1 = softF1('energy climate', ['energy', 'climate', 'renewable'])
   assert(partialF1 > 0 && partialF1 < 1, 'partial match is in (0, 1)')
@@ -473,6 +475,51 @@ async function main() {
 
   const validForm = validateResetPasswordForm('valid-token-xyz', 'password123', 'password123')
   assert(validForm.valid && validForm.error === undefined, 'valid reset password submission accepted')
+
+  // --------------------------------------------------------------------------
+  // TEST 15: Response Echo Formatting & XSS Plaintext Sanitization Contract
+  // --------------------------------------------------------------------------
+  console.log('\n--- 15. Response Echo Formatting & Plaintext Safety ---')
+  const emptyEcho = formatResponseEchoLines({})
+  assert(emptyEcho.length === 0, 'empty response echoes zero lines')
+
+  const choiceEcho = formatResponseEchoLines({ choice: 'Option B' })
+  assert(choiceEcho.length === 1 && choiceEcho[0] === 'Your answer: Option B', 'choice formatted correctly')
+
+  const choicesEcho = formatResponseEchoLines({ choices: ['Option A', 'Option C'] })
+  assert(choicesEcho.length === 1 && choicesEcho[0] === 'Your answers: Option A, Option C', 'choices array formatted')
+
+  const blanksEcho = formatResponseEchoLines({ blanks: ['alpha', 'beta'] })
+  assert(blanksEcho.length === 1 && blanksEcho[0] === 'Your answers: alpha, beta', 'blanks formatted correctly')
+
+  const orderEcho = formatResponseEchoLines({ order: ['Step 1', 'Step 2'] })
+  assert(orderEcho.length === 1 && orderEcho[0] === 'Your order: Step 1 → Step 2', 'order formatted with arrows')
+
+  const highlightEchoWithTokens = formatResponseEchoLines({ highlighted: [0, 2] }, ['apple', 'banana', 'cherry'])
+  assert(
+    highlightEchoWithTokens.length === 1 && highlightEchoWithTokens[0] === 'You highlighted: “apple”, “cherry”',
+    'highlighted tokens formatted with quotes',
+  )
+
+  const highlightEchoFallback = formatResponseEchoLines({ highlighted: [4] })
+  assert(
+    highlightEchoFallback.length === 1 && highlightEchoFallback[0] === 'You highlighted: #5',
+    'highlighted fallback indexes correctly',
+  )
+
+  const rawHtmlText = '<script>alert("xss")</script>'
+  const xssTextEcho = formatResponseEchoLines({ text: rawHtmlText })
+  assert(
+    xssTextEcho.length === 1 && xssTextEcho[0] === `You wrote: ${rawHtmlText}`,
+    'malicious HTML remains unparsed plain string data for React auto-escaping',
+  )
+
+  const rawHtmlTranscript = '<img src=x onerror=alert(1)>'
+  const xssTranscriptEcho = formatResponseEchoLines({ transcript: rawHtmlTranscript })
+  assert(
+    xssTranscriptEcho.length === 1 && xssTranscriptEcho[0] === `Your answer (transcribed): ${rawHtmlTranscript}`,
+    'speech transcript remains unparsed plain string data',
+  )
 
   console.log(`\n========================================================================`)
   console.log(`  BOUNDARY & GATING RESULTS: ${passed}/${total} passed (100%)`)

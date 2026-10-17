@@ -844,18 +844,22 @@ function ReviewRow({ detail, response }: { detail: ItemScoreDetail; response: It
   )
 }
 
-function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response: ItemResponse }) {
+export function formatResponseEchoLines(
+  response: ItemResponse,
+  tokens?: readonly string[],
+): string[] {
   const lines: string[] = []
   const choice = response.choice as string | undefined
   if (choice) lines.push(`Your answer: ${choice}`)
   const choices = response.choices as string[] | undefined
   if (choices && choices.length) lines.push(`Your answers: ${choices.join(', ')}`)
-  const blanks = response.blanks as Array<string | null> | undefined
-  if (blanks) lines.push(`Your answers: ${blanks.map((b, i) => b || `(blank ${i + 1})`).join(', ')}`)
+  const blanks = response.blanks
+  if (Array.isArray(blanks) && blanks.length > 0) {
+    lines.push(`Your answers: ${blanks.map((b, i) => b || `(blank ${i + 1})`).join(', ')}`)
+  }
   const order = response.order as string[] | undefined
   if (order) lines.push(`Your order: ${order.join(' → ')}`)
   const highlighted = response.highlighted as number[] | undefined
-  const tokens = detail.tokens
   if (highlighted && highlighted.length > 0) {
     lines.push(`You highlighted: ${highlighted.map((i) => (tokens?.[i] ? `“${tokens[i]}”` : `#${i + 1}`)).join(', ')}`)
   }
@@ -864,6 +868,11 @@ function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response:
   const transcript = response.transcript as string | undefined
   if (transcript) lines.push(`Your answer (transcribed): ${transcript}`)
 
+  return lines
+}
+
+function ResponseEcho({ detail, response }: { detail: ItemScoreDetail; response: ItemResponse }) {
+  const lines = formatResponseEchoLines(response, detail.tokens)
   if (lines.length === 0) return null
 
   return (
