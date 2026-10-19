@@ -16,8 +16,7 @@ import {
   verifySessionToken,
 } from '../../functions/lib/auth'
 import { planSyncReconciliation } from '../../src/lib/sync'
-import { validateResetPasswordForm } from '../../src/pages/ResetPasswordPage'
-import { formatResponseEchoLines } from '../../src/pages/ResultPage'
+import { formatResponseEchoLines, validateResetPasswordForm } from '../../src/lib/format'
 
 // ============================================================================
 // Boundary, Gating, Negative-Marking, and Scoring Scale Test Suite
@@ -338,7 +337,7 @@ async function main() {
   const badSigResult = await verifySessionToken(tamperedSig, testSecret)
   assert(badSigResult === null, 'tampered signature is rejected')
 
-  const [head, tail] = validToken.split('.')
+  const [, tail] = validToken.split('.')
   const tamperedPayload = 'eyJ1c2VySWQiOiJoYWNrZWQifQ.' + tail
   const badPayloadResult = await verifySessionToken(tamperedPayload, testSecret)
   assert(badPayloadResult === null, 'tampered payload is rejected')

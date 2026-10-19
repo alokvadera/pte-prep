@@ -496,7 +496,7 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
   const isSwt = item.type === 'summarize-written-text'
   const isSst = item.type === 'summarize-spoken-text'
   const min = isDictation ? undefined : isEssay ? 200 : isSwt ? 5 : isSst ? 50 : 20
-  const max = isDictation ? undefined : isEssay ? 300 : isSwt ? 75 : isSst ? 90 : 45
+  const max = isDictation ? undefined : isEssay ? 300 : isSwt ? 75 : isSst ? 70 : 45
 
   return (
     <div>

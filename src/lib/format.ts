@@ -1,3 +1,5 @@
+import type { ItemResponse } from '../domain/types'
+
 export function formatClock(totalSeconds: number): string {
   const s = Math.max(0, Math.round(totalSeconds))
   const h = Math.floor(s / 3600)
@@ -45,4 +47,48 @@ export function roundTo(value: number, step: number): number {
 
 export function titleCase(input: string): string {
   return input.replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
+export function validateResetPasswordForm(
+  token: string | null | undefined,
+  password: string,
+  confirmPassword: string,
+): { valid: boolean; error?: string } {
+  if (!token) {
+    return { valid: false, error: 'Missing or invalid reset token. Please request a new link.' }
+  }
+  if (password.length < 8) {
+    return { valid: false, error: 'Password must be at least 8 characters long.' }
+  }
+  if (password !== confirmPassword) {
+    return { valid: false, error: 'Passwords do not match.' }
+  }
+  return { valid: true }
+}
+
+export function formatResponseEchoLines(
+  response: ItemResponse,
+  tokens?: readonly string[],
+): string[] {
+  const lines: string[] = []
+  const choice = response.choice as string | undefined
+  if (choice) lines.push(`Your answer: ${choice}`)
+  const choices = response.choices as string[] | undefined
+  if (choices && choices.length) lines.push(`Your answers: ${choices.join(', ')}`)
+  const blanks = response.blanks
+  if (Array.isArray(blanks) && blanks.length > 0) {
+    lines.push(`Your answers: ${blanks.map((b, i) => b || `(blank ${i + 1})`).join(', ')}`)
+  }
+  const order = response.order as string[] | undefined
+  if (order) lines.push(`Your order: ${order.join(' → ')}`)
+  const highlighted = response.highlighted as number[] | undefined
+  if (highlighted && highlighted.length > 0) {
+    lines.push(`You highlighted: ${highlighted.map((i) => (tokens?.[i] ? `“${tokens[i]}”` : `#${i + 1}`)).join(', ')}`)
+  }
+  const text = response.text as string | undefined
+  if (text) lines.push(`You wrote: ${text}`)
+  const transcript = response.transcript as string | undefined
+  if (transcript) lines.push(`Your answer (transcribed): ${transcript}`)
+
+  return lines
 }
