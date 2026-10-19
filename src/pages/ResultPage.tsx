@@ -34,7 +34,8 @@ export default function ResultPage() {
   const [loading, setLoading] = useState(true)
   const [attempt, setAttempt] = useState<AttemptRecord | null>(null)
   const scoringRef = useRef(false)
-  const [tab, setTab] = useState<Tab>('overview')
+  const autoOpenReview = useSettings((s) => s.settings.autoOpenReview)
+  const [tab, setTab] = useState<Tab>(() => (autoOpenReview ? 'review' : 'overview'))
   const [filter, setFilter] = useState<'all' | 'lost'>('all')
   const user = useAuth((s) => s.user)
   // Clearing the target score earns one
@@ -921,7 +922,7 @@ function AiExaminerReview({
             AI Examiner (Groq BYOK)
           </span>
           <Badge tone={result ? 'mint' : 'neutral'}>
-            {result ? `${result.rawScore}/${result.maxScore} pts (Deterministic)` : 'Deterministic Rubric'}
+            {result ? `${result.rawScore}/${result.maxScore} pts (AI Estimated)` : 'AI Rubric'}
           </Badge>
         </div>
         {!result && (
@@ -941,7 +942,7 @@ function AiExaminerReview({
       {showKeyPrompt && !result && (
         <form onSubmit={handleSaveQuickKey} className="pt-2 border-t border-brand-500/20 space-y-2">
           <p id="groq-key-hint" className="text-xs text-ink-600 dark:text-ink-on-dark leading-relaxed">
-            Provide your free Groq API key to unlock deterministic Pearson rubric grading. 100% in-browser, stored in localStorage.
+            Provide your free Groq API key to unlock AI rubric grading. Requests are sent directly from your browser to Groq&apos;s API; your key is stored locally in your browser.
           </p>
           <label
             htmlFor="groq-quick-key"

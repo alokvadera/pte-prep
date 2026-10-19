@@ -111,7 +111,7 @@ const GUIDE_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'How do I get a higher PTE score in the shortest time?',
     answer:
-      'Work on the objective items first. Fill in the Blanks and Re-order Paragraphs together account for a large share of the Reading and Part 1 points, they have deterministic answers, and Re-order Paragraphs carries no partial credit, so every mark gained is a full mark. Speaking and writing take longer to move and are easier to leave alone while you build the objective base.',
+      'Work on the objective items first. Fill in the Blanks and Re-order Paragraphs together account for a large share of the Reading points, they have deterministic answers, and Re-order Paragraphs awards 1 point per correctly ordered adjacent pair. Speaking and writing take longer to move and are easier to leave alone while you build the objective base.',
   },
   {
     question: 'Is it better to guess on multiple choice?',
@@ -339,7 +339,7 @@ export const PAGE_META: Record<string, PageMeta> = {
         description:
           'A practical sequence of improvements that move a PTE score the most for the least study time.',
         steps: [
-          { name: 'Fix the objective items', text: 'Fill in the Blanks and Re-order Paragraphs have deterministic answers and no partial credit, so improvement here is immediate and measurable.' },
+          { name: 'Fix the objective items', text: 'Fill in the Blanks and Re-order Paragraphs have deterministic answers with partial credit, so improvement here is immediate and measurable.' },
           { name: 'Practice Repeat Sentence daily', text: 'Ten items a day trains listening accuracy, speaking fluency and pronunciation at the same time.' },
           { name: 'Learn a fixed structure for the essay', text: 'Four paragraphs with explicit linking words protect the development and coherence traits under time pressure.' },
           { name: 'Use a skeleton for Re-tell Lecture and Summarize Group Discussion', text: 'Note three or four keywords during playback and re-tell from the skeleton rather than trying to remember sentences.' },

@@ -175,7 +175,7 @@ export function capacityByType(): Record<string, number> {
     'repeat-sentence': b.repeatSentences.length,
     'describe-image': b.charts.length,
     'retell-lecture': b.retell.length,
-    'answer-short-question': b.asq.length + b.passages.length * 3,
+    'answer-short-question': b.asq.length,
     'summarize-group-discussion': b.groupDiscussionItems.length,
     'respond-to-situation': b.situations.length,
     'summarize-written-text': b.passages.length,

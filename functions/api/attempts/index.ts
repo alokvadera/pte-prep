@@ -1,5 +1,6 @@
 import type { Env } from '../../types'
 import { extractBearerToken, requireSecret, verifySessionToken } from '../../lib/auth'
+import { checkRateLimit } from '../../lib/rateLimit'
 
 interface RawAttemptRow {
   id: string
@@ -55,7 +56,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   // pull past the first hundred. `?ids=1` returns every id for the account.
   if (new URL(context.request.url).searchParams.get('ids') === '1') {
     const rows = await db
-      .prepare('SELECT id FROM attempts WHERE user_id = ? ORDER BY finished_at DESC')
+      .prepare('SELECT id FROM attempts WHERE user_id = ? ORDER BY finished_at DESC LIMIT 1000')
       .bind(session.userId)
       .all<{ id: string }>()
     return new Response(JSON.stringify({ ids: (rows.results ?? []).map((row) => row.id) }), {
@@ -122,6 +123,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     return {
       id: row.id,
+      userId: row.user_id,
       mockId: row.mock_id,
       mockTitle: row.mock_title,
       mockKind,
@@ -355,6 +357,14 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
   if (!session) {
     return new Response(JSON.stringify({ error: 'Invalid or expired session' }), {
       status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  const limited = await checkRateLimit(db, `del-attempts:${session.userId}`, 5, 60)
+  if (limited) {
+    return new Response(JSON.stringify({ error: 'Too many deletion requests. Please wait a moment.' }), {
+      status: 429,
       headers: { 'Content-Type': 'application/json' },
     })
   }

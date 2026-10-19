@@ -37,15 +37,20 @@ export function ScoreCalculator({ className, hideEyebrow = false }: { className?
   })
   const [target, setTarget] = useState(65)
 
-  const { overall, gap, weakest } = useMemo(() => {
+  const { overall, gap, weakest, pointsNeededOnWeakest, canClearOnWeakestAlone } = useMemo(() => {
     const values = SKILLS.map((s) => skills[s])
-    const overall = Math.round(values.reduce((a, b) => a + b, 0) / values.length)
+    const currentSum = values.reduce((a, b) => a + b, 0)
+    const overall = Math.round(currentSum / values.length)
     const gap = target - overall
     const weakest = SKILLS.reduce((a, b) => (skills[a] <= skills[b] ? a : b))
-    return { overall, gap, weakest }
+    const otherThreeSum = currentSum - skills[weakest]
+    const neededOnWeakest = 4 * target - otherThreeSum
+    const canClearOnWeakestAlone = neededOnWeakest <= 90
+    const pointsNeededOnWeakest = Math.max(0, Math.min(90, neededOnWeakest) - skills[weakest])
+    return { overall, gap, weakest, pointsNeededOnWeakest, canClearOnWeakestAlone }
   }, [skills, target])
 
-  const reachable = weakest !== undefined && target - skills[weakest] <= 12
+  const reachable = gap <= 5 && gap > 0
 
   return (
     <div className={cn('card-solid p-5 sm:p-6', className)}>
@@ -114,20 +119,22 @@ export function ScoreCalculator({ className, hideEyebrow = false }: { className?
             </span>
           </p>
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-[11px]">
-            Your lowest skill lifts the overall fastest — every point here is a point off the gap.
+            Your lowest skill lifts the overall fastest — gaining 4 points across skills adds 1 point to the overall average.
           </p>
         </div>
       </div>
 
-      {reachable ? (
+      {gap <= 0 ? (
+        <Callout tone="mint" label="Target met" className="mt-4">
+          Your current skill scores meet or exceed your target of {target}. Keep practising under timed conditions to maintain consistency.
+        </Callout>
+      ) : reachable ? (
         <Callout tone="mint" label="Within reach" className="mt-4">
-          Closing {target - skills[weakest]} points on {SKILL_LABEL[weakest]} would clear the
-          target on this estimate. That is a realistic two-to-three weeks of drills.
+          A gap of {gap} overall points requires gaining {gap * 4} total skill points — for example, gaining {canClearOnWeakestAlone ? `${pointsNeededOnWeakest} points on ${SKILL_LABEL[weakest]}` : `an average of ${gap} points across each skill`} would clear the target on this estimate.
         </Callout>
       ) : (
         <Callout tone="amber" label="A longer climb" className="mt-4">
-          The target is more than 12 points above your weakest skill. Plan in milestones —
-          pick the next 5 points, not the final number.
+          The target is {gap} points above your estimated overall. Focus on high-weight item types in {SKILL_LABEL[weakest]} and plan in 5-point milestones.
         </Callout>
       )}
 

@@ -20,7 +20,7 @@ const FAQ = [
   {
     question: 'How do I get a higher PTE score in the shortest time?',
     answer:
-      'Work on the objective items first. Fill in the Blanks and Re-order Paragraphs together account for a large share of the Reading and Part 1 points, they have deterministic answers, and Re-order Paragraphs carries no partial credit, so every mark gained is a full mark. Speaking and writing take longer to move and are easier to leave alone while you build the objective base.',
+      'Work on the objective items first. Fill in the Blanks and Re-order Paragraphs together account for a large share of the Reading points, they have deterministic answers, and Re-order Paragraphs awards 1 point per correctly ordered adjacent pair. Speaking and writing take longer to move and are easier to leave alone while you build the objective base.',
   },
   {
     question: 'Is it better to guess on multiple choice?',
@@ -253,7 +253,7 @@ export default function Guide() {
           {[
             {
               title: 'Re-order Paragraphs first',
-              body: 'It has no partial credit, so it is the cheapest full-mark item on the test. Read the first sentence of every block and build a chain: who refers to whom, what follows what, and which paragraph closes by restating the topic. Two or three minutes of training here recovers whole marks that partial-credit items cannot.',
+              body: 'It awards 1 mark per adjacent correct pair, making it one of the most reliable places to gain Reading points. Read the first sentence of every block and build a chain: who refers to whom, what follows what, and which paragraph closes by restating the topic. Training pairwise cohesion here recovers marks quickly.',
             },
             {
               title: 'Ten Repeat Sentences a day',

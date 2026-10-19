@@ -235,7 +235,7 @@ export default function ScoringGuide() {
           tone="mint"
           items={[
             'Use the accuracy-by-question-type breakdown on your results page. Most candidates lose more points on Fill in the Blanks and Re-order Paragraphs than on the speaking tasks they worry about.',
-            'Fix Re-order Paragraphs first. It has no partial credit, so it is the cheapest place to pick up whole marks by learning to follow pronouns and time markers.',
+            'Fix Re-order Paragraphs first. It awards 1 point per correctly ordered adjacent pair, so learning pronoun chains and time markers recovers steady Reading marks.',
             'Practice Repeat Sentence daily. It is the largest single block of items in Part 1 and improves listening, speaking and pronunciation at the same time.',
             'Write the essay under time pressure. Structure alone protects the coherence score, and it is the part candidates most often lose by planning too long.',
             'Re-sit a full mock every four to seven days. The format is the thing being trained, not just the language.',

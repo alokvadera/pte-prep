@@ -590,9 +590,9 @@ export default function Dashboard() {
                                   setDeletingId(null)
                                   void (async () => {
                                     try {
-                                      await deleteAttemptEverywhere(a.id)
+                                      const synced = await deleteAttemptEverywhere(a.id)
                                       setAttempts(await listAttempts(100))
-                                      toast.push('Attempt deleted')
+                                      toast.push(synced ? 'Attempt deleted' : 'Deleted locally; cloud retry pending')
                                     } catch {
                                       toast.push('Could not delete attempt', 'rose')
                                     }

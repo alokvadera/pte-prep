@@ -73,22 +73,24 @@ export async function validateGroqKey(apiKey: string): Promise<{ ok: boolean; er
  * Computes raw score exclusively from expected traits for each question category,
  * preventing score inflation if an LLM returns extra numeric properties in the JSON.
  */
+const RUBRIC_TRAIT_MAX: Record<string, Record<string, number>> = {
+  speaking: { content: 3, pronunciation: 5, oralFluency: 5 },
+  essay: { content: 3, grammar: 2, vocabulary: 2, spelling: 2, development: 2, range: 2 },
+  sst: { content: 2, grammar: 2, vocabulary: 2, spelling: 2 },
+  swt: { content: 2, form: 1, grammar: 2, vocabulary: 2 },
+}
+
 export function computeAiRawScore(
   traits: Record<string, unknown>,
   category: 'speaking' | 'essay' | 'sst' | 'swt',
 ): number {
-  const expectedKeys =
-    category === 'speaking'
-      ? ['content', 'pronunciation', 'oralFluency']
-      : category === 'essay'
-        ? ['content', 'grammar', 'vocabulary', 'spelling', 'development', 'range']
-        : category === 'sst'
-          ? ['content', 'grammar', 'vocabulary', 'spelling']
-          : ['content', 'form', 'grammar', 'vocabulary']
+  const limits = RUBRIC_TRAIT_MAX[category] ?? {}
+  const expectedKeys = Object.keys(limits)
 
   return expectedKeys.reduce((acc, k) => {
     const v = traits[k]
-    return acc + (typeof v === 'number' && Number.isFinite(v) ? Math.max(0, v) : 0)
+    const max = limits[k] ?? 2
+    return acc + (typeof v === 'number' && Number.isFinite(v) ? Math.min(max, Math.max(0, v)) : 0)
   }, 0)
 }
 
@@ -244,26 +246,31 @@ Output ONLY a JSON object with this exact format:
     const parsed = JSON.parse(jsonStr)
     const t = parsed.traits || {}
 
-    // Normalise traits onto the 0..1 scale used by ItemScoreDetail
+    const clampTrait = (val: unknown, max: number): number => {
+      const n = typeof val === 'number' && Number.isFinite(val) ? val : 0
+      return Math.min(max, Math.max(0, n))
+    }
+
+    // Normalise traits onto the 0..1 scale used by ItemScoreDetail, clamped to [0, 1]
     const traits: Partial<TraitBreakdown> = isSpeaking
       ? {
-          content: (t.content ?? 0) / 3,
-          pronunciation: (t.pronunciation ?? 0) / 5,
-          oralFluency: (t.oralFluency ?? 0) / 5,
+          content: clampTrait(t.content, 3) / 3,
+          pronunciation: clampTrait(t.pronunciation, 5) / 5,
+          oralFluency: clampTrait(t.oralFluency, 5) / 5,
         }
       : {
-          content: isEssay ? (t.content ?? 0) / 3 : (t.content ?? 0) / 2,
-          grammar: (t.grammar ?? 0) / 2,
-          vocabulary: (t.vocabulary ?? 0) / 2,
-          spelling: isEssay || isSST ? (t.spelling ?? 0) / 2 : 1,
-          form: isSWT ? (t.form ?? 1) : undefined,
-          development: isEssay ? (t.development ?? 0) / 2 : undefined,
-          range: isEssay ? (t.range ?? 0) / 2 : undefined,
+          content: isEssay ? clampTrait(t.content, 3) / 3 : clampTrait(t.content, 2) / 2,
+          grammar: clampTrait(t.grammar, 2) / 2,
+          vocabulary: clampTrait(t.vocabulary, 2) / 2,
+          spelling: isEssay || isSST ? clampTrait(t.spelling, 2) / 2 : 1,
+          form: isSWT ? clampTrait(t.form ?? 1, 1) : undefined,
+          development: isEssay ? clampTrait(t.development, 2) / 2 : undefined,
+          range: isEssay ? clampTrait(t.range, 2) / 2 : undefined,
         }
 
     const category = isSpeaking ? 'speaking' : isEssay ? 'essay' : isSST ? 'sst' : 'swt'
-    const rawScore = computeAiRawScore(t, category)
     const maxScore = isEssay ? 13 : isSpeaking ? 13 : isSST ? 8 : 7
+    const rawScore = Math.min(maxScore, computeAiRawScore(t, category))
 
     const result: AiEvaluationResult = {
       traits,

@@ -21,14 +21,14 @@ export interface ItemWeightage {
 }
 
 const WEIGHTAGE_DATA: ItemWeightage[] = [
-  // --- TIER 1: CRITICAL (~70% OF TOTAL SCORE) ---
+  // --- TIER 1: HIGH-IMPACT CORE (MAJOR DUAL-SKILL DONORS) ---
   {
     type: 'write-from-dictation',
     name: 'Write From Dictation',
     section: 'listening',
     skills: ['listening', 'writing'],
     tier: 1,
-    impact: 'Critical (~25% of total exam marks)',
+    impact: 'Critical (~25 pts to Writing & Listening)',
     points: '25–28 pts (Writing + Listening)',
     crossImpactNote: 'Massive Writing donor! Donates ~25 points directly to Writing. Skimping on time here breaks your Writing score.',
     priorityStrategy: '100% spelling accuracy. Write alternative endings if unsure (no negative penalty for extra words). Practice 20–30 daily.',
@@ -40,7 +40,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking', 'listening'],
     tier: 1,
-    impact: 'Critical (~20% of total exam marks)',
+    impact: 'Critical (~30 pts to Speaking, ~20 pts to Listening)',
     points: '30–33 pts (Speaking) + 18–20 pts (Listening)',
     crossImpactNote: 'Biggest speaking contributor and large listening donor. Contributes over 30 points to Speaking alone.',
     priorityStrategy: 'Continuous fluency beats word-for-word recall. If you catch 65–70% of words, speak them smoothly without stopping or hesitating.',
@@ -52,7 +52,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking', 'reading'],
     tier: 1,
-    impact: 'Critical (~20% of total exam marks)',
+    impact: 'Critical (~22 pts to Speaking, ~20 pts to Reading)',
     points: '22–25 pts (Speaking) + 20–22 pts (Reading)',
     crossImpactNote: 'Massive Reading donor! Secures ~22 points in Reading before Part 2 (Reading section) even starts.',
     priorityStrategy: 'Read with natural cadence and rhythm. Stress key nouns and verbs. Never correct yourself if you mispronounce a word — keep flowing.',
@@ -64,7 +64,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'reading',
     skills: ['reading', 'writing'],
     tier: 1,
-    impact: 'Critical (~22% of total exam marks)',
+    impact: 'Critical (~22 pts to Reading & Writing)',
     points: '22–25 pts (Reading) + 20–22 pts (Writing)',
     crossImpactNote: 'The single highest-weight task in the Reading section, and provides ~22 points to Writing.',
     priorityStrategy: 'Master the Academic Collocation List (ACL), verb agreement, and preposition pairings. Budget 2–2.5 minutes per passage.',
@@ -76,7 +76,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking'],
     tier: 1,
-    impact: 'High (~15% of total exam marks)',
+    impact: 'High (~22 pts to Speaking)',
     points: '22–25 pts (Speaking)',
     crossImpactNote: 'Pure speaking booster. Easiest task to automate with a fixed 25–30 second oral delivery template.',
     priorityStrategy: 'Rely on a proven 4-point template (Title → Highest trend → Lowest trend → Conclusion). Speak without hesitations or pauses.',
@@ -84,11 +84,11 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   },
   {
     type: 'fill-in-blanks-table',
-    name: 'Reading: Fill in the Blanks (Drag & Drop)',
+    name: 'Reading: Fill in the Blanks',
     section: 'reading',
     skills: ['reading'],
     tier: 1,
-    impact: 'High (~15% of total exam marks)',
+    impact: 'High (~15 pts to Reading)',
     points: '15–18 pts (Reading)',
     crossImpactNote: 'Core Reading score foundation. Critical for meeting 65+ and 79+ cutoffs.',
     priorityStrategy: 'Eliminate options using parts of speech (noun, verb, adjective, adverb). Place confident words first to narrow remaining choices.',
@@ -308,7 +308,7 @@ const TARGET_STRATEGIES: Record<
     title: 'Full PTE Score Architecture',
     subtitle: 'Understand the Pareto distribution (80/20 rule) in PTE Academic scoring',
     recommendation:
-      'Over 70% of total exam marks come from just 6 of the 22 question types. Mastering Tier 1 guarantees the greatest return on practice time.',
+      'The majority of communicative skill points are contributed by these 6 core question types. Mastering Tier 1 guarantees the greatest return on practice time.',
     keyTypes: ['Write From Dictation', 'Repeat Sentence', 'Read Aloud', 'R&W Fill in the Blanks', 'Describe Image'],
     timeAllocation: '80% time on Tier 1 & 2, 20% on mock exams & remaining items',
   },

@@ -10,6 +10,7 @@ import {
   verifyPassword,
   verifySessionToken,
 } from '../../lib/auth'
+import { checkRateLimit } from '../../lib/rateLimit'
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const token = extractBearerToken(context.request)
@@ -123,6 +124,13 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     if (typeof body.currentPassword !== 'string' || !body.currentPassword) {
       return new Response(JSON.stringify({ error: 'Current password is required.' }), {
         status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      })
+    }
+    const limited = await checkRateLimit(db, `pwchange:${session.userId}`, 5, 300)
+    if (limited) {
+      return new Response(JSON.stringify({ error: 'Too many password change attempts. Please wait.' }), {
+        status: 429,
         headers: { 'Content-Type': 'application/json' },
       })
     }

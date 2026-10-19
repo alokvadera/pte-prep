@@ -40,9 +40,9 @@ import Privacy from './pages/Privacy'
 import QuestionTypes from './pages/QuestionTypes'
 import QuestionTypePage from './pages/QuestionTypePage'
 import NotFound from './pages/NotFound'
-import UiElements from './pages/UiElements'
 import ResetPasswordPage from './pages/ResetPasswordPage'
 
+const UiElements = lazy(() => import('./pages/UiElements'))
 const TestPage = lazy(() => import('./pages/TestPage'))
 const ResultPage = lazy(() => import('./pages/ResultPage'))
 

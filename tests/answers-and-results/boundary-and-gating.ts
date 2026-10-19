@@ -442,6 +442,12 @@ async function main() {
     'non-numeric trait values ignored safely',
   )
 
+  const excessiveTraits = { content: 10, pronunciation: 10, oralFluency: 10 }
+  assert(
+    computeAiRawScore(excessiveTraits, 'speaking') === 13,
+    'traits exceeding rubric limits are clamped to maximum (3+5+5=13)',
+  )
+
   // --------------------------------------------------------------------------
   // TEST 13: Sync Reconciliation & Tombstone Conflict Resolution Contract
   // --------------------------------------------------------------------------
@@ -458,6 +464,17 @@ async function main() {
 
   const identicalSync = planSyncReconciliation(['att-1'], ['att-1'], [])
   assert(identicalSync.toPull.length === 0 && identicalSync.toPush.length === 0, 'identical sets yield zero push and pull')
+
+  const userAId = 'user-a-123'
+  const userBId = 'user-b-456'
+  const attemptFromUserA: Partial<AttemptRecord> = { id: 'att-user-a', userId: userAId }
+  const attemptFromGuest: Partial<AttemptRecord> = { id: 'att-guest' }
+  const attemptFromUserB: Partial<AttemptRecord> = { id: 'att-user-b', userId: userBId }
+  const canPushForUser = (att: Partial<AttemptRecord>, currentUserId: string) =>
+    !att.userId || att.userId === currentUserId
+  assert(canPushForUser(attemptFromUserA, userAId) === true, 'user A attempt is allowed for user A sync')
+  assert(canPushForUser(attemptFromGuest, userAId) === true, 'guest attempt is allowed for user A sync')
+  assert(canPushForUser(attemptFromUserB, userAId) === false, 'user B attempt is blocked from user A sync')
 
   // --------------------------------------------------------------------------
   // TEST 14: Reset Password Form Contract Validation

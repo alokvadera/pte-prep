@@ -121,6 +121,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     JSON.stringify({
       attempt: {
         id: row.id,
+        userId: row.user_id,
         mockId: row.mock_id,
         mockTitle: row.mock_title,
         mockKind,

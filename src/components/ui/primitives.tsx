@@ -462,12 +462,12 @@ export function Toggle({
         aria-checked={checked}
         aria-label={label}
         onChange={(e) => onChange(e.target.checked)}
-        className="sr-only"
+        className="sr-only peer"
       />
       <span
         aria-hidden="true"
         className={cn(
-          'relative mt-0.5 h-6 w-11 shrink-0 rounded-full border transition-colors duration-200 ease-out',
+          'relative mt-0.5 h-6 w-11 shrink-0 rounded-full border transition-colors duration-200 ease-out peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-offset-ink-900',
           checked ? 'border-mint-600 bg-mint-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
         )}
       >

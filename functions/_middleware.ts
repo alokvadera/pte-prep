@@ -25,7 +25,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
       newHeaders.set('Vary', 'Origin')
     }
     newHeaders.set('X-Content-Type-Options', 'nosniff')
-    newHeaders.set('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'")
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -36,7 +35,6 @@ export const onRequest: PagesFunction<Env> = async (context) => {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Content-Type-Options': 'nosniff',
-      'Content-Security-Policy': "default-src 'none'; frame-ancestors 'none'",
     }
     if (allowedOrigin) {
       headers['Access-Control-Allow-Origin'] = allowedOrigin

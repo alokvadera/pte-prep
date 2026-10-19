@@ -247,6 +247,7 @@ export type MockMode = 'exam' | 'practice' | 'review'
 
 export interface AttemptRecord {
   id: string
+  userId?: string
   mockId: string
   mockTitle: string
   mockKind?: 'full' | 'section' | 'drill'

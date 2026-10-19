@@ -4,6 +4,8 @@ import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/bluep
 import { manifestBankCapacity } from '../content/manifest'
 import { Seo } from '../seo/Seo'
 import { listAttempts } from '../db/db'
+import { syncCloudToLocal } from '../lib/sync'
+import { useAuth } from '../store/useAuth'
 import type { AttemptRecord } from '../domain/types'
 import { ButtonLink, CtaBand } from '../components/ui/primitives'
 import { CountUp, Reveal } from '../components/ui/motion'
@@ -90,7 +92,7 @@ const FAQ = [
   {
     question: 'Does it work offline?',
     answer:
-      'Yes. After the first visit the app is cached and audio is built on your own device rather than streamed, so core practice keeps working with no connection. Speech recognition and cloud sync need a connection when you use them.',
+      'Yes. After the first visit the app is cached and audio uses local speech synthesis when offline, so core practice keeps working with no connection. Speech recognition, cloud sync, and AI scoring need a connection when you use them.',
   },
 ]
 
@@ -109,14 +111,25 @@ export default function Home() {
   const [latestAttempt, setLatestAttempt] = useState<AttemptRecord | null>(null)
 
   useEffect(() => {
-    void listAttempts(1)
-      .then((attempts) => {
-        const first = attempts[0]
-        if (first) {
-          setLatestAttempt(first)
+    let cancelled = false
+    void (async () => {
+      try {
+        const local = await listAttempts(1)
+        if (!cancelled && local[0]) setLatestAttempt(local[0])
+        if (useAuth.getState().token) {
+          const { pulled } = await syncCloudToLocal()
+          if (!cancelled && pulled > 0) {
+            const fresh = await listAttempts(1)
+            if (!cancelled && fresh[0]) setLatestAttempt(fresh[0])
+          }
         }
-      })
-      .catch(() => {})
+      } catch {
+        /* ignore */
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   const STEPS = [

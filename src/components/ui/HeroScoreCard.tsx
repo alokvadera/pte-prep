@@ -36,7 +36,7 @@ interface ScoreProfile {
 
 const SCORE_PRESETS: ScoreProfile[] = [
   {
-    cefr: 'B2 · CEFR band',
+    cefr: 'C1 · CEFR band',
     cefrColor: '#FF7EB6',
     cefrShadow: '#E85B9B',
     overall: 76,
@@ -56,7 +56,7 @@ const SCORE_PRESETS: ScoreProfile[] = [
     badgeTone: 'Superior 20 immigration points unlocked',
   },
   {
-    cefr: 'C2 · Superior 86+',
+    cefr: 'C2 · Superior 85+',
     cefrColor: '#2EB88A',
     cefrShadow: '#1D7A5B',
     overall: 88,

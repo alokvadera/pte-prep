@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { safeStateStorage } from '../lib/storage'
+import { clearAttempts } from '../db/db'
+import { clearDeletedIds } from '../lib/sync'
+import { useSettings } from './useSettings'
 
 export interface User {
   id: string
@@ -127,15 +130,19 @@ export const useAuth = create<AuthStore>()(
         targetScoreSeq = 0
         const { token } = get()
         // Drop the local session first so a slow or failed request cannot leave
-        // the user appearing signed in, then revoke it on the server. Without
-        // that second step the bearer token stays valid until it expires, so a
-        // copy of it would keep working after the user had signed out.
+        // the user appearing signed in, then revoke it on the server.
         set({
           user: null,
           token: null,
           expiresAt: null,
           error: null,
         })
+        if (typeof window !== 'undefined') {
+          void clearAttempts()
+          void clearDeletedIds()
+          useSettings.getState().set('groqApiKey', '')
+          useSettings.getState().set('aiScoringEnabled', false)
+        }
         if (token && typeof window !== 'undefined') {
           void fetch('/api/auth/logout', {
             method: 'POST',
@@ -245,8 +252,10 @@ export const useAuth = create<AuthStore>()(
           const res = await fetch('/api/auth/me', {
             headers: { Authorization: `Bearer ${token}` },
           })
+          if (get().token !== token) return
           if (res.ok) {
             const data = (await res.json()) as { user?: User; expiresAt?: number }
+            if (get().token !== token) return
             if (data.user) {
               const freshExpiresAt =
                 typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + SESSION_FALLBACK_MS
@@ -258,6 +267,7 @@ export const useAuth = create<AuthStore>()(
               })
             }
           } else if (res.status === 401) {
+            if (get().token !== token) return
             set({ user: null, token: null, expiresAt: null })
           }
         } catch {

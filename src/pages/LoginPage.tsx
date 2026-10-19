@@ -449,8 +449,7 @@ export default function LoginPage() {
                       </button>
                     </p>
                     <p className="mt-2 text-xs text-ink-500 dark:text-ink-on-dark-muted">
-                      Forgot your password? It can be reset from the account page on any device where
-                      you are still signed in. Your local practice history is unaffected either way.
+                      Forgot your password? Use the &ldquo;Forgot password?&rdquo; link above to receive a secure reset link by email.
                     </p>
                   </>
                 ) : (

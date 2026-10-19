@@ -262,6 +262,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         e.target instanceof HTMLSelectElement ||
         (e.target as HTMLElement)?.isContentEditable
       ) return
+      if (e.repeat) return
 
       const curSection = mock.sections[sectionIndex]
       if (!curSection) return

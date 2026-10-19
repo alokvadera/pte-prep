@@ -33,7 +33,7 @@ export const MANIFEST_CAPACITY: Record<QuestionType, number> = {
   'repeat-sentence': 397,
   'describe-image': 60,
   'retell-lecture': 24,
-  'answer-short-question': 250,
+  'answer-short-question': 130,
   'summarize-group-discussion': 14,
   'respond-to-situation': 36,
   'summarize-written-text': 40,

@@ -71,6 +71,13 @@ async function unmarkAllDeleted(ids: string[]): Promise<void> {
   })
 }
 
+/** Clears all pending tombstones (used on logout/account switch). */
+export async function clearDeletedIds(): Promise<void> {
+  return serializeTombstone(async () => {
+    await writeKv(DELETED_IDS_KEY, [])
+  })
+}
+
 export async function syncAttemptToCloud(attempt: AttemptRecord): Promise<boolean> {
   const token = useAuth.getState().token
   if (!token) return false
@@ -271,11 +278,22 @@ export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: numb
       if (attempt) pulled++
     }
 
-    // Push local attempts not yet in cloud (skip tombstoned attempts)
+    const currentUser = useAuth.getState().user
+    // Push local attempts not yet in cloud (skip tombstoned attempts and other users' attempts)
     for (const la of localAttempts) {
       if (toPushSet.has(la.id)) {
-        const ok = await syncAttemptToCloud(la)
-        if (ok) pushed++
+        if (la.userId && currentUser && la.userId !== currentUser.id) {
+          // Do not upload an attempt that belongs to a different user account
+          continue
+        }
+        const toSync = currentUser && !la.userId ? { ...la, userId: currentUser.id } : la
+        const ok = await syncAttemptToCloud(toSync)
+        if (ok) {
+          if (!la.userId && currentUser) {
+            await saveAttempt(toSync)
+          }
+          pushed++
+        }
       }
     }
 

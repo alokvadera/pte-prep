@@ -85,6 +85,7 @@ import { Stepper } from '../components/ui/stepper'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { Avatar } from '../components/ui/avatar'
 import { useClientReady } from '../lib/useClientReady'
+import { Seo } from '../seo/Seo'
 
 /* ---------------------------------------------------------------------------
    A living catalogue of every UI element in the mock. Each section
@@ -230,10 +231,12 @@ export default function UiElements() {
   const [alertOpen, setAlertOpen] = useState(false)
 
   return (
-    <PageWrapper
-      size="content"
-      breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'UI elements' }]} />}
-      eyebrow="Component catalogue"
+    <>
+      <Seo />
+      <PageWrapper
+        size="content"
+        breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'UI elements' }]} />}
+        eyebrow="Component catalogue"
       title={
         <>
           Every UI element, in one place
@@ -769,5 +772,6 @@ export default function UiElements() {
         />
       </div>
     </PageWrapper>
+  </>
   )
 }
