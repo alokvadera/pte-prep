@@ -17,9 +17,6 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      SITE_ORIGIN: https://pte-prep.pages.dev
-      VITE_SITE_ORIGIN: https://pte-prep.pages.dev
     steps:
       - uses: actions/checkout@v4
 
