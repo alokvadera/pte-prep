@@ -1,26 +1,28 @@
 # PTE Prep
 
-Free, unlimited PTE Academic mock tests that run entirely in the browser.
+Free, unlimited PTE Academic mock tests. Core practice runs in the browser;
+an optional account adds cloud sync.
 
 Full-length timed tests across all 22 official question types, with an instant
-score report, per-item feedback, CEFR band and progress history. No account, no
-payment, no backend — which is also why hosting costs nothing.
+score report, per-item feedback, CEFR band and progress history. No payment and
+no account required to start.
 
 ---
 
 ## Why it costs $0
 
-The whole product runs client-side. There is no server to operate, no database
-and no per-request cost, and the listening/speaking audio is synthesised by the
-visitor's own device instead of streamed from a server. The build output is a
-folder of static files, so any free hosting tier covers it indefinitely.
+The core product runs client-side: attempts, settings and scores live in the
+visitor's IndexedDB, and listening audio is served as static files with the
+device's speech synthesiser as an offline fallback. The build output is a
+folder of static assets. Optional cloud sync uses Cloudflare Pages Functions
+and D1 on the free tier; optional AI scoring uses the visitor's own Groq key.
 
 | Need | How it is met | Cost |
 | --- | --- | --- |
-| Hosting | Cloudflare Pages (static assets + Pages Functions + D1) | $0 |
-| Audio | Browser speech synthesiser (local on macOS, Windows, iOS, Android) | $0 |
+| Hosting | Cloudflare Pages static assets; optional Functions + D1 for sync | Free tier |
+| Audio | Static audio clips; browser speech synthesis fallback | Free tier |
 | Practice material | Original passages, lectures and charts written for this site | $0 |
-| Storage | IndexedDB in the visitor's browser | $0 |
+| Storage | IndexedDB in the visitor's browser; optional D1 for sync | Free tier |
 | Scoring | Deterministic rubric in the page — no model to run | $0 |
 | Images | SVG drawn from data at runtime; PNG icons generated from a script | $0 |
 
@@ -281,7 +283,8 @@ scripts/
   gen-assets.mjs     PNG icons and the Open Graph image
   render-plates.mjs  Renders the design plate from the philosophy
   contrast.mjs       WCAG 1.4.3 audit of the palette
-  smoke.ts           Engine test: 146 assertions, 46 from the Score Guide
+  smoke.ts           Engine test: 187 assertions, 46 from the Score Guide
+  bank-check.ts      Content bank structure: 4000+ checks over the material
   browser-check.mjs  Headless Chrome: hydration, SEO, and a full test run
   serve.mjs          Host-accurate static server for local verification
 components.json    shadcn config with the @aceternity registry
@@ -294,7 +297,7 @@ components.json    shadcn config with the @aceternity registry
 ## Verifying
 
 ```bash
-npm run verify    # typecheck, lint, and the engine test
+npm run verify    # typecheck, lint, engine test, bank check, unit suite, contrast, SEO
 npm run build     # typecheck, bundle, prerender
 npm run test:browser   # needs a Chrome binary and a running `npm run serve`
 ```
@@ -302,7 +305,9 @@ npm run test:browser   # needs a Chrome binary and a running `npm run serve`
 `scripts/smoke.ts` checks the content bank, mock assembly, every scoring path,
 and 46 assertions transcribed from the Score Guide itself — the adjacent-pair rule
 for Re-order Paragraphs, the −1 deductions, the zero gates, the Form bands and the
-CEFR boundaries. `scripts/contrast.mjs` audits 75 colour pairs against WCAG
+CEFR boundaries. `scripts/bank-check.ts` checks the content bank's structure.
+Both run as part of `npm run verify`, alongside the unit suite.
+`scripts/contrast.mjs` audits 75 colour pairs against WCAG
 1.4.3. `scripts/browser-check.mjs` drives headless Chrome through every route,
 sits a full mock end to end, and fails on hydration mismatches, console errors
 or missing metadata.

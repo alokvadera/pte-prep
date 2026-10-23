@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Flame } from 'lucide-react'
 import { cn } from '../../lib/cn'
 import { computeStreaks } from './compute-streaks'
@@ -16,8 +16,23 @@ import { computeStreaks } from './compute-streaks'
 
 const MILESTONES = [7, 14, 21, 30]
 
-export function StreakWidget({ dates, className }: { dates: string[]; className?: string }) {
-  const { current, longest } = useMemo(() => computeStreaks(dates), [dates])
+export function StreakWidget({
+  dates,
+  today,
+  className,
+}: {
+  dates: string[]
+  /** The day the streak is counted against. Omitted, it is the day the
+   *  widget mounts — captured once, so it cannot change under the
+   *  visitor's feet. */
+  today?: Date
+  className?: string
+}) {
+  const [anchor] = useState(() => today ?? new Date())
+  const { current, longest } = useMemo(
+    () => computeStreaks(dates, today ?? anchor),
+    [dates, today, anchor],
+  )
   const alive = current > 0
 
   return (

@@ -460,6 +460,38 @@
   inset: 0;
   transform: rotateY(180deg);
 }
+/* The keyboard affordance on a flip card: a visually hidden button that
+   reveals itself the moment it takes focus, so a keyboard user can see
+   where they are (WCAG 2.4.7). Written as one rule rather than a stack
+   of focus: utilities, so no half of the hidden state can survive. */
+@utility flip-toggle {
+  @apply sr-only;
+  &:focus {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 20;
+    width: auto;
+    height: auto;
+    margin: 0;
+    padding: 0.5rem 0.75rem;
+    overflow: visible;
+    clip-path: none;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+    background: var(--color-white);
+    color: var(--color-ink-900);
+    font-size: 0.875rem;
+    font-weight: 600;
+    box-shadow: var(--shadow-card);
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+  &:where(.dark, .dark *) {
+    background: var(--color-ink-850);
+    color: var(--color-ink-50);
+  }
+}
 
 /* TextReveal — each word of a heading rises
    and un-blurs a beat after the last. The
@@ -1315,8 +1347,34 @@
 @utility callout-rose {
   @apply border-rose-600/30 bg-rose-500/[0.06] dark:border-rose-400/30 dark:bg-rose-500/10;
 }
+/* The rule variant: a note inside a surface that already has one. Only the
+   left rule is coloured, so the tone lives in a custom property rather than
+   in the panel's own tint — a tone class can then change the rule without
+   having to out-specify the base utility, whatever order they land in. */
 @utility callout-rule {
-  @apply border-0 border-l-2 border-l-ink-900 bg-transparent p-0 pl-4 dark:border-l-ink-50;
+  @apply border-0 border-l-2 bg-transparent p-0 pl-4;
+  border-left-color: var(--callout-rule-color, var(--color-ink-900));
+  &:where(.dark, .dark *) {
+    border-left-color: var(--callout-rule-color, var(--color-ink-50));
+  }
+}
+@utility callout-rule-mint {
+  --callout-rule-color: var(--color-mint-500);
+  &:where(.dark, .dark *) {
+    --callout-rule-color: var(--color-mint-400);
+  }
+}
+@utility callout-rule-amber {
+  --callout-rule-color: var(--color-amber-500);
+  &:where(.dark, .dark *) {
+    --callout-rule-color: var(--color-amber-400);
+  }
+}
+@utility callout-rule-rose {
+  --callout-rule-color: var(--color-rose-500);
+  &:where(.dark, .dark *) {
+    --callout-rule-color: var(--color-rose-400);
+  }
 }
 @utility callout-title {
   @apply text-ink-600 dark:text-ink-on-dark-muted text-xs font-bold;

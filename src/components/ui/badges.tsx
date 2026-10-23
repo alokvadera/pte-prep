@@ -63,10 +63,12 @@ const ACHIEVEMENTS: Achievement[] = [
       if (a.length < 2) return false
       const sorted = [...a].sort((x, y) => new Date(x.startedAt).getTime() - new Date(y.startedAt).getTime())
       const first = sorted[0]
+      /* v8 ignore next -- the array has at least two entries, so the first exists */
       if (!first) return false
       let bestSoFar = first.overallScore
       for (let i = 1; i < sorted.length; i++) {
         const item = sorted[i]
+        /* v8 ignore next -- the index is inside the array */
         if (!item) continue
         if (item.overallScore - bestSoFar >= 5) return true
         if (item.overallScore > bestSoFar) bestSoFar = item.overallScore

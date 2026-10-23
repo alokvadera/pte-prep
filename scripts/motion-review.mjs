@@ -20,8 +20,8 @@
 // Usage: node scripts/motion-review.mjs [baseUrl]
 // ---------------------------------------------------------------------------
 
-import { spawn } from 'node:child_process'
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import zlib from 'node:zlib'
 import path from 'node:path'
@@ -103,7 +103,7 @@ const TILT_TRAVEL = Number(
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-motion-'))
 const PORT = 9335
-const chrome = spawn(
+const chrome = spawnChrome(
   binary,
   [
     '--headless=new',
@@ -118,7 +118,6 @@ const chrome = spawn(
     `--window-size=${WIDTH},${HEIGHT}`,
     'about:blank',
   ],
-  { stdio: 'ignore' },
 )
 
 async function waitForDevTools() {
@@ -134,8 +133,7 @@ async function waitForDevTools() {
 }
 
 if (!(await waitForDevTools())) {
-  chrome.kill()
-  await rm(profile, { recursive: true, force: true })
+  await stopChrome(chrome, profile)
   console.error('  Chrome did not expose a debugging port.')
   process.exit(1)
 }
@@ -879,6 +877,4 @@ await setReducedMotion(false)
 console.log(findings.join('\n'))
 console.log(`\n  Screenshots written to ${path.relative(process.cwd(), OUT_DIR)}${path.sep}*.png\n`)
 
-chrome.kill()
-await sleep(300)
-await rm(profile, { recursive: true, force: true }).catch(() => {})
+await stopChrome(chrome, profile)

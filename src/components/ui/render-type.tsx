@@ -1,6 +1,6 @@
-import { useEffect, useState, useMemo, type ElementType, type ReactNode } from 'react'
+import { useEffect, useRef, useState, useMemo, type ElementType, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
-import { prefersReducedMotion } from '../../lib/motion'
+import { usePrefersReducedMotion } from '../../lib/motion'
 
 export interface RenderTypeProps {
   /** Single string or array of strings to cycle through. */
@@ -58,18 +58,31 @@ export function RenderType({
   const shouldLoop = loop ?? phrases.length > 1
 
   const [phraseIndex, setPhraseIndex] = useState(0)
-  const [displayText, setDisplayText] = useState(() => (prefersReducedMotion() ? (phrases[0] ?? '') : ''))
+  // The hook is given a server snapshot, so the server's render and the first
+  // render during hydration agree; the preference is applied straight
+  // afterwards. Reading the media query during render instead would give a
+  // reduced-motion visitor different text from the server's, and break
+  // hydration on the prerendered home page.
+  const isReduced = usePrefersReducedMotion()
+  const [displayText, setDisplayText] = useState('')
   const [isDeleting, setIsDeleting] = useState(false)
 
-  const isReduced = prefersReducedMotion()
+  // The callback is held in a ref rather than being a dependency: a caller
+  // that passes an inline arrow would otherwise re-run the effect on every
+  // render, and the effect calls the callback back.
+  const onCompleteRef = useRef(onComplete)
+  useEffect(() => {
+    onCompleteRef.current = onComplete
+  }, [onComplete])
+
   const currentPhrase = phrases[phraseIndex] ?? ''
   const renderedText = isReduced ? (phrases[0] ?? '') : displayText
   const isTypingActive = !isReduced && displayText.length > 0 && displayText.length < currentPhrase.length
 
   useEffect(() => {
     // If the candidate prefers reduced motion, notify completion immediately without typing loop
-    if (prefersReducedMotion()) {
-      onComplete?.()
+    if (isReduced) {
+      onCompleteRef.current?.()
       return
     }
 
@@ -78,6 +91,7 @@ export function RenderType({
     // Starting or in-progress
     if (!isDeleting) {
       if (displayText.length < currentPhrase.length) {
+        /* v8 ignore next -- the index is inside the phrase while it is typing */
         const nextChar = currentPhrase[displayText.length] ?? ''
         // Add natural human micro-pause after punctuation
         const isPunctuation = [',', '.', '!', '?', ';', ':'].includes(nextChar)
@@ -88,7 +102,7 @@ export function RenderType({
         }, delay)
       } else {
         // Phrase is fully typed
-        onComplete?.()
+        onCompleteRef.current?.()
 
         if (shouldLoop && phrases.length > 1) {
           timer = setTimeout(() => {
@@ -114,6 +128,7 @@ export function RenderType({
   }, [
     displayText,
     isDeleting,
+    isReduced,
     currentPhrase,
     phrases.length,
     shouldLoop,
@@ -121,7 +136,6 @@ export function RenderType({
     deleteSpeed,
     holdDuration,
     startDelay,
-    onComplete,
   ])
 
   // Cursor styling based on chosen style

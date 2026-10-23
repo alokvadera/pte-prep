@@ -13,6 +13,7 @@ export interface OrbitingCirclesProps extends React.HTMLAttributes<HTMLDivElemen
   children?: React.ReactNode
   reverse?: boolean
   duration?: number
+  /** Delay before the orbit starts, in seconds. */
   delay?: number
   radius?: number
   path?: boolean
@@ -25,10 +26,12 @@ export function OrbitingCircles({
   children,
   reverse,
   duration = 20,
+  delay = 0,
   radius = 160,
   path = true,
   iconSize = 32,
   speed = 1,
+  style,
   ...props
 }: OrbitingCirclesProps) {
   const calculatedDuration = duration / speed
@@ -51,6 +54,7 @@ export function OrbitingCircles({
       )}
       {React.Children.map(children, (child, index) => {
         const count = React.Children.count(children)
+        /* v8 ignore next -- the callback only runs when there are children */
         const angle = (360 / (count || 1)) * index
         return (
           <div
@@ -60,6 +64,11 @@ export function OrbitingCircles({
                 '--radius': radius,
                 '--angle': angle,
                 '--icon-size': `${iconSize}px`,
+                // The caller's own style is merged in, not written over:
+                // a style prop that replaced the custom properties would
+                // stop the orbit dead.
+                ...style,
+                ...(delay ? { animationDelay: `${delay}s` } : {}),
               } as React.CSSProperties
             }
             className={cn(

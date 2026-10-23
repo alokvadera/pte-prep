@@ -8,6 +8,9 @@
  */
 
 function readEnv(): string {
+  // `import.meta.env` is always present under Vite — the build inlines it —
+  // so the fallback below is a guard, not a reachable branch.
+  /* v8 ignore next -- import.meta.env is always defined in a Vite build */
   const envObj = typeof import.meta !== 'undefined' && import.meta.env ? import.meta.env : undefined
   const fromEnv = (envObj as unknown as { VITE_SITE_ORIGIN?: string })?.VITE_SITE_ORIGIN ?? ''
   return fromEnv.replace(/\/+$/, '')
@@ -33,10 +36,10 @@ export function absoluteUrl(path: string): string {
   const clean = path.startsWith('/') ? path : `/${path}`
   // A build-time origin is trusted whole, sub-path included.
   if (SITE_ORIGIN) return `${SITE_ORIGIN}${clean}`
-  if (typeof window !== 'undefined') {
+  if (typeof window !== 'undefined' && window.location?.origin) {
     // Runtime fallback: the served origin plus the router base, so sub-path
     // deployments (e.g. /repo/) produce correct URLs without a rebuild.
-    const base = import.meta.env.BASE_URL ?? '/'
+    const base = import.meta.env?.BASE_URL ?? '/'
     const prefix = base.endsWith('/') ? base.slice(0, -1) : base
     return `${window.location.origin}${prefix}${clean}`
   }

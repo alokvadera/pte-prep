@@ -28,7 +28,20 @@ interface Props {
   leadIn?: number
   /** Show the transcript beneath the player. */
   showTranscript?: boolean
+  /** An exam run: the transcript must not become reachable. */
+  examMode?: boolean
   onPlayed?: () => void
+  /**
+   * How many times the stimulus has already been played.
+   *
+   * The runner remounts the player every time the candidate moves between
+   * items, so a count held in this component would be reset by navigating
+   * away and back — and the "plays once" rule would be trivially bypassed.
+   * The count therefore lives in the response, and is passed back in.
+   */
+  playsUsed?: number
+  /** Called when a play is charged, so the caller can record it. */
+  onPlayUsed?: () => void
   onPlayStateChange?: (playing: boolean) => void
   compact?: boolean
   allowSpeedControl?: boolean
@@ -46,7 +59,10 @@ export function AudioPlayer({
   replays = 0,
   leadIn = 3,
   showTranscript = false,
+  examMode = false,
   onPlayed,
+  playsUsed = 0,
+  onPlayUsed,
   onPlayStateChange,
   compact = false,
   allowSpeedControl = false,
@@ -59,6 +75,12 @@ export function AudioPlayer({
   const [speed, setSpeed] = useState<0.8 | 1.0 | 1.2>(1.0)
   const [showText, setShowText] = useState(false)
   const [unsupported, setUnsupported] = useState(false)
+  // The transcript is the stimulus for several types — the text to write from
+  // dictation, the sentence to repeat, the passage with the wrong words in it
+  // — so in an exam it must not become reachable just because the audio
+  // failed to play. Outside an exam it stays as the fallback for a browser
+  // that cannot make the sound at all.
+  const canShowTranscript = (showTranscript || unsupported) && !examMode
   const controllerRef = useRef<SpeakController | null>(null)
   const timerRef = useRef<number | null>(null)
   const onPlayedRef = useRef(onPlayed)
@@ -66,6 +88,11 @@ export function AudioPlayer({
   useEffect(() => {
     onPlayedRef.current = onPlayed
   }, [onPlayed])
+
+  const onPlayUsedRef = useRef(onPlayUsed)
+  useEffect(() => {
+    onPlayUsedRef.current = onPlayUsed
+  }, [onPlayUsed])
 
   const onPlayStateChangeRef = useRef(onPlayStateChange)
   useEffect(() => {
@@ -86,8 +113,6 @@ export function AudioPlayer({
 
   useEffect(() => {
     // oxlint-disable-next-line react/set-state-in-effect
-    setPlaysLeft(replays + 1)
-    // oxlint-disable-next-line react/set-state-in-effect
     setState('idle')
     // oxlint-disable-next-line react/set-state-in-effect
     setShowText(false)
@@ -96,6 +121,16 @@ export function AudioPlayer({
     // oxlint-disable-next-line react/set-state-in-effect
     setUnsupported(false)
   }, [stimulusKey, replays])
+
+  // The caller owns the count whenever it reports plays back: the runner
+  // remounts the player every time the candidate moves between items, so a
+  // count held only here would be reset by navigating away and back, and the
+  // "the recording plays once" rule would be trivially bypassed. A player
+  // used on its own keeps its own count.
+  useEffect(() => {
+    // oxlint-disable-next-line react/set-state-in-effect
+    setPlaysLeft(Math.max(0, replays + 1 - playsUsed))
+  }, [replays, playsUsed])
 
   const clearTimer = useCallback(() => {
     if (timerRef.current !== null) {
@@ -131,14 +166,18 @@ export function AudioPlayer({
     let n = leadIn
 
     const step = () => {
-      if (n >= 0) playCountdownBeep(n)
-      n -= 1
       if (n < 0) {
-        setPlaysLeft((p) => p - 1)
+        setPlaysLeft((p) => Math.max(0, p - 1))
+        onPlayUsedRef.current?.()
         setState('playing')
         return
       }
+      // The number on screen and the beep that sounds with it are the same
+      // moment. They used to be a second apart, so the "0" was shown long
+      // after the last beep and never sounded with the number it belonged to.
       setCountdown(n)
+      playCountdownBeep(n)
+      n -= 1
       timerRef.current = window.setTimeout(step, 1000)
     }
 
@@ -161,6 +200,7 @@ export function AudioPlayer({
         setState('idle')
       }
       const runFallback = async () => {
+        /* v8 ignore next -- the fallback is only entered while the effect runs */
         if (cancelled) return
         if (beepWord !== undefined && fromTurn !== undefined && script) {
           const turn = script.turns[fromTurn]
@@ -231,6 +271,7 @@ export function AudioPlayer({
           }
 
           const tryPlay = (sources: string[]) => {
+            /* v8 ignore next -- the callers all check the flag first */
             if (cancelled) return
             const src = sources[0]
             if (!src) {
@@ -271,7 +312,7 @@ export function AudioPlayer({
       controllerRef.current?.stop()
       controllerRef.current = null
     }
-  }, [state, script, utterance, audioId, clipId, fromTurn, toTurn, beepWord, speed])
+  }, [state, script, utterance, audioId, clipId, fromTurn, toTurn, beepWord, speed, stimulusKey])
 
   if (!script && !utterance && !audioId && !clipId) return null
 
@@ -332,6 +373,9 @@ export function AudioPlayer({
                   setUnsupported(true)
                   return
                 }
+                // A previous failure must not keep the "cannot play audio"
+                // notice on screen once a later attempt works.
+                setUnsupported(false)
                 setTurnIndex(0)
                 setCountdown(leadIn)
                 setState('countdown')
@@ -377,7 +421,8 @@ export function AudioPlayer({
 
       {unsupported ? (
         <p className="text-rose-600 dark:text-rose-300 mt-3 text-xs">
-          This browser cannot play audio. Open the page in Chrome, Edge or Safari, or read the transcript below.
+          This browser cannot play audio. Open the page in Chrome, Edge or Safari
+          {canShowTranscript ? ', or read the transcript below.' : '.'}
         </p>
       ) : null}
 
@@ -400,7 +445,7 @@ export function AudioPlayer({
         )
       ) : null}
 
-      {showTranscript || unsupported ? (
+      {canShowTranscript ? (
         <button
           type="button"
           className="text-brand-500 dark:text-brand-300 mt-3 cursor-pointer text-xs font-semibold hover:underline"

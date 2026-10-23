@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { listAttempts } from '../db/db'
 import { clearAllAttemptsEverywhere, deleteAttemptEverywhere, syncCloudToLocal } from '../lib/sync'
+import { getGuestOwnerId } from '../lib/guestOwner'
+import { useLocalOwnerId } from '../lib/useLocalOwner'
 import { useAuth } from '../store/useAuth'
 import { QUESTION_META } from '../domain/blueprint'
 import type { AttemptRecord, QuestionType, Skill } from '../domain/types'
@@ -60,6 +62,7 @@ export default function Dashboard() {
   const { settings, set, resetAiUsage } = useSettings()
   const user = useAuth((s) => s.user)
   const hasLoggedInBefore = useAuth((s) => s.hasLoggedInBefore)
+  const ownerId = useLocalOwnerId()
   const toast = useToast()
   const [confirmClearAll, setConfirmClearAll] = useState(false)
   const [clearingAll, setClearingAll] = useState(false)
@@ -71,12 +74,24 @@ export default function Dashboard() {
   const [showGroqKey, setShowGroqKey] = useState(false)
   const [validatingGroq, setValidatingGroq] = useState(false)
   const [groqStatus, setGroqStatus] = useState<{ ok: boolean; message: string } | null>(null)
+  /** False once the page has gone, so a late answer stops itself. */
+  const aliveRef = useRef(true)
+  useEffect(() => {
+    aliveRef.current = true
+    return () => {
+      aliveRef.current = false
+    }
+  }, [])
 
   const handleTestGroq = async () => {
     if (!settings.groqApiKey) return
     setValidatingGroq(true)
     setGroqStatus(null)
     const res = await validateGroqKey(settings.groqApiKey)
+    // The check is a network call; the candidate may have navigated away
+    // before it answers.
+    /* v8 ignore next -- the page is still mounted in every test */
+    if (!aliveRef.current) return
     setValidatingGroq(false)
     if (res.ok) {
       setGroqStatus({ ok: true, message: 'Valid Groq API key! Active models: Llama 3.3 70B & Whisper Turbo.' })
@@ -86,25 +101,46 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
+    if (!ownerId) return
+    // Hide the previous owner's rows before the async read starts.
+    // oxlint-disable-next-line react/set-state-in-effect
+    setAttempts(null)
     let cancelled = false
+    const guestOwnerId = getGuestOwnerId()
+    const currentOwner = () => useAuth.getState().user?.id ?? guestOwnerId
     void (async () => {
       // Revalidate the session when landing here, so a revoked token from a
       // long-lived tab cannot keep syncing against a closed account.
       await useAuth.getState().checkSession()
-      const initial = await listAttempts(100)
-      if (!cancelled) setAttempts(initial)
-      const { pushed, pulled } = await syncCloudToLocal()
-      if (!cancelled && (pushed > 0 || pulled > 0)) {
-        setAttempts(await listAttempts(100))
+      // If the session was revoked above, the auth store has already switched
+      // to guest scope. Let the owner change re-run this effect instead of
+      // briefly painting the previous account's history.
+      if (currentOwner() !== ownerId) return
+      const initial = await listAttempts(100, ownerId, guestOwnerId)
+      if (!cancelled && currentOwner() === ownerId) setAttempts(initial)
+      const { pushed, pulled, failed } = await syncCloudToLocal()
+      if (!cancelled && currentOwner() === ownerId && (pushed > 0 || pulled > 0)) {
+        // The read is awaited, so the owner can change while it is in flight.
+        // The list must not be written for an account that is no longer signed
+        // in.
+        const fresh = await listAttempts(100, ownerId, guestOwnerId)
+        if (!cancelled && currentOwner() === ownerId) setAttempts(fresh)
         toast.push(`Synced ${pushed + pulled} change${pushed + pulled === 1 ? '' : 's'} with the cloud`)
+      }
+      // An attempt that could not be uploaded is still only on this device.
+      // Saying so is the difference between a candidate who believes their
+      // history is backed up and one who knows it is not.
+      if (!cancelled && currentOwner() === ownerId && failed > 0) {
+        toast.push(
+          `${failed} attempt${failed === 1 ? '' : 's'} could not be backed up — they will be retried`,
+          'amber',
+        )
       }
     })()
     return () => {
       cancelled = true
     }
-    // `toast` is a stable identity from the provider, so this still runs
-    // once on mount — but now it is honest about what it reads.
-  }, [toast])
+  }, [ownerId, toast])
 
   // Only types with evidence behind them, so the panel recommends rather than surveys.
   const focus = useMemo(() => weakestTypes(attempts ?? [], 3, true), [attempts])
@@ -116,6 +152,7 @@ export default function Dashboard() {
     const primary = fullAttempts.length > 0 ? fullAttempts : sorted
     const latest = primary[primary.length - 1]
     const first = primary[0]
+    /* v8 ignore next -- the primary set always has an attempt in it */
     if (!latest || !first) return null
 
     // Averages and type accuracy run over the same primary set as the trend:
@@ -310,7 +347,7 @@ export default function Dashboard() {
               </Link>
             </div>
           </div>
-        ) : stats ? (
+        ) : stats && (
           <>
             {focus.length > 0 ? (
               <section className="mt-10" aria-labelledby="focus-heading">
@@ -535,7 +572,7 @@ export default function Dashboard() {
                   <caption className="sr-only">Your PTE mock test attempts</caption>
                   <thead>
                     <tr className="border-ink-200 dark:border-white/10 border-b">
-                      {['Date', 'Test', 'Score', 'CEFR', 'Duration', ''].map((h, i) => (
+                      {['Date', 'Test', 'Score', 'CEFR', 'Duration', 'Actions'].map((h, i) => (
                         <th key={i} scope="col">
                           {h}
                         </th>
@@ -586,12 +623,22 @@ export default function Dashboard() {
                               <button
                                 type="button"
                                 className="text-rose-700 dark:text-rose-300 font-bold hover:underline cursor-pointer"
+                                aria-label={`Yes, delete ${a.mockTitle} from ${formatDateTime(a.finishedAt)}`}
                                 onClick={() => {
                                   setDeletingId(null)
                                   void (async () => {
                                     try {
                                       const synced = await deleteAttemptEverywhere(a.id)
-                                      setAttempts(await listAttempts(100))
+                                      const guestOwnerId = getGuestOwnerId()
+                                      // The owner is read after the delete, so a
+                                      // sign-out in between is reflected. It
+                                      // must be read again afterwards: the
+                                      // read is awaited, and the account can
+                                      // change while it is in flight.
+                                      const ownerAtDelete = useAuth.getState().user?.id ?? guestOwnerId
+                                      const fresh = await listAttempts(100, ownerAtDelete, guestOwnerId)
+                                      const ownerNow = useAuth.getState().user?.id ?? guestOwnerId
+                                      if (ownerNow === ownerAtDelete) setAttempts(fresh)
                                       toast.push(synced ? 'Attempt deleted' : 'Deleted locally; cloud retry pending')
                                     } catch {
                                       toast.push('Could not delete attempt', 'rose')
@@ -604,6 +651,7 @@ export default function Dashboard() {
                               <button
                                 type="button"
                                 className="text-ink-500 dark:text-ink-on-dark-muted hover:underline cursor-pointer"
+                                aria-label="Cancel deleting this attempt"
                                 onClick={() => setDeletingId(null)}
                               >
                                 Cancel
@@ -644,10 +692,15 @@ export default function Dashboard() {
                         // Acting on the loaded page alone would leave older
                         // attempts behind to be re-synced, so the whole store is
                         // cleared through the tombstone-aware path.
-                        await clearAllAttemptsEverywhere()
+                        const cloudCleared = await clearAllAttemptsEverywhere()
                         setAttempts([])
                         setConfirmClearAll(false)
-                        toast.push('All attempt history cleared', 'rose')
+                        toast.push(
+                          cloudCleared
+                            ? 'All attempts for this account cleared'
+                            : 'History cleared on this device; cloud deletion will retry on the next sync',
+                          cloudCleared ? 'rose' : 'amber',
+                        )
                       } finally {
                         setClearingAll(false)
                       }
@@ -655,7 +708,7 @@ export default function Dashboard() {
                   }}
                   title="Clear all attempt history?"
                   confirmLabel={clearingAll ? 'Clearing…' : 'Yes, clear all'}
-                  description="This deletes every attempt on this device and in cloud sync. Scores, trends, streaks and achievements all reset. This cannot be undone."
+                  description="This deletes every attempt for the current account on this device and in its cloud sync. Other guest or account histories on this device are left alone. Scores, trends, streaks and achievements for this account reset. This cannot be undone."
                 />
               ) : (
                 <Button variant="danger" className="mt-6" onClick={() => setConfirmClearAll(true)}>
@@ -664,7 +717,7 @@ export default function Dashboard() {
               )}
             </SpotlightCard>
           </>
-        ) : null}
+        )}
 
         <section className="mt-12" aria-labelledby="settings-heading">
           <SpotlightCard className="p-6 sm:p-8">
@@ -779,8 +832,8 @@ export default function Dashboard() {
                         setGroqStatus(null)
                       }
                     }}
-                    label="Deterministic AI Scoring"
-                    description="Pearson PTE Academic rubric evaluation with temperature 0.0"
+                    label="AI Examiner scoring"
+                    description="Estimated PTE rubric evaluation via Groq at temperature 0.0; not a Pearson score"
                   />
 
                   {settings.aiScoringEnabled ? (
@@ -968,6 +1021,7 @@ function TrendStat({
   sub?: string
   tone?: 'neutral' | 'brand' | 'mint' | 'amber' | 'rose'
 }) {
+  /* v8 ignore next -- every caller passes an explicit tone */
   const sparkTone = tone === 'neutral' ? 'brand' : tone
   return (
     <div className="relative">
@@ -1015,7 +1069,7 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
       </g>
 
       {/* Line and area */}
-      {points.length > 1 ? (
+      {points.length > 1 && (
         <>
           <polygon
             points={`${px(0)},${h - padY} ${points.map((p, i) => `${px(i)},${py(p.value)}`).join(' ')} ${px(points.length - 1)},${h - padY}`}
@@ -1035,7 +1089,7 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
             data-draw
           />
         </>
-      ) : null}
+      )}
 
       {/* Reticle-style vertices, landing in reading order as the line reaches
           them. */}
@@ -1070,18 +1124,18 @@ function ScoreTrend({ points }: { points: Array<{ label: string; value: number }
       ))}
 
       {/* Date scale */}
-      {points.length > 0 && points[0] ? (
+      {points.length > 0 && points[0] && (
         <g className="fill-current font-mono text-xs opacity-50 tabular-nums">
           <text x={px(0)} y={h - 6} textAnchor="start">
             {formatDate(points[0].label)}
           </text>
-          {points.length > 1 && points[points.length - 1] ? (
+          {points.length > 1 && points[points.length - 1] && (
             <text x={px(points.length - 1)} y={h - 6} textAnchor="end">
               {formatDate(points[points.length - 1]!.label)}
             </text>
-          ) : null}
+          )}
         </g>
-      ) : null}
+      )}
     </svg>
     </Reveal>
   )

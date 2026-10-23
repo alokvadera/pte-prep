@@ -29,7 +29,16 @@ export default defineConfig({
         // importantly each route has its own prerendered document — precaching
         // one shared `index.html` would serve the home page for every URL.
         globPatterns: ['**/*.{js,css,woff2,svg,png,ico,webmanifest}'],
-        globIgnores: ['**/sw.js', '**/workbox-*.js', '**/registerSW.js', '**/og-*.png'],
+        // `audio-review.*` is the development-only recording explorer. It lives
+        // in public/ so it can be opened straight from the working tree, and it
+        // must never be precached for offline use by real visitors.
+        globIgnores: [
+          '**/sw.js',
+          '**/workbox-*.js',
+          '**/registerSW.js',
+          '**/og-*.png',
+          '**/audio-review.*',
+        ],
         cleanupOutdatedCaches: true,
         // Do not fall back to a single app shell: that is exactly the behaviour
         // that breaks a prerendered multi-route site.

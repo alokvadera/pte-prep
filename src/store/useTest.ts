@@ -5,6 +5,7 @@ import { QUESTION_META } from '../domain/blueprint'
 import { buildReport } from '../domain/scoring'
 import type { AttemptRecord, ItemResponse, MockMode, MockTest, QuestionType, SectionId, Skill } from '../domain/types'
 import { throttledStateStorage } from '../lib/storage'
+import { getGuestOwnerId } from '../lib/guestOwner'
 import { useAuth } from './useAuth'
 
 export type RunnerStatus = 'briefing' | 'running' | 'break' | 'finished'
@@ -22,8 +23,12 @@ interface TestStore {
   startedAt: string | null
   elapsedMs: number
   attemptId: string | null
+  /** Account id, or device-scoped guest id, that started this test. */
+  ownerId: string | null
   /** Bumped to ask the runner to advance; used for auto-advance on time-out. */
   timeExpired: boolean
+  /** True when the last attempt could not be written to this device. */
+  saveFailed: boolean
 
   start: (mock: MockTest, mode: MockMode) => void
   restore: () => void
@@ -42,8 +47,8 @@ interface TestStore {
   exit: () => void
 }
 
-function flatItems(mock: MockTest | null): string[] {
-  return mock ? mock.sections.flatMap((s) => s.itemIds) : []
+function flatItems(mock: MockTest): string[] {
+  return mock.sections.flatMap((s) => s.itemIds)
 }
 
 const safeJsonStorage = () => createJSONStorage(() => throttledStateStorage(1000))
@@ -61,10 +66,13 @@ export const useTest = create<TestStore>()(
       startedAt: null,
       elapsedMs: 0,
       attemptId: null,
+      ownerId: null,
       timeExpired: false,
+      saveFailed: false,
 
       start: (mock, mode) => {
         set({
+          ownerId: useAuth.getState().user?.id ?? getGuestOwnerId(),
           mock,
           mode,
           status: 'briefing',
@@ -79,6 +87,7 @@ export const useTest = create<TestStore>()(
               ? `att-${crypto.randomUUID()}`
               : `att-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`,
           timeExpired: false,
+          saveFailed: false,
         })
       },
 
@@ -187,7 +196,7 @@ export const useTest = create<TestStore>()(
       },
 
       finish: async () => {
-        const { mock, responses, startedAt, elapsedMs, mode, attemptId } = get()
+        const { mock, responses, startedAt, elapsedMs, mode, attemptId, ownerId } = get()
         if (!mock) return null
 
         const items = flatItems(mock)
@@ -207,14 +216,32 @@ export const useTest = create<TestStore>()(
 
         const hasEstimated = report.details.some((d) => d.maxPoints > 0 && d.traits !== undefined)
 
+        // The per-type counts the run actually used. A half or quick mock is
+        // not the full blueprint, and the report is rebuilt from the seed when
+        // it is reloaded, so the counts have to travel with the record.
+        const counts: Partial<Record<QuestionType, number>> = {}
+        for (const item of items) {
+          counts[item.type] = (counts[item.type] ?? 0) + 1
+        }
+
+        const effectiveOwnerId =
+          ownerId && ownerId.startsWith('guest:') && useAuth.getState().user?.id
+            ? useAuth.getState().user!.id
+            : ownerId
+
         const attempt: AttemptRecord = {
           id: attemptId ?? (typeof crypto !== 'undefined' && 'randomUUID' in crypto
             ? `att-${crypto.randomUUID()}`
             : `att-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`),
-          ...(useAuth.getState().user?.id ? { userId: useAuth.getState().user?.id } : {}),
+          // Stamp the owner that started the test, or the newly signed-in
+          // account if a guest authenticated while taking the test. A stale tab cannot
+          // silently move one registered account's work into another registered account.
+          ...(effectiveOwnerId && !effectiveOwnerId.startsWith('guest:') ? { userId: effectiveOwnerId } : {}),
+          ...(effectiveOwnerId ? { ownerId: effectiveOwnerId } : {}),
           mockId: mock.id,
           mockTitle: mock.title,
           mockKind: mock.kind,
+          counts,
           mode,
           startedAt: startedAt ?? new Date().toISOString(),
           finishedAt: new Date().toISOString(),
@@ -237,12 +264,14 @@ export const useTest = create<TestStore>()(
           details: report.details,
         }
 
-        set({ status: 'finished', attemptId: attempt.id })
-        try {
-          await saveAttempt(attempt)
-        } catch {
-          /* IndexedDB unavailable (private mode, quota): report still renders
-             from memory, the attempt just will not persist. */
+        set({ status: 'finished', attemptId: attempt.id, ownerId: effectiveOwnerId })
+        // The attempt is returned either way — the report renders from memory
+        // even when the write failed — but the candidate is told their result
+        // was not saved. A failed write used to be indistinguishable from a
+        // successful one, so the report claimed to be kept when it was not.
+        const saved = await saveAttempt(attempt)
+        if (!saved) {
+          set({ saveFailed: true })
         }
         return attempt
       },
@@ -258,7 +287,9 @@ export const useTest = create<TestStore>()(
           startedAt: null,
           elapsedMs: 0,
           attemptId: null,
+          ownerId: null,
           timeExpired: false,
+          saveFailed: false,
         }),
     }),
     {
@@ -275,6 +306,7 @@ export const useTest = create<TestStore>()(
         sectionEndsAt: s.sectionEndsAt,
         startedAt: s.startedAt,
         attemptId: s.attemptId,
+        ownerId: s.ownerId,
       }),
     },
   ),

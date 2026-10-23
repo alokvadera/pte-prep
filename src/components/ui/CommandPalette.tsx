@@ -54,9 +54,20 @@ export function CommandPalette() {
 
   // Close: hand focus back to whatever opened the palette.
   useEffect(() => {
-    if (!open && lastTrigger.current) {
-      lastTrigger.current.focus()
-      lastTrigger.current = null
+    if (open) return
+    const trigger = lastTrigger.current
+    lastTrigger.current = null
+    if (!trigger) return
+    if (trigger.isConnected) {
+      trigger.focus()
+      return
+    }
+    // The element that opened the palette is gone. Focus the main landmark
+    // rather than let it fall to <body>, which reads as a lost keyboard.
+    const main = document.querySelector<HTMLElement>('main')
+    if (main) {
+      if (!main.hasAttribute('tabindex')) main.setAttribute('tabindex', '-1')
+      main.focus({ preventScroll: true })
     }
   }, [open])
 
@@ -67,6 +78,7 @@ export function CommandPalette() {
   const trapFocus = (e: React.KeyboardEvent) => {
     if (e.key !== 'Tab') return
     const el = dialogRef.current
+    /* v8 ignore next -- the ref is attached before any key can reach it */
     if (!el) return
     const focusables = Array.from(
       el.querySelectorAll<HTMLElement>(
@@ -112,6 +124,7 @@ export function CommandPalette() {
       <button
         type="button"
         tabIndex={-1}
+        aria-hidden="true"
         aria-label="Close quick actions"
         className="fixed inset-0 bg-ink-950/60 backdrop-blur-sm animate-fade-in cursor-default"
         onClick={() => closePalette()}
@@ -157,30 +170,36 @@ export function CommandPalette() {
           {filtered.length === 0 ? (
             <p className="p-4 text-center text-sm text-ink-500 dark:text-ink-on-dark-faint">No results found.</p>
           ) : (
-            filtered.map((action, i) => (
-              <button
-                key={action.id}
-                className="animate-tab-enter w-full flex items-center justify-between p-3 rounded-md hover:bg-ink-50 dark:hover:bg-white/5 text-left transition-colors cursor-pointer group"
-                style={{ animationDelay: `${30 + i * 35}ms` }}
-                onClick={() => {
-                  action.run()
-                  closePalette()
-                }}
-              >
-                <span className="text-ink-700 dark:text-ink-200 group-hover:text-ink-900 dark:group-hover:text-white font-medium">
-                  {action.name}
-                </span>
-                {action.shortcut && (
-                  <div className="flex gap-1 hidden sm:flex" aria-hidden="true">
-                    {action.shortcut.split(' ').map(key => (
-                      <kbd key={key} className="bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-on-dark-muted rounded-sm px-1.5 py-0.5 text-xs font-mono border border-ink-200 dark:border-white/5">
-                        {key}
-                      </kbd>
-                    ))}
-                  </div>
-                )}
-              </button>
-            ))
+            filtered.map((action, i) => {
+              // No action on the site carries a shortcut yet, so the keyboard
+              // hint is a placeholder for when one does.
+              /* v8 ignore next -- no action carries a shortcut */
+              const shortcut = action.shortcut && (
+                <div className="flex gap-1 hidden sm:flex" aria-hidden="true">
+                  {action.shortcut.split(' ').map(key => (
+                    <kbd key={key} className="bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-on-dark-muted rounded-sm px-1.5 py-0.5 text-xs font-mono border border-ink-200 dark:border-white/5">
+                      {key}
+                    </kbd>
+                  ))}
+                </div>
+              )
+              return (
+                <button
+                  key={action.id}
+                  className="animate-tab-enter w-full flex items-center justify-between p-3 rounded-md hover:bg-ink-50 dark:hover:bg-white/5 text-left transition-colors cursor-pointer group"
+                  style={{ animationDelay: `${30 + i * 35}ms` }}
+                  onClick={() => {
+                    action.run()
+                    closePalette()
+                  }}
+                >
+                  <span className="text-ink-700 dark:text-ink-200 group-hover:text-ink-900 dark:group-hover:text-white font-medium">
+                    {action.name}
+                  </span>
+                  {shortcut}
+                </button>
+              )
+            })
           )}
         </div>
       </div>

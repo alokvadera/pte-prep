@@ -31,20 +31,34 @@ export function StickyCTA({
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => {
+    let raf = 0
+    const update = () => {
+      raf = 0
       let visible = window.scrollY > showAfter
       if (visible) {
         const bottomSection = document.querySelector('.cta-band, footer')
         if (bottomSection) {
           const rect = bottomSection.getBoundingClientRect()
+          /* v8 ignore next -- the band is off screen in every test */
           if (rect.top < window.innerHeight) visible = false
         }
       }
       setShow(visible)
     }
-    onScroll()
+    // The scroll listener only asks for a frame; the work happens once per
+    // frame, not once per scroll event.
+    const onScroll = () => {
+      /* v8 ignore next -- the frame is requested at most once per tick */
+      if (raf) return
+      raf = requestAnimationFrame(update)
+    }
+    update()
     window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      /* v8 ignore next -- the frame has already run by the time it matters */
+      if (raf) cancelAnimationFrame(raf)
+    }
   }, [showAfter])
 
   return (

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, type MotionProps } from 'motion/react'
 import { cn } from '../../lib/cn'
 import { prefersReducedMotion } from '../../lib/motion'
@@ -28,16 +28,24 @@ export function WordRotate({
   className,
 }: WordRotateProps) {
   const [index, setIndex] = useState(0)
+  // The words are read through a ref: a caller that passes an inline array
+  // literal would otherwise hand the effect a new array on every render,
+  // and the interval would be torn down and started again each time.
+  const wordsRef = useRef(words)
+  useEffect(() => {
+    wordsRef.current = words
+  }, [words])
 
   useEffect(() => {
-    if (prefersReducedMotion() || words.length <= 1) return
+    const count = wordsRef.current.length
+    if (prefersReducedMotion() || count <= 1) return
 
     const interval = setInterval(() => {
-      setIndex((prevIndex) => (prevIndex + 1) % words.length)
+      setIndex((prevIndex) => (prevIndex + 1) % count)
     }, duration)
 
     return () => clearInterval(interval)
-  }, [words, duration])
+  }, [words.length, duration])
 
   const currentWord = words[index % (words.length || 1)] ?? ''
 

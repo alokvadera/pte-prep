@@ -321,18 +321,20 @@ export class VoiceRecorder {
     this.raf = 0
 
     let audioBlob: Blob | null = null
-    if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {
+    // Captured locally: the recorder that is running is the one to stop, even
+    // if something else clears the field while the promise is pending.
+    const recorder = this.mediaRecorder
+    if (recorder && recorder.state !== 'inactive') {
       await new Promise<void>((resolve) => {
-        if (!this.mediaRecorder) return resolve()
-        this.mediaRecorder.onstop = () => resolve()
+        recorder.onstop = () => resolve()
         try {
-          this.mediaRecorder.stop()
+          recorder.stop()
         } catch {
           resolve()
         }
       })
       if (this.audioChunks.length > 0) {
-        const mime = this.mediaRecorder?.mimeType || 'audio/webm'
+        const mime = recorder.mimeType || 'audio/webm'
         audioBlob = new Blob(this.audioChunks, { type: mime })
       }
     }

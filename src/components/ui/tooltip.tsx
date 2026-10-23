@@ -34,6 +34,11 @@ export function Tooltip({
     if (timer.current) window.clearTimeout(timer.current)
     setOpen(false)
   }
+  // A tooltip that cannot be dismissed is a trap for the keyboard: WCAG
+  // 1.4.13 asks for Escape to close it.
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') hide()
+  }
   useEffect(() => () => {
     if (timer.current) window.clearTimeout(timer.current)
   }, [])
@@ -45,6 +50,7 @@ export function Tooltip({
       onMouseLeave={hide}
       onFocus={show}
       onBlur={hide}
+      onKeyDown={onKeyDown}
     >
       <span aria-describedby={open ? id : undefined}>{children}</span>
       {open ? (

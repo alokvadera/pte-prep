@@ -102,6 +102,7 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
   useEffect(() => {
     if (!open) return
     const panel = panelRef.current
+    /* v8 ignore next -- the ref is attached before the effect runs */
     if (!panel) return
 
     const previousActive = document.activeElement as HTMLElement | null
@@ -170,6 +171,7 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
                       ? 'bg-mint-500 text-ink-900 dark:bg-emerald-600 dark:text-white'
                       : 'bg-ink-200 text-ink-600 dark:bg-white/12 dark:text-ink-200',
                 )}
+                aria-current={current ? 'true' : undefined}
                 aria-label={`Question ${i + 1}${answered ? ', answered' : ', not answered'}${flagged ? ', flagged' : ''}`}
               >
                 {i + 1}
@@ -225,8 +227,24 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
   const forwardOnly = Boolean(mock?.forwardOnly)
   const [navOpen, setNavOpen] = useState(false)
   const onCloseNav = useCallback(() => setNavOpen(false), [])
+  // The question drawer must not survive a section break. The break screen
+  // unmounts the drawer but leaves the flag set, so the drawer would open by
+  // itself over the next section with its focus trap attached. Adjusting the
+  // state during render is React's own pattern for resetting state when
+  // something else changes, and avoids a second render pass.
+  const [lastStatus, setLastStatus] = useState(status)
+  if (status !== lastStatus) {
+    setLastStatus(status)
+    if (status !== 'running') setNavOpen(false)
+  }
+  // The section clock ticks every 250ms and lists this handler in its
+  // dependencies, so it has to be stable: a fresh arrow on every render tears
+  // the interval down and rebuilds it on every answer.
+  const handleExpire = useCallback(() => useTest.getState().expireSection(), [])
   // SC 4.1.3: question advanced, flag toggled, section changed.
   const [announcement, setAnnouncement] = useState('')
+  /** Counts the announcements so a repeated one still reaches the region. */
+  const [announcementCount, setAnnouncementCount] = useState(0)
 
   // Record how long each item is on screen.
   useEffect(() => {
@@ -237,8 +255,10 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
       const section = mock.sections[sectionIndex]
       const id = section?.itemIds[itemIndex]
       if (!id) return
-      const elapsed = Math.round((Date.now() - startedAt) / 1000)
-      if (elapsed <= 0) return
+      // Rounded to whole seconds, a quick item measured under half a second
+      // was thrown away, and the pace report judged the candidate on time
+      // that was never recorded.
+      const elapsed = Math.max(1, Math.round((Date.now() - startedAt) / 1000))
       const previous = useTest.getState().responses[id]?.secondsOnItem ?? 0
       useTest.getState().setResponse(id, { secondsOnItem: previous + elapsed })
     }
@@ -274,6 +294,11 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         setAnnouncement(
           atEnd ? 'Test finished, scoring your responses.' : curIsLast ? 'Section finished.' : 'Question advanced.',
         )
+        // The region only re-announces when its content changes, so the same
+        // message twice in a row would be silent. The counter changes the key
+        // of the node inside it, which is a change the region announces, while
+        // the wording stays the same.
+        setAnnouncementCount((count) => count + 1)
         next()
       } else if (e.altKey && (e.key === 'b' || e.key === 'B' || e.code === 'KeyB')) {
         if (mock.forwardOnly) return
@@ -293,7 +318,25 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
 
   const itemId = section.itemIds[itemIndex]
   const item = itemId ? mock.items[itemId] : undefined
-  if (!item) return null
+  if (!item) {
+    // A malformed session used to render nothing at all, which reads as a
+    // blank page rather than as something that went wrong.
+    return (
+      <div className="route-inner min-h-dvh grid place-items-center p-4">
+        <div className="card-solid max-w-md p-8 text-center">
+          <h1 className="font-display text-ink-900 dark:text-white text-xl font-extrabold">
+            This question could not be loaded
+          </h1>
+          <p className="text-ink-600 dark:text-ink-200 mt-3 text-sm">
+            The session is missing one of its items. Start a new mock test to carry on.
+          </p>
+          <button type="button" className="btn-primary mt-6" onClick={onExit}>
+            Back to the mock setup
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   const response = responses[item.id]
   const answered = section.itemIds.filter((id) => hasResponse(responses[id])).length
@@ -354,7 +397,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
       {/* Status messages for assistive technology: the visual header already
           shows this, but the change needs announcing. */}
       <p role="status" aria-live="polite" className="sr-only">
-        {announcement}
+        <span key={announcementCount}>{announcement}</span>
       </p>
 
       <TestHeader
@@ -368,7 +411,7 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
             : undefined
         }
         sectionEndsAt={sectionEndsAt}
-        onExpire={() => useTest.getState().expireSection()}
+        onExpire={handleExpire}
         totalSeconds={section.seconds}
         sectionTitle={section.title}
         itemNumber={itemIndex + 1}

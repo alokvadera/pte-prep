@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import { ToastContext, type ToastApi, type ToastTone } from './use-toast'
 
@@ -28,13 +28,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   // disappears — and are removed once it finishes.
   const [leaving, setLeaving] = useState<ReadonlySet<number>>(new Set())
   const nextId = useRef(1)
+  // Every timer the provider has running, so a provider that goes away
+  // does not leave a timer behind to setState on a tree that is gone.
+  const timers = useRef<Set<number>>(new Set())
 
   const push = useCallback((message: string, tone: ToastTone = 'mint') => {
     const id = nextId.current++
     setItems((list) => [...list.slice(-3), { id, message, tone }])
-    window.setTimeout(() => {
+    const dismiss = window.setTimeout(() => {
+      timers.current.delete(dismiss)
       setLeaving((s) => new Set(s).add(id))
-      window.setTimeout(() => {
+      const remove = window.setTimeout(() => {
+        timers.current.delete(remove)
         setItems((list) => list.filter((t) => t.id !== id))
         setLeaving((s) => {
           const next = new Set(s)
@@ -42,7 +47,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           return next
         })
       }, 160)
+      timers.current.add(remove)
     }, 4200)
+    timers.current.add(dismiss)
+  }, [])
+
+  useEffect(() => {
+    const pending = timers.current
+    return () => {
+      for (const id of pending) window.clearTimeout(id)
+      pending.clear()
+    }
   }, [])
 
   // One stable object for the life of the provider. A fresh identity on

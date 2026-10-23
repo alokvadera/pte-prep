@@ -7,6 +7,8 @@ import { formatSeconds, paceReport, paceWarnings } from '../domain/pace'
 import type { AttemptRecord, ItemResponse, ItemScoreDetail, QuestionType, Skill } from '../domain/types'
 import { getAttempt } from '../db/db'
 import { fetchAttemptFromCloud, syncAttemptToCloud } from '../lib/sync'
+import { getGuestOwnerId } from '../lib/guestOwner'
+import { useLocalOwnerId } from '../lib/useLocalOwner'
 import { formatDuration, formatResponseEchoLines } from '../lib/format'
 import { cn } from '../lib/cn'
 import { Seo } from '../seo/Seo'
@@ -23,6 +25,8 @@ import { evaluateWithAi, type AiEvaluationResult } from '../lib/aiScorer'
 
 type Tab = 'overview' | 'pace' | 'by-type' | 'review'
 
+const NO_RESPONSES: Record<string, ItemResponse> = {}
+
 export default function ResultPage() {
   const [params, setSearchParams] = useSearchParams()
   const mock = useTest((s) => s.mock)
@@ -32,12 +36,20 @@ export default function ResultPage() {
   const exit = useTest((s) => s.exit)
   const { settings } = useSettings()
   const [loading, setLoading] = useState(true)
-  const [attempt, setAttempt] = useState<AttemptRecord | null>(null)
+  const [storedAttempt, setStoredAttempt] = useState<AttemptRecord | null>(null)
+  const [attemptOwnerId, setAttemptOwnerId] = useState<string | null>(null)
   const scoringRef = useRef(false)
   const autoOpenReview = useSettings((s) => s.settings.autoOpenReview)
   const [tab, setTab] = useState<Tab>(() => (autoOpenReview ? 'review' : 'overview'))
   const [filter, setFilter] = useState<'all' | 'lost'>('all')
   const user = useAuth((s) => s.user)
+  const ownerId = useLocalOwnerId()
+  const testOwner = useTest((s) => s.ownerId)
+  const saveFailed = useTest((s) => s.saveFailed)
+  // A report belongs to the identity that loaded it. Without this gate a
+  // logout/account switch could leave the previous user's score on screen
+  // until the async lookup below completed.
+  const attempt = attemptOwnerId === ownerId ? storedAttempt : null
   // Clearing the target score earns one
   // celebration: a confetti burst when the
   // report first shows it.
@@ -53,14 +65,20 @@ export default function ResultPage() {
 
   // The report renders outside the app shell, so the route
   // change is announced by hand: focus moves to the report's
-  // main landmark when the page mounts.
+  // main landmark when the page mounts. The landmark only exists
+  // once loading has finished, so the effect waits for it — on a
+  // deep link or a reload the report arrives after the first render,
+  // and focusing then would find nothing.
   useEffect(() => {
+    if (loading) return
     document.getElementById('main-content')?.focus({ preventScroll: true })
-  }, [])
+  }, [loading])
 
   // Score once when runner reports test finished, or load stored attempt by query id.
   useEffect(() => {
+    if (!ownerId) return
     let cancelled = false
+    const guestOwnerId = getGuestOwnerId()
     void (async () => {
       try {
         const existing = params.get('attempt')
@@ -71,18 +89,21 @@ export default function ResultPage() {
         // Only fall back to a stored lookup when there is no live session —
         // i.e. a deep link or a reload of /result?attempt=…
         const live = useTest.getState()
-        const targetId = existing ?? (!live.mock && live.status === 'finished' ? live.attemptId : null)
+        const isGuestAdoption = Boolean(live.ownerId?.startsWith('guest:') && ownerId && !ownerId.startsWith('guest:'))
+        const liveOwned = Boolean(ownerId && (live.ownerId === ownerId || isGuestAdoption))
+        const targetId = existing ?? (liveOwned && !live.mock && live.status === 'finished' ? live.attemptId : null)
         if (targetId) {
           if (attempt?.id === targetId) {
             setLoading(false)
             return
           }
-          let stored = await getAttempt(targetId)
+          let stored = await getAttempt(targetId, ownerId, guestOwnerId)
           if (!stored) {
             stored = (await fetchAttemptFromCloud(targetId)) ?? undefined
           }
           if (!cancelled) {
-            setAttempt(stored ?? null)
+            setAttemptOwnerId(ownerId)
+            setStoredAttempt(stored ?? null)
             setLoading(false)
             if (!existing && stored) {
               setSearchParams({ attempt: stored.id }, { replace: true })
@@ -90,19 +111,32 @@ export default function ResultPage() {
           }
           return
         }
+        // A live test is scored whoever the viewer is now. The test belongs to
+        // whoever started it, which is not the same person if they signed in
+        // or out part way through — and the attempt must not be dropped
+        // because of that. The record is stamped with the test's own owner
+        // (see useTest.finish), so it is stored against the right identity
+        // either way.
         if (mock && !scoringRef.current) {
           scoringRef.current = true
           const record = await finish()
           if (!cancelled && record) {
-            setAttempt(record)
+            setAttemptOwnerId(ownerId)
+            setStoredAttempt(record)
             setLoading(false)
             setSearchParams({ attempt: record.id }, { replace: true })
             void syncAttemptToCloud(record).catch(() => {})
-            // Clear live mock from persisted store upon successful scoring to ensure single scoring
-            useTest.setState({ mock: null })
+            // The response map holds the speech transcripts, and leaving it in
+            // the persisted store would keep them on the device after the
+            // report is closed. The mock and its owner stay: the report's
+            // Pace tab reads the real-test budgets from the items, and the
+            // attempt id is already in the URL, so the report can still be
+            // reloaded. Leaving the report clears the rest.
+            useTest.setState({ responses: {} })
           }
           return
         }
+        /* v8 ignore next -- the guard is only reached while the page is mounted */
         if (!cancelled) {
           setLoading(false)
         }
@@ -115,14 +149,15 @@ export default function ResultPage() {
     return () => {
       cancelled = true
     }
-  }, [mock, params, finish, attempt?.id, setSearchParams])
+  }, [mock, params, finish, attempt?.id, setSearchParams, ownerId, testOwner])
 
   const seed = attempt?.seed
   // Seed rebuilds can only reproduce full mocks: half/quick counts and
   // section/drill item sets are not recoverable from the seed alone, and
   // showing details against the wrong items would be worse than showing the
   // stored details only. New attempts always carry details anyway.
-  const currentMock = mock ?? sessionMock
+  const liveTestOwned = Boolean(ownerId && testOwner === ownerId)
+  const currentMock = liveTestOwned ? mock ?? sessionMock : null
   const effectiveMock = useMemo(() => {
     if (currentMock) return currentMock
     if (!seed) return null
@@ -131,13 +166,28 @@ export default function ResultPage() {
     if (kind && kind !== 'full') return null
     if (!kind && sectionCount !== 0 && sectionCount !== 3) return null
     try {
-      return buildFullMock(seed, { timeScale: attempt?.timeScale, untimed: attempt?.untimed })
+      // The counts the run actually used, so a half or quick mock is rebuilt
+      // as the shorter run rather than as the full blueprint. Without them
+      // the report is scored against a different item set.
+      return buildFullMock(seed, {
+        timeScale: attempt?.timeScale,
+        untimed: attempt?.untimed,
+        counts: attempt?.counts,
+      })
     } catch {
       return null
     }
-  }, [currentMock, seed, attempt?.mockKind, attempt?.sectionIds, attempt?.timeScale, attempt?.untimed])
+  }, [
+    currentMock,
+    seed,
+    attempt?.mockKind,
+    attempt?.sectionIds,
+    attempt?.timeScale,
+    attempt?.untimed,
+    attempt?.counts,
+  ])
 
-  const effectiveResponses = attempt?.responses ?? responses
+  const effectiveResponses = attempt?.responses ?? (liveTestOwned ? responses : NO_RESPONSES)
 
   const details = useMemo(() => {
     if (attempt?.details && attempt.details.length > 0) return attempt.details
@@ -169,17 +219,22 @@ export default function ResultPage() {
 
   if (loading) {
     return (
-      <div className="grid min-h-dvh place-items-center px-4">
-        <div className="text-center">
-          <span className="border-ink-200 border-t-ink-900 dark:border-white/15 dark:border-t-ink-50 mx-auto block size-9 animate-spin rounded-full border-2" />
-          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-sm">Scoring your responses…</p>
+      <>
+        <Seo />
+        <div className="grid min-h-dvh place-items-center px-4">
+          <div className="text-center">
+            <span className="border-ink-200 border-t-ink-900 dark:border-white/15 dark:border-t-ink-50 mx-auto block size-9 animate-spin rounded-full border-2" />
+            <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-sm">Scoring your responses…</p>
+          </div>
         </div>
-      </div>
+      </>
     )
   }
 
   if (!attempt) {
     return (
+      <>
+      <Seo />
       <div className="route-inner min-h-dvh flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           <Card variant="solid" className="p-8 text-center shadow-lg">
@@ -205,12 +260,17 @@ export default function ResultPage() {
           </Card>
         </div>
       </div>
+      </>
     )
   }
 
   const skills = (['reading', 'listening', 'speaking', 'writing'] as Skill[])
     .map((s) => ({ skill: s, score: attempt.skillScores[s] }))
     .filter((s): s is { skill: Skill; score: number } => typeof s.score === 'number')
+  // Every skill that made it past the filter has a number, so the fallback is
+  // a guard against a skill score arriving as something else.
+  /* v8 ignore next -- a skill that scored always has a number */
+  const skillBars = skills.map(({ skill, score }) => ({ skill, value: score ?? 0 }))
 
   const weakest = skills.length ? skills.reduce((a, b) => (b.score < a.score ? b : a)) : null
   const strongest = skills.length ? skills.reduce((a, b) => (b.score > a.score ? b : a)) : null
@@ -252,6 +312,16 @@ export default function ResultPage() {
             ]}
           />
         </div>
+
+        {saveFailed ? (
+          <Callout className="mb-6 no-print" label="Not saved on this device" tone="amber">
+            <p className="text-ink-600 dark:text-ink-200 text-sm leading-relaxed">
+              This attempt could not be written to storage — private browsing, or the device is out of
+              space. The report below is still here, but it will not survive a reload, and it is not
+              in your history.
+            </p>
+          </Callout>
+        ) : null}
 
         {/* Header */}
         <header className="relative overflow-hidden rounded-3xl border-2 border-ink-900/10 dark:border-white/10 bg-white dark:bg-ink-850 mb-8 shadow-sm">
@@ -315,7 +385,7 @@ export default function ResultPage() {
           </div>
           <div className="mt-4">
             <SkillBars
-              skills={skills.map(({ skill, score }) => ({ skill, value: score ?? 0 }))}
+              skills={skillBars}
               strongest={strongest?.skill}
               weakest={weakest?.skill}
             />
@@ -603,6 +673,7 @@ export default function ResultPage() {
                       : 'border-ink-200 bg-white text-ink-700 hover:border-mark-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-200',
                   )}
                   onClick={() => setFilter('all')}
+                  aria-pressed={filter === 'all'}
                 >
                   All questions ({details.length})
                 </button>
@@ -615,6 +686,7 @@ export default function ResultPage() {
                       : 'border-ink-200 bg-white text-ink-700 hover:border-amber-400 dark:border-white/10 dark:bg-ink-800 dark:text-ink-200',
                   )}
                   onClick={() => setFilter('lost')}
+                  aria-pressed={filter === 'lost'}
                 >
                   Points lost ({lost.length})
                 </button>
@@ -656,12 +728,9 @@ export default function ResultPage() {
           </ButtonLink>
           <Button
             variant="ghost"
-            onClick={() => {
-              if (settings.autoOpenReview) setTab('review')
-              else setTab('overview')
-            }}
+            onClick={() => setTab((current) => (current === 'review' ? 'overview' : 'review'))}
           >
-            {settings.autoOpenReview ? 'Show full review' : 'Show breakdown'}
+            {tab === 'review' ? 'Show breakdown' : 'Show full review'}
           </Button>
         </div>
         </div>
@@ -675,7 +744,12 @@ function isEstimated(d: ItemScoreDetail): boolean {
 }
 
 function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
-  const meta = QUESTION_META[detail.type]
+  // The type comes from a persisted attempt, so it may name a type that has
+  // since been renamed or removed. Reading it unguarded would throw, and the
+  // whole report would go down with it.
+  const meta = QUESTION_META[detail.type] as
+    | (typeof QUESTION_META)[keyof typeof QUESTION_META]
+    | undefined
   const rows: Array<[string, number | undefined, number | undefined]> = [
     ['Content', detail.traits?.content, detail.contentMax],
     ['Form', detail.traits?.form, detail.formMax],
@@ -692,7 +766,7 @@ function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
   return (
     <div>
       <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
-        Estimated traits, {meta.traits.join(', ')}
+        Estimated traits, {(meta?.traits ?? []).join(', ')}
       </p>
       <ul className="mt-2 space-y-2">
         {shown.map(([label, value, max]) => {
@@ -876,6 +950,16 @@ function AiExaminerReview({
   const [error, setError] = useState<string | null>(null)
   const [quickKey, setQuickKey] = useState('')
   const [showKeyPrompt, setShowKeyPrompt] = useState(false)
+  // Grading a take goes over the network, which can take several seconds. The
+  // candidate may navigate away in the meantime, and the answer then belongs
+  // to a component that is no longer there.
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   const handleEvaluate = async (apiKeyToUse?: string) => {
     const key = (apiKeyToUse || settings.groqApiKey || '').trim()
@@ -892,15 +976,21 @@ function AiExaminerReview({
         candidateText,
         key,
       )
+      // The grading is a network call, so the candidate may have navigated
+      // away before it answers.
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (!mountedRef.current) return
       if (res) {
         setResult(res)
       } else {
         setError('Evaluation failed. Please verify your Groq API key.')
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Evaluation error')
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (mountedRef.current) setError(e instanceof Error ? e.message : 'Evaluation error')
     } finally {
-      setEvaluating(false)
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (mountedRef.current) setEvaluating(false)
     }
   }
 

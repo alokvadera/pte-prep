@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { cn } from '../../lib/cn'
+import { usePrefersReducedMotion } from '../../lib/motion'
 import { RenderType } from './render-type'
 import { CountUp } from './motion'
 import { ConfettiBurst } from './confetti'
@@ -86,9 +87,14 @@ const MASCOT_THOUGHTS = [
   'All 22 types locked in! 🏆',
 ]
 
-function playTactilePop() {
+/* The pop is played on a context the card owns. Chrome caps how many audio
+   contexts can exist at once (six), so a context per click exhausts the cap
+   after a handful of taps and the pop never plays again. One context is
+   created on first use, resumed when the browser has suspended it, and then
+   kept. */
+function playTactilePop(ctx: AudioContext | null) {
   try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.type = 'sine'
@@ -128,57 +134,88 @@ export function HeroScoreCard({ className }: { className?: string }) {
   // Live simulation trigger
   const [isSimulating, setIsSimulating] = useState(false)
 
-  // Reduced motion preference
-  const [reducedMotion, setReducedMotion] = useState(() =>
-    typeof window !== 'undefined'
-      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      : false,
-  )
+  // Reduced motion preference. The hook is given a server snapshot, so the
+  // server's render and the first render during hydration agree; the
+  // preference is applied straight afterwards. Reading the media query
+  // during render would give a reduced-motion visitor different markup from
+  // the server's, and break hydration on the prerendered home page.
+  const reducedMotion = usePrefersReducedMotion()
+
+  // Every timer this card schedules, keyed by the job it does. A second
+  // click replaces the pending timer for the same job instead of stacking
+  // another one on top of it, and an unmount clears the lot — so no
+  // setState ever lands on a card that is no longer there.
+  const timers = useRef<Record<string, number>>({})
+
+  // The card's own audio context, created on first use and reused after that.
+  const audioContextRef = useRef<AudioContext | null>(null)
+  const getAudioContext = useCallback((): AudioContext | null => {
+    if (typeof window === 'undefined') return null
+    const scope = window as unknown as {
+      AudioContext?: typeof AudioContext
+      webkitAudioContext?: typeof AudioContext
+    }
+    const Ctor = scope.AudioContext ?? scope.webkitAudioContext
+    if (!Ctor) return null
+    if (!audioContextRef.current) audioContextRef.current = new Ctor()
+    if (audioContextRef.current.state === 'suspended') void audioContextRef.current.resume()
+    return audioContextRef.current
+  }, [])
+
+  const schedule = useCallback((key: string, fn: () => void, delay: number) => {
+    const pending = timers.current[key]
+    if (pending !== undefined) window.clearTimeout(pending)
+    timers.current[key] = window.setTimeout(() => {
+      delete timers.current[key]
+      fn()
+    }, delay)
+  }, [])
 
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches)
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
+    const pending = timers.current
+    return () => {
+      for (const id of Object.values(pending)) window.clearTimeout(id)
+      for (const key of Object.keys(pending)) delete pending[key]
+    }
   }, [])
 
   // Mascot click interaction: squish bounce, thought bubble, sound, sparkles
   const handleMascotClick = useCallback(() => {
-    playTactilePop()
+    playTactilePop(getAudioContext())
     setMascotBounce(true)
     setShowThought(true)
     setThoughtIndex((prev) => (prev + 1) % MASCOT_THOUGHTS.length)
     setConfettiFire(true)
 
-    window.setTimeout(() => setMascotBounce(false), 500)
-    window.setTimeout(() => setConfettiFire(false), 80)
-    window.setTimeout(() => setShowThought(false), 2400)
-  }, [])
+    schedule('bounce', () => setMascotBounce(false), 500)
+    schedule('confetti', () => setConfettiFire(false), 80)
+    schedule('thought', () => setShowThought(false), 2400)
+  }, [schedule, getAudioContext])
 
   // Cycle CEFR target profile
   const handleCyclePreset = useCallback(() => {
-    playTactilePop()
+    playTactilePop(getAudioContext())
     setPresetIndex((prev) => (prev + 1) % SCORE_PRESETS.length)
     setConfettiFire(true)
-    window.setTimeout(() => setConfettiFire(false), 80)
+    schedule('confetti', () => setConfettiFire(false), 80)
 
     // Mascot cheers
     setMascotBounce(true)
-    window.setTimeout(() => setMascotBounce(false), 450)
-  }, [])
+    schedule('bounce', () => setMascotBounce(false), 450)
+  }, [schedule, getAudioContext])
 
   // Trigger quick simulation replay
   const handleSimulate = useCallback(() => {
-    playTactilePop()
+    playTactilePop(getAudioContext())
     setIsSimulating(true)
-    window.setTimeout(() => {
+    schedule('simulate', () => {
       setIsSimulating(false)
       setConfettiFire(true)
-      window.setTimeout(() => setConfettiFire(false), 80)
+      schedule('confetti', () => setConfettiFire(false), 80)
     }, 1100)
-  }, [])
+  }, [schedule, getAudioContext])
 
+  /* v8 ignore next -- the preset index is always inside the table */
   const current = SCORE_PRESETS[presetIndex] ?? SCORE_PRESETS[0]!
 
   // Dynamic SVG dial math:
@@ -371,7 +408,12 @@ export function HeroScoreCard({ className }: { className?: string }) {
           role="button"
           tabIndex={0}
           title="Click to replay score simulation"
-          onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleSimulate()}
+          onKeyDown={(e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return
+            // Space scrolls the page out from under the card.
+            e.preventDefault()
+            handleSimulate()
+          }}
           className="mt-4 flex items-center gap-4 cursor-pointer group rounded-xl p-1 -m-1 transition-colors hover:bg-ink-100/50 dark:hover:bg-white/5"
         >
           {/* Animated SVG Semicircular Gauge */}

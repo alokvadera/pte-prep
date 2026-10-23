@@ -24,6 +24,7 @@ export function CursorGlow({ className }: { className?: string }) {
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
     if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
@@ -127,6 +128,10 @@ export function CursorGlow({ className }: { className?: string }) {
       isHovering = false
       isPressed = false
       updateTargetScale()
+      // Park the glow off-screen instead of letting it drift back towards
+      // the last pointer position it was chasing.
+      tx = -600
+      ty = -600
       wake()
     }
 

@@ -38,7 +38,9 @@ export default function ColourfulText({ text }: { text: string }) {
     return () => clearInterval(interval);
   }, []);
 
-  return text.split("").map((char, index) => (
+  // Array.from splits by code point, not by code unit: an emoji or any
+  // other non-BMP glyph stays whole instead of breaking into two halves.
+  return Array.from(text).map((char, index) => (
     <motion.span
       key={`${char}-${count}-${index}`}
       initial={{

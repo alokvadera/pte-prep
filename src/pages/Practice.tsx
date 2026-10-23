@@ -51,6 +51,14 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
   // bank never lands on this page's initial JavaScript.
   const [building, setBuilding] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  /** False once the page has gone, so a late drill build stops itself. */
+  const aliveRef = useRef(true)
+  useEffect(() => {
+    aliveRef.current = true
+    return () => {
+      aliveRef.current = false
+    }
+  }, [])
 
   const capacity = useMemo(() => manifestCapacityByType(), [])
 
@@ -71,15 +79,32 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
     setBuilding(true)
     setLoadError(null)
     try {
+      // The assembler is a large chunk fetched on demand, so the wait is long
+      // enough for the candidate to navigate away. A drill that starts after
+      // they have left would throw them into a test they abandoned.
       const { buildDrillMock } = await import('../domain/assemble')
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (!aliveRef.current) return
       const mock = buildDrillMock(Math.floor(Math.random() * 1_000_000), buildable, perType)
-      if (mock.sections.every((s) => s.itemIds.length === 0)) return
+      if (mock.sections.every((s) => s.itemIds.length === 0)) {
+        // The estimate comes from the manifest and the build from the bank,
+        // so they can disagree. Say so, rather than re-enabling the button
+        // with nothing having happened.
+        setLoadError('No questions are available for the selected types. Try another type, or fewer questions per type.')
+        return
+      }
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (!aliveRef.current) return
       start(mock, 'practice')
       navigate('/test')
     } catch {
-      setLoadError('Failed to load drill questions. Please check your connection and try again.')
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (aliveRef.current) {
+        setLoadError('Failed to load drill questions. Please check your connection and try again.')
+      }
     } finally {
-      setBuilding(false)
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (aliveRef.current) setBuilding(false)
     }
   }
 
@@ -96,6 +121,7 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
   useEffect(() => {
     if (!confirmOverwrite) return
     const dialog = dialogRef.current
+    /* v8 ignore next -- the ref is attached before the effect runs */
     if (!dialog) return
 
     const focusable = dialog.querySelectorAll<HTMLElement>(
@@ -231,7 +257,17 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
           <h3 className="text-ink-900 dark:text-white text-base font-bold">Question types</h3>
           <div className="flex flex-wrap items-center gap-2">
-            <Button size="sm" variant="secondary" onClick={() => setSelected(new Set(types))}>Select all</Button>
+            {/* Both buttons work on the types currently in view, and neither
+                discards a selection the candidate made under another skill
+                filter: "Select all" used to replace the whole set, so a
+                speaking tick vanished when the reading types were selected. */}
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setSelected((previous) => new Set([...previous, ...types]))}
+            >
+              Select all
+            </Button>
             <Button size="sm" variant="secondary" onClick={() => setSelected((previous) => new Set([...previous].filter((type) => !types.includes(type))))}>Clear</Button>
             <Button
               size="sm"

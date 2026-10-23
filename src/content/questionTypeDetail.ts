@@ -140,7 +140,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
   },
   'fill-in-blanks-table': {
     what: 'A passage is paired with a table or grid containing gaps, and you fill each one with a word or number from the text.',
-    how: 'Because the blanks sit in a grid, the completed row has to read correctly as a unit — the table imposes constraints the prose alone does not. This is the form Pearson calls Drag and Drop in the current guide.',
+    how: 'Because the blanks sit in a grid, the completed row has to read correctly as a unit — the table imposes constraints the prose alone does not. Pearson presents this variant as drag-and-drop in the current guide; this practice tool uses text inputs so the answer can be typed and reviewed.',
     scoring:
       'One point per blank filled correctly, no negative marking. As with the dropdown version, each blank stands alone.',
     mistakes: [

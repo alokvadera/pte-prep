@@ -205,7 +205,10 @@ export function TestHeader({
                 {extended > 0 ? <span className="text-ink-500 dark:text-ink-on-dark-muted"> ({extended} added)</span> : null}
               </button>
             ) : null}
-            {canExtend ? null : <span className="sr-only">Time is about to expire.</span>}
+            {/* The reminder stands in for the control until the control is
+                there. Without an extension button there is nothing to take
+                its place, so the announcement has to stay. */}
+            {onExtend && canExtend ? null : <span className="sr-only">Time is about to expire.</span>}
           </div>
         </div>
       ) : null}

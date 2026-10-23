@@ -9,9 +9,9 @@
 //   node scripts/render-plates.mjs
 // ---------------------------------------------------------------------------
 
-import { mkdtemp, writeFile, readFile, rm } from 'node:fs/promises'
+import { mkdtemp, writeFile, readFile, mkdir } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
-import { spawn } from 'node:child_process'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -274,7 +274,7 @@ const H = 1850
 async function render(html, outPath) {
   const profile = await mkdtemp(path.join(tmpdir(), 'plate-'))
   const port = 9500 + Math.floor(Math.random() * 300)
-  const chrome = spawn(
+  const chrome = spawnChrome(
     CHROME,
     [
       '--headless=new',
@@ -287,7 +287,6 @@ async function render(html, outPath) {
       `--window-size=${W},${H}`,
       'about:blank',
     ],
-    { stdio: 'ignore' },
   )
 
   try {
@@ -335,13 +334,16 @@ async function render(html, outPath) {
     ws.close()
     return true
   } finally {
-    chrome.kill()
-    await sleep(300)
-    await rm(profile, { recursive: true, force: true, maxRetries: 4 }).catch(() => {})
+    // The whole browser process group is stopped and waited on, so the helper
+    // processes Chrome spawned go with it and none is left running.
+    await stopChrome(chrome, profile)
   }
 }
 
 const fonts = await fontCss()
+// The output directory is not guaranteed to exist on a clean checkout, so it
+// is created here rather than relying on a committed folder being present.
+await mkdir(OUT_DIR, { recursive: true })
 await render(composition(fonts), path.join(OUT_DIR, 'plate-01.png'))
 console.log('  ✓ docs/design/plate-01.png')
 console.log('\n  Plates rendered.\n')

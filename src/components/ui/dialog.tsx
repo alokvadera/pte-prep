@@ -33,6 +33,7 @@ export function Dialog({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (open && !el.open) el.showModal()
     if (!open && el.open) el.close()

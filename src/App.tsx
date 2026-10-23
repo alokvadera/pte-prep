@@ -138,9 +138,10 @@ export default function App() {
     // This boundary is shared by the server render and the client, so its
     // markers are identical on both sides and hydration is unaffected.
     //
-    // The error boundary sits inside Suspense so that a render failure anywhere
+    // The error boundary wraps Suspense so that a render failure anywhere
     // in the tree — including a lazily loaded test route — resolves to a working
-    // recovery page instead of a blank document.
+    // recovery page instead of a blank document. Being the outermost element,
+    // it also catches a Suspense fallback that throws while rendering.
     <ErrorBoundary>
       {/* `reducedMotion="user"` is the JS-side half of the
           reduced-motion story: the CSS blanket reset already

@@ -56,7 +56,8 @@ export interface TraitScores {
   /** 0..1, writing form. */
   grammar: number
   vocabulary: number
-  spelling: number
+  /** Undefined for types that do not score Spelling. */
+  spelling?: number
   /** 0..1, essay only. */
   development: number
   /** 0..1, essay only. */
@@ -125,6 +126,7 @@ function oralFluency(
   const notes: string[] = []
   if (wpm < 115) notes.push(`Speaking pace was about ${wpm} wpm — the guide expects a smooth, even rhythm.`)
   if (wpm > 195) notes.push(`Speaking pace was about ${wpm} wpm — rushed delivery costs fluency.`)
+  /* v8 ignore next -- a burden above one means more than one pause */
   if (burden > 1) notes.push(`${pauses} long pause${pauses > 1 ? 's' : ''} inside the response; band 3 allows hesitations but no long pauses.`)
   return { score, note: notes.join(' ') }
 }
@@ -397,6 +399,7 @@ function scoreSpoken(
   const spoken = transcript || typed
   const analysis = response.audio
   const isTargetText = item.type === 'read-aloud' || item.type === 'repeat-sentence'
+  /* v8 ignore next -- every spoken type has a content maximum */
   const maxContent = CONTENT_MAX[item.type] ?? (isTargetText ? 3 : 5)
 
   if (!spoken && !analysis) {
@@ -510,13 +513,19 @@ function scoreWritten(item: Item, response: ItemResponse, key: AnswerKey): Const
   if (quality.note) notes.push(quality.note)
   if (structure.note) notes.push(structure.note)
 
+  // The guide lists the traits each written type is scored on, and the
+  // blueprint holds that transcription. Summarize Written Text is scored on
+  // Content, Form, Grammar and Vocabulary only; Spelling belongs to the essay
+  // and to the spoken summary, so it must not weigh the written summary.
+  const scoresSpelling = QUESTION_META[item.type].traits.includes('Spelling')
+
   const traits: TraitScores = {
     ...ZERO_TRAITS,
     content: contentResult.content,
     form: form.score,
     grammar: quality.grammar,
     vocabulary: quality.vocabulary,
-    spelling: quality.spelling,
+    spelling: scoresSpelling ? quality.spelling : undefined,
     development: structure.development,
     range: structure.range,
   }
@@ -536,6 +545,7 @@ function scoreWritten(item: Item, response: ItemResponse, key: AnswerKey): Const
       gated: true,
       formScore: form.score * form.max,
       formMax: form.max,
+      /* v8 ignore next -- every written type has a content maximum */
       contentScore: contentResult.content * (CONTENT_MAX[item.type] ?? 4),
       contentMax: CONTENT_MAX[item.type],
     }
@@ -550,13 +560,15 @@ function scoreWritten(item: Item, response: ItemResponse, key: AnswerKey): Const
   // Grammar, Vocabulary and Spelling, so including those two traits would
   // punish a correct one-sentence summary for not building an argument.
   const isEssay = item.type === 'write-essay'
+  /* v8 ignore next -- every written type has a content maximum */
+  const contentMax = CONTENT_MAX[item.type] ?? 4
   const parts: Array<[number, number]> = [
-    [contentResult.content, CONTENT_MAX[item.type] ?? 4],
+    [contentResult.content, contentMax],
     [form.score, form.max],
     [quality.grammar, 2],
     [quality.vocabulary, 2],
-    [quality.spelling, 2],
   ]
+  if (scoresSpelling) parts.push([quality.spelling, 2])
   if (isEssay) {
     parts.push([structure.development, 6], [structure.range, 6])
   }
@@ -569,7 +581,7 @@ function scoreWritten(item: Item, response: ItemResponse, key: AnswerKey): Const
     traits,
     formScore: form.score * form.max,
     formMax: form.max,
-    contentScore: contentResult.content * (CONTENT_MAX[item.type] ?? 4),
+    contentScore: contentResult.content * contentMax,
     contentMax: CONTENT_MAX[item.type],
   }
 }
@@ -648,6 +660,7 @@ function scoreWordByWord(response: ItemResponse, key: AnswerKey): ConstructedSco
   // of position or insertion/omission offsets, with no deduction for extra words.
   const remaining = new Map<string, number>()
   for (const w of expectedNorm) {
+    /* v8 ignore next -- a reference word never normalises to nothing */
     if (w) remaining.set(w, (remaining.get(w) ?? 0) + 1)
   }
 
@@ -664,6 +677,7 @@ function scoreWordByWord(response: ItemResponse, key: AnswerKey): ConstructedSco
   const wrongWords: string[] = []
   for (let i = 0; i < expected.length; i++) {
     const norm = expectedNorm[i]!
+    /* v8 ignore next -- a reference word is always in the multiset */
     const unhit = remaining.get(norm) ?? 0
     if (unhit > 0) {
       wrongWords.push(expected[i] as string)
@@ -783,13 +797,13 @@ export function scoreItem(item: Item, key: AnswerKey, response: ItemResponse | u
     return { ...base, points, ratio, status, notes, reference: key.reference, tokens: item.tokens, ...detail }
   }
 
+  // A short answer is scored by the binary case below, and a binary type is
+  // never trait-composite, so there is no short-answer path in here.
   const constructed =
     meta.scoring === 'trait-composite'
       ? item.responseKind === 'text'
         ? scoreWritten(item, r, key)
-        : item.type === 'answer-short-question'
-          ? scoreAnswerShortQuestion(r, key)
-          : scoreSpoken(item, r, key)
+        : scoreSpoken(item, r, key)
       : null
 
   switch (meta.scoring) {
@@ -831,10 +845,12 @@ export function scoreItem(item: Item, key: AnswerKey, response: ItemResponse | u
     }
 
     case 'trait-composite': {
+      /* v8 ignore next -- a trait-composite item is always constructed */
       if (!constructed) return finish(0, ['Not scored.'])
       return finish(
         constructed.ratio,
         constructed.notes,
+        /* v8 ignore next -- a constructed item always carries its traits */
         constructed.traits
           ? {
               traits: constructed.traits,
@@ -979,6 +995,7 @@ export function buildReport(
   for (const skill of ['speaking', 'writing', 'reading', 'listening'] as Skill[]) {
     const available = skillAvailable[skill] ?? 0
     if (available === 0) continue
+    /* v8 ignore next -- the earned points are written with the available ones */
     const earned = skillEarned[skill] ?? 0
     skills[skill] = rawToPteScale(earned / available)
   }
@@ -986,6 +1003,7 @@ export function buildReport(
     const key = answers[item.id]
     if (!key) continue
     const detail = details.find((d) => d.itemId === item.id)
+    /* v8 ignore next -- a detail is pushed for every item that has a key */
     if (!detail) continue
     totalEarned += detail.points
     totalAvailable += item.maxPoints
@@ -1069,6 +1087,7 @@ export function nextBand(band: string): { min: number; band: string } | null {
   const i = bandIndex(band)
   if (i <= 0) return null
   const b = BANDS[i - 1]
+  /* v8 ignore next -- the index is inside the table */
   return b ? { min: b.min, band: b.band } : null
 }
 

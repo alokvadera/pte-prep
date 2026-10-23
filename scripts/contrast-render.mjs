@@ -25,8 +25,8 @@
 //   node scripts/contrast-render.mjs --no-shots             # audit only
 // ---------------------------------------------------------------------------
 
-import { spawn } from 'node:child_process'
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { existsSync } from 'node:fs'
@@ -119,7 +119,7 @@ const settingsFor = (theme) =>
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-contrast-'))
 const PORT = 9334
 
-const chrome = spawn(
+const chrome = spawnChrome(
   binary,
   [
     '--headless=new',
@@ -132,7 +132,6 @@ const chrome = spawn(
     '--window-size=1280,900',
     'about:blank',
   ],
-  { stdio: 'ignore' },
 )
 
 function sleep(ms) {
@@ -153,8 +152,7 @@ async function waitForDevTools() {
 }
 
 if (!(await waitForDevTools())) {
-  chrome.kill()
-  await rm(profile, { recursive: true, force: true })
+  await stopChrome(chrome, profile)
   console.error('  Chrome did not expose a debugging port.')
   process.exit(1)
 }
@@ -387,7 +385,7 @@ async function waitForServer(url, timeoutMs = 15000) {
 }
 
 if (!(await waitForServer(BASE + '/'))) {
-  chrome.kill()
+  await stopChrome(chrome, profile)
   console.error(`\n  Server at ${BASE} is not reachable. Start the preview server first.`)
   process.exit(1)
 }
@@ -468,12 +466,17 @@ if (SHOTS) {
   )
 }
 console.log('')
+
+// The browser is stopped before the exit, so its helper processes go with it.
+// Exiting first left a whole Chrome behind every run.
+await stopChrome(chrome, profile)
 process.exit(failures === 0 ? 0 : 1)
 
-// Chrome is torn down by the exit above; keep a handler for the error path.
+// Backstop for an early exit. The group signal is synchronous, so it still
+// reaches the browser even though nothing can be awaited here.
 process.on('exit', () => {
   try {
-    chrome.kill()
+    if (chrome.pid) process.kill(-chrome.pid, 'SIGTERM')
   } catch {
     /* already gone */
   }

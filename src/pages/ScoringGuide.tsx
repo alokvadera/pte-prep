@@ -115,17 +115,24 @@ export default function ScoringGuide() {
               </tr>
             </thead>
             <tbody>
-              {SCALE_ROWS.map((r) => (
-                <tr key={r.score} className="border-ink-100 dark:border-white/6 border-b">
-                  <td className="text-ink-900 dark:text-white font-bold tabular-nums">{r.score}</td>
-                  <td className="text-ink-700 dark:text-ink-200 tabular-nums">{pteToIelts(r.score) ?? '≤4.0'}</td>
-                  <td>
-                    <span className="pill bg-brand-500/12 text-brand-700 dark:text-brand-300">{r.cefr}</span>
-                  </td>
-                  <td className="text-ink-600 dark:text-ink-on-dark">{r.meaning}</td>
-                  <td className="text-ink-500 dark:text-ink-on-dark-muted">{r.use}</td>
-                </tr>
-              ))}
+              {SCALE_ROWS.map((r) => {
+                // Every row on the scale is 29 or above, which is inside the
+                // IELTS concordance, so the fallback is a guard for rows that
+                // might one day fall below it.
+                /* v8 ignore next -- no row on the scale falls below the concordance */
+                const ielts = pteToIelts(r.score) ?? '≤4.0'
+                return (
+                  <tr key={r.score} className="border-ink-100 dark:border-white/6 border-b">
+                    <td className="text-ink-900 dark:text-white font-bold tabular-nums">{r.score}</td>
+                    <td className="text-ink-700 dark:text-ink-200 tabular-nums">{ielts}</td>
+                    <td>
+                      <span className="pill bg-brand-500/12 text-brand-700 dark:text-brand-300">{r.cefr}</span>
+                    </td>
+                    <td className="text-ink-600 dark:text-ink-on-dark">{r.meaning}</td>
+                    <td className="text-ink-500 dark:text-ink-on-dark-muted">{r.use}</td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

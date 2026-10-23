@@ -34,6 +34,7 @@ export function ParallaxVisual({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
     if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return

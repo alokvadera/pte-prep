@@ -1,5 +1,6 @@
 import { ALL_QUESTION_TYPES } from '../domain/blueprint'
 import { manifestBankCapacity } from '../content/manifest'
+import { ABOUT_FAQ } from '../content/faq'
 import { Seo } from '../seo/Seo'
 import {
   Accordion,
@@ -14,38 +15,7 @@ import {
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { Reveal } from '../components/ui/motion'
 
-const FAQ = [
-  {
-    question: 'Is this site affiliated with Pearson?',
-    answer:
-      'No. PTE Academic is a trademark of Pearson Education Ltd, and this is an independent practice tool with no affiliation, endorsement or sponsorship. It is not a source of official practice material.',
-  },
-  {
-    question: 'Where does the practice material come from?',
-    answer:
-      'Every passage, lecture, conversation and chart on this site was written specifically for it, at the same academic level, word count and style as the real test. That avoids copyright problems and means the difficulty and timing are deliberately matched to the real test.',
-  },
-  {
-    question: 'Where is my data stored?',
-    answer:
-      'In your browser, on your own device, using IndexedDB. Your responses, recordings and score history stay on the machine by default, with no analytics on your answers. An optional cloud account can sync copies across devices. Clearing site data in your browser deletes the local copy.',
-  },
-  {
-    question: 'Is it really free, and why?',
-    answer:
-      'Yes, with no limits. The whole test runs client-side, which means there is no per-user infrastructure cost to pass on, so a free hosting tier covers it indefinitely. The audio is synthesised by your own device rather than streamed from a server, which is the main reason there is no audio hosting cost either.',
-  },
-  {
-    question: 'Can I use this offline?',
-    answer:
-      'Yes. The app is cached as an installable progressive web app, and the recordings are generated locally by the speech synthesiser built into macOS, Windows, iOS and Android. Once the page has loaded once, core practice works with no connection; browser speech recognition and cloud sync need a connection when you use them.',
-  },
-  {
-    question: 'Why are the scores only estimates?',
-    answer:
-      'Objective items are scored exactly. Speaking and writing are scored by Pearson using a proprietary automated model, with human reviewers used to quality-monitor it, which cannot be reproduced outside their scoring system — so this site applies a documented rubric over the same four PTE constructs. Every result is labelled as an estimate, and each item is marked as auto-scored or estimated.',
-  },
-]
+/* FAQ copy is shared with the structured-data block in seo/meta.ts. */
 
 export default function About() {
   const capacity = manifestBankCapacity()
@@ -134,7 +104,7 @@ export default function About() {
 
         <SectionHeading className="mt-12 sm:mt-14" eyebrow="Questions" title="Frequently asked questions" />
         <Reveal variant="up" duration={500}>
-          <Accordion items={FAQ} />
+          <Accordion items={ABOUT_FAQ} />
         </Reveal>
 
         <Reveal variant="up" delay={50} duration={500}>

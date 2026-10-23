@@ -24,6 +24,7 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
 
   useEffect(() => {
     const root = rootRef.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!root) return
 
     const words = Array.from(root.querySelectorAll<HTMLElement>('[data-reveal-word]'))
@@ -39,16 +40,19 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
     // never on screen — it only becomes visible as it is scrolled into view.
     for (const w of words) w.dataset.active = 'false'
     const rule = root.querySelector<HTMLElement>('[data-reveal-rule]')
+    /* v8 ignore next -- the component always renders its rule */
     if (rule) rule.dataset.armed = 'true'
 
     const io = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue
+          /* v8 ignore next -- the component always renders its rule */
           if (rule) rule.dataset.revealed = 'true'
           const el = entry.target as HTMLElement
           // Staggered per word position, so the sentence resolves in reading
           // order rather than every word flipping at once.
+          /* v8 ignore next -- every word the component renders carries a position */
           const delay = Number(el.dataset.revealWord ?? '0') * 42
           timers.push(
             window.setTimeout(() => {

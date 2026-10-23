@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../store/useAuth'
-import { syncCloudToLocal } from '../lib/sync'
+import { claimGuestAttemptsForCurrentUser, countGuestAttempts, syncCloudToLocal } from '../lib/sync'
 import { Badge, Button, ButtonLink, Card, PageWrapper } from '../components/ui/primitives'
 import { Dialog } from '../components/ui/dialog'
 import { Reveal } from '../components/ui/motion'
@@ -39,6 +39,15 @@ export default function LoginPage() {
   const [forgotEmail, setForgotEmail] = useState('')
   const [forgotLoading, setForgotLoading] = useState(false)
   const [forgotStatus, setForgotStatus] = useState<{ ok: boolean; message: string } | null>(null)
+
+  // If the session expires while the account card is open, the form returns
+  // with the previous email unless the controlled input is reset too.
+  useEffect(() => {
+    if (!user) {
+      // oxlint-disable-next-line react/set-state-in-effect
+      setEmail(lastEmail ?? '')
+    }
+  }, [user, lastEmail])
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -120,6 +129,28 @@ export default function LoginPage() {
     tabRefs.current[next]?.focus()
   }
 
+  const importGuestAttemptsIfConfirmed = async (): Promise<void> => {
+    const guestCount = await countGuestAttempts()
+    if (guestCount === 0) return
+
+    const noun = guestCount === 1 ? 'attempt' : 'attempts'
+    const shouldImport = window.confirm(
+      `This device has ${guestCount} guest practice ${noun}. Import ${guestCount === 1 ? 'it' : 'them'} into this account?\n\n` +
+        'Choose Cancel to keep the history separate on this device; it will stay available when you sign out.',
+    )
+    if (shouldImport) await claimGuestAttemptsForCurrentUser()
+  }
+
+  const syncAfterAuth = async (): Promise<void> => {
+    setSyncing(true)
+    try {
+      await importGuestAttemptsIfConfirmed()
+      await syncCloudToLocal()
+    } finally {
+      setSyncing(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setClientError(null)
@@ -147,35 +178,27 @@ export default function LoginPage() {
 
       const ok = await register(trimmedEmail, password, targetScore)
       if (ok) {
-        setSyncing(true)
-        await syncCloudToLocal()
-        setSyncing(false)
+        await syncAfterAuth()
         navigate(redirectUrl)
       }
     } else {
       const ok = await login(trimmedEmail, password)
       if (ok) {
-        setSyncing(true)
-        try {
-          await syncCloudToLocal()
-        } finally {
-          setSyncing(false)
-        }
+        await syncAfterAuth()
         navigate(redirectUrl)
       }
     }
   }
 
   const handleManualSync = async () => {
-    setSyncing(true)
     setSyncSuccess(false)
     try {
-      await syncCloudToLocal()
+      await syncAfterAuth()
       setSyncSuccess(true)
       if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
       syncTimer.current = window.setTimeout(() => setSyncSuccess(false), 3000)
-    } finally {
-      setSyncing(false)
+    } catch {
+      setClientError('Could not sync with the cloud. Your work is still saved on this device.')
     }
   }
 
@@ -253,7 +276,14 @@ export default function LoginPage() {
                 <span className="text-ink-500 dark:text-ink-on-dark-muted">Need to switch accounts?</span>
                 <button
                   type="button"
-                  onClick={logout}
+                  onClick={() => {
+                    logout()
+                    setEmail('')
+                    setPassword('')
+                    setConfirmPassword('')
+                    setClientError(null)
+                    setSyncSuccess(false)
+                  }}
                   className="text-rose-600 dark:text-rose-400 hover:underline font-semibold cursor-pointer"
                 >
                   Sign out

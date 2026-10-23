@@ -56,6 +56,7 @@ const BAND_EDGES: Array<{ band: string; from: number; to: number; color: string 
       band: b.band,
       from: b.min,
       to: above ? above.min - 1 : 90,
+      /* v8 ignore next -- every band has a colour */
       color: BAND_COLOR[b.band] ?? 'bg-ink-400 dark:bg-ink-on-dark-faint',
     }
   })

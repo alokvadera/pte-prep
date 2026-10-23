@@ -35,6 +35,7 @@ export function TextScramble({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     // `display` is initialised to `text`, so there is nothing to set for a
     // visitor who asked not to be moved — the label is already resolved.

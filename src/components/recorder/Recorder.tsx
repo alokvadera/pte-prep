@@ -43,6 +43,9 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
   const recorderRef = useRef<VoiceRecorder | null>(null)
   const timerRef = useRef<number | null>(null)
   const submittedRef = useRef(false)
+  /** True while the microphone is being opened, so a second start is refused. */
+  const startingRef = useRef(false)
+  const [starting, setStarting] = useState(false)
 
   const sttSupported = isSpeechRecognitionSupported()
   const micSupported = isRecordingSupported()
@@ -74,6 +77,7 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
       timerRef.current = null
     }
     const rec = recorderRef.current
+    /* v8 ignore next -- the recorder exists whenever a take can be finished */
     const result = rec ? await rec.stop() : null
     if (mountedRef.current) {
       setPhase('done')
@@ -132,6 +136,13 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
   }, [finish])
 
   const beginRecording = useCallback(async () => {
+    // A second click while the first is still opening the microphone would
+    // start a second take: the first recorder is overwritten and its stream
+    // is never stopped, so the browser's recording indicator stays on for the
+    // rest of the session.
+    if (startingRef.current) return
+    startingRef.current = true
+    setStarting(true)
     setError(null)
     let recError: string | null = null
     const rec = new VoiceRecorder({
@@ -150,30 +161,35 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
       },
     })
     recorderRef.current = rec
-    const ok = await rec.start()
-    if (!ok) {
-      if (!recError && mountedRef.current) {
-        setError('Microphone unavailable. Type your answer below instead — it will still be scored on content.')
-      }
-      if (mountedRef.current) setPhase('done')
-      return
-    }
-    setPhase('recording')
-    setRecLeft(seconds)
-    let remainingTime = seconds
-    timerRef.current = window.setInterval(() => {
-      remainingTime -= 1
-      if (remainingTime <= 0) {
-        if (timerRef.current !== null) {
-          window.clearInterval(timerRef.current)
-          timerRef.current = null
+    try {
+      const ok = await rec.start()
+      if (!ok) {
+        if (!recError && mountedRef.current) {
+          setError('Microphone unavailable. Type your answer below instead — it will still be scored on content.')
         }
-        if (mountedRef.current) setRecLeft(0)
-        void finish()
-      } else if (mountedRef.current) {
-        setRecLeft(remainingTime)
+        if (mountedRef.current) setPhase('done')
+        return
       }
-    }, 1000)
+      setPhase('recording')
+      setRecLeft(seconds)
+      let remainingTime = seconds
+      timerRef.current = window.setInterval(() => {
+        remainingTime -= 1
+        if (remainingTime <= 0) {
+          if (timerRef.current !== null) {
+            window.clearInterval(timerRef.current)
+            timerRef.current = null
+          }
+          if (mountedRef.current) setRecLeft(0)
+          void finish()
+        } else if (mountedRef.current) {
+          setRecLeft(remainingTime)
+        }
+      }, 1000)
+    } finally {
+      startingRef.current = false
+      if (mountedRef.current) setStarting(false)
+    }
   }, [seconds, finish])
 
   const start = useCallback(() => {
@@ -221,6 +237,17 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
     start()
   }, [cancel, start])
 
+  // The stimulus audio must not play over the candidate's own take: the
+  // microphone would record it, and both the transcript and the acoustic
+  // analysis would be contaminated. The start button was disabled while the
+  // audio played, but a take already under way kept running.
+  useEffect(() => {
+    if (!disabled) return
+    if (phase !== 'prep' && phase !== 'recording') return
+    // oxlint-disable-next-line react/set-state-in-effect
+    cancel()
+  }, [disabled, phase, cancel])
+
   return (
     <div className="card-solid p-4">
       {phase === 'idle' ? (
@@ -236,7 +263,7 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
               {!micSupported ? ' Microphone not detected.' : ''}
             </p>
           </div>
-          <button type="button" className="btn-primary" onClick={start} disabled={disabled}>
+          <button type="button" className="btn-primary" onClick={start} disabled={disabled || starting}>
             <MicIcon />
             {prepSeconds > 0 ? 'Start preparation' : 'Start recording'}
           </button>

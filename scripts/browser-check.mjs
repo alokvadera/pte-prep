@@ -11,8 +11,9 @@
 // Requires a Chrome/Chromium binary; skips cleanly when none is found.
 // ---------------------------------------------------------------------------
 
-import { execSync, spawn } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { execSync } from 'node:child_process'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
+import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { existsSync } from 'node:fs'
@@ -46,16 +47,23 @@ const QUESTION_TYPE_SLUGS = execSync('npx tsx scripts/print-type-slugs.ts', { en
   .map((s) => s.trim())
   .filter(Boolean)
 
-const ROUTES = [
+const ALL_ROUTES = [
   '/', '/mock', '/practice', '/format', '/scoring', '/guide', '/about', '/dashboard', '/not-a-page',
   '/question-types/', '/privacy/', '/login/', '/register/', '/ui-elements/',
   ...QUESTION_TYPE_SLUGS.map((s) => `/question-types/${s}/`),
 ]
+// `PTE_ROUTES=/,/mock` narrows the run to a subset, for a quick look at one
+// page while iterating. The default is every route.
+const ROUTE_FILTER = (process.env.PTE_ROUTES ?? '')
+  .split(',')
+  .map((r) => r.trim())
+  .filter(Boolean)
+const ROUTES = ROUTE_FILTER.length > 0 ? ALL_ROUTES.filter((r) => ROUTE_FILTER.includes(r)) : ALL_ROUTES
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-chrome-'))
 const PORT = 9333
 
-const chrome = spawn(
+const chrome = spawnChrome(
   binary,
   [
     '--headless=new',
@@ -68,7 +76,6 @@ const chrome = spawn(
     '--window-size=1280,900',
     'about:blank',
   ],
-  { stdio: 'ignore' },
 )
 
 function sleep(ms) {
@@ -89,8 +96,7 @@ async function waitForDevTools() {
 }
 
 if (!(await waitForDevTools())) {
-  chrome.kill()
-  await rm(profile, { recursive: true, force: true })
+  await stopChrome(chrome, profile)
   console.error('  Chrome did not expose a debugging port.')
   process.exit(1)
 }
@@ -367,6 +373,60 @@ report(
   )
 
   collectors.delete(collect)
+  await send('Target.closeTarget', { targetId })
+  await send('Target.disposeBrowserContext', { browserContextId })
+}
+
+// ---------------------------------------------------------------------------
+// Reduced motion
+//
+// A visitor who has asked for reduced motion is a different browser from the
+// one the server rendered for. The server has no media query, so the first
+// render has to use the server's answer and apply the real preference
+// afterwards. Reading the preference during render instead gives a
+// reduced-motion visitor different markup from the server's, which breaks
+// hydration on the prerendered pages.
+//
+// Every other check in this file runs as a visitor with no preference, so
+// without this one that whole class of bug is invisible.
+// ---------------------------------------------------------------------------
+{
+  const { browserContextId } = await send('Target.createBrowserContext', {})
+  const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
+  const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
+
+  const reducedErrors = []
+  const collectReduced = (msg) => {
+    if (msg.sessionId !== sessionId) return
+    if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') {
+      reducedErrors.push(msg.params.args.map((a) => a.value ?? a.description ?? '').join(' '))
+    }
+    if (msg.method === 'Runtime.exceptionThrown') {
+      reducedErrors.push(msg.params.exceptionDetails?.exception?.description ?? 'unknown')
+    }
+  }
+  collectors.add(collectReduced)
+
+  await send('Runtime.enable', {}, sessionId)
+  await send('Page.enable', {}, sessionId)
+  await send(
+    'Emulation.setEmulatedMedia',
+    { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] },
+    sessionId,
+  )
+  await send('Page.navigate', { url: `${BASE}/` }, sessionId)
+  await waitUntil(sessionId, `document.documentElement.dataset.appReady === 'true'`)
+  await sleep(800)
+
+  // React 19 reports a text-content mismatch as minified error #418, which
+  // says nothing about hydration. The number is the signal.
+  const reducedHydration = reducedErrors.find((e) =>
+    /hydrat|did not match|Text content does not match|React error #418/i.test(e),
+  )
+  report(!reducedHydration, 'reduced motion hydrates without mismatch', reducedHydration ?? '')
+  report(reducedErrors.length === 0, 'reduced motion throws nothing', reducedErrors.join(' | ').slice(0, 200))
+
+  collectors.delete(collectReduced)
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })
 }
@@ -1583,10 +1643,9 @@ for (const width of [390, 768, 1100]) {
 }
 
 ws.close()
-chrome.kill()
-// Chrome keeps writing to its profile for a moment after the kill signal.
-await sleep(400)
-await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(() => {})
+// The whole browser process group is stopped and waited on, so the helper
+// processes Chrome spawned go with it and none is left running.
+await stopChrome(chrome, profile)
 
 console.log(`\n${failures === 0 ? 'ALL BROWSER CHECKS PASSED' : `${failures} BROWSER CHECK(S) FAILED`}\n`)
 process.exit(failures === 0 ? 0 : 1)

@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-ssr
+coverage
 *.local
 .DS_Store
 .env
@@ -23,6 +24,9 @@ mock-site/
 .firecrawl
 .playwright-cli
 command-code-session-*.html
+command-code-session-*.md
+public/audio-review.*
+.rendered-conversations.json
 design-options/
 test_fish_free.mp3
 .mcp.json

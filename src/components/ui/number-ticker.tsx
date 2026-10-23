@@ -59,6 +59,7 @@ export function NumberTicker({
     if (!mounted || prefersReducedMotion()) return
 
     return springValue.on('change', (latest) => {
+      /* v8 ignore next -- the ticker is mounted when the spring runs */
       if (ref.current) {
         ref.current.textContent = Intl.NumberFormat('en-US', {
           minimumFractionDigits: decimalPlaces,

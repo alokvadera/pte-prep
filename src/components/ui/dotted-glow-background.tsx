@@ -69,6 +69,9 @@ export const DottedGlowBackground = ({
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [resolvedColor, setResolvedColor] = useState<string>(color)
   const [resolvedGlowColor, setResolvedGlowColor] = useState<string>(glowColor)
+  // The dots live outside the canvas effect: a theme change re-runs the
+  // effect, and the phases must survive that instead of being drawn anew.
+  const dotsRef = useRef<Dot[]>([])
 
   // Resolve CSS variable value from the container or root
   const resolveCssVariable = (el: Element, variableName?: string): string | null => {
@@ -95,6 +98,7 @@ export const DottedGlowBackground = ({
 
   // Keep resolved colors in sync with theme changes and prop updates
   useEffect(() => {
+    /* v8 ignore next -- the ref is attached before any effect runs */
     const container = containerRef.current ?? document.documentElement
 
     const compute = () => {
@@ -151,6 +155,7 @@ export const DottedGlowBackground = ({
   useEffect(() => {
     const el = canvasRef.current
     const container = containerRef.current
+    /* v8 ignore next -- the refs are attached before any effect runs */
     if (!el || !container) return
 
     const ctx = el.getContext('2d')
@@ -176,26 +181,30 @@ export const DottedGlowBackground = ({
     resize()
 
     // Precompute dot metadata for a medium-sized grid and regenerate on resize
-    let dots: Dot[] = []
-
     const regenDots = () => {
-      dots = []
+      // The dots already on the wall keep their phase and speed, so a
+      // resize — or a theme change, which re-runs this effect — never
+      // re-randomises the whole field under the visitor.
+      const previous = new Map(dotsRef.current.map((d) => [`${d.x}:${d.y}`, d]))
+      const next: Dot[] = []
       const { width, height } = container.getBoundingClientRect()
       const cols = Math.ceil(width / gap) + 2
       const rows = Math.ceil(height / gap) + 2
       const min = Math.min(speedMin, speedMax)
       const max = Math.max(speedMin, speedMax)
+      const span = Math.max(max - min, 0)
       for (let i = -1; i < cols; i++) {
         for (let j = -1; j < rows; j++) {
           const x = i * gap + (j % 2 === 0 ? 0 : gap * 0.5) // offset every other row
           const y = j * gap
           // Randomize phase and speed slightly per dot
-          const phase = Math.random() * Math.PI * 2
-          const span = Math.max(max - min, 0)
-          const speed = min + Math.random() * span // configurable rad/s
-          dots.push({ x, y, phase, speed })
+          const before = previous.get(`${x}:${y}`)
+          const phase = before?.phase ?? Math.random() * Math.PI * 2
+          const speed = before?.speed ?? min + Math.random() * span // configurable rad/s
+          next.push({ x, y, phase, speed })
         }
       }
+      dotsRef.current = next
     }
 
     regenDots()
@@ -205,7 +214,7 @@ export const DottedGlowBackground = ({
     const paint = (alphaFor: (d: Dot, t: number) => number, t: number) => {
       ctx.save()
       ctx.fillStyle = resolvedColor
-      for (const d of dots) {
+      for (const d of dotsRef.current) {
         const a = alphaFor(d, t)
 
         // Draw glow when bright
@@ -262,17 +271,23 @@ export const DottedGlowBackground = ({
         clear()
         paint(() => 0.5, 0)
       }
-      drawStatic()
+      // Resizing a canvas wipes it, so the observer has to repaint as well.
+      // The plain observer above only resizes, which is why the reduced
+      // frame used to go blank after the first resize.
       const onResize = () => {
         resize()
         regenDots()
         drawStatic()
       }
+      ro.disconnect()
+      const reducedObserver = new ResizeObserver(onResize)
+      reducedObserver.observe(container)
+      drawStatic()
       window.addEventListener('resize', onResize)
       return () => {
         stopped = true
         window.removeEventListener('resize', onResize)
-        ro.disconnect()
+        reducedObserver.disconnect()
       }
     }
 

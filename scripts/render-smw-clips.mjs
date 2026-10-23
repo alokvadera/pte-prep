@@ -57,21 +57,26 @@ const ONLY = value('--ids')?.split(',').map((s) => s.trim()).filter(Boolean)
 const dumpSource = (outFile) => `
 import { writeFileSync } from 'node:fs'
 import { BANK, AUDIO_INDEX } from '${ROOT.split('\\').join('/')}/src/content/bank'
+import { mapConversationVoices } from '${ROOT.split('\\').join('/')}/scripts/render-conversations.mjs'
 const bare = (v: string) => v.toLowerCase().replace(/[^a-z']/g, '')
 const out: unknown[] = []
 for (const m of BANK.missingWord) {
-  const turn = AUDIO_INDEX.get(m.audioId)?.turns[m.turnIndex]
+  const script = AUDIO_INDEX.get(m.audioId)
+  const turn = script?.turns[m.turnIndex]
   if (!turn) throw new Error('missing word ' + m.id + ': no turn ' + m.turnIndex)
   const words = turn.text.split(/\\s+/)
   const key = m.options[m.correct]
   if (bare(words[m.wordIndex] ?? '') !== bare(key)) {
     throw new Error('missing word ' + m.id + ': blank "' + words[m.wordIndex] + '" is not the key "' + key + '"')
   }
+  const voices = script ? mapConversationVoices(script) : []
+  const assigned = voices.find(v => v.speakerId === turn.speaker)
   out.push({
     id: m.id,
     audioId: m.audioId,
     turnIndex: m.turnIndex,
     wordIndex: m.wordIndex,
+    voiceId: assigned?.voice?.id || null,
     answer: key,
     preText: words.slice(0, m.wordIndex).join(' '),
     postText: words.slice(m.wordIndex + 1).join(' '),
@@ -118,9 +123,9 @@ function silencePcm(seconds) {
   return Buffer.alloc(Math.round(seconds * SAMPLE_RATE) * 2)
 }
 
-function beepPcm(seconds = 0.35, freq = 1000, volume = 0.55) {
+function beepPcm(seconds = 0.35, freq = 750, volume = 0.12) {
   const samples = Math.round(seconds * SAMPLE_RATE)
-  const fade = Math.round(SAMPLE_RATE * 0.01)
+  const fade = Math.round(SAMPLE_RATE * 0.02)
   const out = Buffer.alloc(samples * 2)
   for (let i = 0; i < samples; i++) {
     let gain = 1
@@ -149,9 +154,11 @@ function writeWav(file, pcm) {
   writeFileSync(file, Buffer.concat([header, pcm]))
 }
 
+const API_KEY = process.env.FISHAUDIO_API_KEY || 'sk-fish--nOll4ktyyXJwQVTVc_cqtkHbe48y37uWLO-w54lnnQ'
+
 // --- Fish Audio -------------------------------------------------------------
-async function synthesize(text, outMp3) {
-  const apiKey = process.env.FISHAUDIO_API_KEY
+async function synthesize(text, outMp3, voiceId = null) {
+  const apiKey = API_KEY
   if (!apiKey) throw new Error('FISHAUDIO_API_KEY is not set')
   const cleaned = text
     .replace(/\s*—\s*/g, ', ')
@@ -161,18 +168,21 @@ async function synthesize(text, outMp3) {
     .replace(/\s+/g, ' ')
     .trim()
 
+  const payload = {
+    text: cleaned,
+    format: 'mp3',
+    mp3_bitrate: 128,
+    sample_rate: SAMPLE_RATE,
+    prosody: { speed: 1.0, volume: 0, normalize_loudness: true },
+  }
+  if (voiceId) payload.reference_id = voiceId
+
   for (let attempt = 1; attempt <= 4; attempt++) {
     try {
       const res = await fetch('https://api.fish.audio/v1/tts', {
         method: 'POST',
         headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', model: 's2.1-pro-free' },
-        body: JSON.stringify({
-          text: cleaned,
-          format: 'mp3',
-          mp3_bitrate: 128,
-          sample_rate: SAMPLE_RATE,
-          prosody: { speed: 1.0, volume: 0, normalize_loudness: true },
-        }),
+        body: JSON.stringify(payload),
       })
       if (res.ok) {
         writeFileSync(outMp3, Buffer.from(await res.arrayBuffer()))
@@ -202,13 +212,13 @@ async function renderItem(item, scratch) {
 
   let pcm = Buffer.alloc(0)
   if (item.preText) {
-    await synthesize(item.preText, `${pre}.mp3`)
+    await synthesize(item.preText, `${pre}.mp3`, item.voiceId)
     wav(`${pre}.mp3`, `${pre}.wav`)
     pcm = Buffer.concat([pcm, readWav(`${pre}.wav`)])
   }
   pcm = Buffer.concat([pcm, NO_BEEP ? silencePcm(0.35) : beepPcm()])
   if (item.postText) {
-    await synthesize(item.postText, `${post}.mp3`)
+    await synthesize(item.postText, `${post}.mp3`, item.voiceId)
     wav(`${post}.mp3`, `${post}.wav`)
     pcm = Buffer.concat([pcm, silencePcm(0.08), readWav(`${post}.wav`)])
   }
@@ -264,7 +274,7 @@ function clipProfile(file) {
       let cos = 0
       for (let i = 0; i < frame; i++) {
         const x = data.readInt16LE((start + i) * 2) / 32768
-        const phase = (2 * Math.PI * 1000 * (start + i)) / SAMPLE_RATE
+        const phase = (2 * Math.PI * 750 * (start + i)) / SAMPLE_RATE
         energy += x * x
         sin += x * Math.sin(phase)
         cos += x * Math.cos(phase)
@@ -336,12 +346,12 @@ try {
 
   let rendered = null
   if (!VERIFY_ONLY) {
-    if (!process.env.FISHAUDIO_API_KEY) {
+    if (!API_KEY) {
       console.error('FISHAUDIO_API_KEY is not set — nothing was rendered.')
       process.exit(1)
     }
     console.log(`\n== Rendering ${items.length} Select Missing Word clips ==`)
-    console.log(`   ${NO_BEEP ? 'leaving silence where the word was (no beep)' : 'beeping 1 kHz over the blank'}\n`)
+    console.log(`   ${NO_BEEP ? 'leaving silence where the word was (no beep)' : 'beeping soft 750 Hz over the blank'}\n`)
     const results = await runPool(items, 4, (item) => renderItem(item, scratch))
     rendered = new Map(results.filter((r) => r.ok).map((r) => [r.item.id, r.target]))
     const errors = results.filter((r) => !r.ok)

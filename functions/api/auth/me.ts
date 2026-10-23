@@ -10,7 +10,7 @@ import {
   verifyPassword,
   verifySessionToken,
 } from '../../lib/auth'
-import { checkRateLimit } from '../../lib/rateLimit'
+import { checkRateLimit, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const token = extractBearerToken(context.request)
@@ -103,6 +103,9 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     })
   }
 
+  // The target score is validated up front. It is a pure check with no side
+  // effect, so an invalid value is rejected before anything is written.
+  let targetScore: number | undefined
   if (body.targetScore !== undefined) {
     if (typeof body.targetScore !== 'number' || !Number.isFinite(body.targetScore)) {
       return new Response(JSON.stringify({ error: 'Target score must be a finite number.' }), {
@@ -110,16 +113,18 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
         headers: { 'Content-Type': 'application/json' },
       })
     }
-    const score = Math.max(10, Math.min(90, Math.round(body.targetScore)))
-    await db
-      .prepare('UPDATE users SET target_score = ?, updated_at = datetime("now") WHERE id = ?')
-      .bind(score, session.userId)
-      .run()
+    targetScore = Math.max(10, Math.min(90, Math.round(body.targetScore)))
   }
 
   // Password change requires verifying the current password to prevent
   // account takeover via stolen tokens. Logged-out resets are handled via
   // email at /api/auth/forgot-password.
+  //
+  // The password is verified before any write happens. A request that carries
+  // both a new password and a target score must not persist the target score
+  // when the password check fails, so the two are verified and written in
+  // separate steps rather than one write followed by the other's check.
+  let passwordChange: { hash: string; salt: string } | null = null
   if (typeof body.newPassword === 'string') {
     if (typeof body.currentPassword !== 'string' || !body.currentPassword) {
       return new Response(JSON.stringify({ error: 'Current password is required.' }), {
@@ -128,11 +133,8 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
       })
     }
     const limited = await checkRateLimit(db, `pwchange:${session.userId}`, 5, 300)
-    if (limited) {
-      return new Response(JSON.stringify({ error: 'Too many password change attempts. Please wait.' }), {
-        status: 429,
-        headers: { 'Content-Type': 'application/json' },
-      })
+    if (!limited.allowed) {
+      return rateLimitExceededResponse(limited.retryAfter)
     }
     const userRec = await db
       .prepare('SELECT password_hash, password_salt FROM users WHERE id = ?')
@@ -165,9 +167,20 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
       })
     }
     const { hash, salt } = await hashPassword(body.newPassword, iterations)
+    passwordChange = { hash, salt }
+  }
+
+  if (targetScore !== undefined) {
+    await db
+      .prepare('UPDATE users SET target_score = ?, updated_at = datetime("now") WHERE id = ?')
+      .bind(targetScore, session.userId)
+      .run()
+  }
+
+  if (passwordChange) {
     await db
       .prepare('UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime("now") WHERE id = ?')
-      .bind(hash, salt, session.userId)
+      .bind(passwordChange.hash, passwordChange.salt, session.userId)
       .run()
 
     // Revoke all existing sessions so that any stolen tokens lose access

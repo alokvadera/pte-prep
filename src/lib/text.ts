@@ -9,9 +9,17 @@ export function wordCount(text: string): number {
 }
 
 export function sentences(text: string): string[] {
-  return text
+  // Standard honorifics, abbreviations and acronyms end in a period but do not
+  // end a sentence: "Dr. Smith arrived." is one sentence, not two. Masking
+  // them before the split keeps the count right, and the mask is restored
+  // afterwards so the text itself is unchanged.
+  const protectedText = text.replace(
+    /\b(Dr|Mr|Mrs|Ms|Prof|Sr|Jr|vs|etc|et al|e\.g|i\.e|U\.S|a\.m|p\.m)\./gi,
+    (m) => m.slice(0, -1) + '§',
+  )
+  return protectedText
     .split(/(?<=[.!?])\s+(?=[A-Z"'“(])/)
-    .map((s) => s.trim())
+    .map((s) => s.replace(/§/g, '.').trim())
     .filter((s) => s.length > 0)
 }
 

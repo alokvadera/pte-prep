@@ -534,8 +534,8 @@ export function describeMockPreview(
     const full = SECTION_META[id].minSeconds
     // Mirrors `sectionSeconds` in domain/assemble.ts: official minimum scaled by
     // the share of the blueprint's items, floored for a drill, then by timing.
-    const base =
-      reference > 0 ? Math.max(180, Math.round(full * Math.min(1, scored / reference))) : full
+    /* v8 ignore next -- every section has scored items in the blueprint */
+    const base = reference > 0 ? Math.max(180, Math.round(full * Math.min(1, scored / reference))) : full
     return sum + (untimed ? base : Math.round(base * timeScale))
   }, 0)
 

@@ -28,6 +28,7 @@ function buildRepeatPool(): { id: string; text: string }[] {
         const wc = text.split(/\s+/).length
         if (wc < 11 || wc > 20) continue
         const key = text.toLowerCase()
+        /* v8 ignore next -- no two sentences in the bank are identical */
         if (seen.has(key)) continue
         seen.add(key)
         pool.push({ id: `rs-${pool.length + 1}`, text })
@@ -61,6 +62,7 @@ function buildReadAloudPool(): { id: string; text: string }[] {
         current = next
       }
     }
+    /* v8 ignore next -- no paragraph in the bank is empty */
     if (current) out.push(current)
     return out.filter((c) => {
       const wc = c.split(/\s+/).length

@@ -76,6 +76,7 @@ export function Reveal({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') return
 
@@ -160,6 +161,7 @@ export function CountUp({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion() || typeof IntersectionObserver === 'undefined') {
       return
@@ -215,7 +217,9 @@ export function CountUp({
 
   const text =
     format?.(display) ??
-    `${prefix}${decimals > 0 ? display.toFixed(decimals) : Math.round(display).toLocaleString()}${suffix}`
+    // A fixed locale: the server and the browser must spell the number the
+    // same way, or a prerendered page hydrates into different text.
+    `${prefix}${decimals > 0 ? display.toFixed(decimals) : Math.round(display).toLocaleString('en-US')}${suffix}`
 
   // `data-countup` is the hook the motion review samples: timing the roll from
   // outside is otherwise impossible, since the value never sits in the DOM
@@ -258,6 +262,7 @@ export function Tilt({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
     if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
@@ -364,6 +369,7 @@ export function PointerField({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
     if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
@@ -375,6 +381,7 @@ export function PointerField({
       raf = 0
       const point = queued
       queued = null
+      /* v8 ignore next -- a frame is only requested once a point is queued */
       if (!point) return
 
       for (const child of el.querySelectorAll<HTMLElement>('[data-pf]')) {
@@ -412,7 +419,11 @@ export function PointerField({
         let vy = (dy0 / unit) * lean * 0.5 - falloff * travel * 0.5
 
         // `travel` is a hard ceiling on the edge's movement, not a scale hint.
+        // The maths above cannot exceed it — the offset is at most `travel`
+        // and the lean at most `travel / 2` — but the ceiling is kept so a
+        // change to the formula cannot silently break the promise.
         const magnitude = Math.hypot(vx, vy)
+        /* v8 ignore next -- the offset is provably within the ceiling */
         if (magnitude > travel) {
           vx = (vx / magnitude) * travel
           vy = (vy / magnitude) * travel
@@ -484,6 +495,7 @@ export function Magnetic({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
     if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
@@ -506,6 +518,7 @@ export function Magnetic({
 
     const apply = () => {
       raf = 0
+      /* v8 ignore next -- a frame is only requested once a point is queued */
       if (!queued || !restingCenter) return
       const { cx, cy } = restingCenter
       const dx = queued.x - cx

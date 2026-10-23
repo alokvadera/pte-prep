@@ -51,7 +51,7 @@ export function resolveAllowedOrigin(origin: string | null, configured?: string)
   if (!origin) return null
   if (configured) {
     const list = configured.split(',').map((s) => s.trim())
-    if (list.includes('*') || list.includes(origin)) return origin
+    return list.includes('*') || list.includes(origin) ? origin : null
   }
   if (
     origin === 'https://pte-prep.pages.dev' ||

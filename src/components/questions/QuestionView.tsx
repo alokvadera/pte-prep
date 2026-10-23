@@ -17,6 +17,24 @@ interface Props {
 
 const LETTERS = 'ABCDEFGH'
 
+/**
+ * The player's play allowance.
+ *
+ * The count lives in the response rather than inside the player: the runner
+ * remounts the player every time the candidate moves between items, so a count
+ * held there would be reset by navigating away and back, and the "the
+ * recording plays once" rule would be trivially bypassed.
+ */
+function playAllowance(
+  response: ItemResponse | undefined,
+  onChange: (patch: Partial<ItemResponse>) => void,
+) {
+  return {
+    playsUsed: response?.playsUsed ?? 0,
+    onPlayUsed: () => onChange({ playsUsed: (response?.playsUsed ?? 0) + 1 }),
+  }
+}
+
 /** Every free-text blank in the content bank is written as six underscores. */
 const BLANK_MARKER = /______/
 
@@ -73,6 +91,8 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
             beepWord={item.audioBeepWord}
             replays={item.replays ?? 0}
             leadIn={item.audioLeadIn ?? 4}
+            examMode={examMode}
+            {...playAllowance(response, onChange)}
             allowSpeedControl={!examMode}
             compact
           />
@@ -84,7 +104,7 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
           const inputId = `${item.id}-opt-${i}`
           return (
             <label
-              key={opt}
+              key={inputId}
               htmlFor={inputId}
               className={cn(
                 'choice-row',
@@ -142,6 +162,8 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
             beepWord={item.audioBeepWord}
             replays={item.replays ?? 0}
             leadIn={item.audioLeadIn ?? 4}
+            examMode={examMode}
+            {...playAllowance(response, onChange)}
             allowSpeedControl={!examMode}
             compact
           />
@@ -153,7 +175,7 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
           const inputId = `${item.id}-opt-${i}`
           return (
             <label
-              key={opt}
+              key={inputId}
               htmlFor={inputId}
               className={cn(
                 'choice-row',
@@ -204,8 +226,18 @@ function DropdownBlanks({ item, response, onChange, examMode }: Props) {
   const set = (i: number, v: string) => {
     const next = [...values]
     while (next.length < parts.length - 1) next.push(null)
-    next[i] = v
+    // Only a word from the bank can be chosen, so only a word from the bank
+    // is stored: anything else would render as a blank select while still
+    // counting as an attempt.
+    next[i] = v && bank.includes(v) ? v : null
     onChange({ blanks: next })
+  }
+
+  // A value left over from an older bank is not selectable, so it is shown
+  // as blank rather than as an option the candidate never picked.
+  const valueFor = (i: number) => {
+    const v = values[i]
+    return v && bank.includes(v) ? v : ''
   }
 
   return (
@@ -218,7 +250,7 @@ function DropdownBlanks({ item, response, onChange, examMode }: Props) {
             {i < parts.length - 1 ? (
               <select
                 className="field mx-0.5 inline-block w-auto min-w-32 border-0 bg-brand-500/10 px-2 py-1 align-baseline font-semibold"
-                value={values[i] ?? ''}
+                value={valueFor(i)}
                 onChange={(e) => set(i, e.target.value)}
                 aria-label={`Blank ${i + 1}`}
               >
@@ -262,6 +294,8 @@ function InlineBlanks({ item, response, onChange, examMode }: Props) {
         fromTurn={item.audioFromTurn}
         replays={item.replays ?? 0}
         leadIn={item.audioLeadIn ?? 4}
+        examMode={examMode}
+        {...playAllowance(response, onChange)}
         allowSpeedControl={!examMode}
         compact
       />
@@ -370,6 +404,7 @@ function OrderQuestion({ item, response, onChange, examMode }: Props) {
   const move = (index: number, delta: number) => {
     const next = [...order]
     const target = index + delta
+    /* v8 ignore next -- the buttons at the ends are disabled */
     if (target < 0 || target >= next.length) return
     const a = next[index] as string
     next[index] = next[target] as string
@@ -447,6 +482,8 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
         beepWord={item.audioBeepWord}
         replays={item.replays ?? 0}
         leadIn={item.audioLeadIn ?? 4}
+        examMode={examMode}
+        {...playAllowance(response, onChange)}
         allowSpeedControl={!examMode}
         compact
       />
@@ -511,6 +548,8 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
             toTurn={item.audioToTurn}
             replays={item.replays ?? 0}
             leadIn={item.audioLeadIn ?? 4}
+            examMode={examMode}
+            {...playAllowance(response, onChange)}
             allowSpeedControl={!examMode}
             compact
           />
@@ -581,6 +620,8 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
             replays={item.replays ?? 0}
             leadIn={item.audioLeadIn ?? 3}
             showTranscript={showTranscript}
+            examMode={examMode}
+            {...playAllowance(response, onChange)}
             allowSpeedControl={!examMode}
             compact={!hasTarget}
             onPlayStateChange={setAudioPlaying}

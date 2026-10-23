@@ -50,12 +50,13 @@ export function safeStateStorage(): SafeStorage {
     },
     removeItem: (name: string): void => {
       memory.delete(name)
-      unsynced.delete(name)
       if (!hasLs()) return
       try {
         window.localStorage.removeItem(name)
+        unsynced.delete(name)
       } catch (err) {
         /* ignore */
+        unsynced.add(name)
         console.warn('[storage] localStorage removeItem failed:', err)
       }
     },
@@ -66,6 +67,11 @@ export function throttledStateStorage(delayMs = 1000): SafeStorage {
   const base = safeStateStorage()
   const pending = new Map<string, { value: string; timer: ReturnType<typeof setTimeout> }>()
 
+  // Throttling exists to avoid hammering localStorage. Off the browser there
+  // is no localStorage to throttle, and a pending timer would keep a Node
+  // process alive, so writes go straight through instead.
+  const canThrottle = typeof window !== 'undefined'
+
   function flushPending(): void {
     for (const [name, p] of pending) {
       clearTimeout(p.timer)
@@ -74,7 +80,7 @@ export function throttledStateStorage(delayMs = 1000): SafeStorage {
     pending.clear()
   }
 
-  if (typeof window !== 'undefined') {
+  if (canThrottle) {
     // `beforeunload` alone is not enough: mobile Safari does not fire it when a
     // tab is closed or swiped away, so the newest throttled state could be
     // dropped. The page-lifecycle events below are the ones browsers guarantee.
@@ -94,6 +100,10 @@ export function throttledStateStorage(delayMs = 1000): SafeStorage {
     setItem: (name: string, value: string): void => {
       const existing = pending.get(name)
       if (existing) clearTimeout(existing.timer)
+      if (!canThrottle) {
+        base.setItem(name, value)
+        return
+      }
       const timer = setTimeout(() => {
         pending.delete(name)
         base.setItem(name, value)

@@ -1,0 +1,35 @@
+{
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
+    "target": "es2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    /* The app compiles with the automatic JSX runtime, and so do the tests. */
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@/*": ["./src/*"]
+    },
+    "skipLibCheck": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["tests", "src", "vitest.config.ts"],
+  /* `tests/functions` is checked by `tsconfig.vitest-functions.json` instead:
+     the Cloudflare worker types and the DOM library both declare `fetch`,
+     `Request` and `Response`, and they cannot coexist in one program.
+     `tests/answers-and-results` holds the legacy suite, which is being ported
+     into `tests/evaluation`; it is not typechecked here in the meantime. */
+  "exclude": ["tests/functions", "tests/answers-and-results"]
+}

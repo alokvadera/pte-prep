@@ -14,8 +14,8 @@
 // Requires a Chrome/Chromium binary; skips cleanly when none is found.
 // ---------------------------------------------------------------------------
 
-import { spawn } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
+import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { existsSync } from 'node:fs'
@@ -63,7 +63,7 @@ function sleep(ms) {
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-audio-'))
 const PORT = 9334
-const chrome = spawn(
+const chrome = spawnChrome(
   binary,
   [
     '--headless=new',
@@ -80,7 +80,6 @@ const chrome = spawn(
     '--autoplay-policy=no-user-gesture-required',
     'about:blank',
   ],
-  { stdio: 'ignore' },
 )
 
 let failures = 0
@@ -105,8 +104,7 @@ async function waitForDevTools() {
 }
 
 if (!(await waitForDevTools())) {
-  chrome.kill()
-  await rm(profile, { recursive: true, force: true })
+  await stopChrome(chrome, profile)
   console.error('  Chrome did not expose a debugging port.')
   process.exit(1)
 }
@@ -255,7 +253,7 @@ report(position > 1.2, 'playback advanced past the lead-in', `currentTime ${posi
 const clip = audioResponses.filter((r) => /\.m4a(\?|$)/.test(r.url))
 report(clip.length > 0, 'a clip was requested', `${audioResponses.length} audio responses`)
 report(
-  clip.every((r) => r.status === 200 && /audio\/(mp4|mpeg)/.test(r.type)),
+  clip.every((r) => (r.status === 200 || r.status === 206) && /audio\/(mp4|mpeg)/.test(r.type)),
   'every clip came back as playable audio',
   clip.map((r) => `${r.status} ${r.type} ${r.url.split('/').pop()}`).join(', '),
 )
@@ -284,11 +282,7 @@ if (expectedPrefix) {
 console.log(`\n  clips requested: ${requested.join(', ') || 'none'}`)
 console.log(`\n${failures === 0 ? 'AUDIO PLAYBACK CHECK PASSED' : `${failures} FAILED`}\n`)
 
-chrome.kill()
-await sleep(600)
-try {
-  await rm(profile, { recursive: true, force: true })
-} catch {
-  /* ignore */
-}
+// The whole browser process group is stopped and waited on, so the helper
+// processes Chrome spawned go with it and none is left running.
+await stopChrome(chrome, profile)
 process.exit(failures === 0 ? 0 : 1)

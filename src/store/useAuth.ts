@@ -1,8 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { safeStateStorage } from '../lib/storage'
-import { clearAttempts } from '../db/db'
-import { clearDeletedIds } from '../lib/sync'
 import { useSettings } from './useSettings'
 
 export interface User {
@@ -42,7 +40,10 @@ type PersistedAuth = Pick<AuthStore, 'user' | 'token' | 'expiresAt' | 'hasLogged
 const SESSION_FALLBACK_MS = 7 * 24 * 60 * 60 * 1000
 
 let targetScoreSeq = 0
+/** The last target score known to be on the server. */
 let lastConfirmedScore: number | undefined
+/** The score on screen before the current batch of updates began. */
+let pendingScoreBaseline: number | undefined
 
 export const useAuth = create<AuthStore>()(
   persist(
@@ -127,6 +128,7 @@ export const useAuth = create<AuthStore>()(
 
       logout: () => {
         lastConfirmedScore = undefined
+        pendingScoreBaseline = undefined
         targetScoreSeq = 0
         const { token } = get()
         // Drop the local session first so a slow or failed request cannot leave
@@ -135,14 +137,17 @@ export const useAuth = create<AuthStore>()(
           user: null,
           token: null,
           expiresAt: null,
+          lastEmail: null,
           error: null,
         })
-        if (typeof window !== 'undefined') {
-          void clearAttempts()
-          void clearDeletedIds()
-          useSettings.getState().set('groqApiKey', '')
-          useSettings.getState().set('aiScoringEnabled', false)
-        }
+        // Attempts and active tests stay on the device but are scoped to the
+        // account or guest owner that created them. Deleting them here lost
+        // unsynced work; leaving them unscoped let the next account see it.
+        // Only secrets and per-account telemetry are removed on teardown.
+        const settings = useSettings.getState()
+        settings.set('groqApiKey', '')
+        settings.set('aiScoringEnabled', false)
+        settings.resetAiUsage()
         if (token && typeof window !== 'undefined') {
           void fetch('/api/auth/logout', {
             method: 'POST',
@@ -206,11 +211,16 @@ export const useAuth = create<AuthStore>()(
       setTargetScore: async (score: number) => {
         const { token, user } = get()
         if (!token || !user) return
-        if (lastConfirmedScore === undefined) {
-          lastConfirmedScore = user.targetScore
-        }
-        const rollbackScore = lastConfirmedScore
         const seq = ++targetScoreSeq
+        // The value to restore if the newest request fails. A score the server
+        // has already confirmed wins; otherwise it is the score that was on
+        // screen before this batch of updates began. Without this, two
+        // overlapping updates could roll the display back to a value the
+        // server had already moved past.
+        if (pendingScoreBaseline === undefined) {
+          pendingScoreBaseline = lastConfirmedScore ?? user.targetScore
+        }
+        const rollbackScore = lastConfirmedScore ?? pendingScoreBaseline
         set({ user: { ...user, targetScore: score } })
         try {
           const res = await fetch('/api/auth/me', {
@@ -222,19 +232,22 @@ export const useAuth = create<AuthStore>()(
             body: JSON.stringify({ targetScore: score }),
           })
           if (res.ok) {
-            if (seq === targetScoreSeq) {
-              lastConfirmedScore = undefined
-            }
+            // The server accepted this value, so it is the one a later
+            // failure should fall back to.
+            lastConfirmedScore = score
+            pendingScoreBaseline = undefined
           } else if (seq === targetScoreSeq) {
-            lastConfirmedScore = undefined
             const current = get().user
             if (current) set({ user: { ...current, targetScore: rollbackScore } })
+            lastConfirmedScore = rollbackScore
+            pendingScoreBaseline = undefined
           }
         } catch {
           if (seq === targetScoreSeq) {
-            lastConfirmedScore = undefined
             const current = get().user
             if (current) set({ user: { ...current, targetScore: rollbackScore } })
+            lastConfirmedScore = rollbackScore
+            pendingScoreBaseline = undefined
           }
         }
       },
@@ -245,7 +258,7 @@ export const useAuth = create<AuthStore>()(
         // If the stored token is expired or about to expire (<5 min), drop it
         // locally instead of reaching the edge with a dead bearer token.
         if (expiresAt !== null && Date.now() >= expiresAt - 5 * 60 * 1000) {
-          set({ user: null, token: null, expiresAt: null })
+          get().logout()
           return
         }
         try {
@@ -268,7 +281,7 @@ export const useAuth = create<AuthStore>()(
             }
           } else if (res.status === 401) {
             if (get().token !== token) return
-            set({ user: null, token: null, expiresAt: null })
+            get().logout()
           }
         } catch {
           /* offline or network error, preserve cached token */

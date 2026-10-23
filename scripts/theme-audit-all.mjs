@@ -14,7 +14,7 @@
 //    - Check surfaces, cards, and borders
 // ---------------------------------------------------------------------------
 
-import { spawn } from 'node:child_process'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
 import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
@@ -83,7 +83,7 @@ if (!bin) {
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-theme-audit-'))
 const port = 9800 + Math.floor(Math.random() * 150)
-const chrome = spawn(
+const chrome = spawnChrome(
   bin,
   [
     '--headless=new',
@@ -94,7 +94,6 @@ const chrome = spawn(
     '--no-first-run',
     'about:blank',
   ],
-  { stdio: 'ignore' },
 )
 
 async function firstPageTarget() {
@@ -304,5 +303,7 @@ if (totalFailures === 0) {
 console.log('============================================================\n')
 
 ws.close()
-chrome.kill()
+// The browser is stopped before the exit, so its helper processes go with it.
+// Exiting first left a whole Chrome behind every run.
+await stopChrome(chrome, profile)
 process.exit(totalFailures === 0 ? 0 : 1)

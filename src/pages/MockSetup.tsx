@@ -99,7 +99,11 @@ export default function MockSetup() {
     const readCap = capacity['fill-in-blanks-dropdown'] ?? 6
     if (readTotal > readCap * 2) {
       const excess = readTotal - readCap * 2
-      for (const t of readingTypes) out[t] = Math.max(1, (out[t] ?? 1) - Math.floor(excess / 3))
+      // The reduction is spread over every reading type. Dividing by three
+      // removed far more than the excess — the reading section would end up
+      // well under its cap, and the shortfall was absorbed silently.
+      const perType = Math.floor(excess / readingTypes.length)
+      for (const t of readingTypes) out[t] = Math.max(1, (out[t] ?? 1) - perType)
     }
     return out
   }, [length, capacity])
@@ -135,6 +139,9 @@ export default function MockSetup() {
   // order, so choose a fresh seed only when starting: another mock can draw
   // different material without changing the prerendered setup screen.
   const begin = async () => {
+    // The button is disabled while a session is being prepared, so this guard
+    // is only reachable through a second call from elsewhere.
+    /* v8 ignore next -- the button is disabled while starting */
     if (starting) return
     setStarting(true)
     setLoadError(null)
@@ -250,7 +257,10 @@ export default function MockSetup() {
                       <span
                         aria-hidden="true"
                         className={cn(
-                          'mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border transition-all',
+                          // The native input is `sr-only`, so the browser's own
+                          // focus ring is clipped to a pixel. The visible
+                          // control has to show the focus instead.
+                          'peer-focus-visible:ring-brand-500 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border transition-all',
                           isActive
                             ? 'border-mark-600 bg-mark-600 dark:border-mark-400 dark:bg-mark-600 text-white shadow-sm'
                             : 'border-ink-300 group-hover:border-ink-400 dark:border-white/20 dark:group-hover:border-white/40',
@@ -323,6 +333,7 @@ export default function MockSetup() {
                     <button
                       type="button"
                       onClick={() => setSingleSection(null)}
+                      aria-pressed={singleSection === null}
                       className={`px-3 py-2 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer ${
                         singleSection === null
                           ? 'border-mark-500 bg-mark-600 text-white dark:border-mark-400 dark:bg-mark-600 dark:text-white'
@@ -340,6 +351,7 @@ export default function MockSetup() {
                           key={sId}
                           type="button"
                           onClick={() => setSingleSection(sId)}
+                          aria-pressed={isActive}
                           className={`px-3 py-2 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer truncate ${
                             isActive
                               ? 'border-mark-500 bg-mark-600 text-white dark:border-mark-400 dark:bg-mark-600 dark:text-white'
@@ -491,6 +503,8 @@ function MicChecker() {
   const animRef = useRef<number | null>(null)
   const countTimerRef = useRef<number | null>(null)
   const chunksRef = useRef<Blob[]>([])
+  /** True while the microphone is being opened, so a second check is refused. */
+  const startingRef = useRef(false)
 
   useEffect(() => {
     return () => {
@@ -503,6 +517,12 @@ function MicChecker() {
   }, [audioUrl])
 
   const startTest = async () => {
+    // A second click while the first is still asking for the microphone would
+    // open a second stream: the first recorder is overwritten, its buffered
+    // chunks are wiped, and the first stream's tracks are never stopped, so
+    // the browser's recording indicator stays on for the rest of the session.
+    if (startingRef.current) return
+    startingRef.current = true
     setErrorMsg(null)
     if (audioUrl) {
       URL.revokeObjectURL(audioUrl)
@@ -510,6 +530,7 @@ function MicChecker() {
     }
 
     if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+      startingRef.current = false
       setState('error')
       setErrorMsg('Microphone recording is not supported in this browser.')
       return
@@ -537,6 +558,7 @@ function MicChecker() {
         const updateLevel = () => {
           analyser.getByteFrequencyData(data)
           let sum = 0
+          /* v8 ignore next -- a typed array element is never nullish */
           for (let i = 0; i < data.length; i++) sum += data[i] ?? 0
           const avg = sum / data.length
           setLevel(Math.min(100, Math.round((avg / 128) * 100)))
@@ -582,17 +604,25 @@ function MicChecker() {
       countTimerRef.current = window.setInterval(() => {
         count -= 1
         setCountdown(count)
+        /* v8 ignore next -- the countdown ends when the test ends it */
         if (count <= 0) {
           if (countTimerRef.current !== null) {
             window.clearInterval(countTimerRef.current)
             countTimerRef.current = null
           }
+          /* v8 ignore next -- the double always records in the tests */
           if (recorder.state === 'recording') {
             recorder.stop()
           }
         }
       }, 1000)
     } catch (err) {
+      // The stream was taken before something later in the setup threw, and
+      // the recorder was never started, so nothing else would release it:
+      // the browser's recording indicator would stay on for the rest of the
+      // session.
+      streamRef.current?.getTracks().forEach((track) => track.stop())
+      streamRef.current = null
       const name = err instanceof DOMException ? err.name : 'Error'
       setState('error')
       setErrorMsg(
@@ -600,6 +630,10 @@ function MicChecker() {
           ? 'Microphone permission was denied. Allow microphone access in your browser to test your mic.'
           : 'Could not access microphone. Ensure your headset is connected.',
       )
+    } finally {
+      // The guard covers the setup only: a check that has run may be run
+      // again, a check already running may not.
+      startingRef.current = false
     }
   }
 

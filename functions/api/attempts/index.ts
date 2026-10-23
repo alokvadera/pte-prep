@@ -1,6 +1,6 @@
 import type { Env } from '../../types'
 import { extractBearerToken, requireSecret, verifySessionToken } from '../../lib/auth'
-import { checkRateLimit } from '../../lib/rateLimit'
+import { checkRateLimit, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 interface RawAttemptRow {
   id: string
@@ -50,19 +50,37 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
   // The sync client needs to know which attempts exist, not what is inside
   // them: every row below carries its full responses, which makes a page of
-  // them hundreds of times larger than the id list. Without this mode the
-  // client could only ever see the newest 100 ids, so anything older looked
-  // missing and was re-uploaded on every sync — and a new device could never
-  // pull past the first hundred. `?ids=1` returns every id for the account.
-  if (new URL(context.request.url).searchParams.get('ids') === '1') {
+  // them hundreds of times larger than the id list. `?ids=1` is paginated so
+  // every account, however long its history, can be reconciled without
+  // re-uploading rows that merely fell past a hard limit. Older clients that
+  // send no limit still receive one 1,000-row page and can keep working.
+  const url = new URL(context.request.url)
+  if (url.searchParams.get('ids') === '1') {
+    const rawLimit = Number(url.searchParams.get('limit') ?? '1000')
+    const rawOffset = Number(url.searchParams.get('offset') ?? '0')
+    const limit = Number.isFinite(rawLimit) ? Math.min(2000, Math.max(1, Math.floor(rawLimit))) : 1000
+    const offset = Number.isFinite(rawOffset) ? Math.max(0, Math.floor(rawOffset)) : 0
+
+    // Fetch one extra row so `hasMore` is exact without a second count query.
     const rows = await db
-      .prepare('SELECT id FROM attempts WHERE user_id = ? ORDER BY finished_at DESC LIMIT 1000')
-      .bind(session.userId)
+      .prepare(
+        'SELECT id FROM attempts WHERE user_id = ? ORDER BY finished_at DESC, id DESC LIMIT ? OFFSET ?',
+      )
+      .bind(session.userId, limit + 1, offset)
       .all<{ id: string }>()
-    return new Response(JSON.stringify({ ids: (rows.results ?? []).map((row) => row.id) }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    const allRows = rows.results ?? []
+    const page = allRows.slice(0, limit)
+    return new Response(
+      JSON.stringify({
+        ids: page.map((row) => row.id),
+        hasMore: allRows.length > limit,
+        nextOffset: offset + page.length,
+      }),
+      {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
   }
 
   const results = await db
@@ -177,6 +195,23 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
+  const db = context.env.DB
+  if (!db) {
+    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
+  // Writes are rate limited per account. The client pushes one attempt per
+  // finished test, and a first sign-in replays the whole local history in one
+  // go, so the ceiling leaves room for that burst while still stopping an
+  // unbounded number of rows.
+  const limited = await checkRateLimit(db, `post-attempt:${session.userId}`, 120, 60)
+  if (!limited.allowed) {
+    return rateLimitExceededResponse(limited.retryAfter)
+  }
+
   const cl = context.request.headers.get('content-length')
   if (cl && Number(cl) > 1_000_000) {
     return new Response(JSON.stringify({ error: 'Attempt payload too large' }), {
@@ -185,9 +220,29 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
+  // The body is read as text and measured before it is parsed. The
+  // content-length header is absent under chunked transfer encoding, so it
+  // cannot be the only guard, and parsing first would build an object graph
+  // out of an arbitrarily large payload.
+  let raw: string
+  try {
+    raw = await context.request.text()
+  } catch {
+    return new Response(JSON.stringify({ error: 'Invalid request body' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  if (raw.length > 1_000_000) {
+    return new Response(JSON.stringify({ error: 'Attempt payload too large' }), {
+      status: 413,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   let attempt: Record<string, unknown>
   try {
-    attempt = (await context.request.json()) as Record<string, unknown>
+    attempt = JSON.parse(raw) as Record<string, unknown>
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
       status: 400,
@@ -237,13 +292,6 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const db = context.env.DB
-  if (!db) {
-    return new Response(JSON.stringify({ error: 'Database binding unavailable' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
   const num = (v: unknown, fallback: number): number => {
     const n = typeof v === 'number' ? v : Number(v ?? fallback)
     return Number.isFinite(n) ? n : fallback
@@ -362,11 +410,8 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
   }
 
   const limited = await checkRateLimit(db, `del-attempts:${session.userId}`, 5, 60)
-  if (limited) {
-    return new Response(JSON.stringify({ error: 'Too many deletion requests. Please wait a moment.' }), {
-      status: 429,
-      headers: { 'Content-Type': 'application/json' },
-    })
+  if (!limited.allowed) {
+    return rateLimitExceededResponse(limited.retryAfter)
   }
 
   const res = await db.prepare('DELETE FROM attempts WHERE user_id = ?').bind(session.userId).run()

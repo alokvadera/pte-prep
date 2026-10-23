@@ -28,7 +28,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'listening',
     skills: ['listening', 'writing'],
     tier: 1,
-    impact: 'Critical (~25 pts to Writing & Listening)',
+    impact: 'Critical impact',
     points: '25–28 pts (Writing + Listening)',
     crossImpactNote: 'Massive Writing donor! Donates ~25 points directly to Writing. Skimping on time here breaks your Writing score.',
     priorityStrategy: '100% spelling accuracy. Write alternative endings if unsure (no negative penalty for extra words). Practice 20–30 daily.',
@@ -40,7 +40,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking', 'listening'],
     tier: 1,
-    impact: 'Critical (~30 pts to Speaking, ~20 pts to Listening)',
+    impact: 'Critical impact',
     points: '30–33 pts (Speaking) + 18–20 pts (Listening)',
     crossImpactNote: 'Biggest speaking contributor and large listening donor. Contributes over 30 points to Speaking alone.',
     priorityStrategy: 'Continuous fluency beats word-for-word recall. If you catch 65–70% of words, speak them smoothly without stopping or hesitating.',
@@ -52,7 +52,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking', 'reading'],
     tier: 1,
-    impact: 'Critical (~22 pts to Speaking, ~20 pts to Reading)',
+    impact: 'Critical impact',
     points: '22–25 pts (Speaking) + 20–22 pts (Reading)',
     crossImpactNote: 'Massive Reading donor! Secures ~22 points in Reading before Part 2 (Reading section) even starts.',
     priorityStrategy: 'Read with natural cadence and rhythm. Stress key nouns and verbs. Never correct yourself if you mispronounce a word — keep flowing.',
@@ -64,7 +64,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'reading',
     skills: ['reading', 'writing'],
     tier: 1,
-    impact: 'Critical (~22 pts to Reading & Writing)',
+    impact: 'Critical impact',
     points: '22–25 pts (Reading) + 20–22 pts (Writing)',
     crossImpactNote: 'The single highest-weight task in the Reading section, and provides ~22 points to Writing.',
     priorityStrategy: 'Master the Academic Collocation List (ACL), verb agreement, and preposition pairings. Budget 2–2.5 minutes per passage.',
@@ -76,7 +76,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking'],
     tier: 1,
-    impact: 'High (~22 pts to Speaking)',
+    impact: 'High impact',
     points: '22–25 pts (Speaking)',
     crossImpactNote: 'Pure speaking booster. Easiest task to automate with a fixed 25–30 second oral delivery template.',
     priorityStrategy: 'Rely on a proven 4-point template (Title → Highest trend → Lowest trend → Conclusion). Speak without hesitations or pauses.',
@@ -88,21 +88,21 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'reading',
     skills: ['reading'],
     tier: 1,
-    impact: 'High (~15 pts to Reading)',
+    impact: 'High impact',
     points: '15–18 pts (Reading)',
     crossImpactNote: 'Core Reading score foundation. Critical for meeting 65+ and 79+ cutoffs.',
-    priorityStrategy: 'Eliminate options using parts of speech (noun, verb, adjective, adverb). Place confident words first to narrow remaining choices.',
+    priorityStrategy: 'Read the passage once, then complete each table cell from the text. Check that the finished row reads as a unit. This practice tool uses typed cells rather than the drag-and-drop interaction in the real test.',
     suggestedTime: '1.5–2 min per passage',
   },
 
-  // --- TIER 2: CORE (~20% OF TOTAL SCORE) ---
+  // --- TIER 2: CORE ---
   {
     type: 'summarize-spoken-text',
     name: 'Summarize Spoken Text',
     section: 'listening',
     skills: ['listening', 'writing'],
     tier: 2,
-    impact: 'Medium (~10% of total exam marks)',
+    impact: 'Medium impact',
     points: '12–14 pts (Listening) + 12–14 pts (Writing)',
     crossImpactNote: 'Equal dual weightage for Listening and Writing.',
     priorityStrategy: 'Strict 50–70 words. Note down 4–5 clear phrase groups. Embed them into grammatically clean compound sentences. Check spelling.',
@@ -114,7 +114,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['writing'],
     tier: 2,
-    impact: 'Medium (~10% of total exam marks)',
+    impact: 'Medium impact',
     points: '11–13 pts (Writing)',
     crossImpactNote: 'Surprisingly lower weight than Write from Dictation or R&W FIB, but essential for Form and Discourse.',
     priorityStrategy: 'Stick strictly to 220–260 words across 4 paragraphs. Use a template to finish writing in 15 minutes, leaving 5 minutes for proofreading.',
@@ -126,7 +126,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking', 'listening'],
     tier: 2,
-    impact: 'Medium (~8% of total exam marks)',
+    impact: 'Medium impact',
     points: '10–12 pts (Speaking) + 10–12 pts (Listening)',
     crossImpactNote: 'Dual score for both Speaking and Listening.',
     priorityStrategy: 'Capture 5–7 keywords and key phrases on notepad. Channel them immediately into a fluent lecture template without stammering.',
@@ -138,7 +138,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['reading', 'writing'],
     tier: 2,
-    impact: 'Medium (~8% of total exam marks)',
+    impact: 'Medium impact',
     points: '8–10 pts (Reading) + 8–10 pts (Writing)',
     crossImpactNote: 'Feeds both Reading and Writing skills.',
     priorityStrategy: 'Must be ONE single complete sentence ending in a full stop (5–75 words; sweet spot 35–45 words). Two sentences = 0 Form score!',
@@ -150,7 +150,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'listening',
     skills: ['listening', 'writing'],
     tier: 2,
-    impact: 'Medium (~7% of total exam marks)',
+    impact: 'Medium impact',
     points: '7–9 pts (Listening) + 7–9 pts (Writing)',
     crossImpactNote: 'Directly influences your Writing score via spelling accuracy.',
     priorityStrategy: 'Type rough notes or directly into blanks as audio plays. Double-check plural -s, past-tense -ed, and vowel combinations.',
@@ -162,7 +162,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'listening',
     skills: ['reading', 'listening'],
     tier: 2,
-    impact: 'Medium (~7% of total exam marks)',
+    impact: 'Medium impact',
     points: '8–10 pts (Reading) + 8–10 pts (Listening)',
     crossImpactNote: 'Dual score for Listening and Reading.',
     priorityStrategy: '⚠️ Negative marking (-1 per wrong click)! Track with your cursor word by word. Only click if you are 100% sure the speaker said a different word.',
@@ -174,7 +174,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'reading',
     skills: ['reading'],
     tier: 2,
-    impact: 'Medium (~6% of total exam marks)',
+    impact: 'Medium impact',
     points: '6–8 pts (Reading)',
     crossImpactNote: 'Pure Reading score. Scored per adjacent correct pair.',
     priorityStrategy: 'Identify the independent topic sentence (no pronouns or unexplained references). Match adjacent pairs (A→B, B→C) methodically.',
@@ -186,7 +186,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking', 'listening'],
     tier: 2,
-    impact: 'Medium (~6% of total exam marks)',
+    impact: 'Medium impact',
     points: '8–10 pts (Speaking) + 8–10 pts (Listening)',
     crossImpactNote: '2025 new format item. Integrated Speaking & Listening.',
     priorityStrategy: 'Differentiate the 2–3 speakers and note consensus vs divergence. Deliver a structured summary within 40 seconds.',
@@ -198,21 +198,21 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking'],
     tier: 2,
-    impact: 'Medium (~5% of total exam marks)',
+    impact: 'Medium impact',
     points: '8–10 pts (Speaking)',
     crossImpactNote: '2025 new format item. Evaluates pragmatic oral communication.',
     priorityStrategy: 'Identify the tone (formal vs informal). Follow 4 steps: Greeting → Reason/Empathy → Concrete Solution → Polite Sign-off.',
     suggestedTime: '20 sec preparation, 30–35 sec speech',
   },
 
-  // --- TIER 3: LOW YIELD (<10% COMBINED) ---
+  // --- TIER 3: LOW YIELD ---
   {
     type: 'multiple-choice-single',
     name: 'Multiple Choice, Single Answer (Reading)',
     section: 'reading',
     skills: ['reading'],
     tier: 3,
-    impact: 'Low (<2% of exam score)',
+    impact: 'Low impact',
     points: '1–2 pts (Reading)',
     crossImpactNote: 'Low yield. Never spend more than 90 seconds here.',
     priorityStrategy: 'Read the question stem first, scan passage for keywords, eliminate two obvious distractors, choose and move on.',
@@ -224,7 +224,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'reading',
     skills: ['reading'],
     tier: 3,
-    impact: 'Low (<3% of exam score)',
+    impact: 'Low impact',
     points: '2–3 pts (Reading)',
     crossImpactNote: '⚠️ Negative marking (-1 per wrong option).',
     priorityStrategy: 'Golden Rule: Pick ONLY ONE option you are 100% sure about. Never guess a second option unless completely certain.',
@@ -236,7 +236,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'listening',
     skills: ['listening'],
     tier: 3,
-    impact: 'Low (<2% of exam score)',
+    impact: 'Low impact',
     points: '1–2 pts (Listening)',
     crossImpactNote: 'Low yield.',
     priorityStrategy: 'Skim the question during the 5-second countdown. Lock in your answer within 10 seconds after audio concludes.',
@@ -248,7 +248,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'listening',
     skills: ['listening'],
     tier: 3,
-    impact: 'Low (<3% of exam score)',
+    impact: 'Low impact',
     points: '2–3 pts (Listening)',
     crossImpactNote: '⚠️ Negative marking (-1 per wrong option).',
     priorityStrategy: 'Protect your points: select ONLY ONE option you are confident in. A second wrong guess wipes out your correct mark.',
@@ -260,7 +260,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'listening',
     skills: ['listening', 'reading'],
     tier: 3,
-    impact: 'Low (<3% of exam score)',
+    impact: 'Low impact',
     points: '2–3 pts (Listening + Reading)',
     crossImpactNote: 'Low yield dual score.',
     priorityStrategy: 'Focus on overall argument and outcome, not matching isolated buzzwords. Eliminate summaries containing extreme statements.',
@@ -272,7 +272,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'listening',
     skills: ['listening'],
     tier: 3,
-    impact: 'Low (<2% of exam score)',
+    impact: 'Low impact',
     points: '1–2 pts (Listening)',
     crossImpactNote: 'Low yield.',
     priorityStrategy: 'Follow the speaker’s tone and train of thought to anticipate how the final sentence logically completes before the beep.',
@@ -284,7 +284,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
     section: 'speaking-writing',
     skills: ['speaking', 'listening'],
     tier: 3,
-    impact: 'Low (<3% of exam score)',
+    impact: 'Low impact',
     points: '2–3 pts (Speaking + Listening)',
     crossImpactNote: 'Low yield.',
     priorityStrategy: 'Answer with 1–2 words immediately after audio ends. If you do not know, say "I do not know" or any relevant noun and move on.',
@@ -375,6 +375,13 @@ export function ScoreWeightageMatrix() {
           Unlike traditional exams where skills are isolated, PTE distributes marks across sections through integrated tasks.
           Filter by your target skill to reveal which tasks provide the bulk of your points.
         </p>
+        <Callout tone="amber" className="mt-4 p-4" label="Estimates, not official weights">
+          <p className="text-ink-700 dark:text-ink-200 text-sm leading-relaxed">
+            Pearson does not publish official per-item point values or a public weighting formula. The point ranges on this
+            page are practice estimates for prioritising study, not a published Pearson calculation, and they should not be
+            read as a prediction of an official score.
+          </p>
+        </Callout>
       </div>
 
       {/* Target Score Strategy Selector Tabs */}
@@ -451,8 +458,8 @@ export function ScoreWeightageMatrix() {
           The &quot;Integrated Scoring Trap&quot;
         </h3>
         <p className="text-ink-700 dark:text-ink-200 text-sm mt-2 leading-relaxed">
-          Candidates who fail <strong>Writing</strong> often assume they wrote a poor essay. In reality, over{' '}
-          <strong>50% of your Writing marks</strong> are awarded in the Listening and Reading sections:{' '}
+          Candidates who fail <strong>Writing</strong> often assume they wrote a poor essay. In reality, a large share of
+          your <strong>Writing marks</strong> are awarded in the Listening and Reading sections:{' '}
           <span className="font-medium text-ink-900 dark:text-white">Write From Dictation (~25 pts)</span>,{' '}
           <span className="font-medium text-ink-900 dark:text-white">R&W Fill in the Blanks (~22 pts)</span>, and{' '}
           <span className="font-medium text-ink-900 dark:text-white">Summarize Spoken Text (~12 pts)</span>. Similarly,{' '}
@@ -492,9 +499,9 @@ export function ScoreWeightageMatrix() {
           {(
             [
               { id: 'all', label: 'All Tiers' },
-              { id: 1, label: 'Tier 1 (Critical ~70%)' },
-              { id: 2, label: 'Tier 2 (Core ~20%)' },
-              { id: 3, label: 'Tier 3 (Low ~10%)' },
+              { id: 1, label: 'Tier 1 (Critical)' },
+              { id: 2, label: 'Tier 2 (Core)' },
+              { id: 3, label: 'Tier 3 (Low)' },
             ] as const
           ).map((t) => {
             const active = selectedTier === t.id
@@ -533,6 +540,28 @@ export function ScoreWeightageMatrix() {
       {/* The Matrix Cards */}
       <div className="mt-4 grid gap-4">
         {filteredItems.map((item, i) => {
+          // Every item in the matrix carries a cross-impact note, so the
+          // fallback below is a guard rather than a path the matrix takes.
+          /* v8 ignore next -- every item in the matrix carries a note */
+          const note = item.crossImpactNote ? (
+            <div className="rounded-md bg-brand-500/8 border border-brand-500/15 p-2.5 dark:bg-brand-500/10">
+              <span className="text-brand-700 dark:text-brand-300 text-xs font-semibold block">
+                Cross-skill contributor
+              </span>
+              <p className="text-ink-800 dark:text-ink-200 text-xs mt-0.5 leading-snug">
+                {item.crossImpactNote}
+              </p>
+            </div>
+          ) : (
+            <div className="rounded-md bg-ink-100 p-2.5 dark:bg-white/5">
+              <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold block">
+                Module impact
+              </span>
+              <p className="text-ink-700 dark:text-ink-on-dark text-xs mt-0.5 leading-snug">
+                {item.impact}
+              </p>
+            </div>
+          )
           const meta = QUESTION_META[item.type]
           const slug = typeSlug(item.type)
 
@@ -585,25 +614,7 @@ export function ScoreWeightageMatrix() {
                     </span>
                   </div>
 
-                  {item.crossImpactNote ? (
-                    <div className="rounded-md bg-brand-500/8 border border-brand-500/15 p-2.5 dark:bg-brand-500/10">
-                      <span className="text-brand-700 dark:text-brand-300 text-xs font-semibold block">
-                        Cross-skill contributor
-                      </span>
-                      <p className="text-ink-800 dark:text-ink-200 text-xs mt-0.5 leading-snug">
-                        {item.crossImpactNote}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="rounded-md bg-ink-100 p-2.5 dark:bg-white/5">
-                      <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold block">
-                        Module impact
-                      </span>
-                      <p className="text-ink-700 dark:text-ink-on-dark text-xs mt-0.5 leading-snug">
-                        {item.impact}
-                      </p>
-                    </div>
-                  )}
+                  {note}
                 </div>
 
                 {/* Strategy recommendation */}

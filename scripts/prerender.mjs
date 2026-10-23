@@ -385,7 +385,11 @@ ${sitemapLine}
       for (const entry of await readdir(dir, { withFileTypes: true })) {
         const full = path.join(dir, entry.name)
         if (entry.isDirectory()) await walk(full)
-        else if (entry.name.endsWith('.html')) pages.push(full)
+        // The audio review explorer is a development tool; it is never
+        // precached for offline use by real visitors.
+        else if (entry.name.endsWith('.html') && !entry.name.startsWith('audio-review')) {
+          pages.push(full)
+        }
       }
     }
     await walk(DIST)
@@ -400,11 +404,15 @@ ${sitemapLine}
     if (existsSync(swFile) && entries.length > 0) {
       let sw = await readFile(swFile, 'utf8')
       if (!sw.includes('precacheAndRoute([')) throw new Error('sw.js precache call not found')
+      const beforeRewrite = sw
       sw = sw
         .replace('precacheAndRoute([', `precacheAndRoute([${entries.join(',')},`)
         // Match directory URLs (/mock/) to their index documents, and ignore
         // query strings (/practice/?type=x) — no precached page varies by query.
         .replace('],{})', '],{directoryIndex:"index.html",ignoreURLParametersMatching:[/.*/]})')
+      // A silent no-op here would stop every directory URL being precached
+      // offline, with nothing to show that it had happened.
+      if (sw === beforeRewrite) throw new Error('sw.js precache entries or options anchor not found')
       await writeFile(swFile, sw, 'utf8')
       console.log(`  ✓ sw.js precaches ${entries.length} documents`)
     }
@@ -412,6 +420,13 @@ ${sitemapLine}
 
   // Vite's SSR output is a build artefact, not a deployable asset.
   await rm(path.resolve('dist-ssr'), { recursive: true, force: true })
+
+  // The audio review explorer is a development tool. It lives in public/ so it
+  // can be opened straight from the working tree, and it must not reach the
+  // deployed bundle.
+  for (const devArtifact of ['audio-review.html', 'audio-review.js']) {
+    await rm(path.join(DIST, devArtifact), { force: true })
+  }
 
   console.log(`\n  Prerendered ${written} routes into dist/`)
   if (!process.env.SITE_ORIGIN && !process.env.VITE_SITE_ORIGIN) {

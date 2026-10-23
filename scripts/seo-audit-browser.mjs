@@ -12,7 +12,7 @@
 import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import { spawn } from 'node:child_process'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
 
 const BASE = process.argv[2] ?? 'http://localhost:5200'
 const PORT = 9491
@@ -52,7 +52,7 @@ for (;;) {
   await sleep(300)
 }
 
-const chrome = spawn(
+const chrome = spawnChrome(
   chromeBinary,
   [
     '--headless=new',
@@ -64,7 +64,6 @@ const chrome = spawn(
     '--hide-scrollbars',
     'about:blank',
   ],
-  { stdio: 'ignore' },
 )
 
 let version
@@ -276,8 +275,7 @@ for (const f of findings) {
 console.log('')
 
 ws.close()
-chrome.kill()
-setTimeout(() => {
-  try { fs.rmSync(profile, { recursive: true, force: true, maxRetries: 3 }) } catch {}
-  process.exit(findings.some((f) => f.impact === 'Critical' || f.impact === 'High') ? 1 : 0)
-}, 300)
+// The whole browser process group is stopped and waited on, so the helper
+// processes Chrome spawned go with it and none is left running.
+await stopChrome(chrome, profile)
+process.exit(findings.some((f) => f.impact === 'Critical' || f.impact === 'High') ? 1 : 0)

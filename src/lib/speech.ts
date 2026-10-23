@@ -1,18 +1,22 @@
 import type { AudioScript, Speaker } from '../content/schema'
 
 // ---------------------------------------------------------------------------
-// Speech playback.
+// Speech playback & offline synthesis.
 //
-// The entire audio bank is the text in `src/content`. Rather than shipping MP3s
-// (which would mean hosting megabytes on a free tier), every recording is
-// synthesised in the browser by the platform speech engine. On macOS and
-// Windows that engine is entirely local, so practice works offline too.
+// Listening audio is served as static clips when online, with this module
+// synthesising speech in the browser via the platform speech engine when offline
+// or when a pre-rendered recording is not present. On macOS, Windows, iOS, and
+// Android, platform synthesis is local, so core practice works offline too.
 // ---------------------------------------------------------------------------
 
 export type VoiceHint = Speaker['voiceHint']
 
 export interface SpeakOptions {
-  /** Words per minute. PTE recordings run a little faster than conversation. */
+  /**
+   * Speech rate multiplier, as the Web Speech API defines it: 1 is the
+   * engine's natural pace. This is not words per minute — passing 150 here
+   * clamps to the API maximum and speeds the voice up enormously.
+   */
   rate?: number
   pitch?: number
   /** Inclusive turn range to speak. Defaults to the whole script. */
@@ -46,7 +50,8 @@ export function loadVoices(): Promise<SpeechSynthesisVoice[]> {
   }
   return new Promise((resolve) => {
     let settled = false
-    let fallback: number | null = typeof window !== 'undefined' ? window.setTimeout(finish, 600) : null
+    // The engine is present, so there is a window to time against.
+    let fallback: number | null = window.setTimeout(finish, 600)
     function finish() {
       if (settled) return
       settled = true
@@ -152,7 +157,8 @@ let keepAlive: number | null = null
 
 function stopKeepAlive(): void {
   if (keepAlive !== null) {
-    if (typeof window !== 'undefined') window.clearInterval(keepAlive)
+    // Only ever set from a path that already established there is a window.
+    window.clearInterval(keepAlive)
     keepAlive = null
   }
 }
@@ -186,7 +192,7 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
   // engine is nudged. A periodic resume() is harmless when nothing is paused
   // and keeps the queue alive when it is.
   stopKeepAlive()
-  keepAlive = typeof window !== 'undefined' ? window.setInterval(() => s.resume(), 10000) : null
+  keepAlive = window.setInterval(() => s.resume(), 10000)
 
   let gapTimer: number | null = null
   let safetyTimer: number | null = null
@@ -245,6 +251,11 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
     clearSafety()
     safetyTimer = window.setTimeout(() => {
       if (cancelled) return
+      // The timeout ends playback for good. Without this, a stalled utterance
+      // that fires onend later would schedule the next turn and carry on
+      // speaking after the timeout was already reported, and a late onerror
+      // would call onError/onEnd a second time.
+      cancelled = true
       cleanup()
       onError?.('Speech playback timed out.')
       onEnd?.()
@@ -299,6 +310,10 @@ export async function speakWithBeep(
   after: string,
   options: SpeakOptions & { voiceHint?: VoiceHint } = {},
 ): Promise<SpeakController> {
+  // The placeholder satisfies the type until the real `stop` is assigned a
+  // few lines below. Nothing can call it: the controller is not handed to a
+  // caller until after the assignment.
+  /* v8 ignore next -- replaced before the controller is ever returned */
   const controller: SpeakController = { stop: () => {}, speaking: true }
   let inner: SpeakController | null = null
   let cancelled = false
@@ -314,8 +329,11 @@ export async function speakWithBeep(
     controller.speaking = false
   }
   const speakAfter = () => {
+    // Cancelling stops the inner script, which is the only caller of
+    // `speakAfter`, so this guard cannot be reached with `cancelled` set.
+    /* v8 ignore next -- inner.stop() prevents the inner script's onEnd */
     if (cancelled) return
-    playTone(990, 320, 0.09)
+    playTone(750, 320, 0.04)
     beepTimer = window.setTimeout(() => {
       beepTimer = null
       if (cancelled) return
@@ -362,12 +380,26 @@ export function stopAllSpeech(): void {
 // ---------------------------------------------------------------------------
 
 let audioCtx: AudioContext | null = null
+let audioCtxCleanupRegistered = false
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null
   const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!Ctor) return null
-  if (!audioCtx) audioCtx = new Ctor()
+  if (!audioCtx) {
+    audioCtx = new Ctor()
+    if (!audioCtxCleanupRegistered) {
+      audioCtxCleanupRegistered = true
+      // The context is shared for the life of the page, and browsers cap how
+      // many may exist at once, so it is closed when the page goes away
+      // instead of being left open until the tab is discarded.
+      window.addEventListener('pagehide', () => {
+        const ctx = audioCtx
+        audioCtx = null
+        if (ctx) void ctx.close().catch(() => {})
+      })
+    }
+  }
   if (audioCtx.state === 'suspended') void audioCtx.resume()
   return audioCtx
 }

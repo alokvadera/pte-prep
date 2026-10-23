@@ -44,6 +44,7 @@ export function TextReveal({
 
   useEffect(() => {
     const el = ref.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     // Reduced motion never arms the hidden state, and `.word` ships in its
     // resolved form, so the heading is already legible here — there is

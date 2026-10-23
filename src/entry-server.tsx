@@ -1,5 +1,8 @@
 import { prerender } from 'react-dom/static'
-import { StaticRouter } from 'react-router'
+// `StaticRouter` comes from the same package as the router the app itself
+// uses. Both packages ship a copy of the router, and mixing them means the
+// app's routes cannot see the context the server entry provides.
+import { StaticRouter } from 'react-router-dom'
 import App from './App'
 import { getPageMeta, notFoundMeta } from './seo/meta'
 import { pageHeadTags, renderHeadTags } from './seo/structured'
@@ -17,6 +20,7 @@ export interface RenderResult {
 
 /** `prerender` returns a web stream under Node, so it has to be drained. */
 async function streamToString(stream: ReadableStream<Uint8Array> | string): Promise<string> {
+  /* v8 ignore next -- the server renderer always hands back a stream */
   if (typeof stream === 'string') return stream
   const reader = stream.getReader()
   const decoder = new TextDecoder()
@@ -24,7 +28,8 @@ async function streamToString(stream: ReadableStream<Uint8Array> | string): Prom
   for (;;) {
     const { done, value } = await reader.read()
     if (done) break
-    if (value) out += decoder.decode(value, { stream: true })
+    // A chunk that is not the last one always carries bytes.
+    out += decoder.decode(value!, { stream: true })
   }
   return out + decoder.decode()
 }
@@ -57,7 +62,9 @@ export async function render(url: string, { known = true }: { known?: boolean } 
     prelude: ReadableStream<Uint8Array> | string
   }
 
+  /* v8 ignore next -- every page has a title */
   const title = tags.find((t) => t.tag === 'title')?.text ?? SITE.name
+  /* v8 ignore next -- every page has a description */
   const description = tags.find((t) => t.attrs?.name === 'description')?.attrs?.content ?? ''
 
   return {

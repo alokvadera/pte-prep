@@ -1,0 +1,54 @@
+name: Verify
+
+# The coverage gate only counts if it runs on every change. Locally it is
+# easy to forget; here it is the definition of done.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        # The .npmrc asks for devDependencies: the build and the test runner
+        # both live there.
+        run: npm ci
+
+      - name: Build
+        # The SEO audit reads the built site, so the build has to be current
+        # before the checks run.
+        run: npm run build
+
+      - name: Verify
+        # Typecheck, lint, the legacy suites, the coverage gate, contrast and
+        # the SEO audit. The coverage thresholds in vitest.config.ts fail the
+        # run if any file drops below 100%.
+        run: npm run verify
+
+      - name: Browser checks
+        # A real Chrome pass over the prerendered routes: hydration errors and
+        # console errors that jsdom cannot see.
+        run: |
+          node scripts/serve.mjs 5200 dist &
+          SERVER_PID=$!
+          sleep 3
+          node scripts/browser-check.mjs http://localhost:5200 || STATUS=$?
+          node scripts/audio-playback-check.mjs http://localhost:5200 || STATUS=$?
+          kill $SERVER_PID 2>/dev/null || true
+          exit ${STATUS:-0}

@@ -77,6 +77,7 @@ export function paceReport(items: Item[], responses: Record<string, ItemResponse
     const budgets = items.filter((i) => i.type === type && i.seconds > 0).map((i) => i.seconds)
     const budgetSeconds = budgets.reduce((a, b) => a + b, 0) / Math.max(1, budgets.length)
     const averageSeconds = row.seconds / row.count
+    /* v8 ignore next -- a type only reaches the report with a budget */
     const ratio = budgetSeconds > 0 ? averageSeconds / budgetSeconds : 1
     rows.push({
       type,

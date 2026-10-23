@@ -2,9 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
 import { manifestBankCapacity } from '../content/manifest'
+import { HOME_FAQ } from '../content/faq'
 import { Seo } from '../seo/Seo'
 import { listAttempts } from '../db/db'
 import { syncCloudToLocal } from '../lib/sync'
+import { getGuestOwnerId } from '../lib/guestOwner'
+import { useLocalOwnerId } from '../lib/useLocalOwner'
 import { useAuth } from '../store/useAuth'
 import type { AttemptRecord } from '../domain/types'
 import { ButtonLink, CtaBand } from '../components/ui/primitives'
@@ -53,50 +56,7 @@ const OBJECTIVE_TYPES = ALL_QUESTION_TYPES.filter(
   (t) => QUESTION_META[t].scoring !== 'trait-composite',
 )
 
-const FAQ = [
-  {
-    question: 'Is this PTE mock test really free?',
-    answer:
-      'Yes. There is no account needed to start, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no server cost per test to pass on. An optional account exists only to sync your history across devices.',
-  },
-  {
-    question: 'How accurate are the scores here?',
-    answer:
-      'Choice based and text based items are scored exactly against the official keys. Speaking and writing are scored with an open rubric covering content, form, fluency and pronunciation, using the same four constructs as the real test. Those are practice estimates, not official Pearson scores, and every item on the results page is labelled as auto scored or estimated.',
-  },
-  {
-    question: 'Do I need a microphone?',
-    answer:
-      'No. Every speaking item can be answered by typing, so you can practice in a quiet room or a library. A microphone improves the fluency and pronunciation estimate, and browsers with speech recognition give a more accurate content score, but the test works fully without one.',
-  },
-  {
-    question: 'How long is a full mock test?',
-    answer:
-      'A full mock follows the real section order with one running clock per section and no pauses. Timings track the current Pearson ranges, and the setup screen shows the expected length before you start so you can plan around it.',
-  },
-  {
-    question: 'Is this the same material as the real exam?',
-    answer:
-      'No real exam material can be reproduced. All passages, lectures and conversations here were written for this site at the same academic level and word counts as the real test, so timing pressure and difficulty feel close to test day.',
-  },
-  {
-    question: 'Do I need to create an account?',
-    answer:
-      'No. Practice, full mocks and score reports work with no sign up. If you want your history on a second device, create the free account and your attempts sync in the background.',
-  },
-  {
-    question: 'How do I actually improve my score?',
-    answer:
-      'Sit one full mock and check the breakdown, already ordered by points lost per type. Drill the type at the top, then sit another mock and compare your progress on the dashboard.',
-  },
-  {
-    question: 'Does it work offline?',
-    answer:
-      'Yes. After the first visit the app is cached and audio uses local speech synthesis when offline, so core practice keeps working with no connection. Speech recognition, cloud sync, and AI scoring need a connection when you use them.',
-  },
-]
-
-
+/* FAQ copy is shared with the structured-data block in seo/meta.ts. */
 
 const COMPARISON: Array<{ label: string; prep: string; coaching: string; packs: string }> = [
   { label: 'Full mock under timed conditions', prep: 'Yes, unlimited', coaching: 'Two per course', packs: 'Five per pack' },
@@ -108,19 +68,27 @@ const COMPARISON: Array<{ label: string; prep: string; coaching: string; packs: 
 
 export default function Home() {
   const capacity = manifestBankCapacity()
+  const ownerId = useLocalOwnerId()
   const [latestAttempt, setLatestAttempt] = useState<AttemptRecord | null>(null)
 
   useEffect(() => {
+    if (!ownerId) return
     let cancelled = false
+    const guestOwnerId = getGuestOwnerId()
+    const currentOwner = () => useAuth.getState().user?.id ?? guestOwnerId
+    // Clear the previous owner's card synchronously so an account switch never
+    // leaves another user's latest score on screen while the new read runs.
+    // oxlint-disable-next-line react/set-state-in-effect
+    setLatestAttempt(null)
     void (async () => {
       try {
-        const local = await listAttempts(1)
-        if (!cancelled && local[0]) setLatestAttempt(local[0])
-        if (useAuth.getState().token) {
+        const local = await listAttempts(1, ownerId, guestOwnerId)
+        if (!cancelled && currentOwner() === ownerId) setLatestAttempt(local[0] ?? null)
+        if (useAuth.getState().token && currentOwner() === ownerId) {
           const { pulled } = await syncCloudToLocal()
-          if (!cancelled && pulled > 0) {
-            const fresh = await listAttempts(1)
-            if (!cancelled && fresh[0]) setLatestAttempt(fresh[0])
+          if (!cancelled && currentOwner() === ownerId && pulled > 0) {
+            const fresh = await listAttempts(1, ownerId, guestOwnerId)
+            if (!cancelled && currentOwner() === ownerId) setLatestAttempt(fresh[0] ?? null)
           }
         }
       } catch {
@@ -130,7 +98,7 @@ export default function Home() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [ownerId])
 
   const STEPS = [
     {
@@ -582,7 +550,7 @@ export default function Home() {
             </div>
           </Reveal>
           <div className="faq-list">
-            {FAQ.map((f, i) => (
+            {HOME_FAQ.map((f, i) => (
               <Reveal key={f.question} variant="up" duration={600} delay={Math.min(i, 4) * 55}>
                 <details className="qa" open={i === 0}>
                   <summary className="qa-summary">

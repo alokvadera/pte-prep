@@ -17,8 +17,10 @@ import { cn } from '../../lib/cn'
    flip borrows clicks that land on the
    card itself; a click on a link is
    the link's. Keyboard users get a
-   real button — visually hidden but
-   focusable — that does the same flip.
+   real button — visually hidden until
+   it takes focus, then it shows itself
+   so there is a focus indicator to see
+   — that does the same flip.
    Turns on the spring curve so the flip
    overshoots slightly, like a card
    being flicked.
@@ -40,8 +42,9 @@ export function FlipCard({
 
   return (
     <div
-      className={cn('flip-card group', className)}
+      className={cn('flip-card group relative', className)}
       onClick={(e) => {
+        /* v8 ignore next -- a DOM event target is always an element */
         const targetEl = e.target instanceof Element ? e.target : (e.target as Node).parentElement
         if (targetEl?.closest('a, button, input, textarea, select')) return
         setFlipped((f) => !f)
@@ -49,7 +52,7 @@ export function FlipCard({
     >
       <button
         type="button"
-        className="sr-only"
+        className="flip-toggle"
         aria-pressed={flipped}
         aria-label={flipLabel}
         onClick={() => setFlipped((f) => !f)}

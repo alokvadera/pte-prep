@@ -23,6 +23,10 @@ export function useMagneticControls() {
       frame = 0
       point = null
       if (!active) return
+      // The class is what the control's transform hangs off, so it goes
+      // with the rest of the state: a control the pointer has left is an
+      // ordinary control again.
+      active.classList.remove('magnetic-control')
       active.style.setProperty('--control-x', '0px')
       active.style.setProperty('--control-y', '0px')
       active = null

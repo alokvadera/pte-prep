@@ -4,7 +4,8 @@ import { useSettings } from '../store/useSettings'
 // ============================================================================
 // AI Scoring & Feedback Engine (Groq BYOK - Bring Your Own Key)
 //
-// 100% Deterministic (temperature: 0.0) Pearson PTE Academic Rubric Evaluation.
+// Low-temperature (0.0) approximation of the Pearson PTE Academic rubric.
+// Model output is still an estimate, not a deterministic Pearson score.
 // Direct in-browser fetch to api.groq.com. Keys stored strictly in localStorage.
 // ============================================================================
 
@@ -34,10 +35,8 @@ function evictOldestCache() {
     }
   }
   if (evaluationCache.size >= MAX_EVAL_CACHE) {
-    const first = evaluationCache.keys().next().value
-    if (first !== undefined) {
-      evaluationCache.delete(first)
-    }
+    // The map is at the cap, so it holds at least one entry to evict.
+    evaluationCache.delete(evaluationCache.keys().next().value!)
   }
 }
 
@@ -95,8 +94,9 @@ export function computeAiRawScore(
 }
 
 /**
- * Evaluates a written or spoken response using calibrated Pearson PTE rubrics
- * with temperature: 0.0 for 100% deterministic, reproducible scoring.
+ * Evaluates a written or spoken response against a calibrated PTE rubric at
+ * temperature 0.0. Lower temperature reduces variance but the result remains
+ * an estimate, not a deterministic Pearson score.
  */
 export async function evaluateWithAi(
   item: { id: string; type: QuestionType; prompt?: string } | Item,
@@ -262,7 +262,10 @@ Output ONLY a JSON object with this exact format:
           content: isEssay ? clampTrait(t.content, 3) / 3 : clampTrait(t.content, 2) / 2,
           grammar: clampTrait(t.grammar, 2) / 2,
           vocabulary: clampTrait(t.vocabulary, 2) / 2,
-          spelling: isEssay || isSST ? clampTrait(t.spelling, 2) / 2 : 1,
+          // The SWT rubric has no spelling trait (see RUBRIC_TRAIT_MAX), so the
+          // model never evaluated one. Leaving it undefined keeps the report
+          // honest instead of showing a perfect score for an unscored trait.
+          spelling: isEssay || isSST ? clampTrait(t.spelling, 2) / 2 : undefined,
           form: isSWT ? clampTrait(t.form ?? 1, 1) : undefined,
           development: isEssay ? clampTrait(t.development, 2) / 2 : undefined,
           range: isEssay ? clampTrait(t.range, 2) / 2 : undefined,

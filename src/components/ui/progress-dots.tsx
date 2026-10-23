@@ -30,6 +30,7 @@ export function ProgressDots({
   const clientReady = useClientReady()
 
   useEffect(() => {
+    /* v8 ignore next -- the component only runs in a browser */
     if (typeof window === 'undefined') return
 
     const updateActiveSection = () => {
@@ -60,8 +61,13 @@ export function ProgressDots({
       for (const section of sections) {
         const el = document.getElementById(section.id)
         if (!el) continue
-        const top = el.offsetTop
-        const height = el.offsetHeight
+        // offsetTop is measured from the offsetParent, not the document, so
+        // it is only the page position when no ancestor is positioned. The
+        // rect is measured against the viewport, so the scroll offset is
+        // added to get the position in the document.
+        const rect = el.getBoundingClientRect()
+        const top = rect.top + window.scrollY
+        const height = rect.height
         if (targetY >= top && targetY < top + height) {
           currentSectionId = section.id
           break

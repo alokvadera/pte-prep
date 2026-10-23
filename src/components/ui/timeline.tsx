@@ -11,6 +11,8 @@ import { cn } from '../../lib/cn'
 
 interface TimelineContextValue {
   orientation: 'vertical' | 'horizontal'
+  /** The step number of the item this subtree belongs to. */
+  step?: number
 }
 
 const TimelineContext = createContext<TimelineContextValue>({ orientation: 'vertical' })
@@ -45,23 +47,26 @@ export interface TimelineItemProps extends React.LiHTMLAttributes<HTMLLIElement>
   step: number
 }
 
-export function TimelineItem({ step: _step, className, children, ...props }: TimelineItemProps) {
+export function TimelineItem({ step, className, children, ...props }: TimelineItemProps) {
   const { orientation } = useContext(TimelineContext)
   return (
-    <li
-      className={cn(
-        'group relative flex',
-        orientation === 'vertical' ? 'flex-row gap-4' : 'flex-col items-center gap-2',
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </li>
+    <TimelineContext.Provider value={{ orientation, step }}>
+      <li
+        className={cn(
+          'group relative flex',
+          orientation === 'vertical' ? 'flex-row gap-4' : 'flex-col items-center gap-2',
+          className,
+        )}
+        {...props}
+      >
+        {children}
+      </li>
+    </TimelineContext.Provider>
   )
 }
 
 export function TimelineIndicator({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+  const { step } = useContext(TimelineContext)
   return (
     <div
       className={cn(
@@ -70,7 +75,9 @@ export function TimelineIndicator({ className, children, ...props }: React.HTMLA
       )}
       {...props}
     >
-      {children}
+      {/* The step number the item carries, unless the indicator was given
+          a marker of its own. */}
+      {children ?? (step !== undefined ? step : null)}
     </div>
   )
 }

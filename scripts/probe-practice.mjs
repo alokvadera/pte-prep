@@ -1,7 +1,7 @@
 // One-off probe: on /practice in dark mode, list elements whose computed
 // colour is ink-500, with tag, full class list and effective background.
-import { spawn } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { stopChrome, spawnChrome } from './lib/chrome.mjs'
+import { mkdtemp } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { existsSync } from 'node:fs'
@@ -16,10 +16,10 @@ const binary = CANDIDATES.find((p) => existsSync(p))
 if (!binary) { console.error('no chrome'); process.exit(1) }
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-probe-'))
-const chrome = spawn(binary, [
+const chrome = spawnChrome(binary, [
   '--headless=new', '--remote-debugging-port=9339', `--user-data-dir=${profile}`,
   '--no-first-run', '--disable-gpu', 'about:blank',
-], { stdio: 'ignore' })
+])
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 for (let i = 0; i < 60; i++) {
@@ -79,5 +79,4 @@ const r = await send('Runtime.evaluate', {
   returnByValue: true,
 }, sessionId)
 console.log(r.result.value)
-chrome.kill()
-await rm(profile, { recursive: true, force: true })
+await stopChrome(chrome, profile)

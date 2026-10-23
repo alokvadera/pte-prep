@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { cn } from '../../lib/cn'
+import { useClientReady } from '../../lib/useClientReady'
 
 /* ---------------------------------------------------------------------------
    ActivityHeatmap.
@@ -9,6 +10,15 @@ import { cn } from '../../lib/cn'
    attempts happened that day. It is the "consistency
    at a glance" widget — the visual that makes a
    streak legible before any number is read.
+
+   The grid is anchored on a day, and the day is a
+   prop: read from the clock inside the render, a
+   prerendered page bakes the build day into its
+   markup and the browser then draws a different
+   week. So the grid is drawn only after mount, the
+   default anchor is the day the widget mounts, and
+   the labels are written in one fixed locale so the
+   server and the browser spell a day the same way.
 --------------------------------------------------------------------------- */
 
 const CELL_GAP = 3
@@ -27,17 +37,68 @@ function dayKey(iso: string): string {
 export function ActivityHeatmap({
   dates,
   weeks = 15,
+  today: todayProp,
+  locale = 'en-US',
   className,
 }: {
   /** ISO timestamps of every attempt. */
   dates: string[]
   weeks?: number
+  /**
+   * The day the grid is anchored on. Given, it is used as-is; omitted, the
+   * grid is anchored on the day the widget mounts.
+   */
+  today?: Date
+  /**
+   * The locale the cell labels are written in. Fixed by default, so the
+   * server and the browser spell the same day the same way.
+   */
+  locale?: string
   className?: string
 }) {
-  // The grid is anchored on the day the widget mounts. Reading the clock
-  // inside render would let a re-render shift every column, so the date is
-  // captured once in the state initializer instead.
-  const [today] = useState(() => new Date())
+  // The grid is drawn only once the browser has taken over: a prerendered
+  // page must not carry the build day in its markup.
+  const mounted = useClientReady()
+  if (!mounted) {
+    // The grid's own footprint, so nothing shifts when it arrives. It is
+    // only ever on screen during the server render: the client has taken
+    // over by the time anything is painted.
+    /* v8 ignore next -- only the server render reaches this branch */
+    return (
+      <div
+        className={cn('bg-ink-100/60 h-[102px] w-full rounded-xl dark:bg-white/5', className)}
+        aria-hidden="true"
+      />
+    )
+  }
+  return (
+    <ActivityHeatmapGrid
+      dates={dates}
+      weeks={weeks}
+      today={todayProp}
+      locale={locale}
+      className={className}
+    />
+  )
+}
+
+/** The grid itself, mounted only in the browser. */
+function ActivityHeatmapGrid({
+  dates,
+  weeks,
+  today: todayProp,
+  locale,
+  className,
+}: {
+  dates: string[]
+  weeks: number
+  today?: Date
+  locale: string
+  className?: string
+}) {
+  // The anchor is captured once, so a re-render never shifts a column.
+  const [anchored] = useState(() => todayProp ?? new Date())
+  const today = todayProp ?? anchored
 
   const { grid, max } = useMemo(() => {
     const counts = new Map<string, number>()
@@ -93,12 +154,15 @@ export function ActivityHeatmap({
           <div key={w} className="flex flex-col" style={{ gap: CELL_GAP }}>
             {Array.from({ length: 7 }, (_, d) => {
               const cell = grid[w * 7 + d]
+              /* v8 ignore next -- the grid holds exactly one cell per week and day */
               if (!cell) return null
-              const future = cell.date.getTime() > Date.now()
+              // A day is in the future when it falls after the anchor day —
+              // no second clock read inside the render.
+              const future = cell.date.getTime() > today.getTime()
               return (
                 <span
                   key={cell.key}
-                  title={`${cell.count} attempt${cell.count === 1 ? '' : 's'} on ${cell.date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
+                  title={`${cell.count} attempt${cell.count === 1 ? '' : 's'} on ${cell.date.toLocaleDateString(locale, { month: 'short', day: 'numeric' })}`}
                   className={cn(
                     'rounded-[3px]',
                     future ? 'bg-transparent' : LEVEL_CLASS[level(cell.count)],

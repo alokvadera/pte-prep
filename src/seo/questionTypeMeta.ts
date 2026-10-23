@@ -69,6 +69,9 @@ function spokeMeta(type: QuestionType): PageMeta {
 
   return {
     title: `PTE ${meta.label} — ${section.longTitle}`,
+    // Every scoring mode the blueprint declares has a phrase, so the fallback
+    // is a guard against a mode being added without one.
+    /* v8 ignore next -- no question type uses a scoring mode without a phrase */
     description: `${meta.label} is a PTE ${sectionWord(type)} item: ${meta.perTest} per test, ${SCORING_PHRASE[meta.scoring] ?? 'scored based on performance'}. What it is and how to practise it.`,
     path,
     keywords: [

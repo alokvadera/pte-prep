@@ -68,6 +68,8 @@ export interface ItemResponse {
   highlighted?: number[]
   /** Long-form written response. */
   text?: string
+  /** How many times the stimulus has been played. */
+  playsUsed?: number
   /** Spoken response metadata (no raw audio is persisted). */
   audio?: AudioAnalysis
   /** STT transcript of the spoken take, if the browser supports recognition. */
@@ -248,6 +250,20 @@ export type MockMode = 'exam' | 'practice' | 'review'
 export interface AttemptRecord {
   id: string
   userId?: string
+  /**
+   * How many items of each question type the run contained.
+   *
+   * A half or quick run is not the full blueprint, so rebuilding it from the
+   * seed alone would produce a different item set — and a report scored
+   * against the wrong answer key.
+   */
+  counts?: Partial<Record<QuestionType, number>>
+  /**
+   * Local owner of the record. Signed-in attempts use the account id; attempts
+   * completed in guest mode use a device-scoped guest id. `userId` stays the
+   * cloud account marker, so guest history is never uploaded accidentally.
+   */
+  ownerId?: string
   mockId: string
   mockTitle: string
   mockKind?: 'full' | 'section' | 'drill'

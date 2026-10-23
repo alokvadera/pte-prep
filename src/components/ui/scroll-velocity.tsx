@@ -37,6 +37,7 @@ export function ScrollVelocity({
   useEffect(() => {
     if (prefersReducedMotion()) return
     const track = trackRef.current
+    /* v8 ignore next -- the ref is attached before any effect runs */
     if (!track) return
 
     let raf = 0

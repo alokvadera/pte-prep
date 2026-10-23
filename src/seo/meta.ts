@@ -1,4 +1,5 @@
 import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/blueprint'
+import { ABOUT_FAQ, HOME_FAQ } from '../content/faq'
 import { typeSlug } from '../content/questionTypeDetail'
 import { SITE, type PageMeta } from './site'
 import { breadcrumbLd, faqLd, howToLd, itemListLd, organizationLd, webApplicationLd } from './structured'
@@ -13,38 +14,7 @@ import { QUESTION_TYPE_META } from './questionTypeMeta'
 // guaranteeing that a crawler and a browser see identical metadata.
 // ---------------------------------------------------------------------------
 
-const HOME_FAQ: Array<{ question: string; answer: string }> = [
-  {
-    question: 'Is this PTE mock test really free?',
-    answer:
-      'Yes. There is no account, no trial, no payment step and no limit on how many mock tests you can take. The whole test runs in your browser, which is why there is no per-user server cost to pass on. An optional cloud account exists only to sync your history across devices.',
-  },
-  {
-    question: 'How accurate are the scores here?',
-    answer:
-      'Objective items — multiple choice, fill in the blanks, re-order paragraphs — are scored exactly. Speaking and writing responses are scored with a transparent rubric covering content, form, oral fluency and pronunciation, using the same four PTE constructs. Those are estimates for practice, not official Pearson scores, and the results page labels every item as either auto-scored or estimated.',
-  },
-  {
-    question: 'Do I need a microphone?',
-    answer:
-      'No. Every speaking item can be answered by typing. A microphone improves the fluency and pronunciation estimate, and browsers with speech recognition give a much more accurate content score, but the test is fully usable without one.',
-  },
-  {
-    question: 'How long is a full mock test?',
-    answer:
-      `A full mock runs three timed sections. The current ranges are Speaking and Writing ${SECTION_META['speaking-writing'].weightNote}, Reading ${SECTION_META.reading.weightNote}, and Listening ${SECTION_META.listening.weightNote}. The actual total varies between test versions.`,
-  },
-  {
-    question: 'Is this the same material as the real exam?',
-    answer:
-      'No real exam material can be reproduced. All passages, lectures and conversations on this site were written specifically for it, at the same B2 to C1 academic level and word counts as the real test, so that timing and difficulty feel comparable.',
-  },
-  {
-    question: 'Does it work offline?',
-    answer:
-      'Yes. After the first visit the app is cached as an installable app, and the audio is synthesised by your own device rather than streamed, so core practice continues with no connection. Browser speech recognition and cloud sync need a connection when you use them.',
-  },
-]
+// HOME_FAQ is shared with the visible accordion on the landing page.
 
 const FORMAT_FAQ: Array<{ question: string; answer: string }> = [
   {
@@ -140,38 +110,7 @@ const GUIDE_FAQ: Array<{ question: string; answer: string }> = [
   },
 ]
 
-const ABOUT_FAQ: Array<{ question: string; answer: string }> = [
-  {
-    question: 'Is this site affiliated with Pearson?',
-    answer:
-      'No. PTE Academic is a trademark of Pearson Education Ltd, and this is an independent practice tool with no affiliation, endorsement or sponsorship. It is not a source of official practice material.',
-  },
-  {
-    question: 'Where does the practice material come from?',
-    answer:
-      'Every passage, lecture, conversation and chart on this site was written specifically for it, at the same academic level, word count and style as the real test. That avoids copyright problems and means the difficulty and timing are deliberately calibrated.',
-  },
-  {
-    question: 'Where is my data stored?',
-    answer:
-      'In your browser, on your own device, using IndexedDB. Your responses, recordings and score history stay on the machine by default, with no analytics on your answers. An optional cloud account can sync copies across devices. Clearing site data in your browser deletes the local copy.',
-  },
-  {
-    question: 'Is it really free, and why?',
-    answer:
-      'Yes, with no limits. The whole test runs client-side, which means there is no per-user infrastructure cost to pass on, so a free hosting tier covers it indefinitely. The audio is synthesised by your own device rather than streamed from a server, which is the main reason there is no audio hosting cost either.',
-  },
-  {
-    question: 'Can I use this offline?',
-    answer:
-      'Yes. The app is cached as an installable progressive web app, and the recordings are generated locally by the speech synthesiser built into macOS, Windows, iOS and Android. Once the page has loaded once, core practice works with no connection; browser speech recognition and cloud sync need a connection when you use them.',
-  },
-  {
-    question: 'Why are the scores only estimates?',
-    answer:
-      'Objective items are scored exactly. Speaking and writing are scored by Pearson using a proprietary automated model, with human reviewers used to quality-monitor it, which cannot be reproduced outside their scoring system — so this site applies a documented rubric over the same four PTE constructs. Every result is labelled as an estimate, and each item is marked as auto-scored or estimated.',
-  },
-]
+// ABOUT_FAQ is shared with the visible accordion on the about page.
 
 export const PAGE_META: Record<string, PageMeta> = {
   '/': {
@@ -408,7 +347,19 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/test': {
     title: 'PTE Mock Test in Progress',
     description: 'Your PTE Academic practice test is running.',
-    path: '/test',
+    path: '/test/',
+    noindex: true,
+  },
+
+  // The results page is reached after every finished test, so it needs its own
+  // entry. Without one, getPageMeta falls through to notFoundMeta and the
+  // client rewrites the tab title to "Page Not Found" on every completed mock.
+  // The title matches the prerendered app shell in scripts/prerender.mjs so
+  // there is no flicker between the static document and the hydrated one.
+  '/result': {
+    title: 'Your mock score — PTE Prep',
+    description: 'Your PTE Academic mock score, with per-item feedback, CEFR band and progress history.',
+    path: '/result/',
     noindex: true,
   },
 

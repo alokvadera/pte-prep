@@ -1,6 +1,7 @@
 import { ButtonLink } from './primitives'
 import { useTest } from '../../store/useTest'
 import { useClientReady } from '../../lib/useClientReady'
+import { useLocalOwnerId } from '../../lib/useLocalOwner'
 
 /** A way back into the running test before a new setup can overwrite it. */
 export function ActiveSessionNotice() {
@@ -9,11 +10,15 @@ export function ActiveSessionNotice() {
   const mode = useTest((s) => s.mode)
   const sectionIndex = useTest((s) => s.sectionIndex)
   const itemIndex = useTest((s) => s.itemIndex)
+  const testOwner = useTest((s) => s.ownerId)
   // Saved sessions are client-only. Keep the initial hydration render identical
   // to the prerendered page, then show the resume path once React takes over.
   const hydrated = useClientReady()
+  const localOwnerId = useLocalOwnerId()
 
-  if (!hydrated || !mock || status === 'finished') return null
+  const isGuestAdoption = Boolean(testOwner?.startsWith('guest:') && localOwnerId && !localOwnerId.startsWith('guest:'))
+
+  if (!hydrated || !mock || status === 'finished' || (testOwner !== localOwnerId && !isGuestAdoption)) return null
 
   const section = mock.sections[sectionIndex]
   const position = status === 'running' && section

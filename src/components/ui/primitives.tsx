@@ -155,8 +155,10 @@ export function Accordion({
 }) {
   return (
     <div className={cn('rule-list', className)}>
-      {items.map((f) => (
-        <details key={f.question} className="group">
+      {items.map((f, i) => (
+        // Keyed by position, not by the question: two identical questions
+        // would otherwise collide and React would drop one of the panels.
+        <details key={i} className="group">
           <summary className="text-ink-900 dark:text-ink-50 flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-base font-semibold text-balance [&::-webkit-details-marker]:hidden">
             {f.question}
             <AccordionMark />
@@ -410,6 +412,8 @@ export function ProgressBar({
   max?: number
   tone?: 'brand' | 'mint' | 'amber' | 'rose'
   className?: string
+  /** The bar's accessible name. Without one the bar falls back to a
+   *  generic name, which is better than none at all. */
   label?: string
 }) {
   const p = max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 0
@@ -419,7 +423,7 @@ export function ProgressBar({
       aria-valuenow={Math.round(p)}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label={label}
+      aria-label={label ?? 'Progress'}
       className={cn('bg-ink-200 h-1.5 w-full overflow-hidden rounded-full dark:bg-white/10', className)}
     >
       <div
@@ -598,6 +602,16 @@ const CALLOUT_TONE: Record<CalloutTone, string> = {
   rose: 'callout callout-rose',
 }
 
+/* The rule variant is a set of its own: a rule carries no tint of its own,
+   so the tone only paints the left rule. Reusing the panel's tone classes
+   here would drag the tinted background back in. */
+const CALLOUT_RULE_TONE: Record<CalloutTone, string> = {
+  brand: 'callout-rule',
+  mint: 'callout-rule callout-rule-mint',
+  amber: 'callout-rule callout-rule-amber',
+  rose: 'callout-rule callout-rule-rose',
+}
+
 const CALLOUT_TITLE: Record<CalloutTone, string> = {
   brand: 'callout-title',
   mint: 'callout-title callout-title-mint',
@@ -627,7 +641,7 @@ export function Callout({
   children: ReactNode
 }) {
   return (
-    <div className={cn(rule ? cn('callout-rule', CALLOUT_TONE[tone]) : CALLOUT_TONE[tone], className)}>
+    <div className={cn(rule ? CALLOUT_RULE_TONE[tone] : CALLOUT_TONE[tone], className)}>
       {label ? <p className={CALLOUT_TITLE[tone]}>{label}</p> : null}
       <div className={cn('text-ink-700 dark:text-ink-100 text-sm leading-relaxed', label && 'mt-1.5')}>
         {children}

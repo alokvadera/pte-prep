@@ -18,6 +18,7 @@ export function Tabs({
   tabs,
   className,
   panelClassName,
+  controlsId,
 }: {
   value: string
   onChange: (value: string) => void
@@ -29,6 +30,12 @@ export function Tabs({
   tabs: Array<{ id: string; label: string; content?: ReactNode }>
   className?: string
   panelClassName?: string
+  /**
+   * The id of the panel a tab controls, for a caller that renders the
+   * panels itself. Without it the strip only declares the relationship
+   * when it renders the panel as well.
+   */
+  controlsId?: (id: string) => string
 }) {
   // Hooks run before any early return: a conditional `useRef` would
   // change the hook order between renders.
@@ -37,12 +44,16 @@ export function Tabs({
   const active = tabs.find((t) => t.id === value) ?? tabs[0]
   if (!active) return null
 
+  const panelId = (id: string) => (controlsId ? controlsId(id) : `panel-${id}`)
+
   // Roving tabindex, the same contract every tab strip
   // owes a keyboard user: arrows move focus and select.
   const onListKey = (e: React.KeyboardEvent) => {
+    /* v8 ignore next -- the list is attached before any key can reach it */
     const triggers = Array.from(
       listRef.current?.querySelectorAll('[role="tab"]') ?? [],
     ) as HTMLButtonElement[]
+    /* v8 ignore next -- the strip always renders one trigger per tab */
     if (triggers.length === 0) return
     const i = triggers.findIndex((t) => t.getAttribute('aria-selected') === 'true')
     let next = -1
@@ -74,7 +85,7 @@ export function Tabs({
               type="button"
               role="tab"
               aria-selected={isActive}
-              aria-controls={hasPanels ? `panel-${t.id}` : undefined}
+              aria-controls={hasPanels || controlsId ? panelId(t.id) : undefined}
               tabIndex={isActive ? 0 : -1}
               onClick={() => onChange(t.id)}
               className={cn(
@@ -97,7 +108,7 @@ export function Tabs({
         })}
       </div>
       {hasPanels ? (
-        <div key={active.id} id={`panel-${active.id}`} role="tabpanel" aria-labelledby={`tab-${active.id}`} className={cn('pt-5 animate-tab-enter', panelClassName)}>
+        <div key={active.id} id={panelId(active.id)} role="tabpanel" aria-labelledby={`tab-${active.id}`} className={cn('pt-5 animate-tab-enter', panelClassName)}>
           {active.content}
         </div>
       ) : null}

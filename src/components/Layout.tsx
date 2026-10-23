@@ -5,6 +5,7 @@ import { useSettings, type Theme } from '../store/useSettings'
 import { useAuth } from '../store/useAuth'
 import { useTest } from '../store/useTest'
 import { useClientReady } from '../lib/useClientReady'
+import { useLocalOwnerId } from '../lib/useLocalOwner'
 import { scrollBehavior } from '../lib/motion'
 import { openCommandPalette } from './ui/command-palette-events'
 import { Magnetic } from './ui/motion'
@@ -49,8 +50,15 @@ export function Layout() {
   const hasLoggedInBefore = useAuth((s) => s.hasLoggedInBefore)
   const activeMock = useTest((s) => s.mock)
   const activeStatus = useTest((s) => s.status)
+  const activeTestOwner = useTest((s) => s.ownerId)
   const clientReady = useClientReady()
-  const hasActiveSession = clientReady && Boolean(activeMock && activeStatus !== 'finished')
+  const localOwnerId = useLocalOwnerId()
+  // A test started by another account (or by guest mode) is not resumable from
+  // this session. The data stays on the device for its owner, but the link
+  // must not invite the current user into someone else's run.
+  const hasActiveSession =
+    clientReady &&
+    Boolean(activeMock && activeStatus !== 'finished' && activeTestOwner === localOwnerId)
 
   const currentRoute = location.pathname.replace(/\/+$/, '') || '/'
   const currentPath = `${location.pathname}${location.search}${location.hash}`
