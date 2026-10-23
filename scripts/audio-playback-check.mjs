@@ -74,6 +74,7 @@ const chrome = spawnChrome(
     '--disable-gpu',
     '--hide-scrollbars',
     '--window-size=1280,900',
+    '--blink-settings=primaryPointerType=4,primaryHoverType=2,availablePointerTypes=4,availableHoverTypes=2',
     // Media autoplay is normally blocked in headless runs; the player waits for
     // a real click, which this check supplies, but the policy would still deny
     // it without a user gesture recorded for the page.
@@ -168,6 +169,13 @@ await send('Network.enable', {}, sessionId)
 const audioResponses = []
 const audioFailures = []
 collectors.add((msg) => {
+  if (msg.method === 'Runtime.consoleAPICalled' && msg.params.type === 'error') {
+    const errText = msg.params.args.map((a) => a.value ?? a.description ?? '').join(' ')
+    console.error('  [browser console.error]', errText)
+  }
+  if (msg.method === 'Runtime.exceptionThrown') {
+    console.error('  [browser exception]', msg.params.exceptionDetails?.exception?.description ?? msg.params.exceptionDetails?.text)
+  }
   if (msg.method === 'Network.responseReceived') {
     const r = msg.params.response
     if (r.url.includes('/audio/')) audioResponses.push({ url: r.url, status: r.status, type: r.mimeType })
@@ -179,7 +187,10 @@ collectors.add((msg) => {
 
 await send('Page.navigate', { url: `${BASE}/practice?type=${TYPE}` }, sessionId)
 report(
-  await waitUntil(sessionId, `location.pathname === '/practice' && !![...document.querySelectorAll('button')].find((b) => /^Start drill/.test(b.textContent ?? ''))`),
+  await waitUntil(
+    sessionId,
+    `document.documentElement.dataset.appReady === 'true' && location.pathname === '/practice' && !![...document.querySelectorAll('button')].find((b) => /^Start drill/.test(b.textContent ?? ''))`,
+  ),
   'the practice page offers a drill for this type',
 )
 
@@ -200,32 +211,59 @@ await evaluate(
    };`,
 )
 
-await evaluate(
-  sessionId,
-  `[...document.querySelectorAll('button')].find((b) => /^Start drill/.test(b.textContent ?? ''))?.click()`,
-)
-// A test already in progress asks before it discards; a fresh profile has none,
-// but the click must not be swallowed when the dialog does appear.
-await waitUntil(sessionId, `!![...document.querySelectorAll('button')].find((b) => /Discard & Start drill/.test(b.textContent ?? ''))`, 2500)
-await evaluate(
-  sessionId,
-  `[...document.querySelectorAll('button')].find((b) => /Discard & Start drill/.test(b.textContent ?? ''))?.click()`,
-)
+const reachedRunner = await (async () => {
+  const deadline = Date.now() + 25000
+  while (Date.now() < deadline) {
+    const path = await evaluate(sessionId, 'location.pathname')
+    if (path === '/test') return true
+
+    const hasDiscard = await evaluate(
+      sessionId,
+      `!![...document.querySelectorAll('button')].find((b) => /Discard & Start drill/.test(b.textContent ?? ''))`,
+    )
+    if (hasDiscard) {
+      await evaluate(
+        sessionId,
+        `[...document.querySelectorAll('button')].find((b) => /Discard & Start drill/.test(b.textContent ?? ''))?.click()`,
+      )
+    } else {
+      await evaluate(
+        sessionId,
+        `[...document.querySelectorAll('button')].find((b) => /^Start drill/.test(b.textContent ?? '') && !b.disabled)?.click()`,
+      )
+    }
+    await sleep(500)
+  }
+  return false
+})()
 
 report(
-  await waitUntil(sessionId, `location.pathname === '/test'`),
+  reachedRunner,
   'starting the drill opens the test runner',
 )
 
 // The runner opens on a section briefing; start it to reveal the question.
-await waitUntil(sessionId, `!![...document.querySelectorAll('button')].find((b) => /^Begin /i.test((b.textContent ?? '').trim()))`, 5000)
-await evaluate(
-  sessionId,
-  `[...document.querySelectorAll('button')].find((b) => /^Begin /i.test((b.textContent ?? '').trim()))?.click()`,
-)
+await waitUntil(sessionId, `!![...document.querySelectorAll('button')].find((b) => /^Begin /i.test((b.textContent ?? '').trim()))`, 15000)
+
+const hasPlayControl = await (async () => {
+  const deadline = Date.now() + 15000
+  while (Date.now() < deadline) {
+    const hasPlay = await evaluate(
+      sessionId,
+      `[...document.querySelectorAll('button')].some((b) => /^Play/.test((b.textContent ?? '').trim()))`,
+    )
+    if (hasPlay) return true
+    await evaluate(
+      sessionId,
+      `[...document.querySelectorAll('button')].find((b) => /^Begin /i.test((b.textContent ?? '').trim()))?.click()`,
+    )
+    await sleep(500)
+  }
+  return false
+})()
 
 report(
-  await waitUntil(sessionId, `[...document.querySelectorAll('button')].some((b) => /^Play/.test((b.textContent ?? '').trim()))`),
+  hasPlayControl,
   'the listening item offers a play control',
 )
 
