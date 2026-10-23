@@ -74,6 +74,7 @@ const chrome = spawnChrome(
     '--disable-gpu',
     '--hide-scrollbars',
     '--window-size=1280,900',
+    '--blink-settings=primaryPointerType=4,primaryHoverType=2,availablePointerTypes=4,availableHoverTypes=2',
     'about:blank',
   ],
 )
