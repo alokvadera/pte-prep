@@ -11,6 +11,7 @@ import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { useTest } from '../store/useTest'
 import { cn } from '../lib/cn'
 import { Reveal } from '../components/ui/motion'
+import { useClientReady } from '../lib/useClientReady'
 
 const SKILLS: Array<{ id: Skill; label: string; blurb: string }> = [
   { id: 'speaking', label: 'Speaking', blurb: 'Read aloud, repeat sentence, describe image, re-tell lecture and the two new 2025 types.' },
@@ -40,12 +41,22 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
   const start = useTest((s) => s.start)
   const activeMock = useTest((s) => s.mock)
   const activeStatus = useTest((s) => s.status)
+  const isHydrated = useClientReady()
+  const effectiveType = isHydrated ? deepLinkType : null
+
   const [confirmOverwrite, setConfirmOverwrite] = useState(false)
-  const [skill, setSkill] = useState<Skill | null>(() => (deepLinkType ? QUESTION_META[deepLinkType].skills[0] ?? null : null))
+  const [skill, setSkill] = useState<Skill | null>(() => (effectiveType ? QUESTION_META[effectiveType].skills[0] ?? null : null))
   // A first visit starts with one approachable drill, not 22 types at once.
   // Deep links from a report keep their recommended type selected instead.
-  const [selected, setSelected] = useState<Set<QuestionType>>(() => new Set([deepLinkType ?? 'read-aloud']))
+  const [selected, setSelected] = useState<Set<QuestionType>>(() => new Set([effectiveType ?? 'read-aloud']))
   const [perType, setPerType] = useState(3)
+
+  useEffect(() => {
+    if (deepLinkType) {
+      setSkill(QUESTION_META[deepLinkType].skills[0] ?? null)
+      setSelected(new Set([deepLinkType]))
+    }
+  }, [deepLinkType])
   // The assembler and the content bank it reads are only fetched
   // when the candidate actually starts a drill, so the ~10 000 LOC
   // bank never lands on this page's initial JavaScript.
@@ -202,8 +213,8 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
         <SectionHeading
           eyebrow={`${skill ? SKILLS.find((s) => s.id === skill)?.label : 'All skills'}, ${buildable.length} ready ${buildable.length === 1 ? 'type' : 'types'}`}
           title="Choose your focus"
-          description={deepLinkType
-            ? `${QUESTION_META[deepLinkType].label} is selected from your last step. Adjust the questions or start the drill.`
+          description={effectiveType
+            ? `${QUESTION_META[effectiveType].label} is selected from your last step. Adjust the questions or start the drill.`
             : 'Read Aloud is selected for a short first drill. Choose another skill or question type to change your focus.'}
         />
 
