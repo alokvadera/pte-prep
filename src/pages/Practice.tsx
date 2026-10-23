@@ -45,18 +45,20 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
   const effectiveType = isHydrated ? deepLinkType : null
 
   const [confirmOverwrite, setConfirmOverwrite] = useState(false)
+  const [prevType, setPrevType] = useState<QuestionType | null>(effectiveType)
   const [skill, setSkill] = useState<Skill | null>(() => (effectiveType ? QUESTION_META[effectiveType].skills[0] ?? null : null))
   // A first visit starts with one approachable drill, not 22 types at once.
   // Deep links from a report keep their recommended type selected instead.
   const [selected, setSelected] = useState<Set<QuestionType>>(() => new Set([effectiveType ?? 'read-aloud']))
   const [perType, setPerType] = useState(3)
 
-  useEffect(() => {
-    if (deepLinkType) {
-      setSkill(QUESTION_META[deepLinkType].skills[0] ?? null)
-      setSelected(new Set([deepLinkType]))
+  if (effectiveType !== prevType) {
+    setPrevType(effectiveType)
+    if (effectiveType) {
+      setSkill(QUESTION_META[effectiveType].skills[0] ?? null)
+      setSelected(new Set([effectiveType]))
     }
-  }, [deepLinkType])
+  }
   // The assembler and the content bank it reads are only fetched
   // when the candidate actually starts a drill, so the ~10 000 LOC
   // bank never lands on this page's initial JavaScript.
