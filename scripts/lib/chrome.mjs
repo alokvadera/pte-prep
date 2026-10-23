@@ -20,7 +20,15 @@ const IS_WINDOWS = process.platform === 'win32'
 
 /** Starts Chrome in its own process group so the whole tree can be signalled. */
 export function spawnChrome(binary, args) {
-  return spawn(binary, args, {
+  const flags = new Set(args)
+  const defaultFlags = ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  const finalArgs = [...args]
+  for (const flag of defaultFlags) {
+    if (!flags.has(flag)) {
+      finalArgs.unshift(flag)
+    }
+  }
+  return spawn(binary, finalArgs, {
     stdio: 'ignore',
     // A new process group is what makes `process.kill(-pid)` reach the
     // helpers as well as the browser itself.

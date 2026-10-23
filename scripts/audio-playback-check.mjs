@@ -93,7 +93,11 @@ function report(ok, label, detail = '') {
 }
 
 async function waitForDevTools() {
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 120; i++) {
+    if (chrome.exitCode !== null) {
+      console.error(`  Chrome exited prematurely with code ${chrome.exitCode}`)
+      return false
+    }
     try {
       if ((await fetch(`http://127.0.0.1:${PORT}/json/version`)).ok) return true
     } catch {
