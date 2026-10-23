@@ -20,7 +20,7 @@ const ROOT = resolve(__dirname, '..')
 const AUDIO_DIR = join(ROOT, 'public', 'audio')
 if (!existsSync(AUDIO_DIR)) mkdirSync(AUDIO_DIR, { recursive: true })
 
-const API_KEY = process.env.FISHAUDIO_API_KEY || 'sk-fish--nOll4ktyyXJwQVTVc_cqtkHbe48y37uWLO-w54lnnQ'
+const API_KEY = process.env.FISHAUDIO_API_KEY
 
 // Verified official Fish Audio clean voice models
 export const VOICES = {
@@ -125,6 +125,9 @@ function getAudioDuration(filePath) {
 }
 
 export async function synthesizeDialogue(script) {
+  if (!API_KEY) {
+    throw new Error('FISHAUDIO_API_KEY environment variable is required to synthesize audio')
+  }
   const voiceAssignments = mapConversationVoices(script)
   const speakerIndexMap = new Map()
   const referenceIds = []

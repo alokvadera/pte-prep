@@ -49,15 +49,7 @@ async function loadEnv() {
 await loadEnv()
 
 const FALLBACK_ORIGIN = 'https://pte-prep.pages.dev'
-const rawOrigin = process.env.SITE_ORIGIN ?? process.env.VITE_SITE_ORIGIN ?? ''
-const isProd =
-  process.env.NODE_ENV === 'production' ||
-  process.env.CF_PAGES === '1' ||
-  process.env.CI === 'true' ||
-  process.env.CI === '1'
-if (isProd && !rawOrigin) {
-  throw new Error('SITE_ORIGIN must be set in production or on Cloudflare Pages/CI.')
-}
+const rawOrigin = process.env.SITE_ORIGIN ?? process.env.VITE_SITE_ORIGIN ?? FALLBACK_ORIGIN
 const ORIGIN = rawOrigin.replace(/\/+$/, '') || FALLBACK_ORIGIN
 
 // A Netlify placeholder origin would bake wrong canonicals into every page.

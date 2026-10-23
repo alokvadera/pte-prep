@@ -154,7 +154,7 @@ function writeWav(file, pcm) {
   writeFileSync(file, Buffer.concat([header, pcm]))
 }
 
-const API_KEY = process.env.FISHAUDIO_API_KEY || 'sk-fish--nOll4ktyyXJwQVTVc_cqtkHbe48y37uWLO-w54lnnQ'
+const API_KEY = process.env.FISHAUDIO_API_KEY
 
 // --- Fish Audio -------------------------------------------------------------
 async function synthesize(text, outMp3, voiceId = null) {
