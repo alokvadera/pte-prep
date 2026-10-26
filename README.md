@@ -218,7 +218,7 @@ all-caps tracked labels, and the interface speaks plain English: the progress pa
 is called Progress, not Telemetry.
 
 Accessibility is part of the design rather than a pass over it: `scripts/contrast.mjs`
-audits 75 token pairs and is part of `npm run verify`, `scripts/contrast-render.mjs`
+audits 78 token pairs and is part of `npm run verify`, `scripts/contrast-render.mjs`
 audits what actually renders, and the design research that motivated the work is in
 `docs/DESIGN_RESEARCH.md`. The earlier directions are archived in
 `docs/design/Calibrated-Silence.md` and its companion plate.
@@ -283,7 +283,7 @@ scripts/
   gen-assets.mjs     PNG icons and the Open Graph image
   render-plates.mjs  Renders the design plate from the philosophy
   contrast.mjs       WCAG 1.4.3 audit of the palette
-  smoke.ts           Engine test: 187 assertions, 46 from the Score Guide
+  smoke.ts           Engine test: 186 assertions, 46 from the Score Guide
   bank-check.ts      Content bank structure: 4000+ checks over the material
   browser-check.mjs  Headless Chrome: hydration, SEO, and a full test run
   serve.mjs          Host-accurate static server for local verification
@@ -307,7 +307,7 @@ and 46 assertions transcribed from the Score Guide itself — the adjacent-pair 
 for Re-order Paragraphs, the −1 deductions, the zero gates, the Form bands and the
 CEFR boundaries. `scripts/bank-check.ts` checks the content bank's structure.
 Both run as part of `npm run verify`, alongside the unit suite.
-`scripts/contrast.mjs` audits 75 colour pairs against WCAG
+`scripts/contrast.mjs` audits 78 colour pairs against WCAG
 1.4.3. `scripts/browser-check.mjs` drives headless Chrome through every route,
 sits a full mock end to end, and fails on hydration mismatches, console errors
 or missing metadata.

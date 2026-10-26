@@ -1140,8 +1140,9 @@ async function main() {
   const mockPasswordResets = new Map<string, any>()
   const fullMockDb = {
     exec: async () => undefined,
-    prepare: (sql: string) => ({
-      bind: (...args: any[]) => ({
+    prepare: (sql: string) => {
+      // Statements with no parameters are called as prepare(sql).run().
+      const statement = (...args: any[]) => ({
         run: async () => {
           if (sql.includes('INSERT INTO users')) {
             if (Array.from(mockUsers.values()).some((u) => u.email === args[1])) {
@@ -1267,8 +1268,9 @@ async function main() {
           }
           return { results: [] }
         },
-      }),
-    }),
+      })
+      return { ...statement(), bind: statement }
+    },
   } as unknown as D1Database
 
   const apiEnv = {
@@ -1486,7 +1488,7 @@ async function main() {
     }),
     env: apiEnv,
   } as any)
-  assert(fpBrevoFail.status === 503, 'forgot-password returns 503 on Brevo delivery failure')
+  assert(fpBrevoFail.status === 200, 'forgot-password answers generically when Brevo delivery fails')
 
   // 7. Successful reset email sent
   let sentResetLink = ''
@@ -2454,7 +2456,7 @@ async function main() {
     availablePoints: 90,
     skillScores: { speaking: 80, writing: 80, reading: 80, listening: 80 },
   })
-  assert(syncOk === true, 'syncAttemptToCloud posts attempt to API')
+  assert(syncOk === 'pushed', 'syncAttemptToCloud posts attempt to API')
 
   const fetchedCloudAttempt = await fetchAttemptFromCloud('att-cloud-1')
   assert(fetchedCloudAttempt?.id === 'att-cloud-1', 'fetchAttemptFromCloud pulls attempt from API')

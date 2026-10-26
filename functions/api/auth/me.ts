@@ -191,7 +191,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
       .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL")
       .bind(session.userId)
       .run()
-      .catch(() => {})
+      .catch((err) => console.warn('[Auth] Could not invalidate outstanding reset links:', err))
 
     const secret = requireSecret(context.env)
     const expiresIn = resolveSessionExpiry(context.env)
