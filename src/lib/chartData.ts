@@ -10,7 +10,6 @@ export interface Node {
   kind: 'source' | 'producer' | 'primary' | 'secondary'
 }
 
-
 /** Plain-text description of a chart, used for the accessible name and for
  *  screen readers, and reused in the written reference answer. */
 export function describeData(chartId: string): string {
@@ -21,24 +20,38 @@ export function describeData(chartId: string): string {
     case 'bar':
     case 'scatter': {
       const cats = Array.isArray(d.categories) ? (d.categories as string[]) : []
-      const series = Array.isArray(d.series) ? (d.series as Array<{ name: string; values: number[] }>) : []
+      const series = Array.isArray(d.series)
+        ? (d.series as Array<{ name: string; values: number[] }>)
+        : []
       return series
-        .map((s) => `${s.name}: ${(Array.isArray(s.values) ? s.values : []).map((v, i) => `${cats[i] ?? ''} ${v}`).join(', ')}`)
+        .map(
+          (s) =>
+            `${s.name}: ${(Array.isArray(s.values) ? s.values : []).map((v, i) => `${cats[i] ?? ''} ${v}`).join(', ')}`,
+        )
         .join('. ')
     }
     case 'line': {
       const x = Array.isArray(d.x) ? (d.x as string[]) : []
-      const series = Array.isArray(d.series) ? (d.series as Array<{ name: string; values: number[] }>) : []
-      return series.map((s) => `${s.name}: ${(Array.isArray(s.values) ? s.values : []).map((v, i) => `${x[i] ?? ''} ${v}`).join(', ')}`).join('. ')
+      const series = Array.isArray(d.series)
+        ? (d.series as Array<{ name: string; values: number[] }>)
+        : []
+      return series
+        .map(
+          (s) =>
+            `${s.name}: ${(Array.isArray(s.values) ? s.values : []).map((v, i) => `${x[i] ?? ''} ${v}`).join(', ')}`,
+        )
+        .join('. ')
     }
     case 'pie': {
-      const slices = Array.isArray(d.slices) ? (d.slices as Array<{ name: string; value: number }>) : []
-      return slices
-        .map((s) => `${s.name} ${s.value} per cent`)
-        .join(', ')
+      const slices = Array.isArray(d.slices)
+        ? (d.slices as Array<{ name: string; value: number }>)
+        : []
+      return slices.map((s) => `${s.name} ${s.value} per cent`).join(', ')
     }
     case 'process': {
-      const steps = Array.isArray(d.steps) ? (d.steps as Array<{ label: string; detail: string }>) : []
+      const steps = Array.isArray(d.steps)
+        ? (d.steps as Array<{ label: string; detail: string }>)
+        : []
       return steps.map((s) => `${s.label} — ${s.detail}`).join('. ')
     }
     case 'diagram': {

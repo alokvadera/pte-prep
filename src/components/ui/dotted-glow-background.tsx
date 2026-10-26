@@ -76,9 +76,7 @@ export const DottedGlowBackground = ({
   // Resolve CSS variable value from the container or root
   const resolveCssVariable = (el: Element, variableName?: string): string | null => {
     if (!variableName) return null
-    const normalized = variableName.startsWith('--')
-      ? variableName
-      : `--${variableName}`
+    const normalized = variableName.startsWith('--') ? variableName : `--${variableName}`
     const fromEl = getComputedStyle(el).getPropertyValue(normalized).trim()
     if (fromEl) return fromEl
     const root = document.documentElement
@@ -90,10 +88,7 @@ export const DottedGlowBackground = ({
     const root = document.documentElement
     if (root.classList.contains('dark')) return true
     if (root.classList.contains('light')) return false
-    return Boolean(
-      window.matchMedia &&
-        window.matchMedia('(prefers-color-scheme: dark)').matches,
-    )
+    return Boolean(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)
   }
 
   // Keep resolved colors in sync with theme changes and prop updates
@@ -125,9 +120,7 @@ export const DottedGlowBackground = ({
 
     compute()
 
-    const mql = window.matchMedia
-      ? window.matchMedia('(prefers-color-scheme: dark)')
-      : null
+    const mql = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null
     const handleMql = () => compute()
     mql?.addEventListener?.('change', handleMql)
 
@@ -251,10 +244,7 @@ export const DottedGlowBackground = ({
           Math.max(width, height) * 0.7,
         )
         grad.addColorStop(0, 'rgba(0,0,0,0)')
-        grad.addColorStop(
-          1,
-          `rgba(0,0,0,${Math.min(Math.max(backgroundOpacity, 0), 1)})`,
-        )
+        grad.addColorStop(1, `rgba(0,0,0,${Math.min(Math.max(backgroundOpacity, 0), 1)})`)
         ctx.fillStyle = grad
         ctx.fillRect(0, 0, width, height)
       }
@@ -349,15 +339,8 @@ export const DottedGlowBackground = ({
   ])
 
   return (
-    <div
-      ref={containerRef}
-      className={className}
-      style={{ position: 'absolute', inset: 0 }}
-    >
-      <canvas
-        ref={canvasRef}
-        style={{ display: 'block', width: '100%', height: '100%' }}
-      />
+    <div ref={containerRef} className={className} style={{ position: 'absolute', inset: 0 }}>
+      <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
     </div>
   )
 }

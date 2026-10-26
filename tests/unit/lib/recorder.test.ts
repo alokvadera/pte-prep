@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { isRecordingSupported, isSpeechRecognitionSupported, VoiceRecorder } from '../../../src/lib/recorder'
+import {
+  isRecordingSupported,
+  isSpeechRecognitionSupported,
+  VoiceRecorder,
+} from '../../../src/lib/recorder'
 import type { Mock } from 'vitest'
 import type { RecorderEvents, RecorderLevel, RecorderState } from '../../../src/lib/recorder'
 
@@ -198,7 +202,11 @@ async function withoutStandardAudioContext(body: () => Promise<void> | void): Pr
   try {
     await body()
   } finally {
-    Object.defineProperty(window, 'AudioContext', { configurable: true, writable: true, value: saved })
+    Object.defineProperty(window, 'AudioContext', {
+      configurable: true,
+      writable: true,
+      value: saved,
+    })
   }
 }
 
@@ -211,8 +219,16 @@ async function withoutAudioContext(body: () => Promise<void> | void): Promise<vo
   try {
     await body()
   } finally {
-    Object.defineProperty(window, 'AudioContext', { configurable: true, writable: true, value: saved })
-    Object.defineProperty(window, 'webkitAudioContext', { configurable: true, writable: true, value: savedWebkit })
+    Object.defineProperty(window, 'AudioContext', {
+      configurable: true,
+      writable: true,
+      value: saved,
+    })
+    Object.defineProperty(window, 'webkitAudioContext', {
+      configurable: true,
+      writable: true,
+      value: savedWebkit,
+    })
   }
 }
 
@@ -223,7 +239,11 @@ async function withoutStandardRecognition(body: () => Promise<void> | void): Pro
   try {
     await body()
   } finally {
-    Object.defineProperty(window, 'SpeechRecognition', { configurable: true, writable: true, value: saved })
+    Object.defineProperty(window, 'SpeechRecognition', {
+      configurable: true,
+      writable: true,
+      value: saved,
+    })
   }
 }
 
@@ -236,8 +256,16 @@ async function withoutRecognition(body: () => Promise<void> | void): Promise<voi
   try {
     await body()
   } finally {
-    Object.defineProperty(window, 'SpeechRecognition', { configurable: true, writable: true, value: saved })
-    Object.defineProperty(window, 'webkitSpeechRecognition', { configurable: true, writable: true, value: savedWebkit })
+    Object.defineProperty(window, 'SpeechRecognition', {
+      configurable: true,
+      writable: true,
+      value: saved,
+    })
+    Object.defineProperty(window, 'webkitSpeechRecognition', {
+      configurable: true,
+      writable: true,
+      value: savedWebkit,
+    })
   }
 }
 
@@ -249,7 +277,8 @@ function useFakeAnalyser(): void {
     () => analyser as unknown as SetupAnalyserNode,
   )
   vi.spyOn(window.AudioContext.prototype, 'createMediaStreamSource').mockImplementation(
-    () => source as unknown as ReturnType<typeof window.AudioContext.prototype.createMediaStreamSource>,
+    () =>
+      source as unknown as ReturnType<typeof window.AudioContext.prototype.createMediaStreamSource>,
   )
 }
 

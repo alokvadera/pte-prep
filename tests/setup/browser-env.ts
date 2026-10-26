@@ -106,7 +106,10 @@ interface ObserverRecord {
 const intersectionRecords = new Set<ObserverRecord>()
 const resizeRecords = new Set<ObserverRecord>()
 
-function makeIntersectionEntry(target: Element, isIntersecting: boolean): IntersectionObserverEntry {
+function makeIntersectionEntry(
+  target: Element,
+  isIntersecting: boolean,
+): IntersectionObserverEntry {
   const rect = target.getBoundingClientRect()
   return {
     target,
@@ -177,7 +180,8 @@ class FakeResizeObserver implements ResizeObserver {
 }
 
 function installObservers(): void {
-  ;(globalThis as { IntersectionObserver?: unknown }).IntersectionObserver = FakeIntersectionObserver
+  ;(globalThis as { IntersectionObserver?: unknown }).IntersectionObserver =
+    FakeIntersectionObserver
   ;(globalThis as { ResizeObserver?: unknown }).ResizeObserver = FakeResizeObserver
 }
 
@@ -397,7 +401,13 @@ const TEST_VOICES: SpeechSynthesisVoice[] = [
   { name: 'Samantha', lang: 'en-US', localService: true, default: true, voiceURI: 'Samantha' },
   { name: 'Daniel', lang: 'en-GB', localService: true, default: false, voiceURI: 'Daniel' },
   { name: 'Karen', lang: 'en-AU', localService: true, default: false, voiceURI: 'Karen' },
-  { name: 'Google UK English Female', lang: 'en-GB', localService: false, default: false, voiceURI: 'Google UK English Female' },
+  {
+    name: 'Google UK English Female',
+    lang: 'en-GB',
+    localService: false,
+    default: false,
+    voiceURI: 'Google UK English Female',
+  },
   { name: 'Zarvox', lang: 'en-US', localService: true, default: false, voiceURI: 'Zarvox' },
 ] as SpeechSynthesisVoice[]
 

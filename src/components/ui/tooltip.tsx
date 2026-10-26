@@ -39,9 +39,12 @@ export function Tooltip({
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') hide()
   }
-  useEffect(() => () => {
-    if (timer.current) window.clearTimeout(timer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (timer.current) window.clearTimeout(timer.current)
+    },
+    [],
+  )
 
   return (
     <span

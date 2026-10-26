@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from 'fs'
 
-let css = fs.readFileSync('src/index.css', 'utf-8');
+let css = fs.readFileSync('src/index.css', 'utf-8')
 
 // Replace btn-primary
 css = css.replace(
@@ -23,8 +23,8 @@ css = css.replace(
     background: var(--color-brand-600);
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
   }
-}`
-);
+}`,
+)
 
 // Replace btn-secondary
 css = css.replace(
@@ -52,7 +52,7 @@ css = css.replace(
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3);
     }
   }
-}`
-);
+}`,
+)
 
-fs.writeFileSync('src/index.css', css);
+fs.writeFileSync('src/index.css', css)

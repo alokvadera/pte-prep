@@ -162,7 +162,9 @@ describe('ActiveSessionNotice', () => {
   it('calls a practice run a practice drill', () => {
     startSession({ mode: 'practice' })
     renderWithProviders(<ActiveSessionNotice />)
-    expect(screen.getByRole('heading', { name: /Continue your practice drill/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: /Continue your practice drill/ }),
+    ).toBeInTheDocument()
   })
 
   it('calls an exam a mock test', () => {
@@ -328,7 +330,9 @@ describe('CommandPalette', () => {
     act(() => {
       window.dispatchEvent(new Event('open-command-palette'))
     })
-    fireEvent.change(screen.getByPlaceholderText(/Type a command/), { target: { value: 'DASHBOARD' } })
+    fireEvent.change(screen.getByPlaceholderText(/Type a command/), {
+      target: { value: 'DASHBOARD' },
+    })
     expect(screen.getByRole('button', { name: 'Go to Dashboard' })).toBeInTheDocument()
   })
 
@@ -433,7 +437,10 @@ describe('CommandPalette', () => {
   it('hands focus back to whatever opened it', () => {
     function Trigger() {
       return (
-        <button type="button" onClick={() => window.dispatchEvent(new Event('open-command-palette'))}>
+        <button
+          type="button"
+          onClick={() => window.dispatchEvent(new Event('open-command-palette'))}
+        >
           Open
         </button>
       )
@@ -595,7 +602,9 @@ describe('StickyCTA', () => {
   })
 
   it('rises once the page has been scrolled past the threshold', async () => {
-    const { container } = renderWithProviders(<StickyCTA to="/mock" label="Start a mock" showAfter={600} />)
+    const { container } = renderWithProviders(
+      <StickyCTA to="/mock" label="Start a mock" showAfter={600} />,
+    )
     act(() => {
       Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 900 })
       window.dispatchEvent(new Event('scroll'))
@@ -610,7 +619,10 @@ describe('StickyCTA', () => {
 
   it('takes the tab order out of the tab order while it is away', () => {
     renderWithProviders(<StickyCTA to="/mock" label="Start a mock" />)
-    expect(screen.getByRole('link', { name: 'Start a mock', hidden: true })).toHaveAttribute('tabindex', '-1')
+    expect(screen.getByRole('link', { name: 'Start a mock', hidden: true })).toHaveAttribute(
+      'tabindex',
+      '-1',
+    )
   })
 
   it('puts the link back in the tab order once it is showing', async () => {
@@ -626,7 +638,10 @@ describe('StickyCTA', () => {
 
   it('links to the given destination', () => {
     renderWithProviders(<StickyCTA to="/mock" label="Start a mock" />)
-    expect(screen.getByRole('link', { name: 'Start a mock', hidden: true })).toHaveAttribute('href', '/mock')
+    expect(screen.getByRole('link', { name: 'Start a mock', hidden: true })).toHaveAttribute(
+      'href',
+      '/mock',
+    )
   })
 
   it('shows the default note', () => {
@@ -647,7 +662,8 @@ describe('StickyCTA', () => {
       </>,
     )
     const footer = screen.getByTestId('footer')
-    footer.getBoundingClientRect = () => ({ top: 10, bottom: 100, left: 0, right: 0, width: 0, height: 90 }) as DOMRect
+    footer.getBoundingClientRect = () =>
+      ({ top: 10, bottom: 100, left: 0, right: 0, width: 0, height: 90 }) as DOMRect
     act(() => {
       Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 900 })
       window.dispatchEvent(new Event('scroll'))
@@ -665,7 +681,8 @@ describe('StickyCTA', () => {
       </>,
     )
     const footer = screen.getByTestId('footer')
-    footer.getBoundingClientRect = () => ({ top: 5000, bottom: 6000, left: 0, right: 0, width: 0, height: 1000 }) as DOMRect
+    footer.getBoundingClientRect = () =>
+      ({ top: 5000, bottom: 6000, left: 0, right: 0, width: 0, height: 1000 }) as DOMRect
     act(() => {
       Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 900 })
       window.dispatchEvent(new Event('scroll'))

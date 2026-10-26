@@ -404,7 +404,9 @@ describe('SectionHeading', () => {
   })
 
   it('takes a class name', () => {
-    const { container } = renderWithProviders(<SectionHeading title="The section" className="mt-8" />)
+    const { container } = renderWithProviders(
+      <SectionHeading title="The section" className="mt-8" />,
+    )
     expect(container.firstChild).toHaveClass('mt-8')
   })
 })
@@ -457,7 +459,10 @@ describe('Stat', () => {
 describe('ProgressBar', () => {
   it('reports the value as a percentage', () => {
     renderWithProviders(<ProgressBar value={45} max={90} label="Score" />)
-    expect(screen.getByRole('progressbar', { name: 'Score' })).toHaveAttribute('aria-valuenow', '50')
+    expect(screen.getByRole('progressbar', { name: 'Score' })).toHaveAttribute(
+      'aria-valuenow',
+      '50',
+    )
   })
 
   it('fills the track in proportion to the value', () => {
@@ -472,7 +477,10 @@ describe('ProgressBar', () => {
 
   it('clamps a value above the maximum', () => {
     renderWithProviders(<ProgressBar value={120} max={90} label="Score" />)
-    expect(screen.getByRole('progressbar', { name: 'Score' })).toHaveAttribute('aria-valuenow', '100')
+    expect(screen.getByRole('progressbar', { name: 'Score' })).toHaveAttribute(
+      'aria-valuenow',
+      '100',
+    )
   })
 
   it('clamps a value below zero', () => {
@@ -486,12 +494,16 @@ describe('ProgressBar', () => {
   })
 
   it.each(['brand', 'mint', 'amber', 'rose'] as const)('renders the %s tone', (tone) => {
-    const { container } = renderWithProviders(<ProgressBar value={45} max={90} tone={tone} label="Score" />)
+    const { container } = renderWithProviders(
+      <ProgressBar value={45} max={90} tone={tone} label="Score" />,
+    )
     expect(container.querySelector('[style*="width"]')).toBeInTheDocument()
   })
 
   it('takes a class name', () => {
-    const { container } = renderWithProviders(<ProgressBar value={45} max={90} label="Score" className="mt-2" />)
+    const { container } = renderWithProviders(
+      <ProgressBar value={45} max={90} label="Score" className="mt-2" />,
+    )
     expect(container.firstChild).toHaveClass('mt-2')
   })
 })
@@ -536,13 +548,19 @@ describe('EmptyState', () => {
 
   it('renders the icon', () => {
     renderWithProviders(
-      <EmptyState icon={<span data-testid="icon" />} title="Nothing here" description="Try again later" />,
+      <EmptyState
+        icon={<span data-testid="icon" />}
+        title="Nothing here"
+        description="Try again later"
+      />,
     )
     expect(screen.getByTestId('icon')).toBeInTheDocument()
   })
 
   it('leaves the icon out when there is none', () => {
-    const { container } = renderWithProviders(<EmptyState title="Nothing here" description="Try again later" />)
+    const { container } = renderWithProviders(
+      <EmptyState title="Nothing here" description="Try again later" />,
+    )
     expect(container.querySelector('.mb-3')).toBeNull()
   })
 
@@ -558,7 +576,9 @@ describe('EmptyState', () => {
   })
 
   it('leaves the action out when there is none', () => {
-    const { container } = renderWithProviders(<EmptyState title="Nothing here" description="Try again later" />)
+    const { container } = renderWithProviders(
+      <EmptyState title="Nothing here" description="Try again later" />,
+    )
     expect(container.querySelector('.mt-5')).toBeNull()
   })
 })
@@ -566,7 +586,11 @@ describe('EmptyState', () => {
 describe('CtaBand', () => {
   it('renders the title and the description', () => {
     renderWithProviders(
-      <CtaBand title="Ready?" description="Start a free mock test." actions={<button type="button">Start</button>} />,
+      <CtaBand
+        title="Ready?"
+        description="Start a free mock test."
+        actions={<button type="button">Start</button>}
+      />,
     )
     expect(screen.getByRole('heading', { level: 2, name: 'Ready?' })).toBeInTheDocument()
     expect(screen.getByText('Start a free mock test.')).toBeInTheDocument()
@@ -587,7 +611,11 @@ describe('CtaBand', () => {
 
   it('leaves the eyebrow out when there is none', () => {
     const { container } = renderWithProviders(
-      <CtaBand title="Ready?" description="Start a free mock test." actions={<button type="button">Start</button>} />,
+      <CtaBand
+        title="Ready?"
+        description="Start a free mock test."
+        actions={<button type="button">Start</button>}
+      />,
     )
     expect(container.querySelector('.uppercase')).toBeNull()
   })
@@ -677,9 +705,7 @@ describe('Callout', () => {
   })
 
   it('draws a rule down the side when it is asked to', () => {
-    const { container } = renderWithProviders(
-      <Callout rule>Remember this.</Callout>,
-    )
+    const { container } = renderWithProviders(<Callout rule>Remember this.</Callout>)
     expect(container.firstChild).toHaveClass('callout-rule')
   })
 

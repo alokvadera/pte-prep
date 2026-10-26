@@ -149,54 +149,54 @@ export default function App() {
           transform/opacity animations that motion libraries
           drive from JavaScript. */}
       <MotionConfig reducedMotion="user">
-      <ToastProvider>
-        {/* Ambient layers: the cursor's pool of light and
+        <ToastProvider>
+          {/* Ambient layers: the cursor's pool of light and
             the whisper of grain. Both are fixed, both are
             decorative, and both sit under every interactive
             layer (dialogs, toasts, the palette). */}
-        <CursorGlow />
-        <GrainOverlay />
-        <Suspense fallback={<RouteFallback />}>
-        <Routes>
-        <Route element={<Layout />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/mock" element={<MockSetup />} />
-          <Route path="/practice" element={<Practice />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<LoginPage />} />
-          <Route path="/format" element={<TestFormat />} />
-          <Route path="/scoring" element={<ScoringGuide />} />
-          <Route path="/guide" element={<Guide />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/privacy/" element={<Privacy />} />
-          <Route path="/question-types/" element={<QuestionTypes />} />
-          <Route path="/question-types/:slug/" element={<QuestionTypePage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
-          <Route path="/ui-elements" element={<UiElements />} />
-          <Route path="*" element={<NotFound />} />
-        </Route>
+          <CursorGlow />
+          <GrainOverlay />
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route element={<Layout />}>
+                <Route path="/" element={<Home />} />
+                <Route path="/mock" element={<MockSetup />} />
+                <Route path="/practice" element={<Practice />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<LoginPage />} />
+                <Route path="/format" element={<TestFormat />} />
+                <Route path="/scoring" element={<ScoringGuide />} />
+                <Route path="/guide" element={<Guide />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/privacy/" element={<Privacy />} />
+                <Route path="/question-types/" element={<QuestionTypes />} />
+                <Route path="/question-types/:slug/" element={<QuestionTypePage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/ui-elements" element={<UiElements />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
 
-        <Route
-          path="/test"
-          element={
-            <TestRoute>
-              <TestPage />
-            </TestRoute>
-          }
-        />
-        <Route
-          path="/result"
-          element={
-            <FullScreen>
-              <ResultPage />
-            </FullScreen>
-          }
-        />
-      </Routes>
-      </Suspense>
-      <CommandPalette />
-      </ToastProvider>
+              <Route
+                path="/test"
+                element={
+                  <TestRoute>
+                    <TestPage />
+                  </TestRoute>
+                }
+              />
+              <Route
+                path="/result"
+                element={
+                  <FullScreen>
+                    <ResultPage />
+                  </FullScreen>
+                }
+              />
+            </Routes>
+          </Suspense>
+          <CommandPalette />
+        </ToastProvider>
       </MotionConfig>
     </ErrorBoundary>
   )

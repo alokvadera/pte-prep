@@ -223,7 +223,9 @@ describe('reset password validation', () => {
   })
 
   it('accepts a token and two matching long enough passwords', () => {
-    expect(validateResetPasswordForm('token', 'longenough1', 'longenough1')).toEqual({ valid: true })
+    expect(validateResetPasswordForm('token', 'longenough1', 'longenough1')).toEqual({
+      valid: true,
+    })
   })
 })
 

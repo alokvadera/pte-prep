@@ -87,111 +87,112 @@ export default function ResetPasswordPage() {
         <div className="mx-auto max-w-md py-6 sm:py-10">
           <Reveal>
             <Card className="p-6 sm:p-8 shadow-sm">
-            {!token ? (
-              <div className="space-y-4 text-center">
-                <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
-                  <p className="font-semibold">Invalid or missing token</p>
-                  <p className="mt-1">
-                    This password reset link is invalid or incomplete. Please request a new link from the sign-in page.
-                  </p>
-                </div>
-                <Button variant="secondary" className="w-full" onClick={() => navigate('/login')}>
-                  Back to Sign In
-                </Button>
-              </div>
-            ) : success ? (
-              <div className="space-y-4 text-center">
-                <div className="rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
-                  <p className="font-semibold">Password updated!</p>
-                  <p className="mt-1">
-                    Your password has been reset successfully. Redirecting you to your dashboard...
-                  </p>
-                </div>
-                <Button variant="primary" className="w-full" onClick={() => navigate('/dashboard')}>
-                  Go to Dashboard
-                </Button>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {error && (
-                  <div
-                    role="alert"
-                    className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200 font-medium"
-                  >
-                    {error}
+              {!token ? (
+                <div className="space-y-4 text-center">
+                  <div className="rounded-lg bg-amber-50 p-4 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">
+                    <p className="font-semibold">Invalid or missing token</p>
+                    <p className="mt-1">
+                      This password reset link is invalid or incomplete. Please request a new link
+                      from the sign-in page.
+                    </p>
                   </div>
-                )}
-
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <label
-                      htmlFor="new-password"
-                      className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark"
-                    >
-                      New password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-300 cursor-pointer"
-                    >
-                      {showPassword ? 'Hide' : 'Show'}
-                    </button>
-                  </div>
-                  <input
-                    id="new-password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    autoComplete="new-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="At least 8 characters"
-                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="confirm-new-password"
-                    className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
-                  >
-                    Confirm new password
-                  </label>
-                  <input
-                    id="confirm-new-password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    autoComplete="new-password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Re-type your new password"
-                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  variant="primary"
-                  className="w-full"
-                  disabled={loading}
-                >
-                  {loading ? 'Updating password...' : 'Update Password & Sign In'}
-                </Button>
-
-                <div className="text-center pt-2">
-                  <Link
-                    to="/login"
-                    className="text-xs font-medium text-ink-600 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:text-white"
-                  >
+                  <Button variant="secondary" className="w-full" onClick={() => navigate('/login')}>
                     Back to Sign In
-                  </Link>
+                  </Button>
                 </div>
-              </form>
-            )}
-          </Card>
-        </Reveal>
-      </div>
-    </PageWrapper>
-  </>
-)
+              ) : success ? (
+                <div className="space-y-4 text-center">
+                  <div className="rounded-lg bg-emerald-50 p-4 text-sm text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200">
+                    <p className="font-semibold">Password updated!</p>
+                    <p className="mt-1">
+                      Your password has been reset successfully. Redirecting you to your
+                      dashboard...
+                    </p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    className="w-full"
+                    onClick={() => navigate('/dashboard')}
+                  >
+                    Go to Dashboard
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  {error && (
+                    <div
+                      role="alert"
+                      className="rounded-lg border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-200 font-medium"
+                    >
+                      {error}
+                    </div>
+                  )}
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label
+                        htmlFor="new-password"
+                        className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark"
+                      >
+                        New password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-300 cursor-pointer"
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    </div>
+                    <input
+                      id="new-password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      autoComplete="new-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="At least 8 characters"
+                      className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor="confirm-new-password"
+                      className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
+                    >
+                      Confirm new password
+                    </label>
+                    <input
+                      id="confirm-new-password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      autoComplete="new-password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-type your new password"
+                      className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
+                    />
+                  </div>
+
+                  <Button type="submit" variant="primary" className="w-full" disabled={loading}>
+                    {loading ? 'Updating password...' : 'Update Password & Sign In'}
+                  </Button>
+
+                  <div className="text-center pt-2">
+                    <Link
+                      to="/login"
+                      className="text-xs font-medium text-ink-600 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:text-white"
+                    >
+                      Back to Sign In
+                    </Link>
+                  </div>
+                </form>
+              )}
+            </Card>
+          </Reveal>
+        </div>
+      </PageWrapper>
+    </>
+  )
 }

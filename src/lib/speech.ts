@@ -100,10 +100,14 @@ function scoreVoice(voice: SpeechSynthesisVoice, hint: VoiceHint): number {
   // 5. Gender / pitch profile matching
   switch (hint) {
     case 'low':
-      if (/(evan|nathan|oliver|daniel|guy|george|david|male|arthur|eddy|reed)/.test(name)) score += 18
+      if (/(evan|nathan|oliver|daniel|guy|george|david|male|arthur|eddy|reed)/.test(name))
+        score += 18
       break
     case 'high':
-      if (/(ava|zoe|allison|karen|samantha|serena|jenny|aria|female|tessa|fiona|flo|moira)/.test(name)) score += 18
+      if (
+        /(ava|zoe|allison|karen|samantha|serena|jenny|aria|female|tessa|fiona|flo|moira)/.test(name)
+      )
+        score += 18
       break
     case 'mid-high':
       if (/(zoe|samantha|karen|serena|jenny|flo)/.test(name)) score += 10
@@ -116,7 +120,11 @@ function scoreVoice(voice: SpeechSynthesisVoice, hint: VoiceHint): number {
 }
 
 /** Deterministically map a speaker to a distinct system voice. */
-function pickVoice(speaker: Speaker, index: number, used: Set<string>): SpeechSynthesisVoice | null {
+function pickVoice(
+  speaker: Speaker,
+  index: number,
+  used: Set<string>,
+): SpeechSynthesisVoice | null {
   const pool = cachedVoices
     .map((v) => ({ v, s: scoreVoice(v, speaker.voiceHint) }))
     .filter((x) => x.s > -1000)
@@ -167,7 +175,10 @@ export function isSpeechSupported(): boolean {
   return synth() !== null && typeof window !== 'undefined' && 'speechSynthesis' in window
 }
 
-export async function speakScript(script: AudioScript, options: SpeakOptions = {}): Promise<SpeakController> {
+export async function speakScript(
+  script: AudioScript,
+  options: SpeakOptions = {},
+): Promise<SpeakController> {
   const s = synth()
   const controller: SpeakController = { stop: () => {}, speaking: false }
   if (!s) {
@@ -249,17 +260,20 @@ export async function speakScript(script: AudioScript, options: SpeakOptions = {
 
     const wordCount = turn.text.split(/\s+/).length
     clearSafety()
-    safetyTimer = window.setTimeout(() => {
-      if (cancelled) return
-      // The timeout ends playback for good. Without this, a stalled utterance
-      // that fires onend later would schedule the next turn and carry on
-      // speaking after the timeout was already reported, and a late onerror
-      // would call onError/onEnd a second time.
-      cancelled = true
-      cleanup()
-      onError?.('Speech playback timed out.')
-      onEnd?.()
-    }, Math.max(15000, wordCount * 1500 + 10000))
+    safetyTimer = window.setTimeout(
+      () => {
+        if (cancelled) return
+        // The timeout ends playback for good. Without this, a stalled utterance
+        // that fires onend later would schedule the next turn and carry on
+        // speaking after the timeout was already reported, and a late onerror
+        // would call onError/onEnd a second time.
+        cancelled = true
+        cleanup()
+        onError?.('Speech playback timed out.')
+        onEnd?.()
+      },
+      Math.max(15000, wordCount * 1500 + 10000),
+    )
 
     utter.onend = () => {
       clearSafety()
@@ -384,7 +398,9 @@ let audioCtxCleanupRegistered = false
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === 'undefined') return null
-  const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
+  const Ctor =
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
   if (!Ctor) return null
   if (!audioCtx) {
     audioCtx = new Ctor()

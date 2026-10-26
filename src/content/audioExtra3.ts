@@ -404,7 +404,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_3: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
       'The speaker rejects memory as recording with playback, showing retrieval reconstructs from semantic candidates so errors are related intrusions rising with list size. Confidence comes from the same unreliable process, so confident eyewitnesses can be wrong. Repeated consistent retelling rewrites memory, aiding accuracy while also consolidating errors from non-suggestive interviews.',
-    keyTerms: ['reconstruction', 'intrusion', 'confidence', 'consistency', 'rewrites', 'interviews'],
+    keyTerms: [
+      'reconstruction',
+      'intrusion',
+      'confidence',
+      'consistency',
+      'rewrites',
+      'interviews',
+    ],
     minWords: 30,
   },
 ]
@@ -414,7 +421,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_3: GroupDiscussionItem[] = [
     id: 'sgd-ai-tutoring',
     audioId: 'gd-ai-tutoring',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The group agrees the AI tutor drills procedural fluency but does not teach transfer, and that the licence stands or falls on redirecting teacher time. The headteacher presents a three-year proposal with three months of pilot gains and will defend it only if freed hours are timetabled for transfer work. The parent demands renewal conditional on transfer measures not vendor tests, and the researcher supplies the mechanism: fluency from the tool, connection from the teacher. They split on trial length before judging.',
     keyTerms: ['fluency', 'transfer', 'licence', 'timetabled', 'renewal', 'mechanism'],
@@ -424,7 +431,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_3: GroupDiscussionItem[] = [
     id: 'sgd-night-flights',
     audioId: 'gd-night-flights',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The hearing accepts the conflict as genuine between event-level sleep harm and dispersed freight jobs. The resident argues contours average away forty nightly awakenings that the health evidence tracks, and compensation cannot restore unbroken sleep. The operator ties the window to morning delivery contracts worth four hundred direct jobs. The councillor offers the middle: noisiest-aircraft caps, an awakening-counted quota rewarding fleet renewal, or time-limited permission with review.',
     keyTerms: ['awakenings', 'contour', 'contracts', 'quota', 'renewal', 'review'],
@@ -434,7 +441,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_3: GroupDiscussionItem[] = [
     id: 'sgd-food-labels',
     audioId: 'gd-food-labels',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The forum agrees traffic-light labels work through manufacturers first and informed shoppers second, and that without price support the poorest are left behind. The nutritionist shows recognition succeeds but behaviour change stays small and concentrated. The retailer argues reformulation from three reds to two changes food more than shoppers. The advocate warns reds cluster on the cheapest products, so pairing labels with green-staple subsidies is the missing policy.',
     keyTerms: ['reformulation', 'recognition', 'cluster', 'subsidies', 'enabling', 'behaviour'],

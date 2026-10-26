@@ -224,9 +224,7 @@ describe('LoginPage sign-in', () => {
   })
 
   it('signs in and syncs', async () => {
-    installFetchMock([
-      { url: '/api/auth/login', body: { token: 'tok', user: USER } },
-    ])
+    installFetchMock([{ url: '/api/auth/login', body: { token: 'tok', user: USER } }])
     const { container } = renderLogin('/login')
     await type(container, 'a@b.c', 'password123')
     await act(async () => {
@@ -296,7 +294,9 @@ describe('LoginPage registration', () => {
     await act(async () => {
       fireEvent.submit(container.querySelector('form') as HTMLFormElement)
     })
-    expect(screen.getByRole('alert').textContent).toContain('Password must be at least 8 characters.')
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Password must be at least 8 characters.',
+    )
   })
 
   it('asks for the password twice', async () => {
@@ -349,7 +349,9 @@ describe('LoginPage registration', () => {
   })
 
   it('reports a registration the server refused', async () => {
-    installFetchMock([{ url: '/api/auth/register', body: { error: 'Email already used' }, status: 409 }])
+    installFetchMock([
+      { url: '/api/auth/register', body: { error: 'Email already used' }, status: 409 },
+    ])
     const { container } = renderLogin('/register')
     await type(container, 'a@b.c', 'password123')
     await act(async () => {
@@ -493,7 +495,9 @@ describe('LoginPage forgot password', () => {
   })
 
   it('reports a request the server refused', async () => {
-    installFetchMock([{ url: '/api/auth/forgot-password', body: { error: 'No such account' }, status: 404 }])
+    installFetchMock([
+      { url: '/api/auth/forgot-password', body: { error: 'No such account' }, status: 404 },
+    ])
     const { container } = renderLogin('/login')
     await type(container, 'a@b.c', 'password123')
     await act(async () => {
@@ -575,7 +579,9 @@ describe('LoginPage signed in', () => {
   })
 
   it('changes the target score', async () => {
-    const fetchMock = installFetchMock([{ url: '/api/auth/me', method: 'PATCH', body: { ok: true } }])
+    const fetchMock = installFetchMock([
+      { url: '/api/auth/me', method: 'PATCH', body: { ok: true } },
+    ])
     renderLogin('/login')
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: '79' }))
@@ -646,9 +652,13 @@ describe('LoginPage signed in', () => {
   it('asks for a long enough new password', async () => {
     const { container } = renderLogin('/login')
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Current password'), { target: { value: 'oldpassword' } })
+      fireEvent.change(screen.getByLabelText('Current password'), {
+        target: { value: 'oldpassword' },
+      })
       fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'short' } })
-      fireEvent.change(screen.getByLabelText('Confirm new password'), { target: { value: 'short' } })
+      fireEvent.change(screen.getByLabelText('Confirm new password'), {
+        target: { value: 'short' },
+      })
     })
     await act(async () => {
       fireEvent.submit(container.querySelector('form') as HTMLFormElement)
@@ -659,9 +669,13 @@ describe('LoginPage signed in', () => {
   it('asks for the new password twice', async () => {
     const { container } = renderLogin('/login')
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Current password'), { target: { value: 'oldpassword' } })
+      fireEvent.change(screen.getByLabelText('Current password'), {
+        target: { value: 'oldpassword' },
+      })
       fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'password123' } })
-      fireEvent.change(screen.getByLabelText('Confirm new password'), { target: { value: 'password124' } })
+      fireEvent.change(screen.getByLabelText('Confirm new password'), {
+        target: { value: 'password124' },
+      })
     })
     await act(async () => {
       fireEvent.submit(container.querySelector('form') as HTMLFormElement)
@@ -672,9 +686,13 @@ describe('LoginPage signed in', () => {
   it('changes the password', async () => {
     const { container } = renderLogin('/login')
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Current password'), { target: { value: 'oldpassword' } })
+      fireEvent.change(screen.getByLabelText('Current password'), {
+        target: { value: 'oldpassword' },
+      })
       fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'password123' } })
-      fireEvent.change(screen.getByLabelText('Confirm new password'), { target: { value: 'password123' } })
+      fireEvent.change(screen.getByLabelText('Confirm new password'), {
+        target: { value: 'password123' },
+      })
     })
     await act(async () => {
       fireEvent.submit(container.querySelector('form') as HTMLFormElement)
@@ -683,12 +701,18 @@ describe('LoginPage signed in', () => {
   })
 
   it('reports a password change the server refused', async () => {
-    installFetchMock([{ url: '/api/auth/me', method: 'PATCH', body: { ok: false, error: 'Wrong password' } }])
+    installFetchMock([
+      { url: '/api/auth/me', method: 'PATCH', body: { ok: false, error: 'Wrong password' } },
+    ])
     const { container } = renderLogin('/login')
     await act(async () => {
-      fireEvent.change(screen.getByLabelText('Current password'), { target: { value: 'oldpassword' } })
+      fireEvent.change(screen.getByLabelText('Current password'), {
+        target: { value: 'oldpassword' },
+      })
       fireEvent.change(screen.getByLabelText('New password'), { target: { value: 'password123' } })
-      fireEvent.change(screen.getByLabelText('Confirm new password'), { target: { value: 'password123' } })
+      fireEvent.change(screen.getByLabelText('Confirm new password'), {
+        target: { value: 'password123' },
+      })
     })
     await act(async () => {
       fireEvent.submit(container.querySelector('form') as HTMLFormElement)

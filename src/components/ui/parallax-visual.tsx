@@ -37,7 +37,8 @@ export function ParallaxVisual({
     /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+      return
 
     let raf = 0
     let tx = 0
@@ -68,7 +69,8 @@ export function ParallaxVisual({
       if (Math.abs(tx - cx) < 0.01 && Math.abs(ty - cy) < 0.01) {
         cx = tx
         cy = ty
-        el.style.transform = cx === 0 && cy === 0 ? '' : `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`
+        el.style.transform =
+          cx === 0 && cy === 0 ? '' : `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`
         raf = 0
         return
       }

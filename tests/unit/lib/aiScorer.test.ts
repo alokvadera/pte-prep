@@ -98,9 +98,7 @@ describe('validateGroqKey', () => {
 
 describe('computeAiRawScore', () => {
   it('sums the speaking traits the rubric declares', () => {
-    expect(
-      computeAiRawScore({ content: 3, pronunciation: 5, oralFluency: 5 }, 'speaking'),
-    ).toBe(13)
+    expect(computeAiRawScore({ content: 3, pronunciation: 5, oralFluency: 5 }, 'speaking')).toBe(13)
   })
 
   it('sums the essay traits the rubric declares', () => {
@@ -113,15 +111,11 @@ describe('computeAiRawScore', () => {
   })
 
   it('sums the listen-and-summarise traits the rubric declares', () => {
-    expect(
-      computeAiRawScore({ content: 2, grammar: 2, vocabulary: 2, spelling: 2 }, 'sst'),
-    ).toBe(8)
+    expect(computeAiRawScore({ content: 2, grammar: 2, vocabulary: 2, spelling: 2 }, 'sst')).toBe(8)
   })
 
   it('sums the summarise-and-write traits the rubric declares', () => {
-    expect(
-      computeAiRawScore({ content: 2, form: 1, grammar: 2, vocabulary: 2 }, 'swt'),
-    ).toBe(7)
+    expect(computeAiRawScore({ content: 2, form: 1, grammar: 2, vocabulary: 2 }, 'swt')).toBe(7)
   })
 
   it('ignores traits the rubric does not declare', () => {
@@ -362,7 +356,10 @@ describe('evaluateWithAi', () => {
 
   it('returns null when Groq answers with an error status', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-    vi.stubGlobal('fetch', vi.fn(async () => jsonResponse({ error: 'rate limited' }, 429)))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => jsonResponse({ error: 'rate limited' }, 429)),
+    )
     await expect(
       evaluateWithAi({ id: 'error-status', type: 'write-essay' }, 'ref', 'text', 'gsk_live'),
     ).resolves.toBeNull()
@@ -428,7 +425,11 @@ describe('evaluateWithAi', () => {
 
   it('records a request that reported no token usage at all', async () => {
     installFetchMock([
-      { url: CHAT_URL, method: 'POST', body: completion(traitsJson({ content: 3 }), { usage: undefined }) },
+      {
+        url: CHAT_URL,
+        method: 'POST',
+        body: completion(traitsJson({ content: 3 }), { usage: undefined }),
+      },
     ])
     await evaluateWithAi({ id: 'no-usage', type: 'write-essay' }, 'ref', 'text', 'gsk_live')
     const usage = useSettings.getState().settings.aiUsage
@@ -609,9 +610,7 @@ describe('evaluateWithAi', () => {
   })
 
   it('copes with an answer that carries no traits and no feedback', async () => {
-    installFetchMock([
-      { url: CHAT_URL, method: 'POST', body: completion('{}') },
-    ])
+    installFetchMock([{ url: CHAT_URL, method: 'POST', body: completion('{}') }])
     const result = await evaluateWithAi(
       { id: 'bare-answer', type: 'write-essay' },
       'ref',
@@ -811,9 +810,7 @@ describe('transcribeWithWhisper', () => {
   })
 
   it('records the seconds it transcribed', async () => {
-    installFetchMock([
-      { url: TRANSCRIBE_URL, method: 'POST', body: { text: 'hi', duration: 4 } },
-    ])
+    installFetchMock([{ url: TRANSCRIBE_URL, method: 'POST', body: { text: 'hi', duration: 4 } }])
     const blob = new Blob([new Uint8Array(16)], { type: 'audio/webm' })
     await transcribeWithWhisper(blob, 'gsk_live')
     const usage = useSettings.getState().settings.aiUsage
@@ -828,9 +825,7 @@ describe('transcribeWithWhisper', () => {
         throw new Error('metrics storage is full')
       },
     })
-    installFetchMock([
-      { url: TRANSCRIBE_URL, method: 'POST', body: { text: 'hi', duration: 2 } },
-    ])
+    installFetchMock([{ url: TRANSCRIBE_URL, method: 'POST', body: { text: 'hi', duration: 2 } }])
     const blob = new Blob([new Uint8Array(16)], { type: 'audio/webm' })
     const result = await transcribeWithWhisper(blob, 'gsk_live')
     useSettings.setState({ recordAiUsage: original })

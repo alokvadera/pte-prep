@@ -1,7 +1,24 @@
 import { makeRng } from '../lib/random'
 import { contentWords } from '../lib/text'
-import { ASQ_RECORDINGS, CONVERSATIONS, DICTATION, HIGHLIGHT_INCORRECT, HIGHLIGHT_SUMMARY, LISTENING_FIB, LISTENING_MCQ_MULTI, LISTENING_MCQ_SINGLE, MISSING_WORD, SITUATIONS } from './listening'
-import { GROUP_DISCUSSIONS, GROUP_DISCUSSION_ITEMS, LECTURES, RETELL_ITEMS, SPOKEN_SUMMARY_ITEMS } from './audio'
+import {
+  ASQ_RECORDINGS,
+  CONVERSATIONS,
+  DICTATION,
+  HIGHLIGHT_INCORRECT,
+  HIGHLIGHT_SUMMARY,
+  LISTENING_FIB,
+  LISTENING_MCQ_MULTI,
+  LISTENING_MCQ_SINGLE,
+  MISSING_WORD,
+  SITUATIONS,
+} from './listening'
+import {
+  GROUP_DISCUSSIONS,
+  GROUP_DISCUSSION_ITEMS,
+  LECTURES,
+  RETELL_ITEMS,
+  SPOKEN_SUMMARY_ITEMS,
+} from './audio'
 import { CHARTS } from './charts'
 import { PASSAGES } from './passages'
 import { EXTRA_ESSAY_PROMPTS } from './essayExtra'
@@ -46,7 +63,10 @@ export const REPEAT_SENTENCES = buildRepeatPool()
  * long practice run does not recycle the same six texts.
  */
 function buildReadAloudPool(): { id: string; text: string }[] {
-  const pool: { id: string; text: string }[] = PASSAGES.map((p) => ({ id: `${p.id}-authored`, text: p.readAloud }))
+  const pool: { id: string; text: string }[] = PASSAGES.map((p) => ({
+    id: `${p.id}-authored`,
+    text: p.readAloud,
+  }))
 
   const chunk = (paragraph: string): string[] => {
     const sentences = paragraph.split(/(?<=[.!?])\s+/).filter((s) => s.trim().length > 0)
@@ -145,7 +165,9 @@ export const AUDIO_INDEX: Map<string, AudioScript> = new Map(
 
 export const PASSAGE_INDEX: Map<string, Passage> = new Map(PASSAGES.map((p) => [p.id, p]))
 
-export const CHART_INDEX: Map<string, (typeof CHARTS)[number]> = new Map(CHARTS.map((c) => [c.id, c]))
+export const CHART_INDEX: Map<string, (typeof CHARTS)[number]> = new Map(
+  CHARTS.map((c) => [c.id, c]),
+)
 
 /** Total number of distinct items the bank can produce before shuffling. */
 export function bankCapacity(): number {
@@ -220,7 +242,16 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'page-urban-heat',
     question:
       'The passage "Cities as Heat Islands" argues that a city that wished to reduce its heat island would begin by inventorying the surfaces it already has. Do you agree or disagree?',
-    keyTerms: ['surfaces', 'inventory', 'heat', 'shade', 'planning', 'policy', 'evidence', 'cities'],
+    keyTerms: [
+      'surfaces',
+      'inventory',
+      'heat',
+      'shade',
+      'planning',
+      'policy',
+      'evidence',
+      'cities',
+    ],
     minWords: 200,
     maxWords: 300,
   },
@@ -230,7 +261,16 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'page-machine-translation',
     question:
       'Machine translation has improved rapidly, yet professional translators are still widely employed. Do the advantages of machine translation outweigh the need for human translators? Support your argument with relevant examples.',
-    keyTerms: ['translation', 'systems', 'domain', 'review', 'fluency', 'accuracy', 'data', 'language'],
+    keyTerms: [
+      'translation',
+      'systems',
+      'domain',
+      'review',
+      'fluency',
+      'accuracy',
+      'data',
+      'language',
+    ],
     minWords: 200,
     maxWords: 300,
   },
@@ -240,7 +280,15 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'page-attention-economy',
     question:
       'The passage "The Economics of Attention" suggests that where an alternative design exists and is not the default, the burden of proof belongs to the design that captures the most attention. Do you agree or disagree? Support your argument with relevant examples.',
-    keyTerms: ['attention', 'design', 'default', 'incentive', 'users', 'evidence', 'responsibility'],
+    keyTerms: [
+      'attention',
+      'design',
+      'default',
+      'incentive',
+      'users',
+      'evidence',
+      'responsibility',
+    ],
     minWords: 200,
     maxWords: 300,
   },
@@ -250,7 +298,16 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'page-glacier-retreat',
     question:
       'The passage "The Slow Collapse of a Glacier" states that the difficulty for planners is not that the science is absent but that it describes a distribution of futures. Discuss.',
-    keyTerms: ['glacier', 'planning', 'uncertainty', 'decisions', 'rate', 'feedback', 'infrastructure', 'risk'],
+    keyTerms: [
+      'glacier',
+      'planning',
+      'uncertainty',
+      'decisions',
+      'rate',
+      'feedback',
+      'infrastructure',
+      'risk',
+    ],
     minWords: 200,
     maxWords: 300,
   },
@@ -260,7 +317,16 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'Many universities have moved examinations online.',
     question:
       'Some people think that moving university examinations online has had a positive effect on academic standards. To what extent do you agree or disagree?',
-    keyTerms: ['examinations', 'online', 'standards', 'integrity', 'universities', 'students', 'assessment', 'change'],
+    keyTerms: [
+      'examinations',
+      'online',
+      'standards',
+      'integrity',
+      'universities',
+      'students',
+      'assessment',
+      'change',
+    ],
     minWords: 200,
     maxWords: 300,
   },
@@ -270,7 +336,16 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'City transport funding.',
     question:
       'The best way to reduce traffic in city centres is to make public transport free. Do you agree or disagree?',
-    keyTerms: ['traffic', 'transport', 'funding', 'city', 'free', 'investment', 'policy', 'drivers'],
+    keyTerms: [
+      'traffic',
+      'transport',
+      'funding',
+      'city',
+      'free',
+      'investment',
+      'policy',
+      'drivers',
+    ],
     minWords: 200,
     maxWords: 300,
   },
@@ -280,7 +355,16 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'A panel of practising psychologists.',
     question:
       'Technology has made learning easier, but it has also made it harder to concentrate. Do you agree or disagree?',
-    keyTerms: ['technology', 'learning', 'concentration', 'attention', 'evidence', 'students', 'change', 'habits'],
+    keyTerms: [
+      'technology',
+      'learning',
+      'concentration',
+      'attention',
+      'evidence',
+      'students',
+      'change',
+      'habits',
+    ],
     minWords: 200,
     maxWords: 300,
   },
@@ -290,7 +374,16 @@ export const ESSAY_PROMPTS: EssayPrompt[] = [
     stimulus: 'Global food supply chains.',
     question:
       'Global food supply chains are the only realistic way to feed a growing population. Do you agree or disagree?',
-    keyTerms: ['supply chains', 'food', 'population', 'trade', 'resilience', 'environment', 'policy', 'agriculture'],
+    keyTerms: [
+      'supply chains',
+      'food',
+      'population',
+      'trade',
+      'resilience',
+      'environment',
+      'policy',
+      'agriculture',
+    ],
     minWords: 200,
     maxWords: 300,
   },

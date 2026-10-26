@@ -15,7 +15,9 @@ describe('content bank', () => {
   })
 
   it('holds enough repeat sentences for a full mock', () => {
-    expect(capacity['repeat-sentence'] ?? 0).toBeGreaterThanOrEqual(MOCK_BLUEPRINT['repeat-sentence'])
+    expect(capacity['repeat-sentence'] ?? 0).toBeGreaterThanOrEqual(
+      MOCK_BLUEPRINT['repeat-sentence'],
+    )
   })
 
   it('holds enough read-aloud passages for a full mock', () => {

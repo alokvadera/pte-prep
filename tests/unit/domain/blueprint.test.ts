@@ -58,19 +58,27 @@ describe('question metadata', () => {
   })
 
   it('gives every type a section that exists', () => {
-    expect(ALL_QUESTION_TYPES.every((type) => SECTION_IDS.includes(QUESTION_META[type].section))).toBe(true)
+    expect(
+      ALL_QUESTION_TYPES.every((type) => SECTION_IDS.includes(QUESTION_META[type].section)),
+    ).toBe(true)
   })
 
   it('publishes a count range for every type', () => {
     expect(
       ALL_QUESTION_TYPES.every(
-        (type) => QUESTION_META[type].count.min > 0 && QUESTION_META[type].count.max >= QUESTION_META[type].count.min,
+        (type) =>
+          QUESTION_META[type].count.min > 0 &&
+          QUESTION_META[type].count.max >= QUESTION_META[type].count.min,
       ),
     ).toBe(true)
   })
 
   it('gives every type a label and a short form', () => {
-    expect(ALL_QUESTION_TYPES.every((type) => QUESTION_META[type].label.length > 0 && QUESTION_META[type].short.length > 0)).toBe(true)
+    expect(
+      ALL_QUESTION_TYPES.every(
+        (type) => QUESTION_META[type].label.length > 0 && QUESTION_META[type].short.length > 0,
+      ),
+    ).toBe(true)
   })
 
   it('gives every type a tip', () => {
@@ -98,7 +106,9 @@ describe('negative marking', () => {
   })
 
   it('marks nothing else', () => {
-    const negated = ALL_QUESTION_TYPES.filter((type) => QUESTION_META[type].scoring === 'per-unit-negated')
+    const negated = ALL_QUESTION_TYPES.filter(
+      (type) => QUESTION_META[type].scoring === 'per-unit-negated',
+    )
     expect([...negated].sort()).toEqual([...NEGATIVE_MARKING_TYPES].sort())
   })
 })
@@ -113,16 +123,27 @@ describe('section metadata', () => {
   })
 
   it('gives every section a clock range', () => {
-    expect(SECTION_IDS.every((id) => SECTION_META[id].minSeconds > 0 && SECTION_META[id].maxSeconds > SECTION_META[id].minSeconds)).toBe(true)
+    expect(
+      SECTION_IDS.every(
+        (id) =>
+          SECTION_META[id].minSeconds > 0 &&
+          SECTION_META[id].maxSeconds > SECTION_META[id].minSeconds,
+      ),
+    ).toBe(true)
   })
 
   it('gives every section a skill and a blurb', () => {
-    expect(SECTION_IDS.every((id) => SECTION_META[id].skill.length > 0 && SECTION_META[id].blurb.length > 20)).toBe(true)
+    expect(
+      SECTION_IDS.every(
+        (id) => SECTION_META[id].skill.length > 0 && SECTION_META[id].blurb.length > 20,
+      ),
+    ).toBe(true)
   })
 
   it('puts every type in exactly one section', () => {
     const counts: Record<string, number> = {}
-    for (const type of ALL_QUESTION_TYPES) counts[QUESTION_META[type].section] = (counts[QUESTION_META[type].section] ?? 0) + 1
+    for (const type of ALL_QUESTION_TYPES)
+      counts[QUESTION_META[type].section] = (counts[QUESTION_META[type].section] ?? 0) + 1
     expect(counts['speaking-writing']).toBe(9)
     expect(counts['reading']).toBe(5)
     expect(counts['listening']).toBe(8)
@@ -211,15 +232,21 @@ describe('mock preview', () => {
   })
 
   it('scales the clock with the timing multiplier', () => {
-    expect(describeMockPreview(MOCK_BLUEPRINT, { timeScale: 2 }).totalSeconds).toBe(full.totalSeconds * 2)
+    expect(describeMockPreview(MOCK_BLUEPRINT, { timeScale: 2 }).totalSeconds).toBe(
+      full.totalSeconds * 2,
+    )
   })
 
   it('ignores the timing multiplier when the run is untimed', () => {
-    expect(describeMockPreview(MOCK_BLUEPRINT, { untimed: true }).totalSeconds).toBe(full.totalSeconds)
+    expect(describeMockPreview(MOCK_BLUEPRINT, { untimed: true }).totalSeconds).toBe(
+      full.totalSeconds,
+    )
   })
 
   it('ignores the timing multiplier entirely when the run is untimed', () => {
-    expect(describeMockPreview(MOCK_BLUEPRINT, { untimed: true, timeScale: 2 }).totalSeconds).toBe(full.totalSeconds)
+    expect(describeMockPreview(MOCK_BLUEPRINT, { untimed: true, timeScale: 2 }).totalSeconds).toBe(
+      full.totalSeconds,
+    )
   })
 
   it('restricts a section preview to that section', () => {

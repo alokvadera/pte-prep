@@ -124,7 +124,11 @@ describe('ScrollProgress', () => {
   })
 
   it('reads nothing when the page does not scroll', () => {
-    Object.defineProperty(document.documentElement, 'scrollHeight', { configurable: true, writable: true, value: 1000 })
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      configurable: true,
+      writable: true,
+      value: 1000,
+    })
     renderWithProviders(<ScrollProgress />)
     act(() => {
       Object.defineProperty(window, 'scrollY', { configurable: true, writable: true, value: 500 })
@@ -364,24 +368,35 @@ describe('ProgressDots', () => {
 
   it('renders a button for every section', () => {
     renderRail()
-    expect(screen.getByRole('button', { name: 'Jump to section 1: Introduction' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Jump to section 1: Introduction' }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Jump to section 3: The end' })).toBeInTheDocument()
   })
 
   it('starts on the first section', () => {
     renderRail()
-    expect(screen.getByRole('button', { name: 'Jump to section 1: Introduction' })).toHaveAttribute('aria-current', 'true')
-    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).not.toHaveAttribute('aria-current')
+    expect(screen.getByRole('button', { name: 'Jump to section 1: Introduction' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
+    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).not.toHaveAttribute(
+      'aria-current',
+    )
   })
 
   it('shows the section index as a two-digit number', () => {
     renderRail()
-    expect(screen.getByRole('navigation', { name: 'Page section navigation' }).textContent).toContain('01')
+    expect(
+      screen.getByRole('navigation', { name: 'Page section navigation' }).textContent,
+    ).toContain('01')
   })
 
   it('shows the scroll percentage', () => {
     renderRail()
-    expect(screen.getByRole('navigation', { name: 'Page section navigation' }).textContent).toContain('0%')
+    expect(
+      screen.getByRole('navigation', { name: 'Page section navigation' }).textContent,
+    ).toContain('0%')
   })
 
   it('stays on the first section near the top', () => {
@@ -391,7 +406,10 @@ describe('ProgressDots', () => {
       window.dispatchEvent(new Event('scroll'))
     })
     act(() => frames.flush())
-    expect(screen.getByRole('button', { name: 'Jump to section 1: Introduction' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Jump to section 1: Introduction' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
   })
 
   it('moves to the last section at the bottom of the page', () => {
@@ -401,7 +419,10 @@ describe('ProgressDots', () => {
       window.dispatchEvent(new Event('scroll'))
     })
     act(() => frames.flush())
-    expect(screen.getByRole('button', { name: 'Jump to section 3: The end' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Jump to section 3: The end' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
   })
 
   it('follows the section the reader is looking at', () => {
@@ -414,7 +435,10 @@ describe('ProgressDots', () => {
       window.dispatchEvent(new Event('scroll'))
     })
     act(() => frames.flush())
-    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
   })
 
   it('keeps the last section passed when the reader is between sections', () => {
@@ -428,7 +452,10 @@ describe('ProgressDots', () => {
     })
     act(() => frames.flush())
     // The reader is past the introduction and the body, but not yet at the end.
-    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
   })
 
   it('skips a section that is not on the page', () => {
@@ -444,7 +471,10 @@ describe('ProgressDots', () => {
       window.dispatchEvent(new Event('scroll'))
     })
     act(() => frames.flush())
-    expect(screen.getByRole('button', { name: 'Jump to section 3: The body' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Jump to section 3: The body' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
   })
 
   it('ignores a second scroll while a frame is pending', () => {
@@ -456,7 +486,10 @@ describe('ProgressDots', () => {
     })
     act(() => frames.flush())
     // One frame ran, not two, and it moved the rail to the last section.
-    expect(screen.getByRole('button', { name: 'Jump to section 3: The end' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Jump to section 3: The end' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
   })
 
   it('renders an empty rail without sections', () => {
@@ -486,16 +519,23 @@ describe('ProgressDots', () => {
   })
 
   it('scrolls to a section when its button is clicked', () => {
-    const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
+    const scrollIntoView = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(() => {})
     renderRail()
     placeSection('body', 400, 800)
     fireEvent.click(screen.getByRole('button', { name: 'Jump to section 2: The body' }))
     expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' })
-    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).toHaveAttribute('aria-current', 'true')
+    expect(screen.getByRole('button', { name: 'Jump to section 2: The body' })).toHaveAttribute(
+      'aria-current',
+      'true',
+    )
   })
 
   it('does nothing when the section is not on the page', () => {
-    const scrollIntoView = vi.spyOn(Element.prototype, 'scrollIntoView').mockImplementation(() => {})
+    const scrollIntoView = vi
+      .spyOn(Element.prototype, 'scrollIntoView')
+      .mockImplementation(() => {})
     renderRail([{ id: 'ghost', label: 'Nowhere' }])
     fireEvent.click(screen.getByRole('button', { name: 'Jump to section 1: Nowhere' }))
     expect(scrollIntoView).not.toHaveBeenCalled()
@@ -550,7 +590,9 @@ describe('ScrollVelocity', () => {
     const { container } = renderWithProviders(<ScrollVelocity items={['one']} />)
     act(() => flushIntersections())
     act(() => frames.flush())
-    expect(container.querySelector('.marquee-track')).not.toHaveStyle({ transform: 'translateX(0px)' })
+    expect(container.querySelector('.marquee-track')).not.toHaveStyle({
+      transform: 'translateX(0px)',
+    })
     setMedia('(prefers-reduced-motion: reduce)', false)
   })
 

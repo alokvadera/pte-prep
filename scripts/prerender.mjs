@@ -91,10 +91,34 @@ const ROUTES = [
   { path: '/guide/', file: 'guide/index.html', priority: '0.8', changefreq: 'monthly' },
   { path: '/about/', file: 'about/index.html', priority: '0.5', changefreq: 'yearly' },
   { path: '/privacy/', file: 'privacy/index.html', priority: '0.4', changefreq: 'yearly' },
-  { path: '/dashboard/', file: 'dashboard/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
-  { path: '/login/', file: 'login/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
-  { path: '/register/', file: 'register/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
-  { path: '/ui-elements/', file: 'ui-elements/index.html', priority: '0.0', changefreq: 'yearly', noindex: true },
+  {
+    path: '/dashboard/',
+    file: 'dashboard/index.html',
+    priority: '0.0',
+    changefreq: 'yearly',
+    noindex: true,
+  },
+  {
+    path: '/login/',
+    file: 'login/index.html',
+    priority: '0.0',
+    changefreq: 'yearly',
+    noindex: true,
+  },
+  {
+    path: '/register/',
+    file: 'register/index.html',
+    priority: '0.0',
+    changefreq: 'yearly',
+    noindex: true,
+  },
+  {
+    path: '/ui-elements/',
+    file: 'ui-elements/index.html',
+    priority: '0.0',
+    changefreq: 'yearly',
+    noindex: true,
+  },
 ]
 
 // The per-question-type hub and spokes. The slug list mirrors the keys in
@@ -146,13 +170,20 @@ const extraInPrerender = QUESTION_TYPE_SLUGS.filter((s) => !sourceSet.has(s))
 if (missingInPrerender.length > 0 || extraInPrerender.length > 0) {
   throw new Error(
     `Question-type slugs in prerender.mjs drifted from src/content/questionTypeDetail.ts.\n` +
-      (missingInPrerender.length ? `Missing in prerender: ${missingInPrerender.join(', ')}\n` : '') +
+      (missingInPrerender.length
+        ? `Missing in prerender: ${missingInPrerender.join(', ')}\n`
+        : '') +
       (extraInPrerender.length ? `Extra in prerender: ${extraInPrerender.join(', ')}\n` : ''),
   )
 }
 
 ROUTES.push(
-  { path: '/question-types/', file: 'question-types/index.html', priority: '0.8', changefreq: 'monthly' },
+  {
+    path: '/question-types/',
+    file: 'question-types/index.html',
+    priority: '0.8',
+    changefreq: 'monthly',
+  },
   ...QUESTION_TYPE_SLUGS.map((slug) => ({
     path: `/question-types/${slug}/`,
     file: `question-types/${slug}/index.html`,
@@ -201,7 +232,10 @@ function buildPage(template, { html, head, canonical, noindex, hydrate = true })
 
   const tags = [headTags]
   if (noindex) tags.push('<meta name="robots" content="noindex, nofollow" />')
-  else tags.push('<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />')
+  else
+    tags.push(
+      '<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />',
+    )
   // A single canonical is emitted; the registry's version is relative when the
   // origin is unknown at build time, so it is rewritten to an absolute URL.
   // Shells and the 404 pass null: they are noindex and must not offer crawlers
@@ -217,7 +251,10 @@ function buildPage(template, { html, head, canonical, noindex, hydrate = true })
   const marker = hydrate ? ' data-hydrate="true"' : ''
   if (html) {
     out = out.replace(/<div id="root"><\/div>/, `<div id="root"${marker}>${html}</div>`)
-    out = out.replace(/<div id="root" data-hydrate="true"><\/div>/, `<div id="root"${marker}>${html}</div>`)
+    out = out.replace(
+      /<div id="root" data-hydrate="true"><\/div>/,
+      `<div id="root"${marker}>${html}</div>`,
+    )
   }
 
   return out
@@ -254,7 +291,9 @@ async function main() {
       const kb = (Buffer.byteLength(html) / 1024).toFixed(0)
       const inner = (Buffer.byteLength(page.html) / 1024).toFixed(0)
       const ld = page.structuredData.length
-      console.log(`  \u2713 ${route.path.padEnd(12)} ${route.file.padEnd(22)} ${kb} kB (${inner} kB markup, ${ld} JSON-LD)`)
+      console.log(
+        `  \u2713 ${route.path.padEnd(12)} ${route.file.padEnd(22)} ${kb} kB (${inner} kB markup, ${ld} JSON-LD)`,
+      )
     } catch (err) {
       console.error(`  \u2717 Failed to prerender ${route.path}:`, err)
       routeErrors.push({ path: route.path, error: err })
@@ -287,7 +326,9 @@ async function main() {
   console.log(`  ✓ sitemap.xml   ${ROUTES.filter((r) => !r.noindex).length} indexable URLs`)
 
   // --- robots.txt --------------------------------------------------------
-  const sitemapLine = ORIGIN ? `Sitemap: ${ORIGIN}/sitemap.xml` : '# Set SITE_ORIGIN at build time to emit an absolute Sitemap line.'
+  const sitemapLine = ORIGIN
+    ? `Sitemap: ${ORIGIN}/sitemap.xml`
+    : '# Set SITE_ORIGIN at build time to emit an absolute Sitemap line.'
   await writeFile(
     path.join(DIST, 'robots.txt'),
     `User-agent: *
@@ -326,9 +367,24 @@ ${sitemapLine}
   // document here used to make the client hydrate against the wrong markup and
   // flash the wrong title — these shells fix reloads, deep links and offline.
   for (const shell of [
-    { path: '/test/', file: 'test/index.html', title: 'Sit a mock test — PTE Prep', h1: 'Sit a PTE Academic mock test' },
-    { path: '/result/', file: 'result/index.html', title: 'Your mock score — PTE Prep', h1: 'Your PTE Academic mock score' },
-    { path: '/reset-password/', file: 'reset-password/index.html', title: 'Reset Your PTE Prep Password', h1: 'Reset your PTE Prep password' },
+    {
+      path: '/test/',
+      file: 'test/index.html',
+      title: 'Sit a mock test — PTE Prep',
+      h1: 'Sit a PTE Academic mock test',
+    },
+    {
+      path: '/result/',
+      file: 'result/index.html',
+      title: 'Your mock score — PTE Prep',
+      h1: 'Your PTE Academic mock score',
+    },
+    {
+      path: '/reset-password/',
+      file: 'reset-password/index.html',
+      title: 'Reset Your PTE Prep Password',
+      h1: 'Reset your PTE Prep password',
+    },
   ]) {
     try {
       const shellHtml = buildPage(template, {
@@ -404,7 +460,8 @@ ${sitemapLine}
         .replace('],{})', '],{directoryIndex:"index.html",ignoreURLParametersMatching:[/.*/]})')
       // A silent no-op here would stop every directory URL being precached
       // offline, with nothing to show that it had happened.
-      if (sw === beforeRewrite) throw new Error('sw.js precache entries or options anchor not found')
+      if (sw === beforeRewrite)
+        throw new Error('sw.js precache entries or options anchor not found')
       await writeFile(swFile, sw, 'utf8')
       console.log(`  ✓ sw.js precaches ${entries.length} documents`)
     }
@@ -423,7 +480,9 @@ ${sitemapLine}
   console.log(`\n  Prerendered ${written} routes into dist/`)
   if (!process.env.SITE_ORIGIN && !process.env.VITE_SITE_ORIGIN) {
     console.log(`  Note: SITE_ORIGIN was not set, defaulted to ${FALLBACK_ORIGIN}.`)
-    console.log('        Set SITE_ORIGIN=https://your-domain to emit absolute URLs for a custom domain.\n')
+    console.log(
+      '        Set SITE_ORIGIN=https://your-domain to emit absolute URLs for a custom domain.\n',
+    )
   } else {
     console.log(`  Origin: ${ORIGIN}\n`)
   }

@@ -26,7 +26,14 @@ export const EXTRA_LECTURES_6: AudioScript[] = [
         text: 'These coupled dynamics imply that planetary boundaries cannot be evaluated in isolation. A risk threshold that appears safe when assessing a single component becomes untenable once trans-system cascades are accounted for. The fundamental challenge for planetary policy is not merely determining where the tipping thresholds lie, but acknowledging that we may cross the commitment point decades before the catastrophic physical transition becomes visually apparent. Thank you.',
       },
     ],
-    keyTerms: ['linear assumptions', 'tipping elements', 'ice sheet instability', 'cascading interactions', 'albedo', 'planetary boundaries'],
+    keyTerms: [
+      'linear assumptions',
+      'tipping elements',
+      'ice sheet instability',
+      'cascading interactions',
+      'albedo',
+      'planetary boundaries',
+    ],
   },
   {
     id: 'lec-quantum-computing',
@@ -53,7 +60,14 @@ export const EXTRA_LECTURES_6: AudioScript[] = [
         text: 'The solution is topological code architecture, such as the surface code, which entangles hundreds or thousands of noisy physical qubits to encode a single, fault-tolerant logical qubit. Until the ratio of physical qubits to logical qubits drops by orders of magnitude, useful fault-tolerant quantum computation remains a formidable materials science endeavor rather than a mere scaling exercise. Thank you.',
       },
     ],
-    keyTerms: ['superposition', 'qubits', 'environmental decoherence', 'quantum error correction', 'no-cloning theorem', 'logical qubit'],
+    keyTerms: [
+      'superposition',
+      'qubits',
+      'environmental decoherence',
+      'quantum error correction',
+      'no-cloning theorem',
+      'logical qubit',
+    ],
   },
   {
     id: 'lec-linguistic-diversity',
@@ -80,7 +94,14 @@ export const EXTRA_LECTURES_6: AudioScript[] = [
         text: 'Linguistic revitalization is therefore not an exercise in sentimental antiquarianism; it is an urgent defense of human cognitive and environmental heritage. When communities record oral corpora, revitalize intergenerational transmission, and digitize ancestral grammars, they preserve alternative ways of conceptualizing human existence within a fragile biosphere. Thank you.',
       },
     ],
-    keyTerms: ['linguistic attrition', 'ethnobotanical knowledge', 'evidential morphology', 'epistemic verification', 'revitalization', 'cognitive heritage'],
+    keyTerms: [
+      'linguistic attrition',
+      'ethnobotanical knowledge',
+      'evidential morphology',
+      'epistemic verification',
+      'revitalization',
+      'cognitive heritage',
+    ],
   },
 ]
 
@@ -94,7 +115,7 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
     speakers: [
       { id: 'a', name: 'Chair', role: 'Moderator', voiceHint: 'mid' },
       { id: 'b', name: 'Dr Solano', role: 'Astrophysicist', voiceHint: 'mid-high' },
-      { id: 'c', name: 'Mr O\'Connor', role: 'Public economist', voiceHint: 'low' },
+      { id: 'c', name: "Mr O'Connor", role: 'Public economist', voiceHint: 'low' },
       { id: 'd', name: 'Ms Lindqvist', role: 'Climate activist', voiceHint: 'high' },
     ],
     turns: [
@@ -123,7 +144,14 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
         text: 'We are not opposing pure astrophysics or satellite monitoring; we are challenging vanity crewed exploration budgets that consume billions for geopolitical prestige while vulnerable human populations face unprecedented heat and drought crises today.',
       },
     ],
-    keyTerms: ['space exploration', 'satellite monitoring', 'terrestrial sustainability', 'opportunity costs', 'narrative escapism', 'allocation of capital'],
+    keyTerms: [
+      'space exploration',
+      'satellite monitoring',
+      'terrestrial sustainability',
+      'opportunity costs',
+      'narrative escapism',
+      'allocation of capital',
+    ],
   },
   {
     id: 'gd-renewable-subsidies',
@@ -163,7 +191,14 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
         text: 'Contracts for difference work well, provided they incorporate locational marginal pricing and storage incentives so that intermittent generation does not overwhelm transmission bottlenecks.',
       },
     ],
-    keyTerms: ['feed-in tariffs', 'grid demand', 'curtailment', 'contracts for difference', 'financing certainty', 'consumer surcharges'],
+    keyTerms: [
+      'feed-in tariffs',
+      'grid demand',
+      'curtailment',
+      'contracts for difference',
+      'financing certainty',
+      'consumer surcharges',
+    ],
   },
   {
     id: 'gd-remote-education',
@@ -203,7 +238,14 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
         text: 'Then the solution is hybrid flexibility and better structured asynchronous mentorship, not abandoning remote degrees altogether and forcing everyone back into the nineteenth-century lecture hall.',
       },
     ],
-    keyTerms: ['remote education', 'pedagogical soundness', 'accessibility', 'retention rates', 'relational learning', 'asynchronous delivery'],
+    keyTerms: [
+      'remote education',
+      'pedagogical soundness',
+      'accessibility',
+      'retention rates',
+      'relational learning',
+      'asynchronous delivery',
+    ],
   },
 ]
 
@@ -211,28 +253,68 @@ export const EXTRA_RETELL_ITEMS_6: RetellItem[] = [
   {
     id: 'rtl-climate-tipping',
     audioId: 'lec-climate-tipping',
-    skeleton: ['linear assumptions vs tipping elements', 'West Antarctic ice sheet instability', 'cascading interactions between arctic and amazon', 'planetary boundaries cannot be isolated'],
+    skeleton: [
+      'linear assumptions vs tipping elements',
+      'West Antarctic ice sheet instability',
+      'cascading interactions between arctic and amazon',
+      'planetary boundaries cannot be isolated',
+    ],
     reference:
       'Climate change operates through non-linear feedback loops known as tipping elements rather than simple linear trends. A qualitative shift in one component, such as West Antarctic ice sheet instability, can become self-sustaining. Furthermore, tipping elements cascade: Arctic sea ice loss accelerates Greenland melting, slowing the Atlantic circulation and triggering Amazon drought. Planetary boundaries cannot be evaluated in isolation.',
-    keyTerms: ['linear', 'tipping elements', 'feedback loops', 'ice sheet', 'cascade', 'cascading', 'boundaries'],
+    keyTerms: [
+      'linear',
+      'tipping elements',
+      'feedback loops',
+      'ice sheet',
+      'cascade',
+      'cascading',
+      'boundaries',
+    ],
     minWords: 30,
   },
   {
     id: 'rtl-quantum-computing',
     audioId: 'lec-quantum-computing',
-    skeleton: ['superposition and qubit power', 'environmental decoherence destroys coherence', 'quantum error correction cannot copy states', 'topological surface code architecture'],
+    skeleton: [
+      'superposition and qubit power',
+      'environmental decoherence destroys coherence',
+      'quantum error correction cannot copy states',
+      'topological surface code architecture',
+    ],
     reference:
       'While quantum superposition enables exponential representation across qubits, quantum states are exceptionally fragile and collapse under environmental decoherence into thermodynamic noise. Because the no-cloning theorem prevents copying quantum states, simple classical redundancy fails. Quantum error correction must implement topological codes that entangle thousands of physical qubits to form a single fault-tolerant logical qubit.',
-    keyTerms: ['superposition', 'qubits', 'decoherence', 'noise', 'no-cloning', 'error correction', 'logical qubit'],
+    keyTerms: [
+      'superposition',
+      'qubits',
+      'decoherence',
+      'noise',
+      'no-cloning',
+      'error correction',
+      'logical qubit',
+    ],
     minWords: 30,
   },
   {
     id: 'rtl-linguistic-diversity',
     audioId: 'lec-linguistic-diversity',
-    skeleton: ['half of world languages dying this century', 'loss of empirical ethnobotanical knowledge', 'evidential morphology and epistemic verification', 'revitalization preserves cognitive diversity'],
+    skeleton: [
+      'half of world languages dying this century',
+      'loss of empirical ethnobotanical knowledge',
+      'evidential morphology and epistemic verification',
+      'revitalization preserves cognitive diversity',
+    ],
     reference:
       'Over half of all human languages are projected to disappear by the end of the century due to state assimilation and digital hegemony. Language death extinguishes unique empirical ethnobotanical and ecological knowledge, as well as distinct cognitive habits like evidential morphology that embed epistemic verification into grammar. Language revitalization preserves irreplaceable human cognitive and environmental heritage.',
-    keyTerms: ['languages', 'disappear', 'ethnobotanical', 'knowledge', 'evidential', 'morphology', 'revitalization', 'heritage'],
+    keyTerms: [
+      'languages',
+      'disappear',
+      'ethnobotanical',
+      'knowledge',
+      'evidential',
+      'morphology',
+      'revitalization',
+      'heritage',
+    ],
     minWords: 30,
   },
 ]
@@ -242,30 +324,51 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_5: GroupDiscussionItem[] = [
     id: 'sgd-space-exploration',
     audioId: 'gd-space-exploration',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel debates public spending on deep space missions versus climate needs. The astrophysicist argues space research invented vital terrestrial climate sensors and robotics, the economist asserts that indirect spin-offs are an inefficient allocation of capital compared to direct green investment, and the activist warns that space exploration promotes dangerous narrative escapism while wasting billions on prestige vanity projects.',
-    keyTerms: ['space missions', 'climate sensors', 'spin-offs', 'allocation of capital', 'escapism', 'prestige'],
+    keyTerms: [
+      'space missions',
+      'climate sensors',
+      'spin-offs',
+      'allocation of capital',
+      'escapism',
+      'prestige',
+    ],
     minWords: 40,
   },
   {
     id: 'sgd-renewable-subsidies',
     audioId: 'gd-renewable-subsidies',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel evaluates whether to phase out feed-in tariffs for mature renewables. The grid engineer argues fixed tariffs encourage overgeneration and grid curtailment, the solar developer contends revenue certainty is essential for project financing, and the consumer economist notes consumer surcharges on bills unfairly transfer wealth to profitable funds. They consider two-sided contracts for difference with storage incentives as a compromise.',
-    keyTerms: ['feed-in tariffs', 'curtailment', 'revenue certainty', 'consumer surcharges', 'contracts for difference', 'storage'],
+    keyTerms: [
+      'feed-in tariffs',
+      'curtailment',
+      'revenue certainty',
+      'consumer surcharges',
+      'contracts for difference',
+      'storage',
+    ],
     minWords: 40,
   },
   {
     id: 'sgd-remote-education',
     audioId: 'gd-remote-education',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel examines the pedagogical soundness of fully remote asynchronous degree programs. The dean notes institutional scalability, the distance learner defends remote study for educational accessibility, and the psychologist highlights low retention rates and the loss of interpersonal accountability on campus. They propose hybrid flexibility and structured mentorship rather than total abandonment.',
-    keyTerms: ['remote degrees', 'asynchronous', 'accessibility', 'retention rates', 'interpersonal accountability', 'mentorship'],
+    keyTerms: [
+      'remote degrees',
+      'asynchronous',
+      'accessibility',
+      'retention rates',
+      'interpersonal accountability',
+      'mentorship',
+    ],
     minWords: 40,
   },
 ]
@@ -278,7 +381,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The lecture explains that antibiotic resistance is an inevitable biological consequence of selection pressure. Bacteria develop resistance through genetic mutations, plasmid horizontal gene transfer, and environmental reservoirs. Because antibiotic discovery has stalled and finite classes of treatment remain, overprescribing imposes severe external costs, requiring strict global stewardship until novel antimicrobial treatments are developed.',
-    keyTerms: ['antibiotic resistance', 'selection pressure', 'mutations', 'horizontal transfer', 'finite classes', 'stewardship'],
+    keyTerms: [
+      'antibiotic resistance',
+      'selection pressure',
+      'mutations',
+      'horizontal transfer',
+      'finite classes',
+      'stewardship',
+    ],
     minWords: 30,
   },
   {
@@ -288,7 +398,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The speaker argues that removing cursive handwriting from schools is a costly mistake. Cursive engages a continuous motor program that reinforces grapheme segmentation and phonics boundaries. Furthermore, cursive provides superior handwriting speed in high-stakes examinations, preventing students from falling behind, provided instructors teach proper stroke form systematically.',
-    keyTerms: ['cursive handwriting', 'motor program', 'segmentation', 'grapheme', 'writing speed', 'examinations'],
+    keyTerms: [
+      'cursive handwriting',
+      'motor program',
+      'segmentation',
+      'grapheme',
+      'writing speed',
+      'examinations',
+    ],
     minWords: 30,
   },
   {
@@ -298,7 +415,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The lecture challenges traditional theories that sleep functions primarily for cellular restoration or memory consolidation. Observing that octopuses sleep despite lacking vertebrate brain structures suggests sleep is fundamentally an energy-saving strategy. Organisms temporarily reduce the metabolic expense of continuous readiness, accepting vulnerability whenever ecological and safety conditions permit.',
-    keyTerms: ['sleep function', 'cellular restoration', 'octopuses', 'metabolic expense', 'readiness', 'vulnerability'],
+    keyTerms: [
+      'sleep function',
+      'cellular restoration',
+      'octopuses',
+      'metabolic expense',
+      'readiness',
+      'vulnerability',
+    ],
     minWords: 30,
   },
   {
@@ -318,7 +442,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The speaker explains that market price signals coordinate complex economic activity by condensing dispersed knowledge into a single metric. Price movements signal changing scarcity, guiding decentralized production and aligning incentives without centralized bureaucratic command. Distorting price signals through externalities leads to resource misallocation and supply shortages.',
-    keyTerms: ['price signals', 'scarcity', 'dispersed knowledge', 'incentives', 'externality', 'coordinates'],
+    keyTerms: [
+      'price signals',
+      'scarcity',
+      'dispersed knowledge',
+      'incentives',
+      'externality',
+      'coordinates',
+    ],
     minWords: 30,
   },
   {
@@ -328,7 +459,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The lecture examines why overland Silk Road routes faded during the late medieval era. The network of caravan routes was outcompeted by maritime shipping, which lowered the cost of moving cargo. When ocean transit emerged as a cheaper substitute, overland trade collapsed under high fixed costs.',
-    keyTerms: ['Silk Road', 'caravan', 'overland trade', 'maritime shipping', 'substitute', 'fixed costs'],
+    keyTerms: [
+      'Silk Road',
+      'caravan',
+      'overland trade',
+      'maritime shipping',
+      'substitute',
+      'fixed costs',
+    ],
     minWords: 30,
   },
   {
@@ -338,7 +476,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The speaker explores the legal doctrine of judicial precedent in common law systems. Precedent provides commercial predictability, treats equivalent legal disputes consistently, and constrains judicial discretion. However, rigid adherence risks perpetuating outdated societal norms, requiring appellate courts to balance legal stability with flexible doctrinal evolution.',
-    keyTerms: ['judicial precedent', 'common law', 'predictability', 'judicial discretion', 'legal stability', 'evolution'],
+    keyTerms: [
+      'judicial precedent',
+      'common law',
+      'predictability',
+      'judicial discretion',
+      'legal stability',
+      'evolution',
+    ],
     minWords: 30,
   },
   {
@@ -348,7 +493,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The lecture explains that climate change involves non-linear tipping elements rather than gradual trends. Critical thresholds, such as West Antarctic ice sheet instability, trigger irreversible state changes. Furthermore, cascading feedback loops connect polar ice melt, Atlantic circulation, and Amazon rainforest dieback, demonstrating that planetary boundaries cannot be managed in isolation.',
-    keyTerms: ['climate change', 'tipping elements', 'ice sheet instability', 'cascading feedback', 'Atlantic circulation', 'planetary boundaries'],
+    keyTerms: [
+      'climate change',
+      'tipping elements',
+      'ice sheet instability',
+      'cascading feedback',
+      'Atlantic circulation',
+      'planetary boundaries',
+    ],
     minWords: 30,
   },
   {
@@ -358,7 +510,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The speaker explains that quantum computation is severely constrained by environmental decoherence, which collapses fragile superposition into thermodynamic noise within microseconds. Because the no-cloning theorem prevents copying quantum states, simple classical redundancy fails. Fault-tolerant computation requires topological error correction codes that entangle thousands of physical qubits per logical qubit.',
-    keyTerms: ['quantum computing', 'decoherence', 'superposition', 'no-cloning theorem', 'error correction', 'logical qubit'],
+    keyTerms: [
+      'quantum computing',
+      'decoherence',
+      'superposition',
+      'no-cloning theorem',
+      'error correction',
+      'logical qubit',
+    ],
     minWords: 30,
   },
   {
@@ -368,7 +527,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
       'The lecture warns that language extinction threatens over half of world languages this century due to state assimilation and digital dominance. Language loss obliterates irreplaceable ethnobotanical knowledge and diverse cognitive structures, such as evidential morphology that embeds source verification into speech. Revitalizing indigenous languages is vital for preserving human intellectual and ecological heritage.',
-    keyTerms: ['language extinction', 'ethnobotanical knowledge', 'evidential morphology', 'source verification', 'revitalization', 'heritage'],
+    keyTerms: [
+      'language extinction',
+      'ethnobotanical knowledge',
+      'evidential morphology',
+      'source verification',
+      'revitalization',
+      'heritage',
+    ],
     minWords: 30,
   },
 ]

@@ -143,7 +143,9 @@ describe('Layout', () => {
     await user.click(toggle)
 
     expect(useSettings.getState().settings.theme).toBe('dark')
-    expect(screen.getByRole('button', { name: /Theme: dark\. Switch to light theme\./ })).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: /Theme: dark\. Switch to light theme\./ }),
+    ).toBeInTheDocument()
   })
 
   it('only offers to resume a session when there is one to resume', () => {
@@ -294,7 +296,10 @@ describe('Layout', () => {
     expect(banner).not.toHaveAttribute('data-scrolled')
 
     act(() => {
-      callback?.([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver)
+      callback?.(
+        [{ isIntersecting: false } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      )
     })
     expect(banner).toHaveAttribute('data-scrolled', 'true')
 
@@ -334,8 +339,14 @@ describe('Layout', () => {
     await user.click(screen.getByRole('button', { name: 'Toggle menu' }))
 
     const menu = screen.getByLabelText('Menu')
-    expect(within(menu).getByRole('link', { name: 'Mock test' })).toHaveAttribute('aria-current', 'page')
-    expect(within(menu).getByRole('link', { name: 'Resume session' })).toHaveAttribute('href', '/test')
+    expect(within(menu).getByRole('link', { name: 'Mock test' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    )
+    expect(within(menu).getByRole('link', { name: 'Resume session' })).toHaveAttribute(
+      'href',
+      '/test',
+    )
   })
 
   it('marks a question-type page inside the mobile menu too', async () => {

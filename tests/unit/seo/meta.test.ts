@@ -47,9 +47,7 @@ describe('PAGE_META', () => {
       expect(meta.path.startsWith('/'), path).toBe(true)
       // The registry key and the canonical path differ only in their trailing
       // slash — '/about' is registered, '/about/' is the canonical URL.
-      expect(meta.path.replace(/\/+$/, '') || '/', path).toBe(
-        path.replace(/\/+$/, '') || '/',
-      )
+      expect(meta.path.replace(/\/+$/, '') || '/', path).toBe(path.replace(/\/+$/, '') || '/')
     }
   })
 
@@ -70,7 +68,14 @@ describe('PAGE_META', () => {
   })
 
   it('hides the private and utility routes from the index', () => {
-    for (const path of ['/dashboard', '/login', '/register', '/test', '/reset-password', '/ui-elements']) {
+    for (const path of [
+      '/dashboard',
+      '/login',
+      '/register',
+      '/test',
+      '/reset-password',
+      '/ui-elements',
+    ]) {
       expect(PAGE_META[path]?.noindex, path).toBe(true)
     }
     expect(PAGE_META['/']?.noindex).toBeUndefined()

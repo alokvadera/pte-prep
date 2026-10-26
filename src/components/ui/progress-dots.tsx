@@ -132,7 +132,9 @@ export function ProgressDots({
           </span>
           <span className="font-mono text-[10px] font-bold text-brand-600 dark:text-brand-300">
             {String(currentIndex + 1).padStart(2, '0')}
-            <span className="text-ink-500 dark:text-ink-on-dark-faint">/{String(sections.length).padStart(2, '0')}</span>
+            <span className="text-ink-500 dark:text-ink-on-dark-faint">
+              /{String(sections.length).padStart(2, '0')}
+            </span>
           </span>
         </div>
       </div>

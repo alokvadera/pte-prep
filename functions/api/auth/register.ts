@@ -1,5 +1,11 @@
 import type { Env, UserRecord } from '../../types'
-import { createSessionToken, hashPassword, requireSecret, resolvePbkdf2Iterations, resolveSessionExpiry } from '../../lib/auth'
+import {
+  createSessionToken,
+  hashPassword,
+  requireSecret,
+  resolvePbkdf2Iterations,
+  resolveSessionExpiry,
+} from '../../lib/auth'
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 interface ExtendedUserRecord extends UserRecord {
@@ -12,7 +18,11 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   let body: { email?: string; password?: string; targetScore?: number }
   try {
-    body = (await context.request.json()) as { email?: string; password?: string; targetScore?: number }
+    body = (await context.request.json()) as {
+      email?: string
+      password?: string
+      targetScore?: number
+    }
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
       status: 400,
@@ -22,9 +32,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   const password = typeof body.password === 'string' ? body.password : ''
-  const targetScore = typeof body.targetScore === 'number' && body.targetScore >= 10 && body.targetScore <= 90
-    ? Math.round(body.targetScore)
-    : 65
+  const targetScore =
+    typeof body.targetScore === 'number' && body.targetScore >= 10 && body.targetScore <= 90
+      ? Math.round(body.targetScore)
+      : 65
 
   if (!email || !EMAIL_RE.test(email)) {
     return new Response(JSON.stringify({ error: 'Please enter a valid email address.' }), {
@@ -76,7 +87,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const secret = requireSecret(context.env)
 
   const existing = await db
-    .prepare('SELECT id, email, target_score, password_hash, password_salt FROM users WHERE email = ?')
+    .prepare(
+      'SELECT id, email, target_score, password_hash, password_salt FROM users WHERE email = ?',
+    )
     .bind(email)
     .first<ExtendedUserRecord>()
 
@@ -85,7 +98,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   if (existing) {
     return new Response(
-      JSON.stringify({ error: 'Unable to create account. If you already have an account, please sign in or reset your password.' }),
+      JSON.stringify({
+        error:
+          'Unable to create account. If you already have an account, please sign in or reset your password.',
+      }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
     )
   }
@@ -103,7 +119,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const msg = err instanceof Error ? err.message : String(err)
     if (msg.includes('UNIQUE') || msg.includes('SQLITE_CONSTRAINT')) {
       return new Response(
-        JSON.stringify({ error: 'Unable to create account. If you already have an account, please sign in or reset your password.' }),
+        JSON.stringify({
+          error:
+            'Unable to create account. If you already have an account, please sign in or reset your password.',
+        }),
         { status: 400, headers: { 'Content-Type': 'application/json' } },
       )
     }
@@ -111,12 +130,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   const expiresIn = resolveSessionExpiry(context.env)
-  const token = await createSessionToken(
-    { userId, email },
-    secret,
-    expiresIn,
-    db,
-  )
+  const token = await createSessionToken({ userId, email }, secret, expiresIn, db)
 
   return new Response(
     JSON.stringify({

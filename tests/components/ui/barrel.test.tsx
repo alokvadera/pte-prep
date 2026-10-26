@@ -115,7 +115,9 @@ describe('the orbiting circles', () => {
         <span>child</span>
       </OrbitingCircles>,
     )
-    expect(container.querySelector('.animate-orbit')?.className).toContain('[animation-direction:reverse]')
+    expect(container.querySelector('.animate-orbit')?.className).toContain(
+      '[animation-direction:reverse]',
+    )
   })
 
   it('leaves the orbit running forwards by default', async () => {
@@ -125,7 +127,9 @@ describe('the orbiting circles', () => {
         <span>child</span>
       </OrbitingCircles>,
     )
-    expect(container.querySelector('.animate-orbit')?.className).not.toContain('[animation-direction:reverse]')
+    expect(container.querySelector('.animate-orbit')?.className).not.toContain(
+      '[animation-direction:reverse]',
+    )
   })
 
   it('spaces the children around the circle', async () => {

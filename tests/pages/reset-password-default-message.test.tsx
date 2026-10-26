@@ -25,11 +25,9 @@ const ResetPasswordPage = (await import('../../src/pages/ResetPasswordPage')).de
 describe('ResetPasswordPage without a reason', () => {
   it('says the input was invalid when the check gives no reason', async () => {
     installFetchMock([])
-    const { container } = renderRoute(
-      <ResetPasswordPage />,
-      '/reset-password',
-      { route: '/reset-password?token=abc' },
-    )
+    const { container } = renderRoute(<ResetPasswordPage />, '/reset-password', {
+      route: '/reset-password?token=abc',
+    })
     const form = container.querySelector('form') as HTMLFormElement
 
     await act(async () => {
@@ -41,11 +39,9 @@ describe('ResetPasswordPage without a reason', () => {
 
   it('does not send the form on when the check gives no reason', async () => {
     const fetchMock = installFetchMock([])
-    const { container } = renderRoute(
-      <ResetPasswordPage />,
-      '/reset-password',
-      { route: '/reset-password?token=abc' },
-    )
+    const { container } = renderRoute(<ResetPasswordPage />, '/reset-password', {
+      route: '/reset-password?token=abc',
+    })
     const form = container.querySelector('form') as HTMLFormElement
 
     await act(async () => {

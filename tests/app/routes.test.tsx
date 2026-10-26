@@ -297,7 +297,9 @@ describe('the test page', () => {
     })
 
     const dialog = screen.getByRole('dialog')
-    const focusable = dialog.querySelectorAll<HTMLElement>('button, [href], input, select, textarea')
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea',
+    )
     const first = focusable[0]!
     const last = focusable[focusable.length - 1]!
 

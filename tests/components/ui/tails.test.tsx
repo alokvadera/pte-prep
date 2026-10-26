@@ -115,8 +115,12 @@ describe('PointerField with a second pointer move', () => {
     card.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 40, clientY: 40, bubbles: true }))
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 55, clientY: 55, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 40, clientY: 40, bubbles: true }),
+      )
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 55, clientY: 55, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -145,9 +149,15 @@ describe('Magnetic with a second pointer move', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 50, clientY: 20, bubbles: true }))
-      window.dispatchEvent(new PointerEvent('pointermove', { clientX: 55, clientY: 20, bubbles: true }))
-      window.dispatchEvent(new PointerEvent('pointermove', { clientX: 58, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 50, clientY: 20, bubbles: true }),
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 55, clientY: 20, bubbles: true }),
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 58, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -225,7 +235,13 @@ describe('RenderType with a phrase that has been typed past', () => {
 
   it('copes with a phrase that shrinks', () => {
     const { container } = render(
-      <RenderType text={['One', 'Two']} speed={10} startDelay={0} deleteSpeed={10} holdDuration={10} />,
+      <RenderType
+        text={['One', 'Two']}
+        speed={10}
+        startDelay={0}
+        deleteSpeed={10}
+        holdDuration={10}
+      />,
     )
     for (let i = 0; i < 60; i++) {
       act(() => vi.advanceTimersByTime(50))

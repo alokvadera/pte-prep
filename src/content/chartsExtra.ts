@@ -146,10 +146,22 @@ export const EXTRA_CHARTS: ChartSpec[] = [
     keyTerms: ['collected', 'sorted', 'dismantled', 'recovered', 'sent to', 'first stage'],
     data: {
       steps: [
-        { label: '1. Collection', detail: 'Batteries are gathered from drop-off points and retail take-back schemes.' },
-        { label: '2. Sorting', detail: 'Chemistry is identified by shape and marking, and damaged cells are separated.' },
-        { label: '3. Dismantling', detail: 'Casing is opened and the black mass of metals and salts is recovered.' },
-        { label: '4. Refining', detail: 'Cobalt, nickel and lithium are extracted for reuse in new cells.' },
+        {
+          label: '1. Collection',
+          detail: 'Batteries are gathered from drop-off points and retail take-back schemes.',
+        },
+        {
+          label: '2. Sorting',
+          detail: 'Chemistry is identified by shape and marking, and damaged cells are separated.',
+        },
+        {
+          label: '3. Dismantling',
+          detail: 'Casing is opened and the black mass of metals and salts is recovered.',
+        },
+        {
+          label: '4. Refining',
+          detail: 'Cobalt, nickel and lithium are extracted for reuse in new cells.',
+        },
       ],
       loop: true,
     },

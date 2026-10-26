@@ -8,8 +8,8 @@ export function CommandPalette() {
   const navigate = useNavigate()
   // A finished session keeps its mock in the store so the report can read it.
   // Only an unfinished one has anything to resume.
-  const activeMock = useTest(s => s.mock)
-  const activeStatus = useTest(s => s.status)
+  const activeMock = useTest((s) => s.mock)
+  const activeStatus = useTest((s) => s.status)
   const hasActiveMock = Boolean(activeMock && activeStatus !== 'finished')
 
   // The element that had focus when the palette opened. Focus returns to it
@@ -25,7 +25,8 @@ export function CommandPalette() {
 
   useEffect(() => {
     const handleOpen = () => {
-      lastTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+      lastTrigger.current =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null
       setQuery('')
       setOpen(true)
     }
@@ -33,7 +34,8 @@ export function CommandPalette() {
       if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
         if (!open) {
-          lastTrigger.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+          lastTrigger.current =
+            document.activeElement instanceof HTMLElement ? document.activeElement : null
           setQuery('')
           setOpen(true)
         } else {
@@ -81,9 +83,7 @@ export function CommandPalette() {
     /* v8 ignore next -- the ref is attached before any key can reach it */
     if (!el) return
     const focusables = Array.from(
-      el.querySelectorAll<HTMLElement>(
-        'input, button, [href], [tabindex]:not([tabindex="-1"])',
-      ),
+      el.querySelectorAll<HTMLElement>('input, button, [href], [tabindex]:not([tabindex="-1"])'),
     ).filter((f) => !f.hasAttribute('disabled') && f.offsetParent !== null)
     if (focusables.length === 0) return
     const first = focusables[0]!
@@ -112,11 +112,13 @@ export function CommandPalette() {
     { id: 'practice', name: 'Practice specific skills', run: () => navigate('/practice') },
     { id: 'mock', name: 'Start a Mock Test', run: () => navigate('/mock') },
     { id: 'format', name: 'Read the Format Guide', run: () => navigate('/format') },
-    ...(hasActiveMock ? [{ id: 'resume', name: 'Resume Active Test', run: () => navigate('/test') }] : []),
+    ...(hasActiveMock
+      ? [{ id: 'resume', name: 'Resume Active Test', run: () => navigate('/test') }]
+      : []),
   ]
 
   const filtered = query
-    ? actions.filter(a => a.name.toLowerCase().includes(query.toLowerCase()))
+    ? actions.filter((a) => a.name.toLowerCase().includes(query.toLowerCase()))
     : actions
 
   return (
@@ -142,8 +144,19 @@ export function CommandPalette() {
           <span>Esc to close</span>
         </div>
         <div className="flex items-center px-4 py-3 border-b border-ink-200 dark:border-white/10">
-          <svg className="w-4 h-4 text-ink-500 dark:text-ink-on-dark-muted mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          <svg
+            className="w-4 h-4 text-ink-500 dark:text-ink-on-dark-muted mr-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            />
           </svg>
           <label htmlFor="command-palette-search" className="sr-only">
             Search commands
@@ -154,8 +167,8 @@ export function CommandPalette() {
             className="flex-1 bg-transparent border-0 text-ink-900 dark:text-white placeholder:text-ink-on-dark-faint font-sans text-base"
             placeholder="Type a command or jump to page..."
             value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => {
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
               if (e.key === 'Enter' && filtered[0]) {
                 e.preventDefault()
                 filtered[0].run()
@@ -163,12 +176,16 @@ export function CommandPalette() {
               }
             }}
           />
-          <kbd className="hidden sm:inline-block border border-ink-200 dark:border-white/10 rounded-sm px-1.5 py-0.5 text-xs text-ink-500 dark:text-ink-on-dark-faint font-mono">ESC</kbd>
+          <kbd className="hidden sm:inline-block border border-ink-200 dark:border-white/10 rounded-sm px-1.5 py-0.5 text-xs text-ink-500 dark:text-ink-on-dark-faint font-mono">
+            ESC
+          </kbd>
         </div>
 
         <div className="max-h-96 overflow-y-auto p-2">
           {filtered.length === 0 ? (
-            <p className="p-4 text-center text-sm text-ink-500 dark:text-ink-on-dark-faint">No results found.</p>
+            <p className="p-4 text-center text-sm text-ink-500 dark:text-ink-on-dark-faint">
+              No results found.
+            </p>
           ) : (
             filtered.map((action, i) => {
               // No action on the site carries a shortcut yet, so the keyboard
@@ -176,8 +193,11 @@ export function CommandPalette() {
               /* v8 ignore next -- no action carries a shortcut */
               const shortcut = action.shortcut && (
                 <div className="flex gap-1 hidden sm:flex" aria-hidden="true">
-                  {action.shortcut.split(' ').map(key => (
-                    <kbd key={key} className="bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-on-dark-muted rounded-sm px-1.5 py-0.5 text-xs font-mono border border-ink-200 dark:border-white/5">
+                  {action.shortcut.split(' ').map((key) => (
+                    <kbd
+                      key={key}
+                      className="bg-ink-100 dark:bg-ink-800 text-ink-500 dark:text-ink-on-dark-muted rounded-sm px-1.5 py-0.5 text-xs font-mono border border-ink-200 dark:border-white/5"
+                    >
                       {key}
                     </kbd>
                   ))}

@@ -189,7 +189,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
     id: 'sgd-hybrid-work',
     audioId: 'gd-hybrid-work',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel converges on a diagnosis but not a remedy. The academic proposes making attendance optional and notes attendance correlates weakly with attainment, but the student representative argues the correlation is the wrong test because attendance is not random, and the postgraduate warns that in practice optional contact lowers the standard for everyone while raising the barrier for the students already struggling. They agree that unmandated contact alone disadvantages the least able, and disagree over the substitute: the student representative favours keeping large sessions open while making small groups justifiable and funded, and the postgraduate wants the figures published.',
     keyTerms: ['optional', 'mandating', 'regressive', 'correlation', 'small group', 'publish'],
@@ -199,7 +199,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
     id: 'sgd-museum-return',
     audioId: 'gd-museum-return',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel separates the ethics of acquisition from the effect of a collection on the public, and converges on transparency without settling ownership. The historian asks what happens to an object with no surviving claimant, the director notes that an object taken in 1898 without recorded consent is not theirs to keep, and the community advocate argues that describing an undocumented holding as settled treats possession as the default. They agree that publishing acquisition records and treating a silent record as a reason to ask is the honest practice, and split on whether a formal claim is required first.',
     keyTerms: ['acquisition', 'consent', 'claimant', 'possession', 'default', 'transparency'],

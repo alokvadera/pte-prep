@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest'
 import { buildFullMock } from '../../src/domain/assemble'
 import { QUESTION_META } from '../../src/domain/blueprint'
 import { buildReport, scoreItem } from '../../src/domain/scoring'
-import type { AnswerKey, Item, ItemResponse, MockTest, QuestionType, Skill } from '../../src/domain/types'
+import type {
+  AnswerKey,
+  Item,
+  ItemResponse,
+  MockTest,
+  QuestionType,
+  Skill,
+} from '../../src/domain/types'
 
 /* ---------------------------------------------------------------------------
    How every one of the 22 question types is evaluated.
@@ -51,7 +58,8 @@ const partialAudio: ItemResponse['audio'] = {
 function makeEssayText(keyTerms: string[]): string {
   const sentenceWithTerms = keyTerms.join(' and ') + ' are all fundamental aspects of this topic.'
   return [
-    'In contemporary society, discussions surrounding this issue have become increasingly prominent across educational, social, and governmental institutions. Advocates strongly argue that addressal yields profound long-term social, environmental, and civic advantages. Consequently, policymakers worldwide have begun reconsidering their historical approaches to balance innovation with sustainable development. In particular, ' + sentenceWithTerms,
+    'In contemporary society, discussions surrounding this issue have become increasingly prominent across educational, social, and governmental institutions. Advocates strongly argue that addressal yields profound long-term social, environmental, and civic advantages. Consequently, policymakers worldwide have begun reconsidering their historical approaches to balance innovation with sustainable development. In particular, ' +
+      sentenceWithTerms,
     'Furthermore, significant empirical evidence indicates that focused investment accelerates positive community transformation across multiple demographics. When communities prioritize clear regulation and modernization, civic productivity rises while systemic inefficiencies decrease. In contrast, failing to implement coherent strategies inevitably produces compounding challenges that become significantly harder to resolve over time. In addition, thoughtful analysis demonstrates that structural changes create lasting stability.',
     'However, critics often contend that sudden institutional shifts impose immediate transitional costs on existing administrative frameworks. While this concern is understandable, proactive education, practical guidance, and targeted economic incentives can mitigate short-term friction effectively. Moreover, collaboration between public and private sectors provides the necessary resilience to navigate unexpected structural hurdles throughout the implementation phase.',
     'In conclusion, pursuing proactive measures is indispensable for sustainable progress in the modern era. By combining disciplined policy frameworks with educational innovation, societies can safeguard future prosperity while fostering equitable growth for all citizens.',
@@ -73,7 +81,10 @@ function scenariosFor(type: QuestionType): Scenarios {
       const words = text.split(' ')
       return {
         correct: { transcript: text, audio: highQualityAudio },
-        partial: { transcript: words.slice(0, Math.floor(words.length * 0.6)).join(' '), audio: partialAudio },
+        partial: {
+          transcript: words.slice(0, Math.floor(words.length * 0.6)).join(' '),
+          audio: partialAudio,
+        },
         zero: { transcript: 'unrelated banana apple zebra', audio: highQualityAudio },
       }
     }
@@ -82,7 +93,10 @@ function scenariosFor(type: QuestionType): Scenarios {
       const words = text.split(' ')
       return {
         correct: { transcript: text, audio: highQualityAudio },
-        partial: { transcript: words.slice(0, Math.floor(words.length * 0.5)).join(' '), audio: partialAudio },
+        partial: {
+          transcript: words.slice(0, Math.floor(words.length * 0.5)).join(' '),
+          audio: partialAudio,
+        },
         zero: { transcript: 'random completely unrelated words here', audio: highQualityAudio },
       }
     }
@@ -104,7 +118,11 @@ function scenariosFor(type: QuestionType): Scenarios {
     case 'answer-short-question': {
       const answer = key.correctChoice
       if (!answer) throw new Error('ASQ answer key is missing correctChoice')
-      return { correct: { text: answer }, partial: null, zero: { text: 'completely incorrect answer' } }
+      return {
+        correct: { text: answer },
+        partial: null,
+        zero: { text: 'completely incorrect answer' },
+      }
     }
     case 'summarize-written-text': {
       const reference = key.reference ?? ''
@@ -115,7 +133,9 @@ function scenariosFor(type: QuestionType): Scenarios {
           text: `Although ${terms.slice(0, 3).join(' and ')} are significant factors, comprehensive analysis remains necessary for understanding the issue.`,
         },
         // Two sentences: Form 0, which gates the item to zero.
-        zero: { text: 'This is the first sentence here. And here is a second sentence that violates the single sentence rule.' },
+        zero: {
+          text: 'This is the first sentence here. And here is a second sentence that violates the single sentence rule.',
+        },
       }
     }
     case 'write-essay': {
@@ -135,7 +155,9 @@ function scenariosFor(type: QuestionType): Scenarios {
       const blanks = key.blanks ?? []
       return {
         correct: { blanks: blanks.map((b) => b[0] ?? '') },
-        partial: { blanks: blanks.map((b, i) => (i % 2 === 0 ? b[0] ?? '' : 'wrong_distractor')) },
+        partial: {
+          blanks: blanks.map((b, i) => (i % 2 === 0 ? (b[0] ?? '') : 'wrong_distractor')),
+        },
         zero: { blanks: blanks.map(() => 'erroneous_option') },
       }
     }
@@ -148,7 +170,8 @@ function scenariosFor(type: QuestionType): Scenarios {
     }
     case 'multiple-choice-multiple': {
       const correct = key.correctChoices ?? []
-      const wrongDistractor = (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Distractor'
+      const wrongDistractor =
+        (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Distractor'
       return {
         correct: { choices: correct },
         partial: { choices: [correct[0] ?? ''] },
@@ -160,7 +183,12 @@ function scenariosFor(type: QuestionType): Scenarios {
       const order = key.order ?? []
       return {
         correct: { order },
-        partial: { order: order.length > 2 ? [order[0]!, order[1]!, ...order.slice(2).reverse()] : [...order].reverse() },
+        partial: {
+          order:
+            order.length > 2
+              ? [order[0]!, order[1]!, ...order.slice(2).reverse()]
+              : [...order].reverse(),
+        },
         zero: { order: [...order].reverse() },
       }
     }
@@ -170,14 +198,16 @@ function scenariosFor(type: QuestionType): Scenarios {
       return {
         correct: { text: reference },
         partial: { text: `${words.slice(0, 44).join(' ')}.` },
-        zero: { text: 'The lecture discussed several historical points. This summary is under twenty words.' },
+        zero: {
+          text: 'The lecture discussed several historical points. This summary is under twenty words.',
+        },
       }
     }
     case 'fill-in-blanks-listening': {
       const blanks = key.blanks ?? []
       return {
         correct: { blanks: blanks.map((b) => b[0] ?? '') },
-        partial: { blanks: blanks.map((b, i) => (i === 0 ? b[0] ?? '' : 'misspelled')) },
+        partial: { blanks: blanks.map((b, i) => (i === 0 ? (b[0] ?? '') : 'misspelled')) },
         zero: { blanks: blanks.map(() => 'erroneous') },
       }
     }
@@ -192,7 +222,8 @@ function scenariosFor(type: QuestionType): Scenarios {
     }
     case 'listening-multiple-choice-multiple': {
       const correct = key.correctChoices ?? []
-      const wrongDistractor = (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Option'
+      const wrongDistractor =
+        (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Option'
       return {
         correct: { choices: correct },
         partial: { choices: [correct[0] ?? ''] },
@@ -201,7 +232,8 @@ function scenariosFor(type: QuestionType): Scenarios {
     }
     case 'highlight-incorrect-words': {
       const correctHighlights = key.correctHighlighted ?? [2, 5]
-      const wrongToken = [0, 1, 2, 3, 4, 5, 6, 7].find((idx) => !correctHighlights.includes(idx)) ?? 99
+      const wrongToken =
+        [0, 1, 2, 3, 4, 5, 6, 7].find((idx) => !correctHighlights.includes(idx)) ?? 99
       return {
         correct: { highlighted: correctHighlights },
         partial: { highlighted: [correctHighlights[0]!] },
@@ -298,7 +330,10 @@ describe('whole-test report generation', () => {
         item.type === 'select-missing-word'
       ) {
         responses[item.id] = { choice: key.correctChoice }
-      } else if (item.type === 'multiple-choice-multiple' || item.type === 'listening-multiple-choice-multiple') {
+      } else if (
+        item.type === 'multiple-choice-multiple' ||
+        item.type === 'listening-multiple-choice-multiple'
+      ) {
         responses[item.id] = { choices: key.correctChoices }
       } else if (
         item.type === 'fill-in-blanks-dropdown' ||
@@ -356,7 +391,10 @@ describe('whole-test report generation', () => {
           mid[item.id] = { choices: [key.correctChoices[0] ?? ''] }
         } else if (key?.order) {
           mid[item.id] = {
-            order: key.order.length > 2 ? [key.order[0]!, key.order[1]!, ...key.order.slice(2).reverse()] : [...key.order].reverse(),
+            order:
+              key.order.length > 2
+                ? [key.order[0]!, key.order[1]!, ...key.order.slice(2).reverse()]
+                : [...key.order].reverse(),
           }
         } else if (key?.correctHighlighted) {
           mid[item.id] = { highlighted: [key.correctHighlighted[0]!] }

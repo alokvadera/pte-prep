@@ -108,7 +108,9 @@ describe('Dashboard', () => {
 
 describe('LoginPage', () => {
   beforeEach(() => {
-    installFetchMock([{ url: '/api/auth/login', body: { error: 'Invalid email or password' }, status: 401 }])
+    installFetchMock([
+      { url: '/api/auth/login', body: { error: 'Invalid email or password' }, status: 401 },
+    ])
     useAuth.setState({ user: null, token: null })
   })
 

@@ -49,7 +49,15 @@ export const EXTRA_LECTURES_4: AudioScript[] = [
         text: 'So the honest summary is that habits are context-bound automatisms, not decisions. They are built by repetition in a stable context, they are fired by cues rather than chosen, and they are changed by redesigning the environment far more reliably than by resolve. Thank you.',
       },
     ],
-    keyTerms: ['cue', 'routine', 'reward', 'automatic', 'context', 'willpower', 'implementation intentions'],
+    keyTerms: [
+      'cue',
+      'routine',
+      'reward',
+      'automatic',
+      'context',
+      'willpower',
+      'implementation intentions',
+    ],
   },
   {
     id: 'lec-attention',
@@ -84,7 +92,15 @@ export const EXTRA_LECTURES_4: AudioScript[] = [
         text: 'The practical conclusion is that attention is a resource with a narrow bottleneck, not a skill of character. Sustained focus depends on what the environment demands of it, and the strongest evidence for improving it is boring: protect the interval, remove the distractors, and expect the limit to hold. Thank you.',
       },
     ],
-    keyTerms: ['attention', 'selection', 'capacity', 'attentional blink', 'refractory period', 'multitasking', 'bottleneck'],
+    keyTerms: [
+      'attention',
+      'selection',
+      'capacity',
+      'attentional blink',
+      'refractory period',
+      'multitasking',
+      'bottleneck',
+    ],
   },
 ]
 
@@ -133,7 +149,15 @@ export const EXTRA_CONVERSATIONS_6: AudioScript[] = [
         text: 'The per-stream figure is a derived number, not a rate. Revenue is pooled, the platform keeps its share, and the rest is divided by total streams, so a niche artist is paid out of the same pool as a global hit. Whether that is fair is a policy question, but the mechanism itself is simple proportional sharing.',
       },
     ],
-    keyTerms: ['marginal cost', 'subscriptions', 'catalogue', 'bundling', 'barrier to entry', 'natural oligopoly', 'per-stream'],
+    keyTerms: [
+      'marginal cost',
+      'subscriptions',
+      'catalogue',
+      'bundling',
+      'barrier to entry',
+      'natural oligopoly',
+      'per-stream',
+    ],
   },
   {
     id: 'conv-thermometer',
@@ -175,7 +199,15 @@ export const EXTRA_CONVERSATIONS_6: AudioScript[] = [
         text: 'They standardised it. Fahrenheit proposed fixed points that could be reproduced in any laboratory, and Celsius inverted the scale we now use, with zero at the boiling point. The modern form, zero at freezing and hundred at boiling, was adopted later, and it spread because a uniform scale makes measurement comparable across places and instruments.',
       },
     ],
-    keyTerms: ['thermoscope', 'scale', 'fixed points', 'freezing point', 'standardised', 'Fahrenheit', 'Celsius'],
+    keyTerms: [
+      'thermoscope',
+      'scale',
+      'fixed points',
+      'freezing point',
+      'standardised',
+      'Fahrenheit',
+      'Celsius',
+    ],
   },
 ]
 
@@ -214,14 +246,22 @@ export const EXTRA_GROUP_DISCUSSIONS_4: AudioScript[] = [
       },
       {
         speaker: 's1',
-        text: 'Then we agree on the diagnosis. Urban biodiversity is real, it depends on connectivity, and it is lost by default rather than by decision. We differ only on what should carry the argument: the ecologist\'s species data or the gardener\'s public value.',
+        text: "Then we agree on the diagnosis. Urban biodiversity is real, it depends on connectivity, and it is lost by default rather than by decision. We differ only on what should carry the argument: the ecologist's species data or the gardener's public value.",
       },
       {
         speaker: 's3',
         text: 'And I would say those are the same argument made twice. A species that survives in a city survives because people tolerate it, and people tolerate what they value. Design for the hedgehog and the person watching it at once.',
       },
     ],
-    keyTerms: ['biodiversity', 'connectivity', 'patches', 'corridor', 'pollinator', 'development value', 'public value'],
+    keyTerms: [
+      'biodiversity',
+      'connectivity',
+      'patches',
+      'corridor',
+      'pollinator',
+      'development value',
+      'public value',
+    ],
   },
   {
     id: 'gd-microplastics',
@@ -268,7 +308,15 @@ export const EXTRA_GROUP_DISCUSSIONS_4: AudioScript[] = [
         text: 'And I would add the framing for the public: the goal is fewer particles entering the environment, not zero plastic. A policy that measures particles released per kilometre, per wash and per kilogram of resin gives us something to audit, which is what was missing from the last round of proposals.',
       },
     ],
-    keyTerms: ['microplastics', 'diffuse', 'dose-response', 'precautionary principle', 'pellet', 'laundry filters', 'source-specific'],
+    keyTerms: [
+      'microplastics',
+      'diffuse',
+      'dose-response',
+      'precautionary principle',
+      'pellet',
+      'laundry filters',
+      'source-specific',
+    ],
   },
 ]
 
@@ -285,7 +333,16 @@ export const EXTRA_RETELL_ITEMS_4: RetellItem[] = [
     ],
     reference:
       'Habits are learned loops in which a cue fires a routine that a reward reinforces, and with repetition the loop becomes automatic and tied to context rather than intention. Willpower is a weak instrument because the response no longer passes through conscious choice. Change works better by redesigning the environment and forming implementation intentions, and the claim that habits build in twenty-one days is a myth.',
-    keyTerms: ['cue', 'routine', 'reward', 'automatic', 'context', 'willpower', 'environment', 'implementation intentions'],
+    keyTerms: [
+      'cue',
+      'routine',
+      'reward',
+      'automatic',
+      'context',
+      'willpower',
+      'environment',
+      'implementation intentions',
+    ],
     minWords: 40,
   },
   {
@@ -301,7 +358,16 @@ export const EXTRA_RETELL_ITEMS_4: RetellItem[] = [
     ],
     reference:
       'Attention is not one spotlight but a family of processes. Selection biases neurons toward a target at the earliest stage, capacity holds roughly four items before one displaces another, and the attentional blink reveals a refractory period that blocks a second target inside half a second. Multitasking is really rapid switching with a cost in time and accuracy, so attention is a narrow bottleneck rather than a skill of character.',
-    keyTerms: ['attention', 'selection', 'capacity', 'attentional blink', 'refractory period', 'multitasking', 'switching', 'bottleneck'],
+    keyTerms: [
+      'attention',
+      'selection',
+      'capacity',
+      'attentional blink',
+      'refractory period',
+      'multitasking',
+      'switching',
+      'bottleneck',
+    ],
     minWords: 40,
   },
   {
@@ -316,7 +382,16 @@ export const EXTRA_RETELL_ITEMS_4: RetellItem[] = [
     ],
     reference:
       'Streaming economics begins with a marginal cost near zero, so subscriptions rather than per-unit sales recover the fixed cost of assembling the catalogue. Revenue does not track use, which makes bundling profitable. Catalogue depth is a barrier to entry, concentrating the market into a natural oligopoly. The per-stream payment artists contest is not a rate but pooled proportional sharing, divided by total streams from a common revenue pool.',
-    keyTerms: ['marginal cost', 'subscriptions', 'catalogue', 'bundling', 'barrier to entry', 'oligopoly', 'per-stream', 'revenue'],
+    keyTerms: [
+      'marginal cost',
+      'subscriptions',
+      'catalogue',
+      'bundling',
+      'barrier to entry',
+      'oligopoly',
+      'per-stream',
+      'revenue',
+    ],
     minWords: 40,
   },
 ]
@@ -329,7 +404,16 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_4: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
       'The lecture argues that attention is a family of processes rather than a single spotlight. Selection biases neurons toward targets at the earliest stage, and capacity is the binding constraint, holding roughly four items. The attentional blink demonstrates a refractory period that blocks a second target, and multitasking is really rapid task-switching with measurable costs. Attention is therefore a narrow bottleneck shaped by the environment, not a skill of character.',
-    keyTerms: ['attention', 'selection', 'capacity', 'attentional blink', 'refractory period', 'multitasking', 'bottleneck', 'environment'],
+    keyTerms: [
+      'attention',
+      'selection',
+      'capacity',
+      'attentional blink',
+      'refractory period',
+      'multitasking',
+      'bottleneck',
+      'environment',
+    ],
     minWords: 40,
   },
   {
@@ -339,7 +423,16 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_4: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
       'The curator explains that the earliest instrument was a thermoscope, showing that air expands with heat but lacking a scale. A scale needed reproducible fixed points and a uniform division of the interval, which took decades because early makers chose different references, from cellars to ice and salt mixtures. Fahrenheit and Celsius standardised the reference points, and the modern form spread because a uniform scale makes measurement comparable across instruments.',
-    keyTerms: ['thermoscope', 'scale', 'fixed points', 'uniform', 'references', 'Fahrenheit', 'Celsius', 'comparable'],
+    keyTerms: [
+      'thermoscope',
+      'scale',
+      'fixed points',
+      'uniform',
+      'references',
+      'Fahrenheit',
+      'Celsius',
+      'comparable',
+    ],
     minWords: 40,
   },
 ]
@@ -349,20 +442,38 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_4: GroupDiscussionItem[] = [
     id: 'sgd-urban-biodiversity',
     audioId: 'gd-urban-biodiversity',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel agrees that urban biodiversity is real, substantial and lost by default rather than by decision. The ecologist shows that cities hold a surprising share of regional species, including pollinators, and that connectivity between patches is the strongest predictor of which survive. The planner argues the cheapest gains lie in space already committed — street trees, swales and railway margins — and that corridors must be named before development value is assigned. The gardener counters that public value sustains protection, citing a community garden on a former car park that now holds forty plant species and a hedgehog. They converge on managing existing land for movement, differing only on whether species data or public value should carry the argument, and agree that designing for the hedgehog and the person watching it is the same case.',
-    keyTerms: ['biodiversity', 'connectivity', 'patches', 'corridors', 'pollinators', 'development value', 'public value', 'car park'],
+    keyTerms: [
+      'biodiversity',
+      'connectivity',
+      'patches',
+      'corridors',
+      'pollinators',
+      'development value',
+      'public value',
+      'car park',
+    ],
     minWords: 40,
   },
   {
     id: 'sgd-microplastics',
     audioId: 'gd-microplastics',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel accepts that microplastic exposure is universal while the harm remains uncertain, because the dose-response relationship is unestablished for most particle types. The scientist stresses that absent proof is not proof of absence; the analyst invokes the precautionary principle and proposes targeting nameable sources — laundry filters, pellet containment and tyre wear standards with measurable targets; the industry representative accepts pellets on economic grounds, negotiates filters, and asks for funded tyre testing. They converge on a source-specific rather than product-specific response, revisited as evidence matures, with the public goal stated as fewer particles entering the environment and auditable measures per kilometre, per wash and per kilogram of resin.',
-    keyTerms: ['microplastics', 'dose-response', 'precautionary principle', 'pellet', 'laundry filters', 'tyre', 'source-specific', 'auditable'],
+    keyTerms: [
+      'microplastics',
+      'dose-response',
+      'precautionary principle',
+      'pellet',
+      'laundry filters',
+      'tyre',
+      'source-specific',
+      'auditable',
+    ],
     minWords: 40,
   },
 ]

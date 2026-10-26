@@ -87,7 +87,9 @@ export function formatResponseEchoLines(
   if (order) lines.push(`Your order: ${order.join(' → ')}`)
   const highlighted = response.highlighted as number[] | undefined
   if (highlighted && highlighted.length > 0) {
-    lines.push(`You highlighted: ${highlighted.map((i) => (tokens?.[i] ? `“${tokens[i]}”` : `#${i + 1}`)).join(', ')}`)
+    lines.push(
+      `You highlighted: ${highlighted.map((i) => (tokens?.[i] ? `“${tokens[i]}”` : `#${i + 1}`)).join(', ')}`,
+    )
   }
   const text = response.text as string | undefined
   if (text) lines.push(`You wrote: ${text}`)

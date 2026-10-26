@@ -48,35 +48,31 @@ describe('Practice while a drill is being built', () => {
     })
   })
 
-  it(
-    'builds only one drill when a second one is asked for',
-    async () => {
-      renderRoute(<Practice />, '/practice')
+  it('builds only one drill when a second one is asked for', async () => {
+    renderRoute(<Practice />, '/practice')
 
-      // The prompt opens, because a test is already running.
-      await act(async () => {
-        fireEvent.click(startButtons()[0]!)
-      })
-      expect(screen.getByRole('dialog')).toBeInTheDocument()
+    // The prompt opens, because a test is already running.
+    await act(async () => {
+      fireEvent.click(startButtons()[0]!)
+    })
+    expect(screen.getByRole('dialog')).toBeInTheDocument()
 
-      // The active test finishes while the prompt is still open.
-      await act(async () => {
-        useTest.setState({ status: 'finished' })
-      })
+    // The active test finishes while the prompt is still open.
+    await act(async () => {
+      useTest.setState({ status: 'finished' })
+    })
 
-      // The drill is assembled straight away now, and the page waits for it.
-      await act(async () => {
-        fireEvent.click(startButtons()[0]!)
-      })
-      expect(screen.getAllByRole('button', { name: 'Preparing drill…' })[0]).toBeDisabled()
+    // The drill is assembled straight away now, and the page waits for it.
+    await act(async () => {
+      fireEvent.click(startButtons()[0]!)
+    })
+    expect(screen.getAllByRole('button', { name: 'Preparing drill…' })[0]).toBeDisabled()
 
-      // The prompt is still open, and the second attempt is ignored.
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'Discard & Start drill' }))
-      })
+    // The prompt is still open, and the second attempt is ignored.
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Discard & Start drill' }))
+    })
 
-      expect(stubs.buildDrillMock).not.toHaveBeenCalled()
-    },
-    60_000,
-  )
+    expect(stubs.buildDrillMock).not.toHaveBeenCalled()
+  }, 60_000)
 })

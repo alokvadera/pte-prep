@@ -45,7 +45,9 @@ function makeItem(type: Item['type'], overrides: Partial<Item> = {}): Item {
   }
 }
 
-function audio(overrides: Partial<NonNullable<ItemResponse['audio']>> = {}): NonNullable<ItemResponse['audio']> {
+function audio(
+  overrides: Partial<NonNullable<ItemResponse['audio']>> = {},
+): NonNullable<ItemResponse['audio']> {
   return {
     durationMs: 8000,
     wordsPerMinute: 140,
@@ -71,15 +73,24 @@ describe('sentence splitting', () => {
   })
 
   it('keeps an honorific with the name that follows it', () => {
-    expect(splitSentences('Dr. Smith arrived. He left.')).toEqual(['Dr. Smith arrived.', 'He left.'])
+    expect(splitSentences('Dr. Smith arrived. He left.')).toEqual([
+      'Dr. Smith arrived.',
+      'He left.',
+    ])
   })
 
   it('keeps an initialism together', () => {
-    expect(splitSentences('The U.S. economy grew. It slowed.')).toEqual(['The U.S. economy grew.', 'It slowed.'])
+    expect(splitSentences('The U.S. economy grew. It slowed.')).toEqual([
+      'The U.S. economy grew.',
+      'It slowed.',
+    ])
   })
 
   it('keeps a spelled-out initialism together', () => {
-    expect(splitSentences('This is e.g. an example. And more.')).toEqual(['This is e.g. an example.', 'And more.'])
+    expect(splitSentences('This is e.g. an example. And more.')).toEqual([
+      'This is e.g. an example.',
+      'And more.',
+    ])
   })
 
   it('drops empty fragments', () => {
@@ -181,15 +192,23 @@ describe('form bands', () => {
   })
 
   it('gives a response of very short sentences Form 0', () => {
-    expect(formBand('write-essay', 'It is good. That is true. This is fine. '.repeat(20).trim()).score).toBe(0)
+    expect(
+      formBand('write-essay', 'It is good. That is true. This is fine. '.repeat(20).trim()).score,
+    ).toBe(0)
   })
 
   it('gives any other written type the generic half band', () => {
-    expect(formBand('summarize-group-discussion', 'A perfectly ordinary sentence about the topic.').score).toBe(0.5)
+    expect(
+      formBand('summarize-group-discussion', 'A perfectly ordinary sentence about the topic.')
+        .score,
+    ).toBe(0.5)
   })
 
   it('gives any other written type Form 0 when a Form 0 condition applies', () => {
-    const result = formBand('summarize-group-discussion', 'A PERFECTLY ORDINARY SENTENCE ABOUT THE TOPIC AND MORE.')
+    const result = formBand(
+      'summarize-group-discussion',
+      'A PERFECTLY ORDINARY SENTENCE ABOUT THE TOPIC AND MORE.',
+    )
     expect(result.score).toBe(0)
     expect(result.note).toMatch(/all capitals/i)
   })
@@ -213,7 +232,9 @@ describe('published item maxima', () => {
   })
 
   it('counts the correct options of a multiple-answer item', () => {
-    expect(expectedMaxPoints('multiple-choice-multiple', { correctChoices: ['a', 'b', 'c'] })).toBe(3)
+    expect(expectedMaxPoints('multiple-choice-multiple', { correctChoices: ['a', 'b', 'c'] })).toBe(
+      3,
+    )
   })
 
   it('never reports fewer than one point for a multiple-answer item', () => {
@@ -221,7 +242,9 @@ describe('published item maxima', () => {
   })
 
   it('counts the correct options of a listening multiple-answer item', () => {
-    expect(expectedMaxPoints('listening-multiple-choice-multiple', { correctChoices: ['a', 'b'] })).toBe(2)
+    expect(
+      expectedMaxPoints('listening-multiple-choice-multiple', { correctChoices: ['a', 'b'] }),
+    ).toBe(2)
   })
 
   it('never reports fewer than one point for a listening multiple-answer item', () => {
@@ -229,7 +252,9 @@ describe('published item maxima', () => {
   })
 
   it('counts the incorrect words of a highlight item', () => {
-    expect(expectedMaxPoints('highlight-incorrect-words', { correctHighlighted: [1, 2, 3] })).toBe(3)
+    expect(expectedMaxPoints('highlight-incorrect-words', { correctHighlighted: [1, 2, 3] })).toBe(
+      3,
+    )
   })
 
   it('never reports fewer than one point for a highlight item', () => {
@@ -284,19 +309,31 @@ describe('objective scoring', () => {
   const blanks = makeItem('fill-in-blanks-dropdown', { responseKind: 'blanks', maxPoints: 2 })
 
   it('scores every blank that is right', () => {
-    const detail = scoreItem(blanks, { blanks: [['alpha'], ['beta']] }, { blanks: ['alpha', 'beta'] })
+    const detail = scoreItem(
+      blanks,
+      { blanks: [['alpha'], ['beta']] },
+      { blanks: ['alpha', 'beta'] },
+    )
     expect(detail.ratio).toBe(1)
     expect(detail.status).toBe('correct')
   })
 
   it('scores half the blanks that are right', () => {
-    const detail = scoreItem(blanks, { blanks: [['alpha'], ['beta']] }, { blanks: ['alpha', 'wrong'] })
+    const detail = scoreItem(
+      blanks,
+      { blanks: [['alpha'], ['beta']] },
+      { blanks: ['alpha', 'wrong'] },
+    )
     expect(detail.ratio).toBe(0.5)
     expect(detail.status).toBe('partial')
   })
 
   it('names the blanks that were missed', () => {
-    const detail = scoreItem(blanks, { blanks: [['alpha'], ['beta']] }, { blanks: ['alpha', 'wrong'] })
+    const detail = scoreItem(
+      blanks,
+      { blanks: [['alpha'], ['beta']] },
+      { blanks: ['alpha', 'wrong'] },
+    )
     expect(detail.notes[0]).toContain('1 of 2 correct')
     expect(detail.notes[0]).toContain('“beta”')
   })
@@ -335,7 +372,9 @@ describe('objective scoring', () => {
   const reorder = makeItem('reorder-paragraphs', { responseKind: 'order', maxPoints: 3 })
 
   it('scores a correct order as one', () => {
-    expect(scoreItem(reorder, { order: ['a', 'b', 'c', 'd'] }, { order: ['a', 'b', 'c', 'd'] }).ratio).toBe(1)
+    expect(
+      scoreItem(reorder, { order: ['a', 'b', 'c', 'd'] }, { order: ['a', 'b', 'c', 'd'] }).ratio,
+    ).toBe(1)
   })
 
   it('refuses to score an item whose key has no order', () => {
@@ -350,7 +389,11 @@ describe('objective scoring', () => {
   })
 
   it('ignores a block that is not one of the item blocks', () => {
-    const detail = scoreItem(reorder, { order: ['a', 'b', 'c', 'd'] }, { order: ['a', 'b', 'x', 'c'] })
+    const detail = scoreItem(
+      reorder,
+      { order: ['a', 'b', 'c', 'd'] },
+      { order: ['a', 'b', 'x', 'c'] },
+    )
     expect(detail.ratio).toBeLessThan(1)
     expect(Number.isFinite(detail.ratio)).toBe(true)
   })
@@ -380,10 +423,15 @@ describe('negatively marked scoring', () => {
     expect(detail.notes[0]).toContain('0 correct and 1 incorrect')
   })
 
-  const highlight = makeItem('highlight-incorrect-words', { responseKind: 'highlight', maxPoints: 2 })
+  const highlight = makeItem('highlight-incorrect-words', {
+    responseKind: 'highlight',
+    maxPoints: 2,
+  })
 
   it('scores the right highlights', () => {
-    expect(scoreItem(highlight, { correctHighlighted: [3, 7] }, { highlighted: [3, 7] }).ratio).toBe(1)
+    expect(
+      scoreItem(highlight, { correctHighlighted: [3, 7] }, { highlighted: [3, 7] }).ratio,
+    ).toBe(1)
   })
 
   it('scores nothing when the key has no highlighted words', () => {
@@ -396,7 +444,9 @@ describe('answer short questions', () => {
   const asq = makeItem('answer-short-question', { responseKind: 'audio' })
 
   it('scores the right answer as one', () => {
-    expect(scoreItem(asq, { correctChoice: 'A library card' }, { text: 'A library card' }).ratio).toBe(1)
+    expect(
+      scoreItem(asq, { correctChoice: 'A library card' }, { text: 'A library card' }).ratio,
+    ).toBe(1)
   })
 
   it('scores a wrong answer as zero', () => {
@@ -418,9 +468,15 @@ describe('answer short questions', () => {
   })
 
   it('warns when the answer is longer than four words', () => {
-    const detail = scoreItem(asq, { correctChoice: 'green' }, { text: 'the green valley lies to the north' })
+    const detail = scoreItem(
+      asq,
+      { correctChoice: 'green' },
+      { text: 'the green valley lies to the north' },
+    )
     expect(detail.ratio).toBe(1)
-    expect(detail.notes).toEqual(['Correct, but the guide expects one to four words for this type.'])
+    expect(detail.notes).toEqual([
+      'Correct, but the guide expects one to four words for this type.',
+    ])
   })
 
   it('falls back to the single correct choice when the key has no blanks', () => {
@@ -444,19 +500,35 @@ describe('spoken items', () => {
   const readAloud = makeItem('read-aloud', { responseKind: 'audio', maxPoints: 3 })
 
   it('scores a perfect reading well', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio() })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio() },
+    )
     expect(detail.ratio).toBeGreaterThan(0.8)
   })
 
   it('says nothing was spoken when there is neither words nor a recording', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { audio: audio({ wordsPerMinute: undefined as unknown as number }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { audio: audio({ wordsPerMinute: undefined as unknown as number }) },
+    )
     expect(detail.notes).toContain('Nothing was spoken.')
-    expect(detail.notes).toContain('Pronunciation was not measured — record the answer to score this trait.')
+    expect(detail.notes).toContain(
+      'Pronunciation was not measured — record the answer to score this trait.',
+    )
   })
 
   it('says oral fluency was not measured when there are words but no pace', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: 0 }) })
-    expect(detail.notes).toContain('Oral fluency was not measured — record the answer to score this trait.')
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: 0 }) },
+    )
+    expect(detail.notes).toContain(
+      'Oral fluency was not measured — record the answer to score this trait.',
+    )
   })
 
   it.each([
@@ -467,51 +539,89 @@ describe('spoken items', () => {
     [200, 0.8],
     [250, 0.6],
   ])('bands oral fluency at %i words per minute', (wpm, expected) => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: wpm }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: wpm }) },
+    )
     expect(detail.traits?.oralFluency).toBeCloseTo(expected, 2)
   })
 
   it('warns about a slow delivery', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: 70 }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: 70 }) },
+    )
     expect(detail.notes.some((note) => /smooth, even rhythm/.test(note))).toBe(true)
   })
 
   it('warns about a rushed delivery', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: 250 }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ wordsPerMinute: 250 }) },
+    )
     expect(detail.notes.some((note) => /rushed delivery/.test(note))).toBe(true)
   })
 
   it('takes two points off for a long pause in a long response', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ pauseCount: 3 }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ pauseCount: 3 }) },
+    )
     expect(detail.traits?.oralFluency).toBeCloseTo(0.6, 2)
   })
 
   it('takes one point off for a single pause in a long response', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ pauseCount: 2 }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ pauseCount: 2 }) },
+    )
     expect(detail.traits?.oralFluency).toBeCloseTo(0.8, 2)
     expect(detail.notes.some((note) => /2 long pauses/.test(note))).toBe(true)
   })
 
   it('takes one point off when too little of the take is speech', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ speechRatio: 0.2 }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ speechRatio: 0.2 }) },
+    )
     expect(detail.traits?.oralFluency).toBeCloseTo(0.8, 2)
   })
 
   it('does not measure pronunciation from an unreliable recording', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ reliable: false }) })
-    expect(detail.notes).toContain('Pronunciation was not measured — record the answer to score this trait.')
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ reliable: false }) },
+    )
+    expect(detail.notes).toContain(
+      'Pronunciation was not measured — record the answer to score this trait.',
+    )
   })
 
   it('does not measure pronunciation when the pitch is unknown', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio({ meanPitchHz: null }) })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio({ meanPitchHz: null }) },
+    )
     expect(detail.traits?.pronunciation).toBeGreaterThan(0)
   })
 
   it('calls a flat delivery flat', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, {
-      transcript: LONG_TEXT,
-      audio: audio({ energyVariance: 0, speechRatio: 0, meanPitchHz: null }),
-    })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      {
+        transcript: LONG_TEXT,
+        audio: audio({ energyVariance: 0, speechRatio: 0, meanPitchHz: null }),
+      },
+    )
     expect(detail.notes).toContain('Delivery was flat, with little variation in volume or pitch.')
   })
 
@@ -527,17 +637,29 @@ describe('spoken items', () => {
   })
 
   it('says nothing was reproduced when the prompt has no content words', () => {
-    const detail = scoreItem(readAloud, { reference: 'the of and' }, { transcript: LONG_TEXT, audio: audio() })
+    const detail = scoreItem(
+      readAloud,
+      { reference: 'the of and' },
+      { transcript: LONG_TEXT, audio: audio() },
+    )
     expect(detail.ratio).toBe(0)
   })
 
   it('says no content words were produced when the answer has none', () => {
-    const detail = scoreItem(readAloud, { reference: 'environment policy' }, { transcript: 'the of and', audio: audio() })
+    const detail = scoreItem(
+      readAloud,
+      { reference: 'environment policy' },
+      { transcript: 'the of and', audio: audio() },
+    )
     expect(detail.notes).toContain('No content words from the prompt were produced.')
   })
 
   it('gates an item whose content scored zero', () => {
-    const detail = scoreItem(readAloud, { reference: 'environment policy' }, { transcript: 'nothing relevant here', audio: audio() })
+    const detail = scoreItem(
+      readAloud,
+      { reference: 'environment policy' },
+      { transcript: 'nothing relevant here', audio: audio() },
+    )
     expect(detail.ratio).toBe(0)
     expect(detail.gated).toBe(true)
     expect(detail.notes.some((note) => /Content scored 0/.test(note))).toBe(true)
@@ -554,9 +676,13 @@ describe('spoken items', () => {
     // The recorder derives wordsPerMinute from the transcript, so a real take
     // from a browser without speech recognition arrives with pace 0 and only
     // the acoustic fields set. That used to fall through the gate as silence.
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, {
-      audio: audio({ wordsPerMinute: 0, speechDetected: true }),
-    })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      {
+        audio: audio({ wordsPerMinute: 0, speechDetected: true }),
+      },
+    )
     expect(detail.ratio).toBeGreaterThan(0)
     expect(detail.ratio).toBeLessThanOrEqual(0.45)
     expect(detail.gated).toBeUndefined()
@@ -564,9 +690,13 @@ describe('spoken items', () => {
   })
 
   it('does not claim silence when the microphone heard speech but no transcript', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, {
-      audio: audio({ wordsPerMinute: 0, speechDetected: true }),
-    })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      {
+        audio: audio({ wordsPerMinute: 0, speechDetected: true }),
+      },
+    )
     expect(detail.notes).toContain(
       'Pace could not be measured because this browser did not transcribe the recording.',
     )
@@ -574,52 +704,76 @@ describe('spoken items', () => {
   })
 
   it('caps delivery-only credit below the item maximum', () => {
-    const strong = scoreItem(readAloud, { reference: LONG_TEXT }, {
-      audio: audio({ wordsPerMinute: 0, speechDetected: true }),
-    })
+    const strong = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      {
+        audio: audio({ wordsPerMinute: 0, speechDetected: true }),
+      },
+    )
     expect(strong.ratio).toBe(0.45)
 
     // Weak delivery stays under the cap rather than being lifted to it.
-    const weak = scoreItem(readAloud, { reference: LONG_TEXT }, {
-      audio: audio({
-        wordsPerMinute: 0,
-        speechDetected: true,
-        energyVariance: 0.02,
-        meanPitchHz: 400,
-        speechRatio: 0.3,
-      }),
-    })
+    const weak = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      {
+        audio: audio({
+          wordsPerMinute: 0,
+          speechDetected: true,
+          energyVariance: 0.02,
+          meanPitchHz: 400,
+          speechRatio: 0.3,
+        }),
+      },
+    )
     expect(weak.ratio).toBeGreaterThan(0)
     expect(weak.ratio).toBeLessThan(0.45)
   })
 
   it('does not credit an unreliable recording that produced no transcript', () => {
-    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, {
-      audio: audio({ wordsPerMinute: 0, speechDetected: true, reliable: false }),
-    })
+    const detail = scoreItem(
+      readAloud,
+      { reference: LONG_TEXT },
+      {
+        audio: audio({ wordsPerMinute: 0, speechDetected: true, reliable: false }),
+      },
+    )
     expect(detail.ratio).toBe(0)
     expect(detail.gated).toBe(true)
   })
 
   it('scores a re-tell lecture against its key terms', () => {
     const retell = makeItem('retell-lecture', { responseKind: 'audio' })
-    const detail = scoreItem(retell, { reference: LONG_TEXT, keyTerms: ['committee', 'measurements', 'instrument'] }, {
-      transcript: LONG_TEXT,
-      audio: audio(),
-    })
+    const detail = scoreItem(
+      retell,
+      { reference: LONG_TEXT, keyTerms: ['committee', 'measurements', 'instrument'] },
+      {
+        transcript: LONG_TEXT,
+        audio: audio(),
+      },
+    )
     expect(detail.ratio).toBeGreaterThan(0.5)
   })
 
   it('scores a re-tell lecture with no key terms at all', () => {
     const retell = makeItem('retell-lecture', { responseKind: 'audio' })
-    const detail = scoreItem(retell, { reference: LONG_TEXT }, { transcript: LONG_TEXT, audio: audio() })
+    const detail = scoreItem(
+      retell,
+      { reference: LONG_TEXT },
+      { transcript: LONG_TEXT, audio: audio() },
+    )
     expect(detail.ratio).toBe(0)
     expect(detail.gated).toBe(true)
   })
 
   it('scores a re-tell lecture with no words at all on delivery alone', () => {
     const retell = makeItem('retell-lecture', { responseKind: 'audio' })
-    const detail = scoreItem(retell, { reference: LONG_TEXT, keyTerms: ['committee'] }, { audio: audio() })
+    const detail = scoreItem(
+      retell,
+      { reference: LONG_TEXT, keyTerms: ['committee'] },
+      { audio: audio() },
+    )
     expect(detail.ratio).toBeGreaterThan(0)
     expect(detail.gated).toBeUndefined()
   })
@@ -629,26 +783,38 @@ describe('written items', () => {
   const summary = makeItem('summarize-written-text', { responseKind: 'text' })
 
   it('scores a one-sentence summary that covers the source', () => {
-    const detail = scoreItem(summary, { reference: 'Urban trees cool cities.', keyTerms: ['urban', 'trees', 'cities'] }, {
-      text: 'The study found that urban trees cool cities.',
-    })
+    const detail = scoreItem(
+      summary,
+      { reference: 'Urban trees cool cities.', keyTerms: ['urban', 'trees', 'cities'] },
+      {
+        text: 'The study found that urban trees cool cities.',
+      },
+    )
     expect(detail.ratio).toBeGreaterThan(0.4)
     expect(detail.gated).toBeUndefined()
   })
 
   it('gates a summary whose content scored zero', () => {
-    const detail = scoreItem(summary, { reference: 'Urban trees cool cities.' }, {
-      text: 'This is one complete sentence about the topic.',
-    })
+    const detail = scoreItem(
+      summary,
+      { reference: 'Urban trees cool cities.' },
+      {
+        text: 'This is one complete sentence about the topic.',
+      },
+    )
     expect(detail.ratio).toBe(0)
     expect(detail.gated).toBe(true)
     expect(detail.notes.some((note) => /Content scored 0/.test(note))).toBe(true)
   })
 
   it('gates a summary whose form scored zero', () => {
-    const detail = scoreItem(summary, { reference: 'Urban trees cool cities.', keyTerms: ['urban', 'trees', 'cities'] }, {
-      text: 'urban trees',
-    })
+    const detail = scoreItem(
+      summary,
+      { reference: 'Urban trees cool cities.', keyTerms: ['urban', 'trees', 'cities'] },
+      {
+        text: 'urban trees',
+      },
+    )
     expect(detail.ratio).toBe(0)
     expect(detail.gated).toBe(true)
     expect(detail.notes.some((note) => /Form scored 0/.test(note))).toBe(true)
@@ -667,7 +833,11 @@ describe('written items', () => {
   })
 
   it('gives no writing traits to a response with no words in it', () => {
-    const detail = scoreItem(summary, { reference: 'Urban trees cool cities.', keyTerms: ['urban'] }, { text: '...' })
+    const detail = scoreItem(
+      summary,
+      { reference: 'Urban trees cool cities.', keyTerms: ['urban'] },
+      { text: '...' },
+    )
     expect(detail.traits?.grammar).toBe(0)
     expect(detail.traits?.vocabulary).toBe(0)
     // The written summary is scored on Content, Form, Grammar and Vocabulary
@@ -681,7 +851,11 @@ describe('written items', () => {
 
   it('notes the probable spelling errors in the key vocabulary', () => {
     const text = `${LONG_TEXT} ${LONG_TEXT} The enviroment matters, and so does developement and technolgy.`
-    const detail = scoreItem(essay, { reference: 'environment', keyTerms: ['environment', 'development', 'technology'] }, { text })
+    const detail = scoreItem(
+      essay,
+      { reference: 'environment', keyTerms: ['environment', 'development', 'technology'] },
+      { text },
+    )
     expect(detail.notes.some((note) => /probable spelling errors/.test(note))).toBe(true)
   })
 
@@ -689,13 +863,19 @@ describe('written items', () => {
     const text =
       'However, the effect is real and it does not depend on the season.\n\nMoreover, the same pattern holds in every region that was measured.'
     const detail = scoreItem(essay, { reference: 'effect', keyTerms: ['effect'] }, { text })
-    expect(detail.notes.some((note) => /introduction, body paragraphs and a conclusion/.test(note))).toBe(true)
+    expect(
+      detail.notes.some((note) => /introduction, body paragraphs and a conclusion/.test(note)),
+    ).toBe(true)
     expect(detail.notes.some((note) => /Very few linking words/.test(note))).toBe(false)
     expect(detail.traits?.development).toBeGreaterThan(0)
   })
 
   it('gives a written item its published content maximum', () => {
-    const detail = scoreItem(essay, { reference: 'effect', keyTerms: ['effect'] }, { text: 'The effect was clear.' })
+    const detail = scoreItem(
+      essay,
+      { reference: 'effect', keyTerms: ['effect'] },
+      { text: 'The effect was clear.' },
+    )
     expect(detail.contentMax).toBe(6)
   })
 })
@@ -824,13 +1004,17 @@ describe('the whole-test report', () => {
   const responses: Record<string, ItemResponse> = { i1: { choice: 'Alpha' } }
 
   it('routes an item with no skills to its primary skill', () => {
-    const report = buildReport([item], answers, responses, { i1: { skills: [], type: 'multiple-choice-single', label: 'MCQ' } })
+    const report = buildReport([item], answers, responses, {
+      i1: { skills: [], type: 'multiple-choice-single', label: 'MCQ' },
+    })
     expect(report.skills.reading).toBe(90)
   })
 
   it('falls back to the blueprint label when the item has no metadata', () => {
     const report = buildReport([item], answers, responses, {})
-    expect(report.breakdown['multiple-choice-single']?.label).toBe('Multiple Choice (Single Answer)')
+    expect(report.breakdown['multiple-choice-single']?.label).toBe(
+      'Multiple Choice (Single Answer)',
+    )
   })
 
   it('skips an item with no answer key', () => {

@@ -54,7 +54,11 @@ export function Card({
  * Display serif at text-xl: a card title is a sub-heading, and the one size
  * step below the section title is where the face starts to do real work.
  */
-export function CardTitle({ className, children, ...rest }: React.HTMLAttributes<HTMLHeadingElement>) {
+export function CardTitle({
+  className,
+  children,
+  ...rest
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3
       className={cn(
@@ -128,7 +132,15 @@ export function Button(props: ButtonBaseProps & ComponentPropsWithoutRef<'button
 }
 
 export function ButtonLink(props: ButtonBaseProps & ComponentPropsWithoutRef<typeof Link>) {
-  const { variant = 'primary', size = 'md', magnetic = false, className, children, to, ...rest } = props
+  const {
+    variant = 'primary',
+    size = 'md',
+    magnetic = false,
+    className,
+    children,
+    to,
+    ...rest
+  } = props
   const control = (
     <Link to={to} className={buttonClasses(variant, size, className)} {...rest}>
       {children}
@@ -250,7 +262,12 @@ export function PageWrapper({
   className?: string
   children: ReactNode
 }) {
-  const shell = size === 'prose' ? 'page-shell-prose' : size === 'content' ? 'page-shell-content' : 'page-shell-app'
+  const shell =
+    size === 'prose'
+      ? 'page-shell-prose'
+      : size === 'content'
+        ? 'page-shell-content'
+        : 'page-shell-app'
   return (
     <div className={cn(shell, className)}>
       {breadcrumbs ? <div className="mb-6">{breadcrumbs}</div> : null}
@@ -326,7 +343,9 @@ export function SectionHeading({
           {title}
         </h2>
         {description ? (
-          <p className="text-ink-500 dark:text-ink-on-dark mt-1.5 max-w-2xl text-sm leading-relaxed">{description}</p>
+          <p className="text-ink-500 dark:text-ink-on-dark mt-1.5 max-w-2xl text-sm leading-relaxed">
+            {description}
+          </p>
         ) : null}
       </div>
       {action}
@@ -337,10 +356,13 @@ export function SectionHeading({
 type Tone = 'neutral' | 'brand' | 'mint' | 'amber' | 'rose'
 
 const TONES: Record<Tone, string> = {
-  neutral: 'bg-ink-100/90 border-ink-200 text-ink-700 dark:bg-white/5 dark:border-white/10 dark:text-ink-on-dark',
-  brand: 'bg-brand-500/10 border-brand-500/30 text-brand-700 dark:text-brand-300 dark:bg-brand-500/15 dark:border-brand-400/30',
+  neutral:
+    'bg-ink-100/90 border-ink-200 text-ink-700 dark:bg-white/5 dark:border-white/10 dark:text-ink-on-dark',
+  brand:
+    'bg-brand-500/10 border-brand-500/30 text-brand-700 dark:text-brand-300 dark:bg-brand-500/15 dark:border-brand-400/30',
   mint: 'bg-mint-500/10 border-mint-500/30 text-mint-700 dark:text-mint-300 dark:bg-mint-500/15 dark:border-mint-400/30',
-  amber: 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 dark:bg-amber-500/15 dark:border-amber-400/30',
+  amber:
+    'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 dark:bg-amber-500/15 dark:border-amber-400/30',
   rose: 'bg-rose-500/10 border-rose-500/30 text-rose-600 dark:text-rose-300 dark:bg-rose-500/15 dark:border-rose-400/30',
 }
 
@@ -424,7 +446,10 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-label={label ?? 'Progress'}
-      className={cn('bg-ink-200 h-1.5 w-full overflow-hidden rounded-full dark:bg-white/10', className)}
+      className={cn(
+        'bg-ink-200 h-1.5 w-full overflow-hidden rounded-full dark:bg-white/10',
+        className,
+      )}
     >
       <div
         className={cn(
@@ -457,7 +482,11 @@ export function Toggle({
     <label className="flex cursor-pointer items-start justify-between gap-4 py-2.5">
       <span className="min-w-0">
         <span className="text-ink-800 dark:text-ink-100 block text-sm font-medium">{label}</span>
-        {description ? <span className="text-ink-500 dark:text-ink-on-dark-muted block text-xs">{description}</span> : null}
+        {description ? (
+          <span className="text-ink-500 dark:text-ink-on-dark-muted block text-xs">
+            {description}
+          </span>
+        ) : null}
       </span>
       <input
         type="checkbox"
@@ -472,7 +501,9 @@ export function Toggle({
         aria-hidden="true"
         className={cn(
           'relative mt-0.5 h-6 w-11 shrink-0 rounded-full border transition-colors duration-200 ease-out peer-focus-visible:ring-2 peer-focus-visible:ring-brand-500 peer-focus-visible:ring-offset-2 dark:peer-focus-visible:ring-offset-ink-900',
-          checked ? 'border-mint-600 bg-mint-500' : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
+          checked
+            ? 'border-mint-600 bg-mint-500'
+            : 'border-ink-300 bg-ink-200 dark:border-white/15 dark:bg-white/10',
         )}
       >
         <span
@@ -491,12 +522,24 @@ export function Toggle({
  * top-level block on its route, and heading straight from the page H1 to an H3
  * leaves a screen reader navigating by heading with no level at all in between.
  */
-export function EmptyState({ icon, title, description, action }: { icon?: ReactNode; title: string; description: string; action?: ReactNode }) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+}: {
+  icon?: ReactNode
+  title: string
+  description: string
+  action?: ReactNode
+}) {
   return (
     <div className="card flex flex-col items-start px-6 py-10 text-left">
       {icon ? <div className="text-ink-500 dark:text-ink-on-dark-muted mb-3">{icon}</div> : null}
       <h2 className="section-title">{title}</h2>
-      <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 max-w-sm text-sm leading-relaxed">{description}</p>
+      <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 max-w-sm text-sm leading-relaxed">
+        {description}
+      </p>
       {action ? <div className="mt-5">{action}</div> : null}
     </div>
   )
@@ -643,7 +686,9 @@ export function Callout({
   return (
     <div className={cn(rule ? CALLOUT_RULE_TONE[tone] : CALLOUT_TONE[tone], className)}>
       {label ? <p className={CALLOUT_TITLE[tone]}>{label}</p> : null}
-      <div className={cn('text-ink-700 dark:text-ink-100 text-sm leading-relaxed', label && 'mt-1.5')}>
+      <div
+        className={cn('text-ink-700 dark:text-ink-100 text-sm leading-relaxed', label && 'mt-1.5')}
+      >
         {children}
       </div>
     </div>
@@ -672,7 +717,11 @@ export function KeyFigure({
         <span className="key-figure-value">{value}</span>
         <span className="key-figure-label">{label}</span>
       </p>
-      {note ? <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs leading-relaxed">{note}</p> : null}
+      {note ? (
+        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs leading-relaxed">
+          {note}
+        </p>
+      ) : null}
     </div>
   )
 }

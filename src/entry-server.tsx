@@ -45,7 +45,10 @@ async function streamToString(stream: ReadableStream<Uint8Array> | string): Prom
  * The head is built from `seo/meta.ts` rather than read back out of the render,
  * so the static HTML and the client-rendered document come from one source.
  */
-export async function render(url: string, { known = true }: { known?: boolean } = {}): Promise<RenderResult> {
+export async function render(
+  url: string,
+  { known = true }: { known?: boolean } = {},
+): Promise<RenderResult> {
   const meta = known ? getPageMeta(url) : notFoundMeta(url)
   const tags = pageHeadTags(meta)
 

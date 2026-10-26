@@ -39,7 +39,9 @@
     "test:functions": "vitest run tests/functions",
     "test:smoke": "tsx scripts/smoke.ts",
     "test:bank": "tsx scripts/bank-check.ts",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "clsx": "^2.1.1",
@@ -67,6 +69,7 @@
     "fake-indexeddb": "^6.2.6",
     "jsdom": "^30.1.3",
     "oxlint": "^1.81.0",
+    "prettier": "^3.9.10",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
     "typescript": "~6.0.2",

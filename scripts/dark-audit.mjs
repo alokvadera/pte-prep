@@ -57,18 +57,15 @@ if (!bin) {
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-dark-audit-'))
 const port = 9800 + Math.floor(Math.random() * 150)
-const chrome = spawnChrome(
-  bin,
-  [
-    '--headless=new',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    `--remote-debugging-port=${port}`,
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    'about:blank',
-  ],
-)
+const chrome = spawnChrome(bin, [
+  '--headless=new',
+  '--disable-gpu',
+  '--hide-scrollbars',
+  `--remote-debugging-port=${port}`,
+  `--user-data-dir=${profile}`,
+  '--no-first-run',
+  'about:blank',
+])
 
 async function firstPageTarget() {
   for (let i = 0; i < 60; i++) {
@@ -193,7 +190,10 @@ const COLLECT = `(() => {
 
 async function settle() {
   await send('Emulation.setDeviceMetricsOverride', {
-    width: 1440, height: 1200, deviceScaleFactor: 1, mobile: false,
+    width: 1440,
+    height: 1200,
+    deviceScaleFactor: 1,
+    mobile: false,
   })
   await send('Page.navigate', { url: BASE })
   await new Promise((r) => setTimeout(r, 1200))

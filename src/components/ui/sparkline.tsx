@@ -24,7 +24,13 @@ export function Sparkline({
 }) {
   const cleanPoints = points.filter(Number.isFinite)
   if (cleanPoints.length < 2) {
-    return <div className={cn('rounded bg-ink-100 dark:bg-white/8', className)} style={{ width, height }} aria-hidden="true" />
+    return (
+      <div
+        className={cn('rounded bg-ink-100 dark:bg-white/8', className)}
+        style={{ width, height }}
+        aria-hidden="true"
+      />
+    )
   }
 
   const min = Math.min(...cleanPoints)
@@ -64,7 +70,12 @@ export function Sparkline({
         pathLength={1}
         className={cn('stroke-current animate-draw-line', STROKE[tone])}
       />
-      <circle cx={x(cleanPoints.length - 1)} cy={y(cleanPoints[cleanPoints.length - 1]!)} r={2.5} className={cn('fill-current animate-draw-dot', STROKE[tone])} />
+      <circle
+        cx={x(cleanPoints.length - 1)}
+        cy={y(cleanPoints[cleanPoints.length - 1]!)}
+        r={2.5}
+        className={cn('fill-current animate-draw-dot', STROKE[tone])}
+      />
     </svg>
   )
 }

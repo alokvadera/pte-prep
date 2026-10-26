@@ -275,9 +275,11 @@ export async function createSession(
  * Creates a signed session token without recording a session row. Used for
  * the paths that check the database binding after the session is verified.
  */
-export async function createToken(
-  options: { userId: string; email: string; expiresInSeconds?: number },
-): Promise<string> {
+export async function createToken(options: {
+  userId: string
+  email: string
+  expiresInSeconds?: number
+}): Promise<string> {
   return createSessionToken(
     { userId: options.userId, email: options.email },
     SECRET,

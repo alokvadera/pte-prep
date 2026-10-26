@@ -230,7 +230,10 @@ export function createD1Mock(options: D1MockOptions = {}): D1Mock {
       return ok(1)
     }
 
-    if (sql.includes('UPDATE password_resets SET used_at = datetime') && sql.includes('user_id = ?')) {
+    if (
+      sql.includes('UPDATE password_resets SET used_at = datetime') &&
+      sql.includes('user_id = ?')
+    ) {
       // Invalidate every outstanding link for one account.
       let changes = 0
       for (const row of resets.values()) {
@@ -365,7 +368,9 @@ export function createD1Mock(options: D1MockOptions = {}): D1Mock {
       const owner = String(args[0])
       const rows = [...attempts.values()]
         .filter((row) => row.user_id === owner)
-        .sort((a, b) => (a.finished_at < b.finished_at ? 1 : a.finished_at > b.finished_at ? -1 : 0))
+        .sort((a, b) =>
+          a.finished_at < b.finished_at ? 1 : a.finished_at > b.finished_at ? -1 : 0,
+        )
       return { results: rows.map((row) => ({ ...row })) }
     }
     return { results: [] }

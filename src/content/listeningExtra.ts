@@ -67,7 +67,15 @@ export const EXTRA_CONVERSATIONS: AudioScript[] = [
         text: 'It holds the slot for five working days. After that it returns to the pool automatically, so it is worth chasing the approval rather than assuming the booking is secure.',
       },
     ],
-    keyTerms: ['waiting period', 'capacity', 'bookings open', 'setup', 'sorting', 'consumables', 'approval'],
+    keyTerms: [
+      'waiting period',
+      'capacity',
+      'bookings open',
+      'setup',
+      'sorting',
+      'consumables',
+      'approval',
+    ],
   },
 
   {
@@ -114,7 +122,15 @@ export const EXTRA_CONVERSATIONS: AudioScript[] = [
         text: 'That is fine, and better than an empty field. Transfer after two o clock, please — before that the cardiology team are in clinic and there is nobody to review the trace.',
       },
     ],
-    keyTerms: ['transfer', 'outstanding question', 'tachycardia', 'twelve lead trace', 'fluid balance', 'retrospectively', 'after two'],
+    keyTerms: [
+      'transfer',
+      'outstanding question',
+      'tachycardia',
+      'twelve lead trace',
+      'fluid balance',
+      'retrospectively',
+      'after two',
+    ],
   },
 
   {
@@ -161,7 +177,15 @@ export const EXTRA_CONVERSATIONS: AudioScript[] = [
         text: 'I cannot remove it at the desk, but I can submit the trolley record for review, which usually takes five working days. One warning: if you have outstanding fines over fifteen pounds anywhere else, we cannot lend until they are cleared.',
       },
     ],
-    keyTerms: ['fine', 'returned', 'drop box', 'reshelving trolley', 'review', 'outstanding', 'lend'],
+    keyTerms: [
+      'fine',
+      'returned',
+      'drop box',
+      'reshelving trolley',
+      'review',
+      'outstanding',
+      'lend',
+    ],
   },
 
   {
@@ -208,7 +232,15 @@ export const EXTRA_CONVERSATIONS: AudioScript[] = [
         text: 'No. Accommodation priority is based on your year of study and length of stay, not on the subject. You would still be a second year, which is the band you are already in.',
       },
     ],
-    keyTerms: ['transfer', 'credits', 'formal application', 'sign off', 'committee', 'fortnightly', 'accommodation priority'],
+    keyTerms: [
+      'transfer',
+      'credits',
+      'formal application',
+      'sign off',
+      'committee',
+      'fortnightly',
+      'accommodation priority',
+    ],
   },
 ]
 
@@ -216,7 +248,8 @@ export const EXTRA_LISTENING_MCQ_SINGLE: ListeningMcqItem[] = [
   {
     id: 'lmcq-lab-1',
     audioId: 'con-lab-booking',
-    question: 'According to the manager, what happens to a booking if approval does not arrive in time?',
+    question:
+      'According to the manager, what happens to a booking if approval does not arrive in time?',
     options: [
       'The slot returns to the pool after five working days',
       'The slot is held indefinitely until the term ends',
@@ -253,7 +286,12 @@ export const EXTRA_LISTENING_MCQ_SINGLE: ListeningMcqItem[] = [
     id: 'lmcq-transfer-1',
     audioId: 'con-course-transfer',
     question: 'Who has to approve a transfer application?',
-    options: ['The head of the receiving department', 'The student administration office', 'The scholarship committee', 'The accommodation office'],
+    options: [
+      'The head of the receiving department',
+      'The student administration office',
+      'The scholarship committee',
+      'The accommodation office',
+    ],
     correct: ['The head of the receiving department'],
   },
 ]
@@ -305,7 +343,6 @@ export const EXTRA_LISTENING_MCQ_MULTI: ListeningMcqItem[] = [
     correct: ['Accommodation priority', 'The year of study band'],
   },
 ]
-
 
 /**
  * Same derivation rule as the originals: each pair is a substitution of exactly
@@ -375,7 +412,14 @@ export const EXTRA_SITUATIONS: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. You may correct the error, explain what happened, and say what you will do about it.',
     reference:
       'A presenter in this situation should correct the figure immediately and plainly rather than hoping it goes unnoticed, state the correct value and where it came from, and explain the error briefly without over-apologising. A strong response offers the corrected slide to the panel afterwards and indicates that the circulating document will be updated, so the record matches what was said.',
-    keyTerms: ['correct', 'figure', 'out of date', 'third slide', 'updated', 'circulating document'],
+    keyTerms: [
+      'correct',
+      'figure',
+      'out of date',
+      'third slide',
+      'updated',
+      'circulating document',
+    ],
     minWords: 40,
   },
 ]
@@ -451,16 +495,14 @@ export const EXTRA_LISTENING_FIB: ListeningFibItem[] = [
     id: 'lfib-lab-1',
     audioId: 'con-lab-booking',
     startTurn: 4,
-    text:
-      'The machine time is free for internal users, ______ covers funded students and staff. You pay only for the sample ______ consumables, and those are charged at cost. External users ______ an hourly rate instead, though I would check whether your project is ______ for the internal rate before assuming not.',
+    text: 'The machine time is free for internal users, ______ covers funded students and staff. You pay only for the sample ______ consumables, and those are charged at cost. External users ______ an hourly rate instead, though I would check whether your project is ______ for the internal rate before assuming not.',
     answers: [['which'], ['preparation'], ['pay'], ['eligible']],
   },
   {
     id: 'lfib-transfer-1',
     audioId: 'con-course-transfer',
     startTurn: 3,
-    text:
-      'You would need a formal ______ application, and ______ , the head of the receiving department has to ______ it off. That is the part students are usually ______ by — we can complete the paperwork, but we cannot ______ it here.',
+    text: 'You would need a formal ______ application, and ______ , the head of the receiving department has to ______ it off. That is the part students are usually ______ by — we can complete the paperwork, but we cannot ______ it here.',
     answers: [['transfer'], ['critically'], ['sign'], ['surprised'], ['approve']],
   },
 ]

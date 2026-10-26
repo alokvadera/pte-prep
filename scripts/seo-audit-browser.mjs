@@ -52,25 +52,25 @@ for (;;) {
   await sleep(300)
 }
 
-const chrome = spawnChrome(
-  chromeBinary,
-  [
-    '--headless=new',
-    `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    'about:blank',
-  ],
-)
+const chrome = spawnChrome(chromeBinary, [
+  '--headless=new',
+  `--remote-debugging-port=${PORT}`,
+  `--user-data-dir=${profile}`,
+  '--no-first-run',
+  '--no-default-browser-check',
+  '--disable-gpu',
+  '--hide-scrollbars',
+  'about:blank',
+])
 
 let version
 for (let i = 0; i < 100; i++) {
   try {
     const r = await fetch(`http://127.0.0.1:${PORT}/json/version`)
-    if (r.ok) { version = await r.json(); break }
+    if (r.ok) {
+      version = await r.json()
+      break
+    }
   } catch {}
   await sleep(200)
 }
@@ -99,7 +99,8 @@ const send = (method, params = {}, sessionId) =>
   })
 
 const findings = []
-const add = (area, issue, impact, evidence, fix) => findings.push({ area, issue, impact, evidence, fix })
+const add = (area, issue, impact, evidence, fix) =>
+  findings.push({ area, issue, impact, evidence, fix })
 
 const { targetId } = await send('Target.createTarget', { url: 'about:blank' })
 const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
@@ -115,17 +116,30 @@ ws.addEventListener('message', (e) => {
   if (m.method === 'Runtime.consoleAPICalled' && m.params.type === 'error') {
     consoleErrors.push(m.params.args.map((a) => a.value ?? a.description ?? '').join(' '))
   }
-  if (m.method === 'Log.entryAdded' && m.params.level === 'error') consoleErrors.push(m.params.entry.text)
+  if (m.method === 'Log.entryAdded' && m.params.level === 'error')
+    consoleErrors.push(m.params.entry.text)
 })
 
 const ev = async (expression) => {
-  const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+  const r = await send(
+    'Runtime.evaluate',
+    { expression, returnByValue: true, awaitPromise: true },
+    sessionId,
+  )
   return r.exceptionDetails ? null : r.result.value
 }
 
 const ROUTES = [
-  '/', '/mock', '/practice', '/format/', '/scoring/', '/guide/', '/about/', '/question-types/',
-  '/question-types/read-aloud/', '/question-types/listening-multiple-choice-multiple/',
+  '/',
+  '/mock',
+  '/practice',
+  '/format/',
+  '/scoring/',
+  '/guide/',
+  '/about/',
+  '/question-types/',
+  '/question-types/read-aloud/',
+  '/question-types/listening-multiple-choice-multiple/',
 ]
 
 // ---------------------------------------------------------------------------
@@ -144,11 +158,27 @@ for (const route of ROUTES) {
     })()
   `)
   let list = []
-  try { list = JSON.parse(parsed ?? '[]') } catch {}
+  try {
+    list = JSON.parse(parsed ?? '[]')
+  } catch {}
   const valid = list.filter((x) => x && !x.__invalid)
-  if (valid.length === 0) add('Structured Data', `${route} renders no valid JSON-LD`, 'Medium', '0 valid blocks', 'Emit schema for the page')
+  if (valid.length === 0)
+    add(
+      'Structured Data',
+      `${route} renders no valid JSON-LD`,
+      'Medium',
+      '0 valid blocks',
+      'Emit schema for the page',
+    )
   for (const x of list) {
-    if (x.__invalid) add('Structured Data', `${route} renders invalid JSON-LD`, 'High', x.__invalid, 'Fix serialisation')
+    if (x.__invalid)
+      add(
+        'Structured Data',
+        `${route} renders invalid JSON-LD`,
+        'High',
+        x.__invalid,
+        'Fix serialisation',
+      )
   }
 }
 
@@ -156,13 +186,28 @@ for (const route of ROUTES) {
 // 2. Mobile: viewport, horizontal overflow, tap targets
 // ---------------------------------------------------------------------------
 const MOBILE = { width: 390, height: 844, deviceScaleFactor: 3, mobile: true }
-for (const route of ['/', '/format/', '/question-types/', '/question-types/read-aloud/', '/guide/']) {
+for (const route of [
+  '/',
+  '/format/',
+  '/question-types/',
+  '/question-types/read-aloud/',
+  '/guide/',
+]) {
   await send('Emulation.setDeviceMetricsOverride', MOBILE, sessionId)
   await send('Page.navigate', { url: BASE + route }, sessionId)
   await sleep(1800)
 
-  const overflow = await ev('document.documentElement.scrollWidth - document.documentElement.clientWidth')
-  if (overflow > 2) add('Mobile', `${route} scrolls horizontally at 390px`, 'High', `${overflow}px overflow`, 'Constrain the offending element')
+  const overflow = await ev(
+    'document.documentElement.scrollWidth - document.documentElement.clientWidth',
+  )
+  if (overflow > 2)
+    add(
+      'Mobile',
+      `${route} scrolls horizontally at 390px`,
+      'High',
+      `${overflow}px overflow`,
+      'Constrain the offending element',
+    )
 
   // WCAG 2.2 SC 2.5.8 (Target Size, Minimum) exempts targets that sit inline in
   // a sentence or block of text — padding those would break the typography, and
@@ -183,7 +228,13 @@ for (const route of ['/', '/format/', '/question-types/', '/question-types/read-
   try {
     const items = JSON.parse(small ?? '[]')
     if (items.length) {
-      add('Mobile', `${route} has ${items.length} tap targets under 24px tall`, 'Medium', JSON.stringify(items[0]), 'Increase hit area to at least 24px')
+      add(
+        'Mobile',
+        `${route} has ${items.length} tap targets under 24px tall`,
+        'Medium',
+        JSON.stringify(items[0]),
+        'Increase hit area to at least 24px',
+      )
     }
   } catch {}
 }
@@ -192,7 +243,11 @@ for (const route of ['/', '/format/', '/question-types/', '/question-types/read-
 // regardless of viewport, and a desktop nav link sits close enough to the limit
 // that a padding change can drop it under.
 {
-  await send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false }, sessionId)
+  await send(
+    'Emulation.setDeviceMetricsOverride',
+    { width: 1280, height: 900, deviceScaleFactor: 1, mobile: false },
+    sessionId,
+  )
   for (const route of ['/', '/format/', '/question-types/']) {
     await send('Page.navigate', { url: BASE + route }, sessionId)
     await sleep(1600)
@@ -207,7 +262,13 @@ for (const route of ['/', '/format/', '/question-types/', '/question-types/read-
     try {
       const items = JSON.parse(small ?? '[]')
       if (items.length) {
-        add('Mobile', `${route} has ${items.length} header targets under 24px tall at desktop width`, 'Medium', JSON.stringify(items[0]), 'Give the link block padding so the hit area clears 24px')
+        add(
+          'Mobile',
+          `${route} has ${items.length} header targets under 24px tall at desktop width`,
+          'Medium',
+          JSON.stringify(items[0]),
+          'Give the link block padding so the hit area clears 24px',
+        )
       }
     } catch {}
   }
@@ -218,12 +279,16 @@ for (const route of ['/', '/format/', '/question-types/', '/question-types/read-
 // ---------------------------------------------------------------------------
 await send('Emulation.setDeviceMetricsOverride', MOBILE, sessionId)
 await send('Network.setCacheDisabled', { cacheDisabled: true }, sessionId)
-await send('Network.emulateNetworkConditions', {
-  offline: false,
-  latency: 150,
-  downloadThroughput: (1.6 * 1024 * 1024) / 8,
-  uploadThroughput: (750 * 1024) / 8,
-}, sessionId)
+await send(
+  'Network.emulateNetworkConditions',
+  {
+    offline: false,
+    latency: 150,
+    downloadThroughput: (1.6 * 1024 * 1024) / 8,
+    uploadThroughput: (750 * 1024) / 8,
+  },
+  sessionId,
+)
 
 for (const route of ['/', '/format/', '/question-types/read-aloud/']) {
   await send('Page.navigate', { url: BASE + route }, sessionId)
@@ -248,14 +313,43 @@ for (const route of ['/', '/format/', '/question-types/read-aloud/']) {
     })
   `)
   let v = {}
-  try { v = JSON.parse(vitals ?? '{}') } catch {}
-  if (v.lcp > 2500) add('Core Web Vitals', `${route} LCP is ${v.lcp}ms (target < 2500)`, 'High', `LCP ${v.lcp}ms`, 'Reduce render-blocking resources or preload the LCP element')
-  if (v.cls > 0.1) add('Core Web Vitals', `${route} CLS is ${v.cls} (target < 0.1)`, 'High', `CLS ${v.cls}`, 'Reserve space for late-loading content')
-  if (v.dcl && v.dcl > 2000) add('Speed', `${route} DOMContentLoaded is ${v.dcl}ms (target < 2000)`, 'Medium', `DCL ${v.dcl}ms`, 'Trim the critical path')
+  try {
+    v = JSON.parse(vitals ?? '{}')
+  } catch {}
+  if (v.lcp > 2500)
+    add(
+      'Core Web Vitals',
+      `${route} LCP is ${v.lcp}ms (target < 2500)`,
+      'High',
+      `LCP ${v.lcp}ms`,
+      'Reduce render-blocking resources or preload the LCP element',
+    )
+  if (v.cls > 0.1)
+    add(
+      'Core Web Vitals',
+      `${route} CLS is ${v.cls} (target < 0.1)`,
+      'High',
+      `CLS ${v.cls}`,
+      'Reserve space for late-loading content',
+    )
+  if (v.dcl && v.dcl > 2000)
+    add(
+      'Speed',
+      `${route} DOMContentLoaded is ${v.dcl}ms (target < 2000)`,
+      'Medium',
+      `DCL ${v.dcl}ms`,
+      'Trim the critical path',
+    )
 }
 
 if (consoleErrors.length) {
-  add('Runtime', `${consoleErrors.length} console errors during the crawl`, 'High', consoleErrors.slice(0, 2).join(' | ').slice(0, 160), 'Fix the underlying error')
+  add(
+    'Runtime',
+    `${consoleErrors.length} console errors during the crawl`,
+    'High',
+    consoleErrors.slice(0, 2).join(' | ').slice(0, 160),
+    'Fix the underlying error',
+  )
 }
 
 // ---------------------------------------------------------------------------
@@ -264,7 +358,9 @@ for (const f of findings) byImpact[f.impact] = (byImpact[f.impact] ?? 0) + 1
 
 console.log(`\n== Rendered-DOM SEO audit of ${BASE} ==`)
 console.log(`\n  ${ROUTES.length} routes rendered, 3 measured for Core Web Vitals`)
-console.log(`\n  Findings: ${findings.length}  (critical ${byImpact.Critical}, high ${byImpact.High}, medium ${byImpact.Medium}, low ${byImpact.Low})`)
+console.log(
+  `\n  Findings: ${findings.length}  (critical ${byImpact.Critical}, high ${byImpact.High}, medium ${byImpact.Medium}, low ${byImpact.Low})`,
+)
 
 if (!findings.length) console.log('\n  No issues found.')
 for (const f of findings) {

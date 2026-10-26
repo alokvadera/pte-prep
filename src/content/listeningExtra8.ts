@@ -117,7 +117,12 @@ export const EXTRA_MISSING_WORD_8: MissingWordItem[] = [
   },
 ]
 
-function derived8(id: string, audioId: string, transcript: string, correctTranscript: string): HighlightIncorrectItem {
+function derived8(
+  id: string,
+  audioId: string,
+  transcript: string,
+  correctTranscript: string,
+): HighlightIncorrectItem {
   const shown = transcript.split(/\s+/)
   const actual = correctTranscript.split(/\s+/)
   const diff = shown.reduce<number[]>((acc, w, i) => (w === actual[i] ? acc : [...acc, i]), [])
@@ -183,48 +188,42 @@ export const EXTRA_LISTENING_FIB_8: ListeningFibItem[] = [
     id: 'fibl-701',
     audioId: 'con-workplace-training',
     startTurn: 1,
-    text:
-      'The course runs on Thursday and Friday afternoons, and it is a ______ of the new quality standard, so I would rather you went than missed it. Move the deadline to Wednesday and tell the client today. A one-day move is inside the ______ in the contract, and I will confirm it in writing so it is on record.',
+    text: 'The course runs on Thursday and Friday afternoons, and it is a ______ of the new quality standard, so I would rather you went than missed it. Move the deadline to Wednesday and tell the client today. A one-day move is inside the ______ in the contract, and I will confirm it in writing so it is on record.',
     answers: [['condition'], ['tolerance']],
   },
   {
     id: 'fibl-702',
     audioId: 'con-workplace-training',
     startTurn: 5,
-    text:
-      'If it does, you leave at your normal hour and the second session is ______ . The assessment can be completed within a ______ of the course, and the trainer signs it off. It goes to the central training budget this year, so your project keeps its contingency.',
+    text: 'If it does, you leave at your normal hour and the second session is ______ . The assessment can be completed within a ______ of the course, and the trainer signs it off. It goes to the central training budget this year, so your project keeps its contingency.',
     answers: [['recorded'], ['week']],
   },
   {
     id: 'fibl-703',
     audioId: 'con-rail-connection',
     startTurn: 1,
-    text:
-      'It is, but the pass covers the standard route only. The coastal express also needs a ______ , and reservations are ten pounds per person. Normally it is, because the platform change takes about five minutes. But there is engineering work near the junction this weekend, so the connection moves to platform ______ and you should allow fifteen.',
+    text: 'It is, but the pass covers the standard route only. The coastal express also needs a ______ , and reservations are ten pounds per person. Normally it is, because the platform change takes about five minutes. But there is engineering work near the junction this weekend, so the connection moves to platform ______ and you should allow fifteen.',
     answers: [['reservation'], ['four']],
   },
   {
     id: 'fibl-704',
     audioId: 'con-rail-connection',
     startTurn: 5,
-    text:
-      'The next service is forty minutes later and the pass covers it, but only on the ______ day. Miss the last one and the morning replacement is not included. You can. The seven-ten arrives before the ______ starts, and because it is within the pass validity you pay only the reservation.',
+    text: 'The next service is forty minutes later and the pass covers it, but only on the ______ day. Miss the last one and the morning replacement is not included. You can. The seven-ten arrives before the ______ starts, and because it is within the pass validity you pay only the reservation.',
     answers: [['same'], ['closure']],
   },
   {
     id: 'fibl-705',
     audioId: 'con-shop-exchange',
     startTurn: 1,
-    text:
-      'Without a receipt I can offer an exchange or a gift card at the current ______ price, not the price paid, and only within the twenty-eight-day window. It does run small, so a large is the ______ move. We have the large in navy in stock, but not in the grey you are exchanging.',
+    text: 'Without a receipt I can offer an exchange or a gift card at the current ______ price, not the price paid, and only within the twenty-eight-day window. It does run small, so a large is the ______ move. We have the large in navy in stock, but not in the grey you are exchanging.',
     answers: [['selling'], ['sensible']],
   },
   {
     id: 'fibl-706',
     audioId: 'con-street-party',
     startTurn: 1,
-    text:
-      'An application at least six weeks ahead. Because that is a busy summer Saturday the bar is higher: we ask for a traffic management plan and public ______ insurance. Then we keep an access gap in the closure, held clear by ______ you appoint, and we ask you to give every resident a notice seven days ahead.',
+    text: 'An application at least six weeks ahead. Because that is a busy summer Saturday the bar is higher: we ask for a traffic management plan and public ______ insurance. Then we keep an access gap in the closure, held clear by ______ you appoint, and we ask you to give every resident a notice seven days ahead.',
     answers: [['liability'], ['marshals']],
   },
 ]
@@ -257,7 +256,8 @@ export const EXTRA_HIGHLIGHT_SUMMARY_8: HighlightSummaryItem[] = [
   {
     id: 'hcs-703',
     audioId: 'con-shop-exchange',
-    question: 'Which statement best summarises the shop assistant\'s resolution of the jacket exchange?',
+    question:
+      "Which statement best summarises the shop assistant's resolution of the jacket exchange?",
     options: [
       'Without a receipt, the customer can exchange the small grey sale jacket for a full-price navy large by paying the fifteen-pound difference, or receive a forty-pound gift card.',
       'The store refuses to accept the jacket because the original purchase receipt was not retained by the customer within the strict fourteen-day returns limit.',
@@ -293,7 +293,8 @@ export const EXTRA_HIGHLIGHT_SUMMARY_8: HighlightSummaryItem[] = [
   {
     id: 'hcs-706',
     audioId: 'lec-quantum-computing',
-    question: 'Which statement best summarises the speaker\'s argument concerning quantum computing?',
+    question:
+      "Which statement best summarises the speaker's argument concerning quantum computing?",
     options: [
       'Environmental decoherence rapidly destroys fragile quantum superposition, requiring fault-tolerant surface codes with thousands of physical qubits per logical qubit rather than simple classical cloning.',
       'Quantum computation has surpassed classical supercomputing because the no-cloning theorem allows instant and error-free duplication of delicate qubit amplitudes.',
@@ -320,14 +321,16 @@ export const EXTRA_LISTENING_MCQ_SINGLE_8: ListeningMcqItem[] = [
   {
     id: 'lmcqs-702',
     audioId: 'con-rail-connection',
-    question: 'What complication affects the passenger\'s transfer at the junction?',
+    question: "What complication affects the passenger's transfer at the junction?",
     options: [
       'Engineering work moves the connection to platform four and requires fifteen minutes',
       'The coastal train line has been permanently decommissioned for maintenance',
       'The connection platform cannot be reached without an additional luggage ticket',
-      'The passenger\'s seven-day rail pass is restricted to weekday departures only',
+      "The passenger's seven-day rail pass is restricted to weekday departures only",
     ],
-    correct: ['Engineering work moves the connection to platform four and requires fifteen minutes'],
+    correct: [
+      'Engineering work moves the connection to platform four and requires fifteen minutes',
+    ],
   },
   {
     id: 'lmcqs-703',
@@ -339,7 +342,9 @@ export const EXTRA_LISTENING_MCQ_SINGLE_8: ListeningMcqItem[] = [
       'The larger size jacket contains more material and carries an elevated base price',
       'The exchange window had expired, incurring an overdue transaction processing surcharge',
     ],
-    correct: ['The exchanged grey jacket was on sale for forty pounds while the navy jacket is fifty-five'],
+    correct: [
+      'The exchanged grey jacket was on sale for forty pounds while the navy jacket is fifty-five',
+    ],
   },
   {
     id: 'lmcqs-704',
@@ -356,19 +361,23 @@ export const EXTRA_LISTENING_MCQ_SINGLE_8: ListeningMcqItem[] = [
   {
     id: 'lmcqs-705',
     audioId: 'lec-climate-tipping',
-    question: 'What mechanism causes the grounding line of the West Antarctic ice sheet to retreat?',
+    question:
+      'What mechanism causes the grounding line of the West Antarctic ice sheet to retreat?',
     options: [
       'Warm circumpolar deep water melts ice shelves from beneath along reverse-sloping bedrock',
       'Intense surface solar radiation evaporates terrestrial snow cover during polar winters',
       'Sudden volcanic eruptions beneath marine volcanic calderas boil subglacial meltwater',
       'Atmospheric ozone depletion alters the directional speed of westerly trade winds',
     ],
-    correct: ['Warm circumpolar deep water melts ice shelves from beneath along reverse-sloping bedrock'],
+    correct: [
+      'Warm circumpolar deep water melts ice shelves from beneath along reverse-sloping bedrock',
+    ],
   },
   {
     id: 'lmcqs-706',
     audioId: 'lec-quantum-computing',
-    question: 'Why cannot quantum computing use simple classical bit-duplication for error correction?',
+    question:
+      'Why cannot quantum computing use simple classical bit-duplication for error correction?',
     options: [
       'The no-cloning theorem strictly forbids copying an unknown quantum state',
       'Superconducting qubits operate at room temperatures where thermal noise is absent',
@@ -383,7 +392,8 @@ export const EXTRA_LISTENING_MCQ_MULTI_8: ListeningMcqItem[] = [
   {
     id: 'lmcqm-701',
     audioId: 'con-workplace-training',
-    question: 'Which two agreements do the manager and employee make regarding deadlines and costs?',
+    question:
+      'Which two agreements do the manager and employee make regarding deadlines and costs?',
     options: [
       'The client report deadline is moved earlier to Wednesday',
       'The training course fee will be funded from the central training budget',
@@ -487,7 +497,15 @@ export const EXTRA_SITUATIONS_8: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. Address the audience, explain how you will proceed, and keep the session on time.',
     reference:
       'The presenter should remain calm, acknowledge the technical failure without panic, and immediately pivot to the printed handouts. They should invite the audience to refer to the key data tables on page two, summarize the core findings verbally with confidence, and adhere strictly to the remaining ten-minute time limit to respect subsequent speakers.',
-    keyTerms: ['technical failure', 'handouts', 'pivot', 'core findings', 'verbally', 'time limit', 'respect'],
+    keyTerms: [
+      'technical failure',
+      'handouts',
+      'pivot',
+      'core findings',
+      'verbally',
+      'time limit',
+      'respect',
+    ],
     minWords: 40,
   },
   {
@@ -498,7 +516,15 @@ export const EXTRA_SITUATIONS_8: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. State your position, refer to the lease agreement, and propose a lawful resolution.',
     reference:
       'The tenant should respond firmly and professionally, citing the specific clause in the signed tenancy agreement that limits rent adjustments to five percent. They should politely reject the thirty percent increase as legally invalid under the contract, offer to pay the legitimate five percent revised amount on schedule, and request written confirmation of the corrected invoice.',
-    keyTerms: ['tenancy agreement', 'clause', 'capped', 'reject', 'contract', 'five percent', 'written confirmation'],
+    keyTerms: [
+      'tenancy agreement',
+      'clause',
+      'capped',
+      'reject',
+      'contract',
+      'five percent',
+      'written confirmation',
+    ],
     minWords: 40,
   },
   {
@@ -509,7 +535,15 @@ export const EXTRA_SITUATIONS_8: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. Explain the urgency, highlight their shipping error, and negotiate an express same-day solution.',
     reference:
       'The researcher should clearly state that the error was on the vendor side, noting the catalog number mismatch. They should emphasize that the scheduled experiment is time-critical with perishable biological samples, and firmly request an urgent courier dispatch for same-day delivery or authorization to collect the correct reagent from a local depot at the supplier expense.',
-    keyTerms: ['shipping error', 'catalog number', 'time-critical', 'perishable', 'urgent courier', 'same-day', 'depot'],
+    keyTerms: [
+      'shipping error',
+      'catalog number',
+      'time-critical',
+      'perishable',
+      'urgent courier',
+      'same-day',
+      'depot',
+    ],
     minWords: 40,
   },
   {
@@ -520,7 +554,15 @@ export const EXTRA_SITUATIONS_8: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. Address the ethical concern directly, set out what must be changed, and protect the team integrity.',
     reference:
       'The student should confront the teammate constructively and immediately, explaining that uncredited verbatim text violates academic integrity and constitutes plagiarism. They should insist that they rewrite the copied paragraphs into original wording with appropriate scholarly citations before submission, offering to help paraphrase the text tonight to meet the deadline safely.',
-    keyTerms: ['plagiarism', 'uncredited', 'citations', 'academic integrity', 'rewrite', 'paraphrase', 'submission'],
+    keyTerms: [
+      'plagiarism',
+      'uncredited',
+      'citations',
+      'academic integrity',
+      'rewrite',
+      'paraphrase',
+      'submission',
+    ],
     minWords: 40,
   },
   {
@@ -531,7 +573,14 @@ export const EXTRA_SITUATIONS_8: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. Assess the offer, request required compensation, hotel lodging, and meal vouchers.',
     reference:
       'The passenger should assess whether their travel schedule allows a delay. If willing to volunteer, they should clearly negotiate statutory cash compensation for involuntary bumping, a confirmed booking on the morning flight in business class, and complimentary hotel accommodations with transportation and meal vouchers before surrendering their boarding pass.',
-    keyTerms: ['overbooked', 'volunteer', 'compensation', 'hotel accommodation', 'vouchers', 'confirmed booking'],
+    keyTerms: [
+      'overbooked',
+      'volunteer',
+      'compensation',
+      'hotel accommodation',
+      'vouchers',
+      'confirmed booking',
+    ],
     minWords: 40,
   },
   {
@@ -542,7 +591,15 @@ export const EXTRA_SITUATIONS_8: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. Address the department head and university librarian, explaining the critical academic dependency.',
     reference:
       'The postgraduate should write a formal appeal detailing how their approved dissertation methodology depends directly on the cancelled database. They should propose pragmatic temporary solutions, such as requesting individual inter-library loan access, departmental discretionary funding for access tokens, or a letter of support for a research deadline extension.',
-    keyTerms: ['database', 'dissertation', 'dependency', 'appeal', 'inter-library loan', 'access tokens', 'extension'],
+    keyTerms: [
+      'database',
+      'dissertation',
+      'dependency',
+      'appeal',
+      'inter-library loan',
+      'access tokens',
+      'extension',
+    ],
     minWords: 40,
   },
 ]

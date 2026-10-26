@@ -49,11 +49,17 @@ export const EXTRA_SITUATIONS_2: SituationItem[] = [
       'Respond to the situation. Speak for between 40 and 90 seconds. You may explain what you have found, ask what options exist, and say what you would like to happen.',
     reference:
       'A customer in this position should state the comparison plainly — the repair cost against the replacement value — rather than only the cost, because that is the fact the provider needs. A strong response asks what access to a cheaper part would require, whether the item can be made safe to use in the meantime, and for the quotation in writing, without accepting or refusing outright.',
-    keyTerms: ['repair cost', 'replacement value', 'cheaper part', 'safe to use', 'in writing', 'quotation'],
+    keyTerms: [
+      'repair cost',
+      'replacement value',
+      'cheaper part',
+      'safe to use',
+      'in writing',
+      'quotation',
+    ],
     minWords: 40,
   },
 ]
-
 
 export const EXTRA_HIGHLIGHT_INCORRECT_2: HighlightIncorrectItem[] = [
   derived(

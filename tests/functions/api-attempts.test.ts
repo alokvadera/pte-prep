@@ -99,15 +99,27 @@ describe('GET /api/attempts', () => {
     const { mock, token, userId } = await signedIn()
     seedAttempt(
       mock,
-      makeAttemptRow({ id: 'attempt_0001', user_id: userId, finished_at: '2024-01-03T00:00:00.000Z' }),
+      makeAttemptRow({
+        id: 'attempt_0001',
+        user_id: userId,
+        finished_at: '2024-01-03T00:00:00.000Z',
+      }),
     )
     seedAttempt(
       mock,
-      makeAttemptRow({ id: 'attempt_0002', user_id: userId, finished_at: '2024-01-02T00:00:00.000Z' }),
+      makeAttemptRow({
+        id: 'attempt_0002',
+        user_id: userId,
+        finished_at: '2024-01-02T00:00:00.000Z',
+      }),
     )
     seedAttempt(
       mock,
-      makeAttemptRow({ id: 'attempt_0003', user_id: userId, finished_at: '2024-01-01T00:00:00.000Z' }),
+      makeAttemptRow({
+        id: 'attempt_0003',
+        user_id: userId,
+        finished_at: '2024-01-01T00:00:00.000Z',
+      }),
     )
     const ctx = makeContext({
       request: requestWith(`${ATTEMPTS_URL}?ids=1`, { method: 'GET', headers: bearer(token) }),
@@ -128,15 +140,27 @@ describe('GET /api/attempts', () => {
     const { mock, token, userId } = await signedIn()
     seedAttempt(
       mock,
-      makeAttemptRow({ id: 'attempt_0001', user_id: userId, finished_at: '2024-01-03T00:00:00.000Z' }),
+      makeAttemptRow({
+        id: 'attempt_0001',
+        user_id: userId,
+        finished_at: '2024-01-03T00:00:00.000Z',
+      }),
     )
     seedAttempt(
       mock,
-      makeAttemptRow({ id: 'attempt_0002', user_id: userId, finished_at: '2024-01-02T00:00:00.000Z' }),
+      makeAttemptRow({
+        id: 'attempt_0002',
+        user_id: userId,
+        finished_at: '2024-01-02T00:00:00.000Z',
+      }),
     )
     seedAttempt(
       mock,
-      makeAttemptRow({ id: 'attempt_0003', user_id: userId, finished_at: '2024-01-01T00:00:00.000Z' }),
+      makeAttemptRow({
+        id: 'attempt_0003',
+        user_id: userId,
+        finished_at: '2024-01-01T00:00:00.000Z',
+      }),
     )
     const ctx = makeContext({
       request: requestWith(`${ATTEMPTS_URL}?ids=1&limit=2`, {
@@ -162,7 +186,10 @@ describe('GET /api/attempts', () => {
 
     const tooSmall = await listGet(
       makeContext({
-        request: requestWith(`${ATTEMPTS_URL}?ids=1&limit=0`, { method: 'GET', headers: bearer(token) }),
+        request: requestWith(`${ATTEMPTS_URL}?ids=1&limit=0`, {
+          method: 'GET',
+          headers: bearer(token),
+        }),
         env: makeEnv({ DB: mock.db }),
       }),
     )
@@ -399,10 +426,7 @@ describe('GET /api/attempts', () => {
 
   it('ignores a responses payload that is not an object', async () => {
     const { mock, token, userId } = await signedIn()
-    seedAttempt(
-      mock,
-      makeAttemptRow({ id: 'attempt_0001', user_id: userId, responses: 'null' }),
-    )
+    seedAttempt(mock, makeAttemptRow({ id: 'attempt_0001', user_id: userId, responses: 'null' }))
     const ctx = makeContext({
       request: requestWith(ATTEMPTS_URL, { method: 'GET', headers: bearer(token) }),
       env: makeEnv({ DB: mock.db }),
@@ -733,7 +757,9 @@ describe('POST /api/attempts', () => {
     const res = await listPost(ctx)
 
     expect(res.status).toBe(400)
-    expect(await readJson(res)).toEqual({ error: 'Attempt limit reached for this account (max 2,000).' })
+    expect(await readJson(res)).toEqual({
+      error: 'Attempt limit reached for this account (max 2,000).',
+    })
     expect(mock.attempts.has('attempt_over_cap')).toBe(false)
   })
 
@@ -744,7 +770,11 @@ describe('POST /api/attempts', () => {
     }
     seedAttempt(
       mock,
-      makeAttemptRow({ id: 'attempt_existing_user', user_id: userId, skill_scores: '{"reading": 10}' }),
+      makeAttemptRow({
+        id: 'attempt_existing_user',
+        user_id: userId,
+        skill_scores: '{"reading": 10}',
+      }),
     )
     const ctx = makeContext({
       request: jsonRequest(

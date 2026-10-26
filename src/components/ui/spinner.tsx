@@ -5,7 +5,13 @@ import { cn } from '../../lib/cn'
  * rotating arc — the same mark the site already used inline,
  * codified so every loading state matches.
  */
-export function Spinner({ size = 'md', className }: { size?: 'sm' | 'md' | 'lg'; className?: string }) {
+export function Spinner({
+  size = 'md',
+  className,
+}: {
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
+}) {
   return (
     <span
       role="status"

@@ -25,18 +25,78 @@ const API_KEY = process.env.FISHAUDIO_API_KEY
 // Verified official Fish Audio clean voice models
 export const VOICES = {
   // Female
-  freya: { id: '8abfa9ebd4c24a3399b68c3cdac8c7b5', name: 'Freya', gender: 'Female', accent: 'British', desc: 'Young, crisp, natural' },
-  sophia: { id: '0efe38923c0b445ab09382e851ae1e30', name: 'Sophia', gender: 'Female', accent: 'British', desc: 'Professional, articulate' },
-  megan: { id: '705690224f264386b87fb598083ab022', name: 'Megan', gender: 'Female', accent: 'British (London)', desc: 'Warm, relaxed' },
-  harper: { id: 'c250136a9ec74cc0b799be54664a83f2', name: 'Harper', gender: 'Female', accent: 'American', desc: 'Clear, modern, confident' },
-  chloe: { id: 'b121b91872f54f04ba9f6da08b8b6253', name: 'Chloe', gender: 'Female', accent: 'Australian', desc: 'Natural, brisk, authentic' },
+  freya: {
+    id: '8abfa9ebd4c24a3399b68c3cdac8c7b5',
+    name: 'Freya',
+    gender: 'Female',
+    accent: 'British',
+    desc: 'Young, crisp, natural',
+  },
+  sophia: {
+    id: '0efe38923c0b445ab09382e851ae1e30',
+    name: 'Sophia',
+    gender: 'Female',
+    accent: 'British',
+    desc: 'Professional, articulate',
+  },
+  megan: {
+    id: '705690224f264386b87fb598083ab022',
+    name: 'Megan',
+    gender: 'Female',
+    accent: 'British (London)',
+    desc: 'Warm, relaxed',
+  },
+  harper: {
+    id: 'c250136a9ec74cc0b799be54664a83f2',
+    name: 'Harper',
+    gender: 'Female',
+    accent: 'American',
+    desc: 'Clear, modern, confident',
+  },
+  chloe: {
+    id: 'b121b91872f54f04ba9f6da08b8b6253',
+    name: 'Chloe',
+    gender: 'Female',
+    accent: 'Australian',
+    desc: 'Natural, brisk, authentic',
+  },
 
   // Male
-  james: { id: '08b4100b4c3747fe84ed8b57d26a95ba', name: 'James', gender: 'Male', accent: 'British', desc: 'Young adult, friendly, articulate' },
-  anthony: { id: '98e364e9a41c465a9d4fdafc267f84ea', name: 'Anthony', gender: 'Male', accent: 'British', desc: 'Deep, academic, authoritative' },
-  oliver: { id: '8d8aec63a56c460cb7def795bdf754fa', name: 'Oliver', gender: 'Male', accent: 'British', desc: 'Crisp, confident' },
-  mason: { id: '02e950ce577d4f008a2dfb4782789a3a', name: 'Mason', gender: 'Male', accent: 'American', desc: 'Young adult, clear, brisk' },
-  jack: { id: 'a92fb82d739d428a80d4645c5cf91e38', name: 'Jack', gender: 'Male', accent: 'Australian', desc: 'Young adult, crisp Australian' },
+  james: {
+    id: '08b4100b4c3747fe84ed8b57d26a95ba',
+    name: 'James',
+    gender: 'Male',
+    accent: 'British',
+    desc: 'Young adult, friendly, articulate',
+  },
+  anthony: {
+    id: '98e364e9a41c465a9d4fdafc267f84ea',
+    name: 'Anthony',
+    gender: 'Male',
+    accent: 'British',
+    desc: 'Deep, academic, authoritative',
+  },
+  oliver: {
+    id: '8d8aec63a56c460cb7def795bdf754fa',
+    name: 'Oliver',
+    gender: 'Male',
+    accent: 'British',
+    desc: 'Crisp, confident',
+  },
+  mason: {
+    id: '02e950ce577d4f008a2dfb4782789a3a',
+    name: 'Mason',
+    gender: 'Male',
+    accent: 'American',
+    desc: 'Young adult, clear, brisk',
+  },
+  jack: {
+    id: 'a92fb82d739d428a80d4645c5cf91e38',
+    name: 'Jack',
+    gender: 'Male',
+    accent: 'Australian',
+    desc: 'Young adult, crisp Australian',
+  },
 }
 
 export function cleanText(text) {
@@ -61,14 +121,25 @@ export function mapConversationVoices(script) {
     const hint = (sp.voiceHint || '').toLowerCase()
 
     const isFemale =
-      /priya|mara|chen|novak|bergstr|amara|karen|lindgren|tanaka|hartley|adeyemi|hana|leila|lindqvist|gallagher|meyer/.test(name) ||
+      /priya|mara|chen|novak|bergstr|amara|karen|lindgren|tanaka|hartley|adeyemi|hana|leila|lindqvist|gallagher|meyer/.test(
+        name,
+      ) ||
       /mrs|ms|nurse|sister/.test(name) ||
       /nurse/.test(role) ||
-      (hint.includes('high') && !/mr\b|dr marsh|jonas|duarte|idris|bernard|gordon|dev|cole|s[øo]rensen|brandt|evans|o'connor/.test(name))
+      (hint.includes('high') &&
+        !/mr\b|dr marsh|jonas|duarte|idris|bernard|gordon|dev|cole|s[øo]rensen|brandt|evans|o'connor/.test(
+          name,
+        ))
 
     let voiceKey = 'james'
     if (isFemale) {
-      if (role.includes('prof') || role.includes('dean') || role.includes('director') || role.includes('head') || hint.includes('low')) {
+      if (
+        role.includes('prof') ||
+        role.includes('dean') ||
+        role.includes('director') ||
+        role.includes('head') ||
+        hint.includes('low')
+      ) {
         voiceKey = !usedVoiceKeys.has('sophia') ? 'sophia' : 'freya'
       } else if (!usedVoiceKeys.has('freya')) {
         voiceKey = 'freya'
@@ -82,7 +153,13 @@ export function mapConversationVoices(script) {
         voiceKey = 'megan'
       }
     } else {
-      if (role.includes('prof') || role.includes('supervisor') || role.includes('manager') || role.includes('archivist') || hint.includes('low')) {
+      if (
+        role.includes('prof') ||
+        role.includes('supervisor') ||
+        role.includes('manager') ||
+        role.includes('archivist') ||
+        hint.includes('low')
+      ) {
         voiceKey = !usedVoiceKeys.has('anthony') ? 'anthony' : 'oliver'
       } else if (!usedVoiceKeys.has('james')) {
         voiceKey = 'james'
@@ -146,7 +223,9 @@ export async function synthesizeDialogue(script) {
 
   console.log(`\n🎙️  Synthesizing "${script.title}" (${script.id})`)
   voiceAssignments.forEach((va, idx) => {
-    console.log(`     [${idx}] ${va.name} (${va.role}): ${va.voice.name} (${va.voice.gender}, ${va.voice.accent})`)
+    console.log(
+      `     [${idx}] ${va.name} (${va.role}): ${va.voice.name} (${va.voice.gender}, ${va.voice.accent})`,
+    )
   })
   console.log(`   Text: ${payloadText.length} chars, ${script.turns.length} turns`)
 
@@ -174,7 +253,9 @@ export async function synthesizeDialogue(script) {
 
       const errBody = (await res.text()).slice(0, 200)
       if (res.status === 429 || res.status >= 500) {
-        console.warn(`   ⚠️  Attempt ${attempt} failed (${res.status}), retrying in ${attempt * 3}s...`)
+        console.warn(
+          `   ⚠️  Attempt ${attempt} failed (${res.status}), retrying in ${attempt * 3}s...`,
+        )
         await new Promise((r) => setTimeout(r, attempt * 3000))
         continue
       }
@@ -219,7 +300,9 @@ export async function synthesizeDialogue(script) {
     }
   }
 
-  console.log(`   ✓ Saved: public/audio/${script.id}.m4a (${Math.round(byteSize / 1024)} KB, ${durationSec.toFixed(1)}s)`)
+  console.log(
+    `   ✓ Saved: public/audio/${script.id}.m4a (${Math.round(byteSize / 1024)} KB, ${durationSec.toFixed(1)}s)`,
+  )
   return { id: script.id, durationSec, bytes: byteSize }
 }
 
@@ -252,8 +335,14 @@ async function main() {
     console.log(`\nFound ${conversations.length} conversations:`)
     conversations.forEach((c, idx) => {
       const v = mapConversationVoices(c)
-      console.log(`\n${String(idx + 1).padStart(2)}. [${c.id}] "${c.title}" (${c.kind}) - ${c.turns.length} turns`)
-      v.forEach((s) => console.log(`     → [${s.speakerId}] ${s.name} (${s.role}): ${s.voice.name} (${s.voice.gender}, ${s.voice.accent})`))
+      console.log(
+        `\n${String(idx + 1).padStart(2)}. [${c.id}] "${c.title}" (${c.kind}) - ${c.turns.length} turns`,
+      )
+      v.forEach((s) =>
+        console.log(
+          `     → [${s.speakerId}] ${s.name} (${s.role}): ${s.voice.name} (${s.voice.gender}, ${s.voice.accent})`,
+        ),
+      )
     })
     return
   }
@@ -283,7 +372,8 @@ async function main() {
   }
 
   // Pre-seed the already rendered items
-  state['con-student-accommodation'] = state['con-student-accommodation'] || new Date().toISOString()
+  state['con-student-accommodation'] =
+    state['con-student-accommodation'] || new Date().toISOString()
   state['con-lab-notebook'] = state['con-lab-notebook'] || new Date().toISOString()
   state['con-field-station'] = state['con-field-station'] || new Date().toISOString()
   writeFileSync(stateFile, JSON.stringify(state, null, 2))
@@ -293,7 +383,9 @@ async function main() {
   for (let i = 0; i < targets.length; i++) {
     const script = targets[i]
     if (!isForce && !idArg && state[script.id]) {
-      console.log(`[${i + 1}/${targets.length}] ⏩ Skipping ${script.id} (already rendered with clean voices). Use --force to re-render.`)
+      console.log(
+        `[${i + 1}/${targets.length}] ⏩ Skipping ${script.id} (already rendered with clean voices). Use --force to re-render.`,
+      )
       completed++
       continue
     }

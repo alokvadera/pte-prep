@@ -50,7 +50,9 @@ export function TestHeader({
   onExpire,
 }: Props) {
   const [internalRemaining, setInternalRemaining] = useState(() =>
-    sectionEndsAt ? Math.max(0, Math.ceil((sectionEndsAt - Date.now()) / 1000)) : (propsSecondsRemaining ?? 0),
+    sectionEndsAt
+      ? Math.max(0, Math.ceil((sectionEndsAt - Date.now()) / 1000))
+      : (propsSecondsRemaining ?? 0),
   )
 
   useEffect(() => {
@@ -67,7 +69,10 @@ export function TestHeader({
     return () => window.clearInterval(id)
   }, [sectionEndsAt, untimed, onExpire])
 
-  const secondsRemaining = sectionEndsAt !== undefined && sectionEndsAt !== null ? internalRemaining : (propsSecondsRemaining ?? 0)
+  const secondsRemaining =
+    sectionEndsAt !== undefined && sectionEndsAt !== null
+      ? internalRemaining
+      : (propsSecondsRemaining ?? 0)
   const rawRatio = totalSeconds > 0 ? secondsRemaining / totalSeconds : 0
   const ratio = Math.max(0, Math.min(1, rawRatio))
   const critical = secondsRemaining <= 60
@@ -146,7 +151,9 @@ export function TestHeader({
             {answered} answered
           </span>
           {flagged > 0 ? (
-            <span className="text-amber-600 dark:text-amber-300 text-xs tabular-nums">{flagged} flagged</span>
+            <span className="text-amber-600 dark:text-amber-300 text-xs tabular-nums">
+              {flagged} flagged
+            </span>
           ) : null}
           {untimed ? (
             <span className="bg-ink-100 text-ink-700 dark:bg-white/8 dark:text-ink-200 rounded-md px-3 py-1.5 text-sm font-semibold">
@@ -156,19 +163,23 @@ export function TestHeader({
 
           {/* The clock itself. `aria-live="off"` keeps the changing number out
               of the live region; a plain label keeps it readable on demand. */}
-          {untimed ? null : <div
-            className={cn(
-              'rounded-md px-3 py-1.5 font-mono text-lg font-bold tabular-nums',
-              critical && 'bg-rose-brand/15 text-rose-600 dark:text-rose-300 animate-pulse-soft',
-              warning && 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
-              !critical && !warning && 'bg-brand-500/10 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300',
-            )}
-            role="timer"
-            aria-live="off"
-            aria-label={remainingLabel}
-          >
-            {formatClock(secondsRemaining)}
-          </div>}
+          {untimed ? null : (
+            <div
+              className={cn(
+                'rounded-md px-3 py-1.5 font-mono text-lg font-bold tabular-nums',
+                critical && 'bg-rose-brand/15 text-rose-600 dark:text-rose-300 animate-pulse-soft',
+                warning && 'bg-amber-500/15 text-amber-600 dark:text-amber-300',
+                !critical &&
+                  !warning &&
+                  'bg-brand-500/10 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300',
+              )}
+              role="timer"
+              aria-live="off"
+              aria-label={remainingLabel}
+            >
+              {formatClock(secondsRemaining)}
+            </div>
+          )}
         </div>
       </div>
 
@@ -202,13 +213,20 @@ export function TestHeader({
                 }}
               >
                 Add 5 minutes
-                {extended > 0 ? <span className="text-ink-500 dark:text-ink-on-dark-muted"> ({extended} added)</span> : null}
+                {extended > 0 ? (
+                  <span className="text-ink-500 dark:text-ink-on-dark-muted">
+                    {' '}
+                    ({extended} added)
+                  </span>
+                ) : null}
               </button>
             ) : null}
             {/* The reminder stands in for the control until the control is
                 there. Without an extension button there is nothing to take
                 its place, so the announcement has to stay. */}
-            {onExtend && canExtend ? null : <span className="sr-only">Time is about to expire.</span>}
+            {onExtend && canExtend ? null : (
+              <span className="sr-only">Time is about to expire.</span>
+            )}
           </div>
         </div>
       ) : null}

@@ -43,7 +43,14 @@ export function PulseDot({
           RING[tone],
         )}
       />
-      <span aria-hidden="true" className={cn('relative inline-flex rounded-full', size === 'sm' ? 'size-2' : 'size-2.5', CORE[tone])} />
+      <span
+        aria-hidden="true"
+        className={cn(
+          'relative inline-flex rounded-full',
+          size === 'sm' ? 'size-2' : 'size-2.5',
+          CORE[tone],
+        )}
+      />
     </span>
   )
 }

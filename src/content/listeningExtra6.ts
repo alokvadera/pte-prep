@@ -173,40 +173,35 @@ export const EXTRA_LISTENING_FIB_6: ListeningFibItem[] = [
     id: 'fibl-601',
     audioId: 'con-module-change',
     startTurn: 1,
-    text:
-      'You can, because switches are allowed until the end of week ______ . After Friday the enrolment locks and no changes are possible. Research methods repeats its first two weeks as a catch-up block in week ______ , precisely for students who transfer late. You will not be behind.',
+    text: 'You can, because switches are allowed until the end of week ______ . After Friday the enrolment locks and no changes are possible. Research methods repeats its first two weeks as a catch-up block in week ______ , precisely for students who transfer late. You will not be behind.',
     answers: [['three'], ['four']],
   },
   {
     id: 'fibl-602',
     audioId: 'lec-antibiotics',
     startTurn: 1,
-    text:
-      'The economics are not mysterious. Penicillin-type drugs are cheap to produce and have been for decades, which means that generic manufacturers have no reason to enter a market, and the firms that did supply the active ingredient have been free to exit it when it became unprofitable. What remains is a supply chain with very few ______ , and in a supply chain with few nodes, the loss of one is not a shortage. It is a ______.',
+    text: 'The economics are not mysterious. Penicillin-type drugs are cheap to produce and have been for decades, which means that generic manufacturers have no reason to enter a market, and the firms that did supply the active ingredient have been free to exit it when it became unprofitable. What remains is a supply chain with very few ______ , and in a supply chain with few nodes, the loss of one is not a shortage. It is a ______.',
     answers: [['nodes'], ['gap']],
   },
   {
     id: 'fibl-603',
     audioId: 'con-bus-pass',
     startTurn: 3,
-    text:
-      'If you apply online before ______ , the digital pass is active the same evening. The plastic card follows by ______ within five working days. The first replacement in an academic year costs twelve ______ . A second one costs ______ , which is meant to encourage people to look a little harder.',
+    text: 'If you apply online before ______ , the digital pass is active the same evening. The plastic card follows by ______ within five working days. The first replacement in an academic year costs twelve ______ . A second one costs ______ , which is meant to encourage people to look a little harder.',
     answers: [['noon'], ['post'], ['pounds'], ['twenty-five']],
   },
   {
     id: 'fibl-604',
     audioId: 'con-supervisor-meeting',
     startTurn: 1,
-    text:
-      'Freeze the ______ , not the sentences. Fix your headings and the word budget per section now, and allow the wording to move until the results are stable. Answer it in one paragraph before they ask. State the reason — access was ______ in March — give the consequence, and name what you did instead. Reviewers pursue what you appear to hide.',
+    text: 'Freeze the ______ , not the sentences. Fix your headings and the word budget per section now, and allow the wording to move until the results are stable. Answer it in one paragraph before they ask. State the reason — access was ______ in March — give the consequence, and name what you did instead. Reviewers pursue what you appear to hide.',
     answers: [['structure'], ['withdrawn']],
   },
   {
     id: 'fibl-605',
     audioId: 'con-field-station',
     startTurn: 7,
-    text:
-      'The main house has central heating throughout, but the annexe has no ______ — only portable heaters, which we provide. The annexe is cheaper by about thirty per ______ , and most groups take a mix of the two. The deposit is two weeks of the quoted rate. It is ______ , and in practice it has been refunded every year except once, when a room was damaged.',
+    text: 'The main house has central heating throughout, but the annexe has no ______ — only portable heaters, which we provide. The annexe is cheaper by about thirty per ______ , and most groups take a mix of the two. The deposit is two weeks of the quoted rate. It is ______ , and in practice it has been refunded every year except once, when a room was damaged.',
     answers: [['heating'], ['cent'], ['refundable']],
   },
 ]
@@ -306,7 +301,12 @@ export const EXTRA_LISTENING_MCQ_SINGLE_6: ListeningMcqItem[] = [
     id: 'lmcqs-603',
     audioId: 'con-parking-permit',
     question: 'When does the council ask for the council tax bill or a utility statement?',
-    options: ['After the first month', 'From the day of application', 'After six months', 'Only at renewal time'],
+    options: [
+      'After the first month',
+      'From the day of application',
+      'After six months',
+      'Only at renewal time',
+    ],
     correct: ['After the first month'],
   },
   {
@@ -351,7 +351,10 @@ export const EXTRA_LISTENING_MCQ_MULTIPLE_6: ListeningMcqItem[] = [
       'A penalty for giving less than six weeks of notice',
       'The full remaining rent until September regardless',
     ],
-    correct: ['Rent until a replacement tenant signs', 'An early cancellation fee on the broadband contract'],
+    correct: [
+      'Rent until a replacement tenant signs',
+      'An early cancellation fee on the broadband contract',
+    ],
   },
   {
     id: 'lmcqm-602',
@@ -359,17 +362,21 @@ export const EXTRA_LISTENING_MCQ_MULTIPLE_6: ListeningMcqItem[] = [
     question: 'Which two statements about the emergency appointment are true? Select TWO.',
     options: [
       'The morning emergency slot has already been taken',
-      'The afternoon slot offered is four o\'clock',
+      "The afternoon slot offered is four o'clock",
       'The patient will be seen by her usual dentist',
       'The examination and all treatment are free for plan members',
       'The duty dentist today is Dr Patel',
     ],
-    correct: ['The morning emergency slot has already been taken', 'The duty dentist today is Dr Patel'],
+    correct: [
+      'The morning emergency slot has already been taken',
+      'The duty dentist today is Dr Patel',
+    ],
   },
   {
     id: 'lmcqm-603',
     audioId: 'con-bike-hire',
-    question: 'Which two facts does the support agent establish about the front-light charge? Select TWO.',
+    question:
+      'Which two facts does the support agent establish about the front-light charge? Select TWO.',
     options: [
       'The charge was raised by the mechanic who inspected the bike',
       'No damage is visible on the light housing in the photographs',
@@ -401,7 +408,8 @@ export const EXTRA_LISTENING_MCQ_MULTIPLE_6: ListeningMcqItem[] = [
   {
     id: 'lmcqm-605',
     audioId: 'con-archive-visit',
-    question: 'Which two conditions allow the visitor to order material on the same day? Select TWO.',
+    question:
+      'Which two conditions allow the visitor to order material on the same day? Select TWO.',
     options: [
       'The item is already in the reading room',
       'The order is placed before noon',
@@ -425,7 +433,7 @@ export const EXTRA_SITUATIONS_6: SituationItem[] = [
     prompt:
       'Respond to the situation. Speak for between 40 and 90 seconds. You may explain what happened, ask what evidence is needed, and say what you will do.',
     reference:
-      'A student in this position should reply to the tutor promptly and calmly, state the time of submission and any confirmation number, and ask specifically what the portal shows on the tutor\'s side. A strong response offers to forward the submission receipt and the email confirmation, asks for a short extension if the file is genuinely missing, and follows up in writing so there is a record of the attempt.',
+      "A student in this position should reply to the tutor promptly and calmly, state the time of submission and any confirmation number, and ask specifically what the portal shows on the tutor's side. A strong response offers to forward the submission receipt and the email confirmation, asks for a short extension if the file is genuinely missing, and follows up in writing so there is a record of the attempt.",
     keyTerms: ['portal', 'submission', 'confirmation', 'receipt', 'extension', 'record'],
     minWords: 40,
   },
@@ -458,7 +466,7 @@ export const EXTRA_SITUATIONS_6: SituationItem[] = [
     prompt:
       'Respond to the situation. Speak for between 40 and 90 seconds. You may reassure the visitor, say what you will do, and ask for the information you need.',
     reference:
-      'A volunteer in this position should stay calm and reassuring, ask for the child\'s name, age and what they were wearing, and tell the visitor exactly what will happen next. A strong response asks a colleague to alert the entrance and first-aid points, stays with the parent rather than leaving them alone, and avoids promising a timeframe you cannot control while making clear the search has already begun.',
+      "A volunteer in this position should stay calm and reassuring, ask for the child's name, age and what they were wearing, and tell the visitor exactly what will happen next. A strong response asks a colleague to alert the entrance and first-aid points, stays with the parent rather than leaving them alone, and avoids promising a timeframe you cannot control while making clear the search has already begun.",
     keyTerms: ['child', 'reassuring', 'wearing', 'entrance', 'first-aid', 'search'],
     minWords: 40,
   },
@@ -476,7 +484,7 @@ export const EXTRA_SITUATIONS_6: SituationItem[] = [
   {
     id: 'rts-606',
     situation:
-      'You ordered supplies for a workshop a month ago. The delivery arrived incomplete, the invoice charges you for the full order, and the supplier\'s phone line is engaged every time you call.',
+      "You ordered supplies for a workshop a month ago. The delivery arrived incomplete, the invoice charges you for the full order, and the supplier's phone line is engaged every time you call.",
     prompt:
       'Respond to the situation. Speak for between 40 and 90 seconds. You may explain the problem, state what you want, and say how you will follow up.',
     reference:

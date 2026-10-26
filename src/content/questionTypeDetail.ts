@@ -218,8 +218,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
   'listening-multiple-choice-single': {
     what: 'You hear a recording and answer one multiple-choice question with a single correct option.',
     how: 'The options appear before the audio plays, which is unusual and useful — it tells you what to listen for. Questions cover detail, inference, purpose and attitude.',
-    scoring:
-      'Correct or incorrect, one point, with no partial credit.',
+    scoring: 'Correct or incorrect, one point, with no partial credit.',
     mistakes: [
       'Choosing before the audio finishes, on the strength of the first matching phrase.',
       'Missing the distractor that restates the recording almost exactly but changes one word’s meaning.',
@@ -240,8 +239,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
   'select-missing-word': {
     what: 'A recording plays with a short beep marking where a word is missing. You choose the word that completes it from four options.',
     how: 'The options are built as near-homophones, so they are distinguished by stress pattern and by what the grammar around the gap allows, not by meaning alone. Each word plays only within its own recording.',
-    scoring:
-      'Correct or incorrect, one point, with no partial credit.',
+    scoring: 'Correct or incorrect, one point, with no partial credit.',
     mistakes: [
       'Choosing on meaning when the distractors are all grammatical, leaving nothing to separate them.',
       'Missing the stress pattern difference that is the actual discriminator.',
@@ -303,7 +301,9 @@ export function relatedTypes(type: QuestionType, limit = 4): QuestionType[] {
 }
 
 /** All slugs, in blueprint order — used by the router and the prerender list. */
-export const ALL_TYPE_SLUGS: string[] = (Object.keys(QUESTION_TYPE_DETAIL) as QuestionType[]).map(typeSlug)
+export const ALL_TYPE_SLUGS: string[] = (Object.keys(QUESTION_TYPE_DETAIL) as QuestionType[]).map(
+  typeSlug,
+)
 
 const SKILL_LABEL: Record<string, string> = {
   speaking: 'Speaking',
@@ -354,7 +354,9 @@ export function faqForType(type: QuestionType): Array<{ question: string; answer
 export const HUB_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'How many question types are in the PTE Academic?',
-    answer: `There are ${ALL_QUESTION_TYPES.length} question types: ${(['speaking-writing', 'reading', 'listening'] as const)
+    answer: `There are ${ALL_QUESTION_TYPES.length} question types: ${(
+      ['speaking-writing', 'reading', 'listening'] as const
+    )
       .map((s) => {
         const n = ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === s).length
         return `${n} in ${SECTION_META[s].longTitle}`

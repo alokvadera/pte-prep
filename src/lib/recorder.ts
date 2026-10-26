@@ -32,7 +32,12 @@ interface SpeechRecognitionLike extends EventTarget {
   start(): void
   stop(): void
   abort(): void
-  onresult: ((event: { resultIndex: number; results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }> }) => void) | null
+  onresult:
+    | ((event: {
+        resultIndex: number
+        results: ArrayLike<{ isFinal: boolean; 0: { transcript: string } }>
+      }) => void)
+    | null
   onerror: ((event: { error: string }) => void) | null
   onend: (() => void) | null
 }
@@ -52,7 +57,8 @@ export function isRecordingSupported(): boolean {
   return (
     typeof navigator !== 'undefined' &&
     typeof navigator.mediaDevices?.getUserMedia === 'function' &&
-    (typeof window !== 'undefined' && ('AudioContext' in window || 'webkitAudioContext' in window))
+    typeof window !== 'undefined' &&
+    ('AudioContext' in window || 'webkitAudioContext' in window)
   )
 }
 
@@ -216,7 +222,9 @@ export class VoiceRecorder {
             return false
           }
         })
-        this.mediaRecorder = mimeType ? new MediaRecorder(this.stream, { mimeType }) : new MediaRecorder(this.stream)
+        this.mediaRecorder = mimeType
+          ? new MediaRecorder(this.stream, { mimeType })
+          : new MediaRecorder(this.stream)
         this.audioChunks = []
         this.mediaRecorder.ondataavailable = (e) => {
           if (e.data && e.data.size > 0) {
@@ -348,7 +356,10 @@ export class VoiceRecorder {
     }
     this.recognition = null
 
-    if (this.lastInterim.trim() && !this.transcript.toLowerCase().includes(this.lastInterim.toLowerCase().trim())) {
+    if (
+      this.lastInterim.trim() &&
+      !this.transcript.toLowerCase().includes(this.lastInterim.toLowerCase().trim())
+    ) {
       this.transcript = `${this.transcript} ${this.lastInterim}`.trim()
     }
 
@@ -375,13 +386,14 @@ export class VoiceRecorder {
     const transcript = this.transcript.trim()
     const spokenWords = transcript ? transcript.split(/\s+/).filter(Boolean).length : 0
     const wordsPerMinute =
-      durationMs > 0 && spokenWords > 0 ? Math.round((spokenWords / (durationMs / 60000)) * 10) / 10 : 0
+      durationMs > 0 && spokenWords > 0
+        ? Math.round((spokenWords / (durationMs / 60000)) * 10) / 10
+        : 0
 
     // A 300ms accidental tap is not a measurement. Gate reliability on a
     // minimum sample so fluency never reports confidence from noise.
     const totalSamples = this.speechFrames + this.silentFrames
-    const reliable =
-      this.stopping && durationMs >= 1500 && totalSamples >= 10
+    const reliable = this.stopping && durationMs >= 1500 && totalSamples >= 10
 
     const analysis: AudioAnalysis = {
       durationMs: Math.round(durationMs),

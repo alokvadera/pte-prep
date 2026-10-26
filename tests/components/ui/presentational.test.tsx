@@ -122,14 +122,17 @@ describe('CountdownRing', () => {
 })
 
 describe('IconTile', () => {
-  it.each(['outline', 'elevated', 'soft', 'solid', 'frame'] as const)('renders the %s variant', (variant) => {
-    const { container } = render(
-      <IconTile variant={variant}>
-        <span>icon</span>
-      </IconTile>,
-    )
-    expect(container.firstChild).toBeInTheDocument()
-  })
+  it.each(['outline', 'elevated', 'soft', 'solid', 'frame'] as const)(
+    'renders the %s variant',
+    (variant) => {
+      const { container } = render(
+        <IconTile variant={variant}>
+          <span>icon</span>
+        </IconTile>,
+      )
+      expect(container.firstChild).toBeInTheDocument()
+    },
+  )
 
   it.each(['xs', 'sm', 'default', 'lg', 'xl'] as const)('renders the %s size', (size) => {
     const { container } = render(
@@ -261,7 +264,14 @@ describe('Slider', () => {
 
   it('shows the formatted value', () => {
     render(
-      <Slider label="Score" value={42} min={0} max={90} onChange={() => {}} format={(n) => `${n} points`} />,
+      <Slider
+        label="Score"
+        value={42}
+        min={0}
+        max={90}
+        onChange={() => {}}
+        format={(n) => `${n} points`}
+      />,
     )
     expect(screen.getByText('42 points')).toBeInTheDocument()
   })
@@ -302,7 +312,10 @@ describe('ScoreScale', () => {
 
   it('names the scale in its text alternative', () => {
     render(<ScoreScale value={60} label="Overall" />)
-    expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Overall 60 on the PTE 10 to 90 scale')
+    expect(screen.getByRole('img')).toHaveAttribute(
+      'aria-label',
+      'Overall 60 on the PTE 10 to 90 scale',
+    )
   })
 })
 

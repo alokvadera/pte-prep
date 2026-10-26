@@ -1,0 +1,17 @@
+node_modules
+dist
+dist-ssr
+coverage
+.wrangler
+.tmp
+
+# Prose and design references are hand-wrapped on purpose; Prettier would
+# reflow every paragraph and bury real edits in noise.
+docs
+README.md
+
+# The inline theme bootstrap in the document head is covered by a SHA-256
+# hash in the CSP (public/_headers and scripts/serve.mjs). Reformatting it
+# changes the bytes and the browser refuses to run the script, so this file
+# is left exactly as written.
+index.html

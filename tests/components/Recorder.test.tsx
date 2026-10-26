@@ -216,13 +216,7 @@ function renderRecorder(props: Partial<React.ComponentProps<typeof Recorder>> = 
   const onRecorded = vi.fn()
   const onTyped = vi.fn()
   const result = render(
-    <Recorder
-      itemId="item-1"
-      seconds={40}
-      onRecorded={onRecorded}
-      onTyped={onTyped}
-      {...props}
-    />,
+    <Recorder itemId="item-1" seconds={40} onRecorded={onRecorded} onTyped={onTyped} {...props} />,
   )
   return { ...result, onRecorded, onTyped }
 }
@@ -441,9 +435,7 @@ describe('Recorder', () => {
   })
 
   it('reports a refused microphone', async () => {
-    const getUserMedia = navigator.mediaDevices.getUserMedia as unknown as ReturnType<
-      typeof vi.fn
-    >
+    const getUserMedia = navigator.mediaDevices.getUserMedia as unknown as ReturnType<typeof vi.fn>
     getUserMedia.mockRejectedValueOnce(new DOMException('Refused', 'NotAllowedError'))
     const { onRecorded } = renderRecorder()
 
@@ -591,9 +583,7 @@ describe('Recorder', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /Start recording/ }))
     })
-    expect(screen.getByText(/Listening for speech/)).toHaveTextContent(
-      '(Whisper Turbo active)',
-    )
+    expect(screen.getByText(/Listening for speech/)).toHaveTextContent('(Whisper Turbo active)')
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
     })
@@ -613,7 +603,10 @@ describe('Recorder', () => {
     const pending = new Promise<Response>((resolve) => {
       resolveWhisper = resolve
     })
-    vi.stubGlobal('fetch', vi.fn(() => pending))
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => pending),
+    )
 
     renderRecorder()
 
@@ -803,13 +796,7 @@ describe('Recorder', () => {
     // The stimulus audio starts. The microphone must not keep recording it,
     // or the transcript and the acoustic analysis are both contaminated.
     rerender(
-      <Recorder
-        itemId="item-1"
-        seconds={40}
-        onRecorded={onRecorded}
-        onTyped={vi.fn()}
-        disabled
-      />,
+      <Recorder itemId="item-1" seconds={40} onRecorded={onRecorded} onTyped={vi.fn()} disabled />,
     )
 
     expect(screen.getByRole('button', { name: /Start recording/ })).toBeInTheDocument()

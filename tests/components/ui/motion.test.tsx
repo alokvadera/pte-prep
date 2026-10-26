@@ -216,7 +216,9 @@ describe('Tilt', () => {
     stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 200 }) as DOMRect
 
     act(() => {
-      stage.dispatchEvent(new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }))
+      stage.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -233,7 +235,9 @@ describe('Tilt', () => {
     stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 200 }) as DOMRect
 
     act(() => {
-      stage.dispatchEvent(new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }))
+      stage.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }),
+      )
       frames.flush()
       stage.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true }))
       frames.flush()
@@ -253,7 +257,9 @@ describe('Tilt', () => {
     stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 200 }) as DOMRect
 
     act(() => {
-      stage.dispatchEvent(new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }))
+      stage.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -272,7 +278,9 @@ describe('Tilt', () => {
     stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 200 }) as DOMRect
 
     act(() => {
-      stage.dispatchEvent(new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }))
+      stage.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -303,7 +311,9 @@ describe('PointerField', () => {
     card.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 20, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 20, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -321,7 +331,9 @@ describe('PointerField', () => {
     card.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 20, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 20, clientY: 20, bubbles: true }),
+      )
       frames.flush()
       field.dispatchEvent(new PointerEvent('pointerleave', { bubbles: true }))
       frames.flush()
@@ -342,7 +354,9 @@ describe('PointerField', () => {
     card.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 20, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 20, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -372,9 +386,13 @@ describe('Magnetic', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }),
+      )
       frames.flush()
-      window.dispatchEvent(new PointerEvent('pointermove', { clientX: 55, clientY: 20, bubbles: true }))
+      window.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 55, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -391,9 +409,13 @@ describe('Magnetic', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }),
+      )
       frames.flush()
-      window.dispatchEvent(new PointerEvent('pointermove', { clientX: 5000, clientY: 20, bubbles: true }))
+      window.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 5000, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -411,7 +433,9 @@ describe('Magnetic', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -565,7 +589,13 @@ describe('RenderType', () => {
 
   it('loops through a list of phrases', () => {
     const { container } = render(
-      <RenderType text={['One', 'Two']} speed={10} startDelay={0} deleteSpeed={10} holdDuration={10} />,
+      <RenderType
+        text={['One', 'Two']}
+        speed={10}
+        startDelay={0}
+        deleteSpeed={10}
+        holdDuration={10}
+      />,
     )
     for (let i = 0; i < 40; i++) {
       act(() => vi.advanceTimersByTime(50))

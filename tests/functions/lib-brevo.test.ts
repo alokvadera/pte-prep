@@ -48,7 +48,10 @@ describe('sendBrevoEmail', () => {
 
   it('sends the message and returns the message id', async () => {
     const fetchMock = stubFetch(
-      () => new Response(JSON.stringify({ messageId: '<20240101.1@smtp-relay.brevo.com>' }), { status: 201 }),
+      () =>
+        new Response(JSON.stringify({ messageId: '<20240101.1@smtp-relay.brevo.com>' }), {
+          status: 201,
+        }),
     )
 
     const result = await sendBrevoEmail(BASE_OPTIONS)
@@ -74,7 +77,9 @@ describe('sendBrevoEmail', () => {
   })
 
   it('includes the sender name, the recipient name and the text content when given', async () => {
-    const fetchMock = stubFetch(() => new Response(JSON.stringify({ messageId: 'msg_2' }), { status: 201 }))
+    const fetchMock = stubFetch(
+      () => new Response(JSON.stringify({ messageId: 'msg_2' }), { status: 201 }),
+    )
 
     const result = await sendBrevoEmail({
       ...BASE_OPTIONS,

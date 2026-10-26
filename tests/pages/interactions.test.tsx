@@ -96,7 +96,9 @@ describe('Practice', () => {
     useTest.setState({ mock: null, status: 'briefing' })
     const { container } = renderRoute(<Practice />, '/practice')
 
-    expect(container.querySelectorAll('input[type="checkbox"]')).toHaveLength(ALL_QUESTION_TYPES.length)
+    expect(container.querySelectorAll('input[type="checkbox"]')).toHaveLength(
+      ALL_QUESTION_TYPES.length,
+    )
   })
 
   it('narrows the list to one skill', () => {
@@ -105,13 +107,17 @@ describe('Practice', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Speaking' }))
 
-    const speakingTypes = ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].skills.includes('speaking'))
+    const speakingTypes = ALL_QUESTION_TYPES.filter((t) =>
+      QUESTION_META[t].skills.includes('speaking'),
+    )
     expect(container.querySelectorAll('input[type="checkbox"]')).toHaveLength(speakingTypes.length)
   })
 
   it('opens on the type a deep link names', () => {
     useTest.setState({ mock: null, status: 'briefing' })
-    const { container } = renderRoute(<Practice />, '/practice', { route: '/practice?type=write-essay' })
+    const { container } = renderRoute(<Practice />, '/practice', {
+      route: '/practice?type=write-essay',
+    })
 
     const checked = [...container.querySelectorAll('input[type="checkbox"]')].filter(
       (input) => (input as HTMLInputElement).checked,
@@ -223,7 +229,9 @@ describe('MockSetup', () => {
 
 describe('LoginPage', () => {
   it('reports a failed sign-in', async () => {
-    installFetchMock([{ url: '/api/auth/login', body: { error: 'Invalid email or password' }, status: 401 }])
+    installFetchMock([
+      { url: '/api/auth/login', body: { error: 'Invalid email or password' }, status: 401 },
+    ])
     useAuth.setState({ user: null, token: null })
 
     const { container } = renderRoute(<LoginPage />, '/login')
@@ -322,7 +330,9 @@ describe('Dashboard', () => {
   it('shows the signed-in view', async () => {
     stubs.listAttempts.mockResolvedValue([])
     useAuth.setState({ user: { id: 'usr_1', email: 'a@b.c', targetScore: 60 }, token: 'tok' })
-    installFetchMock([{ url: '/api/auth/me', body: { user: { id: 'usr_1', email: 'a@b.c', targetScore: 60 } } }])
+    installFetchMock([
+      { url: '/api/auth/me', body: { user: { id: 'usr_1', email: 'a@b.c', targetScore: 60 } } },
+    ])
 
     const { container } = renderRoute(<Dashboard />, '/dashboard')
     await act(async () => {})

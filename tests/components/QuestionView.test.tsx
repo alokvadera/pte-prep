@@ -489,7 +489,9 @@ describe('QuestionView', () => {
       } else if (kind === 'text') {
         expect(screen.getByRole('textbox', { name: item.prompt })).toBeInTheDocument()
       } else {
-        expect(screen.getByRole('button', { name: /Start (recording|preparation)/ })).toBeInTheDocument()
+        expect(
+          screen.getByRole('button', { name: /Start (recording|preparation)/ }),
+        ).toBeInTheDocument()
       }
     })
   })
@@ -929,8 +931,14 @@ describe('QuestionView', () => {
       })
       renderQuestion(item, { highlighted: [1] })
 
-      expect(screen.getByRole('button', { name: 'meeting' })).toHaveAttribute('aria-pressed', 'true')
-      expect(screen.getByRole('button', { name: 'starts' })).toHaveAttribute('aria-pressed', 'false')
+      expect(screen.getByRole('button', { name: 'meeting' })).toHaveAttribute(
+        'aria-pressed',
+        'true',
+      )
+      expect(screen.getByRole('button', { name: 'starts' })).toHaveAttribute(
+        'aria-pressed',
+        'false',
+      )
     })
 
     it('renders the gap as a separator rather than a word', () => {
@@ -1336,7 +1344,10 @@ describe('QuestionView', () => {
       })
 
       expect(onChange).toHaveBeenCalledWith({
-        audio: expect.objectContaining({ durationMs: expect.any(Number), reliable: expect.any(Boolean) }),
+        audio: expect.objectContaining({
+          durationMs: expect.any(Number),
+          reliable: expect.any(Boolean),
+        }),
         transcript: '',
       })
     })

@@ -1,18 +1,18 @@
-import fs from 'fs';
+import fs from 'fs'
 
-let tsx = fs.readFileSync('src/pages/Dashboard.tsx', 'utf-8');
+let tsx = fs.readFileSync('src/pages/Dashboard.tsx', 'utf-8')
 
 // Replace the stats grid area. We will search for:
 // <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
 // up to:
 // </Card>
-// but there are multiple </Card>. 
+// but there are multiple </Card>.
 // Let's use a simpler string replace.
 
 const oldStats = tsx.substring(
   tsx.indexOf('<div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">'),
-  tsx.indexOf('</Card>', tsx.indexOf('<Card className="mt-6">')) + 7
-);
+  tsx.indexOf('</Card>', tsx.indexOf('<Card className="mt-6">')) + 7,
+)
 
 const bentoDashboard = `<div className="mt-12 grid gap-6 md:grid-cols-3">
               {/* Stat Cards - span full width in a sub-grid */}
@@ -70,7 +70,7 @@ const bentoDashboard = `<div className="mt-12 grid gap-6 md:grid-cols-3">
                   })}
                 </div>
               </Card>
-            </div>`;
+            </div>`
 
-tsx = tsx.replace(oldStats, bentoDashboard);
-fs.writeFileSync('src/pages/Dashboard.tsx', tsx);
+tsx = tsx.replace(oldStats, bentoDashboard)
+fs.writeFileSync('src/pages/Dashboard.tsx', tsx)

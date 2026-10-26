@@ -18,7 +18,6 @@ import type { AttemptRecord } from '../../../src/domain/types'
    slider the user actually moves.
    --------------------------------------------------------------------------- */
 
-
 describe('ActivityHeatmap', () => {
   // The heatmap keys days in local time, so the fixture has to be built in
   // local time too: a local-midnight date serialised to UTC still reads back
@@ -39,7 +38,9 @@ describe('ActivityHeatmap', () => {
 
     const { container } = render(<ActivityHeatmap dates={dates} weeks={4} />)
 
-    const titles = [...container.querySelectorAll('span[title]')].map((el) => el.getAttribute('title'))
+    const titles = [...container.querySelectorAll('span[title]')].map((el) =>
+      el.getAttribute('title'),
+    )
     expect(titles.some((t) => t?.includes('1 attempt on'))).toBe(true)
     expect(titles.some((t) => t?.includes('2 attempts on'))).toBe(true)
     expect(titles.some((t) => t?.includes('3 attempts on'))).toBe(true)
@@ -105,7 +106,9 @@ describe('AchievementBadges', () => {
         ]}
       />,
     )
-    const climber = [...container.querySelectorAll('li')].find((li) => li.getAttribute('title')?.startsWith('Improve'))
+    const climber = [...container.querySelectorAll('li')].find((li) =>
+      li.getAttribute('title')?.startsWith('Improve'),
+    )
     expect(climber?.getAttribute('title')).not.toContain('locked')
   })
 
@@ -118,7 +121,9 @@ describe('AchievementBadges', () => {
         ]}
       />,
     )
-    const climber = [...container.querySelectorAll('li')].find((li) => li.getAttribute('title')?.startsWith('Improve'))
+    const climber = [...container.querySelectorAll('li')].find((li) =>
+      li.getAttribute('title')?.startsWith('Improve'),
+    )
     expect(climber?.getAttribute('title')).toContain('locked')
   })
 
@@ -134,7 +139,9 @@ describe('AchievementBadges', () => {
         ]}
       />,
     )
-    const climber = [...container.querySelectorAll('li')].find((li) => li.getAttribute('title')?.startsWith('Improve'))
+    const climber = [...container.querySelectorAll('li')].find((li) =>
+      li.getAttribute('title')?.startsWith('Improve'),
+    )
     expect(climber?.getAttribute('title')).toContain('locked')
   })
 
@@ -142,7 +149,9 @@ describe('AchievementBadges', () => {
     const { container } = render(
       <AchievementBadges attempts={[attempt('a1', 50, '2026-01-01T00:00:00.000Z')]} />,
     )
-    const climber = [...container.querySelectorAll('li')].find((li) => li.getAttribute('title')?.startsWith('Improve'))
+    const climber = [...container.querySelectorAll('li')].find((li) =>
+      li.getAttribute('title')?.startsWith('Improve'),
+    )
     expect(climber?.getAttribute('title')).toContain('locked')
   })
 
@@ -153,12 +162,30 @@ describe('AchievementBadges', () => {
         attempts={[
           {
             ...attempt('a1', 60, '2026-01-01T00:00:00.000Z'),
-            breakdown: Object.fromEntries(types.map((type) => [type, { type, label: type, skill: 'reading', correct: 1, partial: 0, incorrect: 0, total: 1, maxPoints: 1, earnedPoints: 1, seconds: 10 }])),
+            breakdown: Object.fromEntries(
+              types.map((type) => [
+                type,
+                {
+                  type,
+                  label: type,
+                  skill: 'reading',
+                  correct: 1,
+                  partial: 0,
+                  incorrect: 0,
+                  total: 1,
+                  maxPoints: 1,
+                  earnedPoints: 1,
+                  seconds: 10,
+                },
+              ]),
+            ),
           } as unknown as AttemptRecord,
         ]}
       />,
     )
-    const allRounder = [...container.querySelectorAll('li')].find((li) => li.getAttribute('title')?.startsWith('Practise'))
+    const allRounder = [...container.querySelectorAll('li')].find((li) =>
+      li.getAttribute('title')?.startsWith('Practise'),
+    )
     expect(allRounder?.getAttribute('title')).not.toContain('locked')
   })
 })
@@ -204,7 +231,11 @@ describe('StreakWidget', () => {
       return date.toISOString().slice(0, 10)
     })
     const { container } = render(<StreakWidget dates={dates} />)
-    expect([...container.querySelectorAll('span[title]')].some((s) => s.getAttribute('title')?.includes('reached'))).toBe(true)
+    expect(
+      [...container.querySelectorAll('span[title]')].some((s) =>
+        s.getAttribute('title')?.includes('reached'),
+      ),
+    ).toBe(true)
   })
 
   it('marks a milestone that is close but not reached', () => {

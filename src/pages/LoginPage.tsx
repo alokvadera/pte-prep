@@ -14,7 +14,18 @@ export default function LoginPage() {
   const [params, setSearchParams] = useSearchParams()
   const location = useLocation()
   const navigate = useNavigate()
-  const { user, login, register, logout, loading, error, clearError, setTargetScore, hasLoggedInBefore, lastEmail } = useAuth()
+  const {
+    user,
+    login,
+    register,
+    logout,
+    loading,
+    error,
+    clearError,
+    setTargetScore,
+    hasLoggedInBefore,
+    lastEmail,
+  } = useAuth()
 
   const mode: 'login' | 'register' =
     params.get('mode') === 'register' || location.pathname === '/register'
@@ -65,7 +76,9 @@ export default function LoginPage() {
       if (res.ok) {
         setForgotStatus({
           ok: true,
-          message: data.message ?? 'If an account exists with that email, we have sent password reset instructions.',
+          message:
+            data.message ??
+            'If an account exists with that email, we have sent password reset instructions.',
         })
       } else {
         setForgotStatus({
@@ -83,9 +96,12 @@ export default function LoginPage() {
     }
   }
 
-  useEffect(() => () => {
-    if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (syncTimer.current !== null) window.clearTimeout(syncTimer.current)
+    },
+    [],
+  )
 
   // `from` is attacker-controllable, so only same-site paths are allowed.
   // A protocol-relative value like `//evil.com` is treated as a path by the
@@ -104,11 +120,14 @@ export default function LoginPage() {
   const switchMode = (newMode: 'login' | 'register') => {
     clearError()
     setClientError(null)
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev)
-      next.set('mode', newMode)
-      return next
-    }, { replace: true })
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev)
+        next.set('mode', newMode)
+        return next
+      },
+      { replace: true },
+    )
   }
 
   // The mode tabs are a real tab list: arrows move between them
@@ -209,7 +228,13 @@ export default function LoginPage() {
       <PageWrapper
         breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'Account' }]} />}
         eyebrow="Cloud Account"
-        title={user ? 'Your PTE Prep Account' : mode === 'register' ? 'Create your account' : 'Welcome back'}
+        title={
+          user
+            ? 'Your PTE Prep Account'
+            : mode === 'register'
+              ? 'Create your account'
+              : 'Welcome back'
+        }
         description={
           user
             ? 'Manage your cloud sync preferences and target scores.'
@@ -221,16 +246,24 @@ export default function LoginPage() {
             <Card variant="solid" className="p-6 sm:p-8 space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-semibold text-ink-500 dark:text-ink-on-dark-muted">Signed in as</span>
-                  <p className="text-base font-bold text-ink-900 dark:text-white break-all mt-0.5">{user.email}</p>
+                  <span className="text-xs font-semibold text-ink-500 dark:text-ink-on-dark-muted">
+                    Signed in as
+                  </span>
+                  <p className="text-base font-bold text-ink-900 dark:text-white break-all mt-0.5">
+                    {user.email}
+                  </p>
                 </div>
                 <Badge tone="mint">Synced</Badge>
               </div>
 
               <div className="rounded-md border border-ink-100 bg-ink-50/70 p-4 dark:border-white/8 dark:bg-white/4 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-ink-700 dark:text-ink-200">Target PTE Score</span>
-                  <span className="text-sm font-bold text-brand-600 dark:text-brand-300">{user.targetScore}</span>
+                  <span className="text-xs font-semibold text-ink-700 dark:text-ink-200">
+                    Target PTE Score
+                  </span>
+                  <span className="text-sm font-bold text-brand-600 dark:text-brand-300">
+                    {user.targetScore}
+                  </span>
                 </div>
                 <div className="flex gap-2 pt-1">
                   {TARGET_PRESETS.map((score) => (
@@ -273,7 +306,9 @@ export default function LoginPage() {
               </div>
 
               <div className="pt-4 border-t border-ink-100 dark:border-white/6 flex justify-between items-center text-xs">
-                <span className="text-ink-500 dark:text-ink-on-dark-muted">Need to switch accounts?</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted">
+                  Need to switch accounts?
+                </span>
                 <button
                   type="button"
                   onClick={() => {
@@ -290,213 +325,226 @@ export default function LoginPage() {
                 </button>
               </div>
             </Card>
-           ) : (
-             <Reveal variant="up" duration={600} delay={50} className="w-full">
-               <Card variant="solid" className="p-6 sm:p-8 dark:bg-white/5 dark:backdrop-blur-xl dark:border-white/10">
-               
-              {/* Tab Selector */}
-               <div
-                 className="flex rounded-md bg-ink-100/80 p-1 dark:bg-white/5 mb-6"
-                 role="tablist"
-                 aria-label="Account mode"
-                 onKeyDown={handleTabKey}
-               >
-                 <button
-                   ref={(el) => { tabRefs.current[0] = el }}
-                   type="button"
-                   role="tab"
-                   id="tab-sign-in"
-                   aria-selected={mode === 'login'}
-                   tabIndex={mode === 'login' ? 0 : -1}
-                   onClick={() => switchMode('login')}
-                   className={`flex-1 rounded-md py-2 text-xs font-bold transition-all duration-300 ease-out cursor-pointer ${
-                     mode === 'login'
-                       ? 'bg-white text-ink-900 dark:bg-white/10 dark:text-white'
-                       : 'text-ink-600 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:text-white'
-                   }`}
-                 >
-                   Sign In
-                 </button>
-                 <button
-                   ref={(el) => { tabRefs.current[1] = el }}
-                   type="button"
-                   role="tab"
-                   id="tab-create-account"
-                   aria-selected={mode === 'register'}
-                   tabIndex={mode === 'register' ? 0 : -1}
-                   onClick={() => switchMode('register')}
-                   className={`flex-1 rounded-md py-2 text-xs font-bold transition-all duration-300 ease-out cursor-pointer ${
-                     mode === 'register'
-                       ? 'bg-white text-ink-900 dark:bg-white/10 dark:text-white'
-                       : 'text-ink-600 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:text-white'
-                   }`}
-                 >
-                   Create Account
-                 </button>
-               </div>
-
-              <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label
-                    htmlFor="login-email"
-                    className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
+          ) : (
+            <Reveal variant="up" duration={600} delay={50} className="w-full">
+              <Card
+                variant="solid"
+                className="p-6 sm:p-8 dark:bg-white/5 dark:backdrop-blur-xl dark:border-white/10"
+              >
+                {/* Tab Selector */}
+                <div
+                  className="flex rounded-md bg-ink-100/80 p-1 dark:bg-white/5 mb-6"
+                  role="tablist"
+                  aria-label="Account mode"
+                  onKeyDown={handleTabKey}
+                >
+                  <button
+                    ref={(el) => {
+                      tabRefs.current[0] = el
+                    }}
+                    type="button"
+                    role="tab"
+                    id="tab-sign-in"
+                    aria-selected={mode === 'login'}
+                    tabIndex={mode === 'login' ? 0 : -1}
+                    onClick={() => switchMode('login')}
+                    className={`flex-1 rounded-md py-2 text-xs font-bold transition-all duration-300 ease-out cursor-pointer ${
+                      mode === 'login'
+                        ? 'bg-white text-ink-900 dark:bg-white/10 dark:text-white'
+                        : 'text-ink-600 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:text-white'
+                    }`}
                   >
-                    Email address
-                  </label>
-                  <input
-                    id="login-email"
-                    type="email"
-                    required
-                    autoComplete="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
-                  />
+                    Sign In
+                  </button>
+                  <button
+                    ref={(el) => {
+                      tabRefs.current[1] = el
+                    }}
+                    type="button"
+                    role="tab"
+                    id="tab-create-account"
+                    aria-selected={mode === 'register'}
+                    tabIndex={mode === 'register' ? 0 : -1}
+                    onClick={() => switchMode('register')}
+                    className={`flex-1 rounded-md py-2 text-xs font-bold transition-all duration-300 ease-out cursor-pointer ${
+                      mode === 'register'
+                        ? 'bg-white text-ink-900 dark:bg-white/10 dark:text-white'
+                        : 'text-ink-600 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:text-white'
+                    }`}
+                  >
+                    Create Account
+                  </button>
                 </div>
 
-                <div>
-                  <div className="flex items-center justify-between mb-1.5">
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div>
                     <label
-                      htmlFor="login-password"
-                      className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark"
+                      htmlFor="login-email"
+                      className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
                     >
-                      Password
+                      Email address
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-300 cursor-pointer"
-                    >
-                      {showPassword ? 'Hide password' : 'Show password'}
-                    </button>
+                    <input
+                      id="login-email"
+                      type="email"
+                      required
+                      autoComplete="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
+                    />
                   </div>
-                  <input
-                    id="login-password"
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder={mode === 'register' ? 'At least 8 characters' : 'Enter your password'}
-                    minLength={mode === 'register' ? 8 : undefined}
-                    className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
-                  />
-                  {mode === 'login' && (
-                    <div className="flex justify-end mt-1.5">
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label
+                        htmlFor="login-password"
+                        className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark"
+                      >
+                        Password
+                      </label>
                       <button
                         type="button"
-                        onClick={() => {
-                          setForgotEmail(email)
-                          setForgotStatus(null)
-                          setShowForgotModal(true)
-                        }}
+                        onClick={() => setShowPassword(!showPassword)}
                         className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-300 cursor-pointer"
                       >
-                        Forgot password?
+                        {showPassword ? 'Hide password' : 'Show password'}
                       </button>
+                    </div>
+                    <input
+                      id="login-password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={
+                        mode === 'register' ? 'At least 8 characters' : 'Enter your password'
+                      }
+                      minLength={mode === 'register' ? 8 : undefined}
+                      className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
+                    />
+                    {mode === 'login' && (
+                      <div className="flex justify-end mt-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setForgotEmail(email)
+                            setForgotStatus(null)
+                            setShowForgotModal(true)
+                          }}
+                          className="text-xs font-medium text-brand-600 hover:underline dark:text-brand-300 cursor-pointer"
+                        >
+                          Forgot password?
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
+                  {mode === 'register' && (
+                    <>
+                      <div>
+                        <label
+                          htmlFor="login-confirm-password"
+                          className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
+                        >
+                          Confirm Password
+                        </label>
+                        <input
+                          id="login-confirm-password"
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          autoComplete="new-password"
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Re-type your password"
+                          className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5">
+                          Target PTE Score
+                        </label>
+                        <div className="flex gap-2">
+                          {TARGET_PRESETS.map((score) => (
+                            <button
+                              key={score}
+                              type="button"
+                              onClick={() => setTarget(score)}
+                              className={`flex-1 rounded-md py-1.5 text-xs font-semibold border transition-colors cursor-pointer ${
+                                targetScore === score
+                                  ? 'bg-brand-500 text-white border-brand-500'
+                                  : 'border-ink-200 bg-white text-ink-700 hover:border-brand-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-200'
+                              }`}
+                            >
+                              {score}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </>
+                  )}
+
+                  {(clientError || error) && (
+                    <div
+                      key={clientError || error}
+                      className="animate-error-nudge rounded-md border border-rose-500/30 bg-rose-500/[0.06] p-3 text-xs font-medium text-rose-700 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-300"
+                      role="alert"
+                    >
+                      {clientError || error}
                     </div>
                   )}
-                </div>
 
-                {mode === 'register' && (
-                  <>
-                    <div>
-                      <label
-                        htmlFor="login-confirm-password"
-                        className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5"
-                      >
-                        Confirm Password
-                      </label>
-                      <input
-                        id="login-confirm-password"
-                        type={showPassword ? 'text' : 'password'}
-                        required
-                        autoComplete="new-password"
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Re-type your password"
-                        className="w-full rounded-md border border-ink-200 bg-white px-3.5 py-2.5 text-sm text-ink-900 placeholder:text-ink-500 focus:border-brand-500 dark:border-white/10 dark:bg-ink-800 dark:text-white dark:placeholder:text-ink-on-dark-faint"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-semibold text-ink-700 dark:text-ink-on-dark mb-1.5">
-                        Target PTE Score
-                      </label>
-                      <div className="flex gap-2">
-                        {TARGET_PRESETS.map((score) => (
-                          <button
-                            key={score}
-                            type="button"
-                            onClick={() => setTarget(score)}
-                            className={`flex-1 rounded-md py-1.5 text-xs font-semibold border transition-colors cursor-pointer ${
-                              targetScore === score
-                                ? 'bg-brand-500 text-white border-brand-500'
-                                : 'border-ink-200 bg-white text-ink-700 hover:border-brand-300 dark:border-white/10 dark:bg-ink-800 dark:text-ink-200'
-                            }`}
-                          >
-                            {score}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {(clientError || error) && (
-                  <div
-                    key={clientError || error}
-                    className="animate-error-nudge rounded-md border border-rose-500/30 bg-rose-500/[0.06] p-3 text-xs font-medium text-rose-700 dark:border-rose-400/30 dark:bg-rose-500/10 dark:text-rose-300"
-                    role="alert"
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="md"
+                    disabled={loading || syncing}
+                    className="w-full justify-center mt-2"
                   >
-                    {clientError || error}
-                  </div>
-                )}
+                    {loading || syncing
+                      ? 'Signing in...'
+                      : mode === 'register'
+                        ? 'Create Account'
+                        : 'Sign In'}
+                  </Button>
+                </form>
 
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="md"
-                  disabled={loading || syncing}
-                  className="w-full justify-center mt-2"
-                >
-                  {loading || syncing ? 'Signing in...' : mode === 'register' ? 'Create Account' : 'Sign In'}
-                </Button>
-              </form>
-
-              <div className="mt-6 pt-5 border-t border-ink-100 dark:border-white/6 text-center text-xs text-ink-500 dark:text-ink-on-dark-muted">
-                {mode === 'login' ? (
-                  <>
+                <div className="mt-6 pt-5 border-t border-ink-100 dark:border-white/6 text-center text-xs text-ink-500 dark:text-ink-on-dark-muted">
+                  {mode === 'login' ? (
+                    <>
+                      <p>
+                        Don't have an account yet?{' '}
+                        <button
+                          type="button"
+                          onClick={() => switchMode('register')}
+                          className="text-brand-600 hover:underline dark:text-brand-300 font-semibold cursor-pointer"
+                        >
+                          Create one
+                        </button>
+                      </p>
+                      <p className="mt-2 text-xs text-ink-500 dark:text-ink-on-dark-muted">
+                        Forgot your password? Use the &ldquo;Forgot password?&rdquo; link above to
+                        receive a secure reset link by email.
+                      </p>
+                    </>
+                  ) : (
                     <p>
-                      Don't have an account yet?{' '}
+                      Already have an account?{' '}
                       <button
                         type="button"
-                        onClick={() => switchMode('register')}
+                        onClick={() => switchMode('login')}
                         className="text-brand-600 hover:underline dark:text-brand-300 font-semibold cursor-pointer"
                       >
-                        Create one
+                        Sign in
                       </button>
                     </p>
-                    <p className="mt-2 text-xs text-ink-500 dark:text-ink-on-dark-muted">
-                      Forgot your password? Use the &ldquo;Forgot password?&rdquo; link above to receive a secure reset link by email.
-                    </p>
-                  </>
-                ) : (
-                  <p>
-                    Already have an account?{' '}
-                    <button
-                      type="button"
-                      onClick={() => switchMode('login')}
-                      className="text-brand-600 hover:underline dark:text-brand-300 font-semibold cursor-pointer"
-                    >
-                      Sign in
-                    </button>
-                  </p>
-                )}
-              </div>
-            </Card>
-          </Reveal>
+                  )}
+                </div>
+              </Card>
+            </Reveal>
           )}
 
           <div className="mt-6 text-center">
@@ -622,10 +670,15 @@ function PasswordChangeForm() {
   }
 
   return (
-    <form onSubmit={submit} className="rounded-md border border-ink-100 bg-ink-50/70 p-4 dark:border-white/8 dark:bg-white/4 space-y-3">
+    <form
+      onSubmit={submit}
+      className="rounded-md border border-ink-100 bg-ink-50/70 p-4 dark:border-white/8 dark:bg-white/4 space-y-3"
+    >
       <div className="flex items-baseline justify-between gap-2">
         <span className="text-xs font-semibold text-ink-700 dark:text-ink-200">Password</span>
-        <span className="text-xs text-ink-500 dark:text-ink-on-dark-muted">Change your account password.</span>
+        <span className="text-xs text-ink-500 dark:text-ink-on-dark-muted">
+          Change your account password.
+        </span>
       </div>
       <input
         type="password"
@@ -669,7 +722,13 @@ function PasswordChangeForm() {
           {message.text}
         </p>
       ) : null}
-      <Button type="submit" variant="secondary" size="sm" disabled={busy} className="w-full justify-center">
+      <Button
+        type="submit"
+        variant="secondary"
+        size="sm"
+        disabled={busy}
+        className="w-full justify-center"
+      >
         {busy ? 'Changing…' : 'Change password'}
       </Button>
     </form>

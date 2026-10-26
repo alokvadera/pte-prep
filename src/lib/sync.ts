@@ -70,7 +70,10 @@ let tombstoneQueue = Promise.resolve()
 function serializeTombstone<T>(op: () => Promise<T>): Promise<T> {
   const next = tombstoneQueue.then(op, op)
   // Swallow errors on the internal queue tail so subsequent operations still run
-  tombstoneQueue = next.then(() => {}, () => {})
+  tombstoneQueue = next.then(
+    () => {},
+    () => {},
+  )
   return next
 }
 
@@ -160,7 +163,8 @@ async function fetchCloudIds(
       return { ids, unauthorized: false, failed: false }
     }
 
-    const nextOffset = typeof data.nextOffset === 'number' ? data.nextOffset : offset + pageIds.length
+    const nextOffset =
+      typeof data.nextOffset === 'number' ? data.nextOffset : offset + pageIds.length
     if (!Number.isFinite(nextOffset) || nextOffset <= offset) {
       return { ids, unauthorized: false, failed: true }
     }
@@ -388,7 +392,9 @@ export async function clearAllAttemptsEverywhere(): Promise<boolean> {
 export async function countGuestAttempts(): Promise<number> {
   const guestOwnerId = getGuestOwnerId()
   const all = await listAllAttempts()
-  return all.filter((attempt) => !attempt.userId && attemptOwnerId(attempt, guestOwnerId) === guestOwnerId).length
+  return all.filter(
+    (attempt) => !attempt.userId && attemptOwnerId(attempt, guestOwnerId) === guestOwnerId,
+  ).length
 }
 
 /**
@@ -437,7 +443,11 @@ export function planSyncReconciliation(
   return { toPull, toPush }
 }
 
-export async function syncCloudToLocal(): Promise<{ pushed: number; pulled: number; failed: number }> {
+export async function syncCloudToLocal(): Promise<{
+  pushed: number
+  pulled: number
+  failed: number
+}> {
   const token = useAuth.getState().token
   const currentUser = useAuth.getState().user
   if (!token || !currentUser) return { pushed: 0, pulled: 0, failed: 0 }

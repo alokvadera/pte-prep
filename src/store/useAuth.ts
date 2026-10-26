@@ -29,7 +29,10 @@ interface AuthStore {
   clearError: () => void
 }
 
-type PersistedAuth = Pick<AuthStore, 'user' | 'token' | 'expiresAt' | 'hasLoggedInBefore' | 'lastEmail'>
+type PersistedAuth = Pick<
+  AuthStore,
+  'user' | 'token' | 'expiresAt' | 'hasLoggedInBefore' | 'lastEmail'
+>
 
 /**
  * Fallback session lifetime when the API does not return `expiresAt`.
@@ -74,7 +77,10 @@ export const useAuth = create<AuthStore>()(
             set({ loading: false, error: data.error ?? 'Invalid email or password' })
             return false
           }
-          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + SESSION_FALLBACK_MS
+          const expiresAt =
+            typeof data.expiresAt === 'number' && data.expiresAt > 0
+              ? data.expiresAt
+              : Date.now() + SESSION_FALLBACK_MS
           set({
             user: data.user,
             token: data.token,
@@ -109,7 +115,10 @@ export const useAuth = create<AuthStore>()(
             set({ loading: false, error: data.error ?? 'Registration failed' })
             return false
           }
-          const expiresAt = typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + SESSION_FALLBACK_MS
+          const expiresAt =
+            typeof data.expiresAt === 'number' && data.expiresAt > 0
+              ? data.expiresAt
+              : Date.now() + SESSION_FALLBACK_MS
           set({
             user: data.user,
             token: data.token,
@@ -161,7 +170,10 @@ export const useAuth = create<AuthStore>()(
       },
 
       setSession: (user: User, token: string, expiresAt?: number) => {
-        const exp = typeof expiresAt === 'number' && expiresAt > 0 ? expiresAt : Date.now() + SESSION_FALLBACK_MS
+        const exp =
+          typeof expiresAt === 'number' && expiresAt > 0
+            ? expiresAt
+            : Date.now() + SESSION_FALLBACK_MS
         set({
           user,
           token,
@@ -271,7 +283,9 @@ export const useAuth = create<AuthStore>()(
             if (get().token !== token) return
             if (data.user) {
               const freshExpiresAt =
-                typeof data.expiresAt === 'number' && data.expiresAt > 0 ? data.expiresAt : Date.now() + SESSION_FALLBACK_MS
+                typeof data.expiresAt === 'number' && data.expiresAt > 0
+                  ? data.expiresAt
+                  : Date.now() + SESSION_FALLBACK_MS
               set({
                 user: data.user,
                 hasLoggedInBefore: true,

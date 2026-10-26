@@ -44,7 +44,10 @@ const synthetic = vi.hoisted(() => {
     // Missing members.
     chart('synthetic-bar-nocategories', 'bar', { series: [] }),
     chart('synthetic-bar-noseries', 'bar', { categories: ['A'] }),
-    chart('synthetic-bar-novalues', 'bar', { categories: ['A'], series: [{ name: 'S', color: '#000' }] }),
+    chart('synthetic-bar-novalues', 'bar', {
+      categories: ['A'],
+      series: [{ name: 'S', color: '#000' }],
+    }),
     chart('synthetic-bar-shortvalues', 'bar', {
       categories: ['A', 'B'],
       series: [series('S', [1])],

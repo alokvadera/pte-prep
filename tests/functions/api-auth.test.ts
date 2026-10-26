@@ -1160,7 +1160,11 @@ describe('POST /api/auth/forgot-password', () => {
   it('returns 500 when there is no database binding', async () => {
     const ctx = makeContext({
       request: jsonRequest(FORGOT_URL, { email: 'user@pte.test' }),
-      env: makeEnv({ DB: undefined, BREVO_API_KEY: 'key', BREVO_SENDER_EMAIL: 'no-reply@pte.test' }),
+      env: makeEnv({
+        DB: undefined,
+        BREVO_API_KEY: 'key',
+        BREVO_SENDER_EMAIL: 'no-reply@pte.test',
+      }),
     })
 
     const res = await forgotPost(ctx)
@@ -1230,13 +1234,21 @@ describe('POST /api/auth/forgot-password', () => {
     const known = await forgotPost(
       makeContext({
         request: jsonRequest(FORGOT_URL, { email: 'user@pte.test' }),
-        env: makeEnv({ DB: mock.db, BREVO_API_KEY: 'key', BREVO_SENDER_EMAIL: 'no-reply@pte.test' }),
+        env: makeEnv({
+          DB: mock.db,
+          BREVO_API_KEY: 'key',
+          BREVO_SENDER_EMAIL: 'no-reply@pte.test',
+        }),
       }),
     )
     const unknown = await forgotPost(
       makeContext({
         request: jsonRequest(FORGOT_URL, { email: 'nobody@pte.test' }),
-        env: makeEnv({ DB: mock.db, BREVO_API_KEY: 'key', BREVO_SENDER_EMAIL: 'no-reply@pte.test' }),
+        env: makeEnv({
+          DB: mock.db,
+          BREVO_API_KEY: 'key',
+          BREVO_SENDER_EMAIL: 'no-reply@pte.test',
+        }),
       }),
     )
 
@@ -1520,7 +1532,7 @@ describe('POST /api/auth/reset-password', () => {
     expect(mock.sessions.size).toBe(1)
   })
 
-  it('invalidates the account\'s other outstanding reset links', async () => {
+  it("invalidates the account's other outstanding reset links", async () => {
     const mock = createD1Mock()
     const { row } = await seedUser(mock, { email: 'user@pte.test', password: 'password123' })
     await seedResetToken(mock, row.id)
@@ -1602,7 +1614,12 @@ describe('POST /api/auth/reset-password', () => {
       rateLimits: [{ key: `reset-password:ip:${IP}`, count: 10, reset_at: nowSeconds() + 600 }],
     })
     const ctx = makeContext({
-      request: jsonRequest(RESET_URL, { token: RAW_TOKEN, password: 'newpassword123' }, 'POST', IP_HEADERS),
+      request: jsonRequest(
+        RESET_URL,
+        { token: RAW_TOKEN, password: 'newpassword123' },
+        'POST',
+        IP_HEADERS,
+      ),
       env: makeEnv({ DB: mock.db }),
     })
 

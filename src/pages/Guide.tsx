@@ -66,7 +66,8 @@ const TEMPLATES: StrategyTemplate[] = [
     targetType: 'Describe Image',
     drillPath: '/practice?type=describe-image',
     timeLimit: 'Speak for 25–30 seconds',
-    rationale: 'Pearson algorithms evaluate continuous oral fluency without hesitations and content keywords. This balanced structure guarantees intro, high/low points, and conclusion without risking human penalty.',
+    rationale:
+      'Pearson algorithms evaluate continuous oral fluency without hesitations and content keywords. This balanced structure guarantees intro, high/low points, and conclusion without risking human penalty.',
     templateText: `The given [image / bar chart / line graph] provides significant information regarding [Topic / Title of Image].
 Looking at the key details, the highest figure can be observed in [Category A], which reaches approximately [Value / Number].
 In contrast, the lowest figure is seen in [Category B], accounting for around [Value / Number].
@@ -79,7 +80,8 @@ In conclusion, it is evident that [main overall observation or takeaway].`,
     targetType: 'Re-tell Lecture & Summarize Group Discussion',
     drillPath: '/practice?type=retell-lecture',
     timeLimit: 'Speak for 30–35 seconds',
-    rationale: 'Focus on oral fluency and capturing 4-6 distinct academic nouns/phrases from the recording. Never pause to search for memory; maintain steady cadence.',
+    rationale:
+      'Focus on oral fluency and capturing 4-6 distinct academic nouns/phrases from the recording. Never pause to search for memory; maintain steady cadence.',
     templateText: `The speaker in the audio was delivering an academic presentation about [Main Topic / Theme].
 Firstly, the speaker emphasized that [First Key Keyword Phrase or Observation].
 Furthermore, the speaker discussed the importance of [Second Key Keyword Phrase], noting that it has significant implications.
@@ -92,7 +94,8 @@ Overall, the lecture provides crucial insights into [Main Topic / Final Summary 
     targetType: 'Write Essay',
     drillPath: '/practice?type=write-essay',
     timeLimit: '20 minutes, Aim for 220–260 words',
-    rationale: 'Guarantees maximum Form (2/2), Structure & Coherence (6/6), and Grammar (2/2). Four clear paragraphs with formal discourse markers satisfy human and automated grading.',
+    rationale:
+      'Guarantees maximum Form (2/2), Structure & Coherence (6/6), and Grammar (2/2). Four clear paragraphs with formal discourse markers satisfy human and automated grading.',
     templateText: `[Paragraph 1 - Introduction]
 In contemporary society, the debate surrounding whether [Topic / Question Statement] has garnered considerable attention. While some argue that [Perspective A], others maintain that [Perspective B]. In this essay, I will analyze both viewpoints before presenting my own reasoned perspective.
 
@@ -111,7 +114,8 @@ In conclusion, although valid arguments can be made for both sides, I firmly bel
     targetType: 'Summarize Spoken Text',
     drillPath: '/practice?type=summarize-spoken-text',
     timeLimit: '10 minutes, 50–70 words',
-    rationale: 'Form score requires strictly 50 to 70 words. Exceeding 70 words or falling below 50 zeroes Form. This compact compound structure ensures exact length and high content keyword density.',
+    rationale:
+      'Form score requires strictly 50 to 70 words. Exceeding 70 words or falling below 50 zeroes Form. This compact compound structure ensures exact length and high content keyword density.',
     templateText: `The lecture provided insightful information regarding [Main Topic]. The speaker initially highlighted that [Key Point 1]. Subsequently, the discussion focused on the role of [Key Point 2] and demonstrated the significance of [Key Point 3]. Ultimately, the speaker concluded by emphasizing that [Key Point 4].`,
   },
   {
@@ -120,7 +124,8 @@ In conclusion, although valid arguments can be made for both sides, I firmly bel
     targetType: 'Respond to a Situation',
     drillPath: '/practice?type=respond-to-situation',
     timeLimit: 'Speak for 20–30 seconds',
-    rationale: 'Evaluates pragmatic spoken English in real-world scenarios (asking for a refund, rescheduling a meeting, polite disagreement).',
+    rationale:
+      'Evaluates pragmatic spoken English in real-world scenarios (asking for a refund, rescheduling a meeting, polite disagreement).',
     templateText: `Hello [Name / Sir / Ma'am], I am speaking with you regarding [the specific situation or issue].
 I completely understand that [acknowledge context or difficulty], and I truly appreciate your patience.
 To resolve this matter effectively, I would like to propose that we [offer practical solution or request action].
@@ -129,31 +134,98 @@ Please let me know if this arrangement suits you, and thank you for your assista
 ]
 
 const COLLOCATIONS: Array<{ col: string; type: string; example: string }> = [
-  { col: 'carry out research', type: 'Verb + Noun', example: 'Scientists carried out extensive research into renewable fuels.' },
-  { col: 'vital / crucial role', type: 'Adj + Noun', example: 'Early education plays a vital role in cognitive development.' },
-  { col: 'widespread consensus', type: 'Adj + Noun', example: 'There is now a widespread consensus among climatologists.' },
-  { col: 'sharp / dramatic decline', type: 'Adj + Noun', example: 'The region experienced a sharp decline in agricultural yield.' },
-  { col: 'shed light on', type: 'Idiomatic Phrase', example: 'Recent archaeological findings shed light on ancient trade routes.' },
-  { col: 'draw a conclusion', type: 'Verb + Noun', example: 'Researchers were hesitant to draw conclusions from preliminary data.' },
-  { col: 'underlying cause', type: 'Adj + Noun', example: 'Poverty remains the underlying cause of nutritional deficiency.' },
-  { col: 'profound impact / effect', type: 'Adj + Noun', example: 'Technological shifts have had a profound impact on labor markets.' },
-  { col: 'pave the way for', type: 'Prepositional', example: 'Innovations in genomics paved the way for personalized medicine.' },
-  { col: 'pose a threat to', type: 'Verb + Noun', example: 'Invasive species pose a serious threat to indigenous wildlife.' },
-  { col: 'empirical evidence', type: 'Adj + Noun', example: 'The theoretical model was supported by strong empirical evidence.' },
-  { col: 'take into account', type: 'Prepositional', example: 'Policy makers must take demographic changes into account.' },
-  { col: 'growing concern', type: 'Adj + Noun', example: 'Antibiotic resistance is an issue of growing concern globally.' },
-  { col: 'establish a relationship', type: 'Verb + Noun', example: 'The study established a direct relationship between diet and health.' },
-  { col: 'stem from', type: 'Phrasal Verb', example: 'Many societal problems stem from economic inequality.' },
-  { col: 'gain insight into', type: 'Verb + Noun', example: 'Brain scans allow researchers to gain insight into cognitive processes.' },
+  {
+    col: 'carry out research',
+    type: 'Verb + Noun',
+    example: 'Scientists carried out extensive research into renewable fuels.',
+  },
+  {
+    col: 'vital / crucial role',
+    type: 'Adj + Noun',
+    example: 'Early education plays a vital role in cognitive development.',
+  },
+  {
+    col: 'widespread consensus',
+    type: 'Adj + Noun',
+    example: 'There is now a widespread consensus among climatologists.',
+  },
+  {
+    col: 'sharp / dramatic decline',
+    type: 'Adj + Noun',
+    example: 'The region experienced a sharp decline in agricultural yield.',
+  },
+  {
+    col: 'shed light on',
+    type: 'Idiomatic Phrase',
+    example: 'Recent archaeological findings shed light on ancient trade routes.',
+  },
+  {
+    col: 'draw a conclusion',
+    type: 'Verb + Noun',
+    example: 'Researchers were hesitant to draw conclusions from preliminary data.',
+  },
+  {
+    col: 'underlying cause',
+    type: 'Adj + Noun',
+    example: 'Poverty remains the underlying cause of nutritional deficiency.',
+  },
+  {
+    col: 'profound impact / effect',
+    type: 'Adj + Noun',
+    example: 'Technological shifts have had a profound impact on labor markets.',
+  },
+  {
+    col: 'pave the way for',
+    type: 'Prepositional',
+    example: 'Innovations in genomics paved the way for personalized medicine.',
+  },
+  {
+    col: 'pose a threat to',
+    type: 'Verb + Noun',
+    example: 'Invasive species pose a serious threat to indigenous wildlife.',
+  },
+  {
+    col: 'empirical evidence',
+    type: 'Adj + Noun',
+    example: 'The theoretical model was supported by strong empirical evidence.',
+  },
+  {
+    col: 'take into account',
+    type: 'Prepositional',
+    example: 'Policy makers must take demographic changes into account.',
+  },
+  {
+    col: 'growing concern',
+    type: 'Adj + Noun',
+    example: 'Antibiotic resistance is an issue of growing concern globally.',
+  },
+  {
+    col: 'establish a relationship',
+    type: 'Verb + Noun',
+    example: 'The study established a direct relationship between diet and health.',
+  },
+  {
+    col: 'stem from',
+    type: 'Phrasal Verb',
+    example: 'Many societal problems stem from economic inequality.',
+  },
+  {
+    col: 'gain insight into',
+    type: 'Verb + Noun',
+    example: 'Brain scans allow researchers to gain insight into cognitive processes.',
+  },
 ]
 
 function TemplateCard({ item }: { item: StrategyTemplate }) {
   const [copied, setCopied] = useState(false)
   const timerRef = useRef<number | null>(null)
 
-  useEffect(() => () => {
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current)
-  }, [])
+  useEffect(
+    () => () => {
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current)
+    },
+    [],
+  )
 
   const copy = async () => {
     try {
@@ -190,7 +262,8 @@ function TemplateCard({ item }: { item: StrategyTemplate }) {
       </div>
 
       <p className="mt-3 text-xs text-ink-500 dark:text-ink-on-dark-muted leading-relaxed">
-        <span className="font-semibold text-mint-700 dark:text-mint-300">Why it works:</span> {item.rationale}
+        <span className="font-semibold text-mint-700 dark:text-mint-300">Why it works:</span>{' '}
+        {item.rationale}
       </p>
     </div>
   )
@@ -205,7 +278,16 @@ export default function Guide() {
         breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'PTE tips' }]} />}
         eyebrow="Study guide"
         title="PTE strategies that move the score."
-        description={<>Most advice is generic. Start with the changes that return the most marks, then explore techniques for all 22 types in the <Link to="/question-types/" className="link-inline">question type guide</Link>.</>}
+        description={
+          <>
+            Most advice is generic. Start with the changes that return the most marks, then explore
+            techniques for all 22 types in the{' '}
+            <Link to="/question-types/" className="link-inline">
+              question type guide
+            </Link>
+            .
+          </>
+        }
       >
         <div className="-mt-4 mb-8 flex flex-wrap gap-2.5">
           <a
@@ -274,13 +356,17 @@ export default function Guide() {
           ].map((item, i) => (
             <Reveal as="li" key={item.title} delay={Math.min(i, 4) * 70} className="flex">
               <article className="card-solid flex w-full gap-4 p-5 sm:p-6 border-ink-200 dark:border-white/10">
-              <span className="bg-mint-500 text-ink-900 grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold shadow-xs">
-                {i + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{item.title}</h3>
-                <p className="text-ink-500 dark:text-ink-on-dark mt-1.5 text-sm leading-relaxed">{item.body}</p>
-              </div>
+                <span className="bg-mint-500 text-ink-900 grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold shadow-xs">
+                  {i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-ink-900 dark:text-white text-sm font-bold text-balance">
+                    {item.title}
+                  </h3>
+                  <p className="text-ink-500 dark:text-ink-on-dark mt-1.5 text-sm leading-relaxed">
+                    {item.body}
+                  </p>
+                </div>
               </article>
             </Reveal>
           ))}
@@ -292,10 +378,15 @@ export default function Guide() {
               <span className="pill bg-mint-500/10 text-mint-700 dark:text-mint-300 text-xs font-bold">
                 Exam-proven frameworks
               </span>
-              <SectionHeading className="mt-2 mb-0" eyebrow="Frameworks" title="Proven 2025/2026 Strategy Templates" />
+              <SectionHeading
+                className="mt-2 mb-0"
+                eyebrow="Frameworks"
+                title="Proven 2025/2026 Strategy Templates"
+              />
             </div>
             <p className="text-ink-500 dark:text-ink-on-dark-muted max-w-md text-xs leading-relaxed">
-              Safe structures that hit Pearson content keywords and maintain oral fluency without triggering template penalties.
+              Safe structures that hit Pearson content keywords and maintain oral fluency without
+              triggering template penalties.
             </p>
           </div>
 
@@ -316,26 +407,38 @@ export default function Guide() {
               <span className="pill bg-brand-500/10 text-brand-700 dark:text-brand-300 text-xs font-bold">
                 Vocabulary booster
               </span>
-              <SectionHeading className="mt-2 mb-0" eyebrow="Vocabulary" title="Academic Collocations (Fill in the Blanks)" />
+              <SectionHeading
+                className="mt-2 mb-0"
+                eyebrow="Vocabulary"
+                title="Academic Collocations (Fill in the Blanks)"
+              />
             </div>
-            <Link to="/practice?type=fill-in-blanks-dropdown" className="text-brand-600 dark:text-brand-300 -m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-xs font-semibold hover:underline">
+            <Link
+              to="/practice?type=fill-in-blanks-dropdown"
+              className="text-brand-600 dark:text-brand-300 -m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-xs font-semibold hover:underline"
+            >
               Practice FIB dropdowns
             </Link>
           </div>
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-sm leading-relaxed">
-            Over 70% of blanks in Reading & Writing FIB test collocations from the Pearson Academic Collocation List (ACL). Memorize these common word partnerships:
+            Over 70% of blanks in Reading & Writing FIB test collocations from the Pearson Academic
+            Collocation List (ACL). Memorize these common word partnerships:
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {COLLOCATIONS.map((c, i) => (
               <Reveal key={c.col} delay={(i % 3) * 70} duration={650} className="h-full">
-              <div className="card-solid h-full p-4">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-ink-900 dark:text-white font-bold text-sm">{c.col}</span>
-                  <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">{c.type}</span>
+                <div className="card-solid h-full p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-ink-900 dark:text-white font-bold text-sm">{c.col}</span>
+                    <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
+                      {c.type}
+                    </span>
+                  </div>
+                  <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-xs italic leading-relaxed">
+                    "{c.example}"
+                  </p>
                 </div>
-                <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-xs italic leading-relaxed">"{c.example}"</p>
-              </div>
               </Reveal>
             ))}
           </div>
@@ -354,29 +457,40 @@ export default function Guide() {
               {ALL_QUESTION_TYPES.filter((t) => QUESTION_META[t].section === key).map((t, i) => {
                 const qm = QUESTION_META[t]
                 return (
-                  <Reveal as="article" key={t} id={t} delay={Math.min(i, 4) * 45} duration={600} className="scroll-mt-24">
+                  <Reveal
+                    as="article"
+                    key={t}
+                    id={t}
+                    delay={Math.min(i, 4) * 45}
+                    duration={600}
+                    className="scroll-mt-24"
+                  >
                     <div className="card-solid p-5 border-ink-200 dark:border-white/10">
-                    <div className="flex flex-wrap items-baseline justify-between gap-2">
-                      <h4 className="text-ink-900 dark:text-white text-sm font-bold text-balance">{qm.label}</h4>
-                      <span className="pill bg-ink-100 text-ink-500 dark:bg-white/8 dark:text-ink-on-dark-muted">
-                        {qm.perTest} per test, {qm.skills.join(' + ')}
-                      </span>
-                    </div>
-                    <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">{qm.tip}</p>
-                    <div className="border-ink-100 dark:border-white/6 mt-3 flex items-center justify-between border-t pt-2.5 text-xs">
-                      <Link
-                        to={`/question-types/${typeSlug(t)}/`}
-                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-brand-600 dark:text-ink-on-dark dark:hover:text-brand-300 font-medium hover:underline"
-                      >
-                        Deep dive & rubric
-                      </Link>
-                      <Link
-                        to={`/practice?type=${t}`}
-                        className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 font-semibold hover:underline"
-                      >
-                        Practice drill
-                      </Link>
-                    </div>
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <h4 className="text-ink-900 dark:text-white text-sm font-bold text-balance">
+                          {qm.label}
+                        </h4>
+                        <span className="pill bg-ink-100 text-ink-500 dark:bg-white/8 dark:text-ink-on-dark-muted">
+                          {qm.perTest} per test, {qm.skills.join(' + ')}
+                        </span>
+                      </div>
+                      <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">
+                        {qm.tip}
+                      </p>
+                      <div className="border-ink-100 dark:border-white/6 mt-3 flex items-center justify-between border-t pt-2.5 text-xs">
+                        <Link
+                          to={`/question-types/${typeSlug(t)}/`}
+                          className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-ink-600 hover:text-brand-600 dark:text-ink-on-dark dark:hover:text-brand-300 font-medium hover:underline"
+                        >
+                          Deep dive & rubric
+                        </Link>
+                        <Link
+                          to={`/practice?type=${t}`}
+                          className="-m-1 inline-flex min-h-6 items-center rounded-sm px-1 text-brand-600 hover:text-brand-700 dark:text-brand-300 dark:hover:text-brand-200 font-semibold hover:underline"
+                        >
+                          Practice drill
+                        </Link>
+                      </div>
                     </div>
                   </Reveal>
                 )
@@ -391,9 +505,9 @@ export default function Guide() {
           title="Recording rules that decide items silently"
         />
         <p className="text-ink-600 dark:text-ink-200 max-w-2xl leading-relaxed">
-          The microphone is not forgiving about silence. These are the mechanics of the recording itself, rather than of
-          the language, and they cost marks more often than pronunciation does. Each one is taken from Pearson's own
-          guidance for the question type.
+          The microphone is not forgiving about silence. These are the mechanics of the recording
+          itself, rather than of the language, and they cost marks more often than pronunciation
+          does. Each one is taken from Pearson's own guidance for the question type.
         </p>
         <TickList
           className="mt-5"
@@ -420,48 +534,68 @@ export default function Guide() {
         />
 
         <SectionBand className="mt-16">
-        <SectionHeading id="study-plan" eyebrow="Schedule" title="A four-week study plan" />
-        <Reveal variant="fade">
-          <div className="card-solid mt-5 overflow-x-auto p-0 border-ink-200 dark:border-white/10">
-          <table className="table-data min-w-lg">
-            <caption className="sr-only">Four week PTE preparation plan</caption>
-            <thead>
-              <tr className="border-ink-200 dark:border-white/10 border-b">
-                {['Week', 'Focus', 'Daily practice', 'Mock test'].map((h) => (
-                  <th key={h} scope="col">
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ['1', 'Reading accuracy', 'Fill in the Blanks, Re-order Paragraphs, 1 passage a day', 'Full mock, practice mode'],
-                ['2', 'Listening and repetition', 'Repeat Sentence, Re-tell Lecture, Write from Dictation', 'Section mock: Listening'],
-                ['3', 'Producing language', 'Describe Image, Summarize Written Text, essay outlines', 'Section mock: Part 1'],
-                ['4', 'Full simulation', 'Timed sections, no transcripts, no pauses', 'Two full mocks, exam mode'],
-              ].map((row) => (
-                <tr key={row[0]} className="border-ink-100 dark:border-white/6 border-b">
-                  <td className="text-ink-900 dark:text-white font-bold">{row[0]}</td>
-                  <td className="text-ink-700 dark:text-ink-200">{row[1]}</td>
-                  <td className="text-ink-500 dark:text-ink-on-dark-muted">{row[2]}</td>
-                  <td className="text-ink-500 dark:text-ink-on-dark-muted">{row[3]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          </div>
-        </Reveal>
+          <SectionHeading id="study-plan" eyebrow="Schedule" title="A four-week study plan" />
+          <Reveal variant="fade">
+            <div className="card-solid mt-5 overflow-x-auto p-0 border-ink-200 dark:border-white/10">
+              <table className="table-data min-w-lg">
+                <caption className="sr-only">Four week PTE preparation plan</caption>
+                <thead>
+                  <tr className="border-ink-200 dark:border-white/10 border-b">
+                    {['Week', 'Focus', 'Daily practice', 'Mock test'].map((h) => (
+                      <th key={h} scope="col">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {[
+                    [
+                      '1',
+                      'Reading accuracy',
+                      'Fill in the Blanks, Re-order Paragraphs, 1 passage a day',
+                      'Full mock, practice mode',
+                    ],
+                    [
+                      '2',
+                      'Listening and repetition',
+                      'Repeat Sentence, Re-tell Lecture, Write from Dictation',
+                      'Section mock: Listening',
+                    ],
+                    [
+                      '3',
+                      'Producing language',
+                      'Describe Image, Summarize Written Text, essay outlines',
+                      'Section mock: Part 1',
+                    ],
+                    [
+                      '4',
+                      'Full simulation',
+                      'Timed sections, no transcripts, no pauses',
+                      'Two full mocks, exam mode',
+                    ],
+                  ].map((row) => (
+                    <tr key={row[0]} className="border-ink-100 dark:border-white/6 border-b">
+                      <td className="text-ink-900 dark:text-white font-bold">{row[0]}</td>
+                      <td className="text-ink-700 dark:text-ink-200">{row[1]}</td>
+                      <td className="text-ink-500 dark:text-ink-on-dark-muted">{row[2]}</td>
+                      <td className="text-ink-500 dark:text-ink-on-dark-muted">{row[3]}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
 
-        <SectionHeading
-          id="faqs"
-          className="mt-16"
-          eyebrow="Questions"
-          title="Frequently asked questions"
-        />
-        <Reveal variant="fade">
-          <Accordion items={FAQ} />
-        </Reveal>
+          <SectionHeading
+            id="faqs"
+            className="mt-16"
+            eyebrow="Questions"
+            title="Frequently asked questions"
+          />
+          <Reveal variant="fade">
+            <Accordion items={FAQ} />
+          </Reveal>
         </SectionBand>
 
         <CtaBand
@@ -469,8 +603,12 @@ export default function Guide() {
           description="Reading this page is worth less than one scored attempt. Find out what these techniques actually do to your score."
           actions={
             <>
-              <ButtonLink to="/mock" size="lg" magnetic>Start a full mock</ButtonLink>
-              <ButtonLink to="/practice" variant="secondary" size="lg">Drill a weak type</ButtonLink>
+              <ButtonLink to="/mock" size="lg" magnetic>
+                Start a full mock
+              </ButtonLink>
+              <ButtonLink to="/practice" variant="secondary" size="lg">
+                Drill a weak type
+              </ButtonLink>
             </>
           }
         />

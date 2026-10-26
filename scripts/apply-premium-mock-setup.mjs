@@ -1,20 +1,20 @@
-import fs from 'fs';
+import fs from 'fs'
 
-let tsx = fs.readFileSync('src/pages/MockSetup.tsx', 'utf-8');
+let tsx = fs.readFileSync('src/pages/MockSetup.tsx', 'utf-8')
 
-const returnStartIndex = tsx.indexOf('  return (\n    <>\n      <Seo />');
+const returnStartIndex = tsx.indexOf('  return (\n    <>\n      <Seo />')
 if (returnStartIndex === -1) {
-    console.error("Could not find return block");
-    process.exit(1);
+  console.error('Could not find return block')
+  process.exit(1)
 }
 
-const componentEndIndex = tsx.indexOf('}\n\nfunction Row', returnStartIndex);
+const componentEndIndex = tsx.indexOf('}\n\nfunction Row', returnStartIndex)
 if (componentEndIndex === -1) {
-    console.error("Could not find end of component");
-    process.exit(1);
+  console.error('Could not find end of component')
+  process.exit(1)
 }
 
-const oldReturnStr = tsx.substring(returnStartIndex, componentEndIndex + 1);
+const oldReturnStr = tsx.substring(returnStartIndex, componentEndIndex + 1)
 
 const premiumReturn = `  return (
     <>
@@ -154,7 +154,7 @@ const premiumReturn = `  return (
       </PageWrapper>
     </>
   )
-}`;
+}`
 
-tsx = tsx.replace(oldReturnStr, premiumReturn);
-fs.writeFileSync('src/pages/MockSetup.tsx', tsx);
+tsx = tsx.replace(oldReturnStr, premiumReturn)
+fs.writeFileSync('src/pages/MockSetup.tsx', tsx)

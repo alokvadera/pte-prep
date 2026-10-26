@@ -27,7 +27,8 @@ export function CursorGlow({ className }: { className?: string }) {
     /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+      return
 
     let raf = 0
     let running = false
@@ -58,7 +59,7 @@ export function CursorGlow({ className }: { className?: string }) {
         return
       }
       const interactive = target.closest(
-        'button, a, input, select, textarea, [role="button"], [role="tab"], .btn, .card-interactive, .choice-card, .choice-row, .magnetic-control, summary, [data-interactive="true"]'
+        'button, a, input, select, textarea, [role="button"], [role="tab"], .btn, .card-interactive, .choice-card, .choice-row, .magnetic-control, summary, [data-interactive="true"]',
       )
       isHovering = Boolean(interactive)
       updateTargetScale()
@@ -155,11 +156,5 @@ export function CursorGlow({ className }: { className?: string }) {
     }
   }, [])
 
-  return (
-    <div
-      ref={ref}
-      className={cn('cursor-glow', className)}
-      aria-hidden="true"
-    />
-  )
+  return <div ref={ref} className={cn('cursor-glow', className)} aria-hidden="true" />
 }

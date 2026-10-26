@@ -1,9 +1,9 @@
-import fs from 'fs';
+import fs from 'fs'
 
-let tsx = fs.readFileSync('src/pages/Home.tsx', 'utf-8');
+let tsx = fs.readFileSync('src/pages/Home.tsx', 'utf-8')
 
 // Replace Hero Section
-const heroRegex = /<section className="home-hero[\s\S]*?<\/section>/;
+const heroRegex = /<section className="home-hero[\s\S]*?<\/section>/
 const premiumHero = `<section className="home-hero relative overflow-hidden py-24 sm:py-32 lg:py-40">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.1),rgba(255,255,255,0))] dark:bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]" aria-hidden="true" />
         <div className="page-shell-wide home-hero-shell relative z-10">
@@ -48,12 +48,13 @@ const premiumHero = `<section className="home-hero relative overflow-hidden py-2
             </div>
           </div>
         </div>
-      </section>`;
+      </section>`
 
-tsx = tsx.replace(heroRegex, premiumHero);
+tsx = tsx.replace(heroRegex, premiumHero)
 
 // Replace features grid with bento box
-const featuresRegex = /<div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">[\s\S]*?<\/div>\s*<\/div>\s*<\/section>/;
+const featuresRegex =
+  /<div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">[\s\S]*?<\/div>\s*<\/div>\s*<\/section>/
 const bentoGrid = `<div className="mt-12 grid gap-6 md:grid-cols-3 md:grid-rows-2">
             <Reveal delay={0} variant="scale" className="md:col-span-2 md:row-span-2">
               <article className="card-interactive h-full flex flex-col justify-end p-8 sm:p-12 bg-gradient-to-br from-ink-50 to-ink-100 dark:from-ink-850 dark:to-ink-900">
@@ -97,8 +98,8 @@ const bentoGrid = `<div className="mt-12 grid gap-6 md:grid-cols-3 md:grid-rows-
             </Reveal>
           </div>
         </div>
-      </section>`;
+      </section>`
 
-tsx = tsx.replace(featuresRegex, bentoGrid);
+tsx = tsx.replace(featuresRegex, bentoGrid)
 
-fs.writeFileSync('src/pages/Home.tsx', tsx);
+fs.writeFileSync('src/pages/Home.tsx', tsx)

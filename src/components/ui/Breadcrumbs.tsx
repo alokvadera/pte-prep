@@ -17,7 +17,10 @@ export interface Crumb {
  */
 export function Breadcrumbs({ trail, className }: { trail: Crumb[]; className?: string }) {
   return (
-    <nav aria-label="Breadcrumb" className={cn('text-ink-500 dark:text-ink-on-dark-muted text-sm', className)}>
+    <nav
+      aria-label="Breadcrumb"
+      className={cn('text-ink-500 dark:text-ink-on-dark-muted text-sm', className)}
+    >
       <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
         {trail.map((c, i) => {
           const last = i === trail.length - 1
@@ -25,7 +28,12 @@ export function Breadcrumbs({ trail, className }: { trail: Crumb[]; className?: 
             <Fragment key={`${c.name}-${i}`}>
               <li>
                 {last || !c.path ? (
-                  <span className={cn(last && 'text-ink-900 dark:text-white font-medium')} aria-current={last ? 'page' : undefined}>{c.name}</span>
+                  <span
+                    className={cn(last && 'text-ink-900 dark:text-white font-medium')}
+                    aria-current={last ? 'page' : undefined}
+                  >
+                    {c.name}
+                  </span>
                 ) : (
                   // Padded to reach a 24px hit area without loosening the
                   // visual rhythm of the trail.
@@ -42,7 +50,10 @@ export function Breadcrumbs({ trail, className }: { trail: Crumb[]; className?: 
                 // separator nobody can see is not separating anything. ink-500
                 // is the trail's own colour and clears 4.5 in light; dark keeps
                 // the quieter ink-400, which clears it against the dark ground.
-                <li aria-hidden="true" className="text-ink-500 dark:text-ink-on-dark-muted select-none">
+                <li
+                  aria-hidden="true"
+                  className="text-ink-500 dark:text-ink-on-dark-muted select-none"
+                >
                   /
                 </li>
               )}

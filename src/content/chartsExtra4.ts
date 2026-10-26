@@ -45,8 +45,16 @@ export const EXTRA_CHARTS_4: ChartSpec[] = [
       unit: '°C, monthly average',
       x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       series: [
-        { name: 'Coastal city', values: [6, 7, 10, 13, 17, 20, 22, 22, 19, 15, 10, 7], color: '#3665f6' },
-        { name: 'Inland city', values: [2, 4, 9, 14, 19, 23, 26, 25, 20, 14, 7, 3], color: '#f59e0b' },
+        {
+          name: 'Coastal city',
+          values: [6, 7, 10, 13, 17, 20, 22, 22, 19, 15, 10, 7],
+          color: '#3665f6',
+        },
+        {
+          name: 'Inland city',
+          values: [2, 4, 9, 14, 19, 23, 26, 25, 20, 14, 7, 3],
+          color: '#f59e0b',
+        },
       ],
     },
   },
@@ -99,9 +107,15 @@ export const EXTRA_CHARTS_4: ChartSpec[] = [
       steps: [
         { label: '1. Pellets', detail: 'Plastic pellets are dried and heated until soft.' },
         { label: '2. Moulding', detail: 'The soft plastic is pressed into a small preform.' },
-        { label: '3. Blowing', detail: 'Compressed air stretches the preform into a bottle shape.' },
+        {
+          label: '3. Blowing',
+          detail: 'Compressed air stretches the preform into a bottle shape.',
+        },
         { label: '4. Filling and capping', detail: 'The bottle is filled, capped and sealed.' },
-        { label: '5. Labelling and packing', detail: 'Labels are applied and bottles are packed into crates.' },
+        {
+          label: '5. Labelling and packing',
+          detail: 'Labels are applied and bottles are packed into crates.',
+        },
       ],
       loop: 'Reject bottles are crushed and returned to the pellet stage.',
     },
@@ -132,7 +146,15 @@ export const EXTRA_CHARTS_4: ChartSpec[] = [
     kind: 'diagram',
     caption: 'Movement of water between ocean, land and atmosphere.',
     prompt: 'Describe the diagram below in 25–40 seconds.',
-    keyTerms: ['evaporation', 'condensation', 'precipitation', 'runoff', 'ocean', 'clouds', 'cycle'],
+    keyTerms: [
+      'evaporation',
+      'condensation',
+      'precipitation',
+      'runoff',
+      'ocean',
+      'clouds',
+      'cycle',
+    ],
     minWords: 25,
     data: {
       nodes: [

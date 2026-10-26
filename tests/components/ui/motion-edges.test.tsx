@@ -119,7 +119,13 @@ describe('RenderType edge cases', () => {
 
   it('deletes the phrase before typing the next one', () => {
     const { container } = render(
-      <RenderType text={['One', 'Two']} speed={10} startDelay={0} deleteSpeed={10} holdDuration={10} />,
+      <RenderType
+        text={['One', 'Two']}
+        speed={10}
+        startDelay={0}
+        deleteSpeed={10}
+        holdDuration={10}
+      />,
     )
     for (let i = 0; i < 30; i++) {
       act(() => vi.advanceTimersByTime(50))

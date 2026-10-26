@@ -23,7 +23,7 @@ vi.mock('../../src/content/manifest', async (importOriginal) => {
     ...actual,
     // An empty capacity means the bank holds nothing at all, which is what
     // makes the reading over-request visible.
-    manifestCapacityByType: () => ({} as Record<string, number>),
+    manifestCapacityByType: () => ({}) as Record<string, number>,
   }
 })
 

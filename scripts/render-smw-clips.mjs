@@ -48,7 +48,10 @@ const value = (name) => {
 const VERIFY_ONLY = flag('--verify-only')
 const NO_BEEP = flag('--no-beep')
 const UPDATE_MANIFEST = flag('--manifest')
-const ONLY = value('--ids')?.split(',').map((s) => s.trim()).filter(Boolean)
+const ONLY = value('--ids')
+  ?.split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
 
 // --- The bank ---------------------------------------------------------------
 // The item data lives in TypeScript, so it is read through tsx rather than
@@ -89,7 +92,10 @@ function readBank(scratch) {
   const source = join(scratch, 'dump-smw.ts')
   const out = join(scratch, 'items.json')
   writeFileSync(source, dumpSource(out))
-  execFileSync('npx', ['tsx', '--tsconfig', 'tsconfig.scripts.json', source], { cwd: ROOT, stdio: ['ignore', 'ignore', 'inherit'] })
+  execFileSync('npx', ['tsx', '--tsconfig', 'tsconfig.scripts.json', source], {
+    cwd: ROOT,
+    stdio: ['ignore', 'ignore', 'inherit'],
+  })
   return JSON.parse(readFileSync(out, 'utf-8'))
 }
 
@@ -109,13 +115,19 @@ function readWav(file) {
     const id = buf.toString('ascii', offset, offset + 4)
     const size = buf.readUInt32LE(offset + 4)
     const body = buf.subarray(offset + 8, offset + 8 + size)
-    if (id === 'fmt ') fmt = { channels: body.readUInt16LE(2), rate: body.readUInt32LE(4), bits: body.readUInt16LE(14) }
+    if (id === 'fmt ')
+      fmt = {
+        channels: body.readUInt16LE(2),
+        rate: body.readUInt32LE(4),
+        bits: body.readUInt16LE(14),
+      }
     if (id === 'data') data = body
     offset += 8 + size + (size % 2)
   }
   if (!fmt || !data) throw new Error(`${file} has no fmt/data chunk`)
   if (fmt.channels !== 1 || fmt.bits !== 16) throw new Error(`${file} is not mono 16-bit`)
-  if (fmt.rate !== SAMPLE_RATE) throw new Error(`${file} is ${fmt.rate} Hz, expected ${SAMPLE_RATE}`)
+  if (fmt.rate !== SAMPLE_RATE)
+    throw new Error(`${file} is ${fmt.rate} Hz, expected ${SAMPLE_RATE}`)
   return data
 }
 
@@ -131,7 +143,10 @@ function beepPcm(seconds = 0.35, freq = 750, volume = 0.12) {
     let gain = 1
     if (i < fade) gain = 0.5 * (1 - Math.cos((Math.PI * i) / fade))
     else if (i > samples - fade) gain = 0.5 * (1 - Math.cos((Math.PI * (samples - i)) / fade))
-    out.writeInt16LE(Math.round(volume * gain * 32767 * Math.sin((2 * Math.PI * freq * i) / SAMPLE_RATE)), i * 2)
+    out.writeInt16LE(
+      Math.round(volume * gain * 32767 * Math.sin((2 * Math.PI * freq * i) / SAMPLE_RATE)),
+      i * 2,
+    )
   }
   return out
 }
@@ -181,7 +196,11 @@ async function synthesize(text, outMp3, voiceId = null) {
     try {
       const res = await fetch('https://api.fish.audio/v1/tts', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json', model: 's2.1-pro-free' },
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          model: 's2.1-pro-free',
+        },
         body: JSON.stringify(payload),
       })
       if (res.ok) {
@@ -351,7 +370,9 @@ try {
       process.exit(1)
     }
     console.log(`\n== Rendering ${items.length} Select Missing Word clips ==`)
-    console.log(`   ${NO_BEEP ? 'leaving silence where the word was (no beep)' : 'beeping soft 750 Hz over the blank'}\n`)
+    console.log(
+      `   ${NO_BEEP ? 'leaving silence where the word was (no beep)' : 'beeping soft 750 Hz over the blank'}\n`,
+    )
     const results = await runPool(items, 4, (item) => renderItem(item, scratch))
     rendered = new Map(results.filter((r) => r.ok).map((r) => [r.item.id, r.target]))
     const errors = results.filter((r) => !r.ok)

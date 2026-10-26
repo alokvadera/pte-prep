@@ -208,11 +208,15 @@ export function HeroScoreCard({ className }: { className?: string }) {
   const handleSimulate = useCallback(() => {
     playTactilePop(getAudioContext())
     setIsSimulating(true)
-    schedule('simulate', () => {
-      setIsSimulating(false)
-      setConfettiFire(true)
-      schedule('confetti', () => setConfettiFire(false), 80)
-    }, 1100)
+    schedule(
+      'simulate',
+      () => {
+        setIsSimulating(false)
+        setConfettiFire(true)
+        schedule('confetti', () => setConfettiFire(false), 80)
+      },
+      1100,
+    )
   }, [schedule, getAudioContext])
 
   /* v8 ignore next -- the preset index is always inside the table */
@@ -281,9 +285,10 @@ export function HeroScoreCard({ className }: { className?: string }) {
           mascotBounce && 'scale-110 -rotate-6',
         )}
         style={{
-          transform: !reducedMotion && isCardHovered
-            ? `translateZ(65px) rotate(${tilt.rotateY * 0.8}deg)`
-            : undefined,
+          transform:
+            !reducedMotion && isCardHovered
+              ? `translateZ(65px) rotate(${tilt.rotateY * 0.8}deg)`
+              : undefined,
         }}
       >
         {/* Thought / speech bubble */}
@@ -303,8 +308,9 @@ export function HeroScoreCard({ className }: { className?: string }) {
         {/* Mascot Face Body */}
         <div
           className={cn(
-          'relative flex size-24 items-center justify-center rounded-full bg-[#FF9F1C] shadow-[0_8px_0_#DB7B06] dark:shadow-[0_4px_22px_rgba(255,159,28,0.4),0_6px_0_#DB7B06] transition-all duration-300',
-            isMascotHovered && 'scale-105 shadow-[0_10px_0_#DB7B06] dark:shadow-[0_6px_28px_rgba(255,159,28,0.55),0_8px_0_#DB7B06]',
+            'relative flex size-24 items-center justify-center rounded-full bg-[#FF9F1C] shadow-[0_8px_0_#DB7B06] dark:shadow-[0_4px_22px_rgba(255,159,28,0.4),0_6px_0_#DB7B06] transition-all duration-300',
+            isMascotHovered &&
+              'scale-105 shadow-[0_10px_0_#DB7B06] dark:shadow-[0_6px_28px_rgba(255,159,28,0.55),0_8px_0_#DB7B06]',
           )}
         >
           {/* Eyes. The right eye winks on hover — the one
@@ -326,13 +332,15 @@ export function HeroScoreCard({ className }: { className?: string }) {
           <span
             className={cn(
               'absolute left-4 top-[54px] h-[9px] w-[14px] rounded-full bg-[rgba(255,126,182,0.85)] transition-all duration-300',
-              isMascotHovered && 'scale-125 bg-[rgba(255,126,182,1)] drop-shadow-[0_0_8px_rgba(255,126,182,0.8)]',
+              isMascotHovered &&
+                'scale-125 bg-[rgba(255,126,182,1)] drop-shadow-[0_0_8px_rgba(255,126,182,0.8)]',
             )}
           />
           <span
             className={cn(
               'absolute right-4 top-[54px] h-[9px] w-[14px] rounded-full bg-[rgba(255,126,182,0.85)] transition-all duration-300',
-              isMascotHovered && 'scale-125 bg-[rgba(255,126,182,1)] drop-shadow-[0_0_8px_rgba(255,126,182,0.8)]',
+              isMascotHovered &&
+                'scale-125 bg-[rgba(255,126,182,1)] drop-shadow-[0_0_8px_rgba(255,126,182,0.8)]',
             )}
           />
 
@@ -354,9 +362,10 @@ export function HeroScoreCard({ className }: { className?: string }) {
           !reducedMotion && 'transition-transform duration-160 ease-out',
         )}
         style={{
-          transform: !reducedMotion && isCardHovered
-            ? `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale3d(1.015, 1.015, 1.015)`
-            : undefined,
+          transform:
+            !reducedMotion && isCardHovered
+              ? `rotateX(${tilt.rotateX}deg) rotateY(${tilt.rotateY}deg) scale3d(1.015, 1.015, 1.015)`
+              : undefined,
           transformStyle: 'preserve-3d',
         }}
       >
@@ -365,9 +374,10 @@ export function HeroScoreCard({ className }: { className?: string }) {
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 rounded-[22px] transition-opacity duration-300"
           style={{
-            background: isCardHovered && !reducedMotion
-              ? `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.14) 0%, transparent 60%)`
-              : undefined,
+            background:
+              isCardHovered && !reducedMotion
+                ? `radial-gradient(circle at ${tilt.glareX}% ${tilt.glareY}%, rgba(255, 255, 255, 0.14) 0%, transparent 60%)`
+                : undefined,
           }}
         />
 
@@ -458,7 +468,9 @@ export function HeroScoreCard({ className }: { className?: string }) {
           <div>
             <div className="font-display text-ink-900 dark:text-ink-50 text-4xl leading-none font-extrabold flex items-baseline gap-1">
               <CountUp key={current.overall} value={current.overall} duration={500} />
-              <span className="text-xs text-ink-500 dark:text-ink-on-dark-faint font-semibold">/ 90</span>
+              <span className="text-xs text-ink-500 dark:text-ink-on-dark-faint font-semibold">
+                / 90
+              </span>
             </div>
             <div className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs font-bold flex items-center gap-1.5">
               <span>Overall, 10 to 90 scale</span>
@@ -477,7 +489,8 @@ export function HeroScoreCard({ className }: { className?: string }) {
             onMouseLeave={() => setHoveredSkill(null)}
             className={cn(
               'bg-ink-100/70 dark:bg-white/5 flex flex-col gap-1.5 rounded-xl px-3.5 py-2.5 text-sm font-bold transition-all duration-200',
-              hoveredSkill === 'speaking' && 'bg-ink-200/70 dark:bg-white/10 ring-1 ring-mint-500/40',
+              hoveredSkill === 'speaking' &&
+                'bg-ink-200/70 dark:bg-white/10 ring-1 ring-mint-500/40',
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -515,7 +528,8 @@ export function HeroScoreCard({ className }: { className?: string }) {
             onMouseLeave={() => setHoveredSkill(null)}
             className={cn(
               'bg-ink-100/70 dark:bg-white/5 flex flex-col gap-1.5 rounded-xl px-3.5 py-2.5 text-sm font-bold transition-all duration-200',
-              hoveredSkill === 'writing' && 'bg-ink-200/70 dark:bg-white/10 ring-1 ring-mark-500/40',
+              hoveredSkill === 'writing' &&
+                'bg-ink-200/70 dark:bg-white/10 ring-1 ring-mark-500/40',
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -551,7 +565,8 @@ export function HeroScoreCard({ className }: { className?: string }) {
             onMouseLeave={() => setHoveredSkill(null)}
             className={cn(
               'bg-ink-100/70 dark:bg-white/5 flex flex-col gap-1.5 rounded-xl px-3.5 py-2.5 text-sm font-bold transition-all duration-200',
-              hoveredSkill === 'reading' && 'bg-ink-200/70 dark:bg-white/10 ring-1 ring-amber-400/40',
+              hoveredSkill === 'reading' &&
+                'bg-ink-200/70 dark:bg-white/10 ring-1 ring-amber-400/40',
             )}
           >
             <div className="flex items-center gap-2.5">
@@ -594,9 +609,8 @@ export function HeroScoreCard({ className }: { className?: string }) {
           style={{
             backgroundColor: current.cefrColor,
             boxShadow: `0 5px 0 ${current.cefrShadow}`,
-            transform: !reducedMotion && isCardHovered
-              ? `translateZ(48px) rotate(-2deg)`
-              : undefined,
+            transform:
+              !reducedMotion && isCardHovered ? `translateZ(48px) rotate(-2deg)` : undefined,
           }}
         >
           <span className="flex items-center gap-1.5">

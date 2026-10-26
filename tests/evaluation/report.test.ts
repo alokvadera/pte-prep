@@ -74,12 +74,18 @@ function perfectResponses(): Record<string, ItemResponse> {
         break
       case 'trait-composite':
         if (item.type === 'write-essay') responses[item.id] = { text: essayFor(terms) }
-        else if (item.type === 'summarize-written-text') responses[item.id] = { text: swtFor(terms) }
+        else if (item.type === 'summarize-written-text')
+          responses[item.id] = { text: swtFor(terms) }
         else if (item.type === 'summarize-spoken-text') {
           // The reference is already written inside the 50-70 word Form band.
           responses[item.id] = { text: itemKey.reference ?? '' }
-        } else if (item.type === 'answer-short-question') responses[item.id] = { text: itemKey.blanks?.[0]?.[0] ?? '' }
-        else responses[item.id] = { transcript: itemKey.reference ?? '', text: itemKey.reference ?? '' }
+        } else if (item.type === 'answer-short-question')
+          responses[item.id] = { text: itemKey.blanks?.[0]?.[0] ?? '' }
+        else
+          responses[item.id] = {
+            transcript: itemKey.reference ?? '',
+            text: itemKey.reference ?? '',
+          }
         break
     }
   }
@@ -115,12 +121,18 @@ describe('scale conversion', () => {
 
   it('is monotonic across the scale', () => {
     const values = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
-    expect(values.every((value, index) => index === 0 || rawToPteScale(value) > rawToPteScale(values[index - 1]!))).toBe(true)
+    expect(
+      values.every(
+        (value, index) => index === 0 || rawToPteScale(value) > rawToPteScale(values[index - 1]!),
+      ),
+    ).toBe(true)
   })
 
   it('lands every value on a half-point increment', () => {
     expect(
-      [0, 0.13, 0.37, 0.62, 0.88, 1].every((value) => Math.abs(rawToPteScale(value) * 2 - Math.round(rawToPteScale(value) * 2)) < 1e-9),
+      [0, 0.13, 0.37, 0.62, 0.88, 1].every(
+        (value) => Math.abs(rawToPteScale(value) * 2 - Math.round(rawToPteScale(value) * 2)) < 1e-9,
+      ),
     ).toBe(true)
   })
 
@@ -190,7 +202,11 @@ describe('full report', () => {
   })
 
   it('never attaches a "scores zero" note to a response that scored', () => {
-    expect(perfect.details.every((detail) => detail.points === 0 || !detail.notes.some((note) => /scores zero/i.test(note)))).toBe(true)
+    expect(
+      perfect.details.every(
+        (detail) => detail.points === 0 || !detail.notes.some((note) => /scores zero/i.test(note)),
+      ),
+    ).toBe(true)
   })
 
   it('covers every type in the breakdown', () => {
@@ -205,7 +221,9 @@ describe('full report', () => {
     if (warmupItem) {
       const typeStat = perfect.breakdown[warmupItem.type]
       // Scored items of that type should not include the warmup item
-      const scoredCount = allItems.filter((i) => i.type === warmupItem.type && i.maxPoints > 0).length
+      const scoredCount = allItems.filter(
+        (i) => i.type === warmupItem.type && i.maxPoints > 0,
+      ).length
       expect(typeStat?.total).toBe(scoredCount)
     }
   })
@@ -224,7 +242,8 @@ describe('report under a recording', () => {
       scored.flatMap((item): Array<[string, ItemResponse]> => {
         const base = responses[item.id]
         if (!base) return []
-        if (item.responseKind !== 'audio' || item.type === 'answer-short-question') return [[item.id, base]]
+        if (item.responseKind !== 'audio' || item.type === 'answer-short-question')
+          return [[item.id, base]]
         return [
           [
             item.id,
@@ -253,9 +272,18 @@ describe('report under a recording', () => {
 
   it('scores constructed items above 60% with a recording', () => {
     const constructed = micReport.details.filter((detail) =>
-      ['write-essay', 'summarize-written-text', 'summarize-spoken-text', 'answer-short-question', 'read-aloud', 'repeat-sentence', 'describe-image', 'retell-lecture', 'summarize-group-discussion', 'respond-to-situation'].includes(
-        detail.type,
-      ),
+      [
+        'write-essay',
+        'summarize-written-text',
+        'summarize-spoken-text',
+        'answer-short-question',
+        'read-aloud',
+        'repeat-sentence',
+        'describe-image',
+        'retell-lecture',
+        'summarize-group-discussion',
+        'respond-to-situation',
+      ].includes(detail.type),
     )
     expect(constructed.every((detail) => detail.ratio > 0.6)).toBe(true)
   })

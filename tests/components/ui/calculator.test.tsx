@@ -23,7 +23,10 @@ function setSkill(label: string, value: number): void {
 describe('ScoreCalculator', () => {
   it('estimates the overall as the mean of the four skills', () => {
     renderWithProviders(<ScoreCalculator />)
-    expect(screen.getByRole('progressbar', { name: 'Estimated overall' })).toHaveAttribute('aria-valuenow', '58')
+    expect(screen.getByRole('progressbar', { name: 'Estimated overall' })).toHaveAttribute(
+      'aria-valuenow',
+      '58',
+    )
   })
 
   it('starts with every skill on the same mark', () => {
@@ -53,7 +56,10 @@ describe('ScoreCalculator', () => {
     renderWithProviders(<ScoreCalculator />)
     setSkill('Speaking', 70)
     // 70 + 58 + 58 + 58 = 244, over four skills, is 61.
-    expect(screen.getByRole('progressbar', { name: 'Estimated overall' })).toHaveAttribute('aria-valuenow', '61')
+    expect(screen.getByRole('progressbar', { name: 'Estimated overall' })).toHaveAttribute(
+      'aria-valuenow',
+      '61',
+    )
   })
 
   it('calls a gap of four points within reach', () => {

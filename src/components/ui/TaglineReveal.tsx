@@ -31,7 +31,8 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
     const timers: number[] = []
 
     const reduced =
-      typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     // Nothing to animate: leave the resolved server markup alone.
     if (reduced || typeof IntersectionObserver === 'undefined') return
@@ -88,8 +89,7 @@ export function TaglineReveal({ lines, className }: { lines: string[]; className
                   data-active="true"
                   className="transition-[color] duration-700 data-[active=false]:text-ink-900/25 dark:text-ink-50 data-[active=false]:dark:text-ink-50/25"
                 >
-                  {word}
-                  {' '}
+                  {word}{' '}
                 </span>
               )
             })}

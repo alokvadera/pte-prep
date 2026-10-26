@@ -19,8 +19,12 @@ export default function TestPage() {
   // A direct URL or stale tab must not drop another account into a test it did
   // not start. A guest who signs in during the test adopts the session; otherwise
   // leave the saved run intact for its owner and send this session back to test setup.
-  const isGuestAdoption = Boolean(testOwner?.startsWith('guest:') && localOwnerId && !localOwnerId.startsWith('guest:'))
-  const ownerMismatch = Boolean(localOwnerId && mock && testOwner !== localOwnerId && !isGuestAdoption)
+  const isGuestAdoption = Boolean(
+    testOwner?.startsWith('guest:') && localOwnerId && !localOwnerId.startsWith('guest:'),
+  )
+  const ownerMismatch = Boolean(
+    localOwnerId && mock && testOwner !== localOwnerId && !isGuestAdoption,
+  )
 
   useEffect(() => {
     if (isGuestAdoption && localOwnerId) {
@@ -81,7 +85,9 @@ export default function TestPage() {
     if (!dialog) return
 
     // Move focus into the dialog
-    const focusable = dialog.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    const focusable = dialog.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
     focusable[0]?.focus()
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -119,7 +125,9 @@ export default function TestPage() {
       <div className="route-inner min-h-dvh grid place-items-center p-4">
         <div className="text-center">
           <span className="border-ink-200 border-t-ink-900 dark:border-white/15 dark:border-t-ink-50 mx-auto block size-9 animate-spin rounded-full border-2" />
-          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-sm">Loading your session…</p>
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-sm">
+            Loading your session…
+          </p>
         </div>
       </div>
     )
@@ -137,12 +145,25 @@ export default function TestPage() {
 
       {confirmExit ? (
         <div className="fixed inset-0 z-100 grid place-items-center p-4">
-          <button type="button" className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer" onClick={() => setConfirmExit(false)} aria-label="Cancel" />
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="confirm-exit-title" className="card-solid animate-modal-enter relative w-full max-w-sm">
-            <h2 id="confirm-exit-title" className="section-title">Leave the test?</h2>
+          <button
+            type="button"
+            className="bg-ink-950/70 animate-fade-in absolute inset-0 cursor-pointer"
+            onClick={() => setConfirmExit(false)}
+            aria-label="Cancel"
+          />
+          <div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="confirm-exit-title"
+            className="card-solid animate-modal-enter relative w-full max-w-sm"
+          >
+            <h2 id="confirm-exit-title" className="section-title">
+              Leave the test?
+            </h2>
             <p className="text-ink-500 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">
-              Your answers are saved. If this is a timed section, its clock will keep running while you are away.
-              Resume from the mock setup or practice page to keep going.
+              Your answers are saved. If this is a timed section, its clock will keep running while
+              you are away. Resume from the mock setup or practice page to keep going.
             </p>
             <div className="mt-6 flex justify-end gap-2">
               <button type="button" className="btn-secondary" onClick={() => setConfirmExit(false)}>

@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { AudioAnalysis } from '../../domain/types'
 import { cn } from '../../lib/cn'
-import { isRecordingSupported, isSpeechRecognitionSupported, VoiceRecorder, type RecorderLevel, type RecorderState } from '../../lib/recorder'
+import {
+  isRecordingSupported,
+  isSpeechRecognitionSupported,
+  VoiceRecorder,
+  type RecorderLevel,
+  type RecorderState,
+} from '../../lib/recorder'
 import { useSettings } from '../../store/useSettings'
 import { transcribeWithWhisper } from '../../lib/aiScorer'
 
@@ -26,7 +32,14 @@ type Phase = 'idle' | 'prep' | 'recording' | 'done'
  * the candidate can still record, and a text box is offered so the response can
  * be scored on content rather than dropped entirely.
  */
-export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped, disabled }: Props) {
+export function Recorder({
+  itemId,
+  seconds,
+  prepSeconds = 0,
+  onRecorded,
+  onTyped,
+  disabled,
+}: Props) {
   const inputId = itemId ? `typed-${itemId}` : 'typed-response'
   const { settings } = useSettings()
   const [phase, setPhase] = useState<Phase>('idle')
@@ -39,7 +52,9 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
   const [error, setError] = useState<string | null>(null)
   const [lastDurationMs, setLastDurationMs] = useState<number | null>(null)
   const [transcribing, setTranscribing] = useState(false)
-  const [sttSource, setSttSource] = useState<'browser' | 'whisper' | 'browser-fallback' | null>(null)
+  const [sttSource, setSttSource] = useState<'browser' | 'whisper' | 'browser-fallback' | null>(
+    null,
+  )
   const recorderRef = useRef<VoiceRecorder | null>(null)
   const timerRef = useRef<number | null>(null)
   const submittedRef = useRef(false)
@@ -165,7 +180,9 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
       const ok = await rec.start()
       if (!ok) {
         if (!recError && mountedRef.current) {
-          setError('Microphone unavailable. Type your answer below instead — it will still be scored on content.')
+          setError(
+            'Microphone unavailable. Type your answer below instead — it will still be scored on content.',
+          )
         }
         if (mountedRef.current) setPhase('done')
         return
@@ -253,7 +270,9 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
       {phase === 'idle' ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-ink-900 dark:text-white text-sm font-semibold">Record your response</p>
+            <p className="text-ink-900 dark:text-white text-sm font-semibold">
+              Record your response
+            </p>
             <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
               {disabled
                 ? 'Audio is playing. Wait for audio to finish before recording.'
@@ -263,7 +282,12 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
               {!micSupported ? ' Microphone not detected.' : ''}
             </p>
           </div>
-          <button type="button" className="btn-primary" onClick={start} disabled={disabled || starting}>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={start}
+            disabled={disabled || starting}
+          >
             <MicIcon />
             {prepSeconds > 0 ? 'Start preparation' : 'Start recording'}
           </button>
@@ -279,7 +303,9 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
             aria-live="off"
             aria-label={`${prepLeft} seconds to prepare`}
           >
-            <span key={prepLeft} className="animate-pop inline-block">{prepLeft}</span>
+            <span key={prepLeft} className="animate-pop inline-block">
+              {prepLeft}
+            </span>
           </p>
           <div className="bg-ink-200 dark:bg-white/10 mx-auto h-1.5 w-48 overflow-hidden rounded-full">
             <div
@@ -301,10 +327,16 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
               Recording
             </span>
             <span className="text-ink-900 dark:text-white font-mono text-lg font-bold tabular-nums">
-              <span key={recLeft} className="animate-pop inline-block">{recLeft}</span>s
+              <span key={recLeft} className="animate-pop inline-block">
+                {recLeft}
+              </span>
+              s
             </span>
           </div>
-          <div className="bg-ink-100 dark:bg-white/6 mt-3 flex h-3 items-center gap-[3px] overflow-hidden rounded-full px-1" aria-hidden="true">
+          <div
+            className="bg-ink-100 dark:bg-white/6 mt-3 flex h-3 items-center gap-[3px] overflow-hidden rounded-full px-1"
+            aria-hidden="true"
+          >
             {Array.from({ length: 48 }, (_, i) => {
               const active = i / 48 < level.level
               const hot = i / 48 < level.speechiness
@@ -321,7 +353,9 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
           </div>
           {transcript ? (
             <div className="flex items-center justify-between mt-3 text-xs">
-              <p className="text-ink-500 dark:text-ink-on-dark-muted line-clamp-2 italic">“{transcript}”</p>
+              <p className="text-ink-500 dark:text-ink-on-dark-muted line-clamp-2 italic">
+                “{transcript}”
+              </p>
               {settings.groqApiKey ? (
                 <span className="text-[10px] font-semibold text-mint-700 dark:text-mint-400 shrink-0 ml-2">
                   Whisper on stop
@@ -353,7 +387,11 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
               {error ? 'Answer not recorded' : 'Response captured'}
             </p>
             <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
-              {state === 'denied' ? 'Microphone permission denied' : state === 'unsupported' ? 'No microphone detected' : 'Microphone released'}
+              {state === 'denied'
+                ? 'Microphone permission denied'
+                : state === 'unsupported'
+                  ? 'No microphone detected'
+                  : 'Microphone released'}
             </p>
             <button type="button" className="btn-secondary" onClick={restart}>
               Record again
@@ -369,7 +407,9 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
             <div className="border-ink-200 dark:border-white/10 mt-3 border-t pt-3 space-y-1.5">
               <div className="flex items-center justify-between">
                 <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
-                  {sttSource === 'whisper' ? 'Transcribed via Whisper Turbo' : 'What the browser heard'}
+                  {sttSource === 'whisper'
+                    ? 'Transcribed via Whisper Turbo'
+                    : 'What the browser heard'}
                 </p>
                 <span
                   className={cn(
@@ -390,19 +430,22 @@ export function Recorder({ itemId, seconds, prepSeconds = 0, onRecorded, onTyped
             </div>
           ) : null}
 
-          {error ? <p className="text-rose-brand dark:text-rose-300 mt-3 text-xs">{error}</p> : null}
+          {error ? (
+            <p className="text-rose-brand dark:text-rose-300 mt-3 text-xs">{error}</p>
+          ) : null}
 
           {lastDurationMs !== null && lastDurationMs > 0 && lastDurationMs <= 500 ? (
             <p className="text-amber-600 dark:text-amber-300 mt-3 text-xs" role="status">
-              That take was under half a second, so it will not be scored. Record a longer take or type your
-              answer below so content can still be scored.
+              That take was under half a second, so it will not be scored. Record a longer take or
+              type your answer below so content can still be scored.
             </p>
           ) : null}
 
           {!sttSupported || !transcript ? (
             <div className="mt-3">
               <label className="label" htmlFor={inputId}>
-                Type what you said (required for content scoring when speech-to-text isn't available)
+                Type what you said (required for content scoring when speech-to-text isn't
+                available)
               </label>
               <textarea
                 id={inputId}
@@ -469,7 +512,9 @@ export function TypedAnswer({
         <p
           className={cn(
             'mt-1.5 text-xs tabular-nums',
-            under || over ? 'text-amber-600 dark:text-amber-300' : 'text-ink-500 dark:text-ink-on-dark-muted',
+            under || over
+              ? 'text-amber-600 dark:text-amber-300'
+              : 'text-ink-500 dark:text-ink-on-dark-muted',
           )}
         >
           {wc} words
@@ -485,7 +530,14 @@ export function TypedAnswer({
 
 function MicIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      className="size-4"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden="true"
+    >
       <rect x="9" y="2" width="6" height="11" rx="3" />
       <path d="M5 11a7 7 0 0 0 14 0M12 18v4M8 22h8" strokeLinecap="round" />
     </svg>

@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AUDIO_INDEX } from '../../content/bank'
 import { cn } from '../../lib/cn'
-import { isSpeechSupported, playCountdownBeep, speakScript, speakText, speakWithBeep, stopAllSpeech, type SpeakController } from '../../lib/speech'
+import {
+  isSpeechSupported,
+  playCountdownBeep,
+  speakScript,
+  speakText,
+  speakWithBeep,
+  stopAllSpeech,
+  type SpeakController,
+} from '../../lib/speech'
 
 interface Props {
   audioId?: string
@@ -208,12 +216,16 @@ export function AudioPlayer({
           const words = (turn?.text ?? '').split(/\s+/).filter((w) => w.length > 0)
           if (turn && beepWord >= 0 && beepWord < words.length) {
             setTurnIndex(fromTurn)
-            const controller = await speakWithBeep(words.slice(0, beepWord).join(' '), words.slice(beepWord + 1).join(' '), {
-              rate: Number((1.02 * speed).toFixed(2)),
-              voiceHint: speaker?.voiceHint ?? 'mid',
-              onEnd: done,
-              onError: failed,
-            })
+            const controller = await speakWithBeep(
+              words.slice(0, beepWord).join(' '),
+              words.slice(beepWord + 1).join(' '),
+              {
+                rate: Number((1.02 * speed).toFixed(2)),
+                voiceHint: speaker?.voiceHint ?? 'mid',
+                onEnd: done,
+                onError: failed,
+              },
+            )
             if (cancelled) controller.stop()
             else controllerRef.current = controller
             return
@@ -318,7 +330,13 @@ export function AudioPlayer({
 
   const speaker = script?.speakers.find((s) => s.id === script.turns[turnIndex]?.speaker)
   const exhausted = playsLeft <= 0
-  const title = script?.title ?? (beepWord !== undefined ? 'Listen and select the missing word' : utterance ? 'Listen and repeat the sentence' : 'Audio recording')
+  const title =
+    script?.title ??
+    (beepWord !== undefined
+      ? 'Listen and select the missing word'
+      : utterance
+        ? 'Listen and repeat the sentence'
+        : 'Audio recording')
 
   return (
     <div className={cn('card-solid', compact ? 'p-3' : 'p-4')}>
@@ -437,7 +455,10 @@ export function AudioPlayer({
               const sp = script.speakers.find((s) => s.id === t.speaker)
               return (
                 <p key={i} className="passage mt-1.5">
-                  <span className="text-brand-500 dark:text-brand-300 font-semibold">{sp?.name}:</span> {t.text}
+                  <span className="text-brand-500 dark:text-brand-300 font-semibold">
+                    {sp?.name}:
+                  </span>{' '}
+                  {t.text}
                 </p>
               )
             })}

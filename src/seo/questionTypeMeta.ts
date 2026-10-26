@@ -111,5 +111,7 @@ export const QUESTION_TYPE_META: Record<string, PageMeta> = {
     ],
   },
 
-  ...Object.fromEntries(ALL_QUESTION_TYPES.map((t) => [`/question-types/${typeSlug(t)}/`, spokeMeta(t)])),
+  ...Object.fromEntries(
+    ALL_QUESTION_TYPES.map((t) => [`/question-types/${typeSlug(t)}/`, spokeMeta(t)]),
+  ),
 }

@@ -297,7 +297,17 @@ describe('ResultPage', () => {
             ratio: 0.5,
             status: 'partial',
             notes: [],
-            traits: { content: 0.5, form: 0.5, oralFluency: 0, pronunciation: 0, grammar: 0.5, vocabulary: 0.5, spelling: 0, development: 0, range: 0 },
+            traits: {
+              content: 0.5,
+              form: 0.5,
+              oralFluency: 0,
+              pronunciation: 0,
+              grammar: 0.5,
+              vocabulary: 0.5,
+              spelling: 0,
+              development: 0,
+              range: 0,
+            },
           },
         ],
       }),
@@ -518,7 +528,9 @@ describe('ResultPage', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('tab', { name: 'Answer review' }))
     })
-    expect(container.textContent).toContain('Item-level answer review is available during an active test session')
+    expect(container.textContent).toContain(
+      'Item-level answer review is available during an active test session',
+    )
   })
 
   it('shows the pace of a run that is still in memory', async () => {
@@ -588,7 +600,9 @@ describe('ResultPage', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('tab', { name: 'Answer review' }))
     })
-    expect(container.textContent).not.toContain('Item-level answer review is available during an active test session')
+    expect(container.textContent).not.toContain(
+      'Item-level answer review is available during an active test session',
+    )
   })
 
   it('gives up on a seed that cannot be rebuilt', async () => {
@@ -602,7 +616,9 @@ describe('ResultPage', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('tab', { name: 'Answer review' }))
     })
-    expect(container.textContent).toContain('Item-level answer review is available during an active test session')
+    expect(container.textContent).toContain(
+      'Item-level answer review is available during an active test session',
+    )
   })
 
   it('does not rebuild a session that was only part of the test', async () => {
@@ -1003,10 +1019,7 @@ describe('ResultPage report panels', () => {
   it('switches the review back to every question', async () => {
     stubs.getAttempt.mockResolvedValue(
       storedAttempt({
-        details: [
-          detail(),
-          detail({ itemId: 'item-2', points: 0, ratio: 0, status: 'incorrect' }),
-        ],
+        details: [detail(), detail({ itemId: 'item-2', points: 0, ratio: 0, status: 'incorrect' })],
       }),
     )
     renderResult()

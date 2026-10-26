@@ -24,7 +24,21 @@ function niceMax(value: number): number {
   return candidates.find((c) => c >= value) ?? value
 }
 
-function GridLines({ max, left, right, top, bottom, ticks = 5 }: { max: number; left: number; right: number; top: number; bottom: number; ticks?: number }) {
+function GridLines({
+  max,
+  left,
+  right,
+  top,
+  bottom,
+  ticks = 5,
+}: {
+  max: number
+  left: number
+  right: number
+  top: number
+  bottom: number
+  ticks?: number
+}) {
   return (
     <g aria-hidden="true">
       {Array.from({ length: ticks + 1 }, (_, i) => {
@@ -32,8 +46,21 @@ function GridLines({ max, left, right, top, bottom, ticks = 5 }: { max: number; 
         const y = bottom - ((bottom - top) / ticks) * i
         return (
           <g key={i}>
-            <line x1={left} x2={right} y1={y} y2={y} stroke="currentColor" strokeOpacity={i === 0 ? 0.35 : 0.1} strokeWidth={1} />
-            <text x={left - 8} y={y + 4} textAnchor="end" className="fill-current text-xs opacity-60 tabular-nums">
+            <line
+              x1={left}
+              x2={right}
+              y1={y}
+              y2={y}
+              stroke="currentColor"
+              strokeOpacity={i === 0 ? 0.35 : 0.1}
+              strokeWidth={1}
+            />
+            <text
+              x={left - 8}
+              y={y + 4}
+              textAnchor="end"
+              className="fill-current text-xs opacity-60 tabular-nums"
+            >
               {Math.round(v * 10) / 10}
             </text>
           </g>
@@ -67,7 +94,13 @@ function BarChart({ data }: { data: Record<string, unknown> }) {
       <text x={PAD.left} y={16} className="fill-current text-xs font-semibold opacity-70">
         {unit}
       </text>
-      <GridLines max={max} left={PAD.left} right={W - PAD.right} top={PAD.top} bottom={H - PAD.bottom} />
+      <GridLines
+        max={max}
+        left={PAD.left}
+        right={W - PAD.right}
+        top={PAD.top}
+        bottom={H - PAD.bottom}
+      />
       {categories.map((cat, ci) => {
         const gx = PAD.left + groupW * ci + groupW * 0.14
         return (
@@ -102,7 +135,12 @@ function BarChart({ data }: { data: Record<string, unknown> }) {
                 </g>
               )
             })}
-            <text x={PAD.left + groupW * ci + groupW / 2} y={H - PAD.bottom + 18} textAnchor="middle" className="fill-current text-xs opacity-80">
+            <text
+              x={PAD.left + groupW * ci + groupW / 2}
+              y={H - PAD.bottom + 18}
+              textAnchor="middle"
+              className="fill-current text-xs opacity-80"
+            >
               {cat}
             </text>
           </g>
@@ -143,15 +181,34 @@ function LineChart({ data }: { data: Record<string, unknown> }) {
         const y = py(v)
         return (
           <g key={i}>
-            <line x1={PAD.left} x2={W - PAD.right} y1={y} y2={y} stroke="currentColor" strokeOpacity={v === 0 ? 0.4 : 0.1} strokeWidth={1} />
-            <text x={PAD.left - 8} y={y + 4} textAnchor="end" className="fill-current text-xs opacity-60 tabular-nums">
+            <line
+              x1={PAD.left}
+              x2={W - PAD.right}
+              y1={y}
+              y2={y}
+              stroke="currentColor"
+              strokeOpacity={v === 0 ? 0.4 : 0.1}
+              strokeWidth={1}
+            />
+            <text
+              x={PAD.left - 8}
+              y={y + 4}
+              textAnchor="end"
+              className="fill-current text-xs opacity-60 tabular-nums"
+            >
               {Math.round(v * 100) / 100}
             </text>
           </g>
         )
       })}
       {x.map((label, i) => (
-        <text key={label} x={px(i)} y={H - PAD.bottom + 18} textAnchor="middle" className="fill-current text-xs opacity-75">
+        <text
+          key={label}
+          x={px(i)}
+          y={H - PAD.bottom + 18}
+          textAnchor="middle"
+          className="fill-current text-xs opacity-75"
+        >
           {label}
         </text>
       ))}
@@ -232,12 +289,21 @@ function PieChart({ data }: { data: Record<string, unknown> }) {
       })}
       {slices.map((s, i) => {
         return (
-          <g key={s.name} className="animate-rise-in" style={{ animationDelay: `${150 + i * 70}ms` }}>
+          <g
+            key={s.name}
+            className="animate-rise-in"
+            style={{ animationDelay: `${150 + i * 70}ms` }}
+          >
             <rect x={390} y={64 + i * 42} width={12} height={12} rx={2} fill={s.color} />
             <text x={412} y={74 + i * 42} className="fill-current text-sm">
               {s.name}
             </text>
-            <text x={W - 24} y={74 + i * 42} textAnchor="end" className="fill-current text-sm font-semibold tabular-nums">
+            <text
+              x={W - 24}
+              y={74 + i * 42}
+              textAnchor="end"
+              className="fill-current text-sm font-semibold tabular-nums"
+            >
               {s.value}%
             </text>
           </g>
@@ -247,7 +313,13 @@ function PieChart({ data }: { data: Record<string, unknown> }) {
   )
 }
 
-function ProcessChart({ data, chartId = 'process' }: { data: Record<string, unknown>; chartId?: string }) {
+function ProcessChart({
+  data,
+  chartId = 'process',
+}: {
+  data: Record<string, unknown>
+  chartId?: string
+}) {
   const steps = (data.steps as Array<{ label: string; detail: string }>) ?? []
   if (steps.length === 0) {
     return (
@@ -270,15 +342,37 @@ function ProcessChart({ data, chartId = 'process' }: { data: Record<string, unkn
         const x = startX + i * (boxW + gap)
         return (
           <g key={s.label} className="animate-rise-in" style={{ animationDelay: `${i * 100}ms` }}>
-            <rect x={x} y={y} width={boxW} height={boxH} rx={12} className="fill-brand-500/10 stroke-brand-500/50" strokeWidth={1.5} />
-            <text x={x + boxW / 2} y={y + 30} textAnchor="middle" className="fill-current text-xs font-bold">
+            <rect
+              x={x}
+              y={y}
+              width={boxW}
+              height={boxH}
+              rx={12}
+              className="fill-brand-500/10 stroke-brand-500/50"
+              strokeWidth={1.5}
+            />
+            <text
+              x={x + boxW / 2}
+              y={y + 30}
+              textAnchor="middle"
+              className="fill-current text-xs font-bold"
+            >
               {s.label}
             </text>
-            {s.detail.split(/(?<=[.!?])\s+/).slice(0, 3).map((d, di) => (
-              <text key={di} x={x + boxW / 2} y={y + 52 + di * 15} textAnchor="middle" className="fill-current text-[9.5px] opacity-75">
-                {d.length > 26 ? `${d.slice(0, 25)}…` : d}
-              </text>
-            ))}
+            {s.detail
+              .split(/(?<=[.!?])\s+/)
+              .slice(0, 3)
+              .map((d, di) => (
+                <text
+                  key={di}
+                  x={x + boxW / 2}
+                  y={y + 52 + di * 15}
+                  textAnchor="middle"
+                  className="fill-current text-[9.5px] opacity-75"
+                >
+                  {d.length > 26 ? `${d.slice(0, 25)}…` : d}
+                </text>
+              ))}
             {i < steps.length - 1 ? (
               <path
                 d={`M ${x + boxW + 3} ${y + boxH / 2} L ${x + boxW + gap - 3} ${y + boxH / 2}`}
@@ -307,14 +401,25 @@ function ProcessChart({ data, chartId = 'process' }: { data: Record<string, unkn
         strokeWidth={1.5}
         markerEnd={`url(#${arrowId})`}
       />
-      <text x={W / 2} y={y + boxH + 66} textAnchor="middle" className="fill-current text-[10.5px] italic opacity-65">
+      <text
+        x={W / 2}
+        y={y + boxH + 66}
+        textAnchor="middle"
+        className="fill-current text-[10.5px] italic opacity-65"
+      >
         {loop}
       </text>
     </svg>
   )
 }
 
-function DiagramChart({ data, chartId = 'diagram' }: { data: Record<string, unknown>; chartId?: string }) {
+function DiagramChart({
+  data,
+  chartId = 'diagram',
+}: {
+  data: Record<string, unknown>
+  chartId?: string
+}) {
   const nodes = (data.nodes as Node[]) ?? []
   if (nodes.length === 0) {
     return (
@@ -367,14 +472,36 @@ function DiagramChart({ data, chartId = 'diagram' }: { data: Record<string, unkn
         )
       })}
       {nodes.map((n, i) => (
-        <g key={n.id} className="animate-pop" style={{ transformBox: 'fill-box', animationDelay: `${200 + i * 80}ms` }}>
-          <rect x={nx(n.x) - 38} y={ny(n.y) - 15} width={76} height={30} rx={15} className={fills[n.kind]} strokeWidth={1.5} />
-          <text x={nx(n.x)} y={ny(n.y) + 4} textAnchor="middle" className="fill-current text-[11.5px] font-semibold">
+        <g
+          key={n.id}
+          className="animate-pop"
+          style={{ transformBox: 'fill-box', animationDelay: `${200 + i * 80}ms` }}
+        >
+          <rect
+            x={nx(n.x) - 38}
+            y={ny(n.y) - 15}
+            width={76}
+            height={30}
+            rx={15}
+            className={fills[n.kind]}
+            strokeWidth={1.5}
+          />
+          <text
+            x={nx(n.x)}
+            y={ny(n.y) + 4}
+            textAnchor="middle"
+            className="fill-current text-[11.5px] font-semibold"
+          >
             {n.label}
           </text>
         </g>
       ))}
-      <text x={W / 2} y={H - 8} textAnchor="middle" className="fill-current text-[10.5px] italic opacity-65">
+      <text
+        x={W / 2}
+        y={H - 8}
+        textAnchor="middle"
+        className="fill-current text-[10.5px] italic opacity-65"
+      >
         {note}
       </text>
     </svg>
@@ -409,7 +536,14 @@ function TableChart({ data }: { data: Record<string, unknown> }) {
       ))}
       {rows.map((row, r) => (
         <g key={r} className="animate-rise-in" style={{ animationDelay: `${r * 80}ms` }}>
-          <line x1={40} x2={W - 40} y1={98 + rowH * r} y2={98 + rowH * r} stroke="currentColor" strokeOpacity={0.14} />
+          <line
+            x1={40}
+            x2={W - 40}
+            y1={98 + rowH * r}
+            y2={98 + rowH * r}
+            stroke="currentColor"
+            strokeOpacity={0.14}
+          />
           {row.map((cell, c) => (
             <text
               key={c}
@@ -423,7 +557,14 @@ function TableChart({ data }: { data: Record<string, unknown> }) {
           ))}
         </g>
       ))}
-      <line x1={40} x2={W - 40} y1={98 + rowH * rows.length} y2={98 + rowH * rows.length} stroke="currentColor" strokeOpacity={0.3} />
+      <line
+        x1={40}
+        x2={W - 40}
+        y1={98 + rowH * rows.length}
+        y2={98 + rowH * rows.length}
+        stroke="currentColor"
+        strokeOpacity={0.3}
+      />
     </svg>
   )
 }
@@ -435,7 +576,9 @@ export function ChartRenderer({ chartId, className }: Props) {
 
   return (
     <figure className={className}>
-      <figcaption className="text-ink-800 dark:text-ink-100 mb-3 text-center text-sm font-semibold">{chart.title}</figcaption>
+      <figcaption className="text-ink-800 dark:text-ink-100 mb-3 text-center text-sm font-semibold">
+        {chart.title}
+      </figcaption>
       <div
         role="img"
         aria-label={`${chart.title}. ${chart.caption} ${describeData(chartId)}`}
@@ -447,13 +590,17 @@ export function ChartRenderer({ chartId, className }: Props) {
         {chart.kind === 'process' ? <ProcessChart data={data} chartId={chartId} /> : null}
         {chart.kind === 'diagram' ? <DiagramChart data={data} chartId={chartId} /> : null}
         {chart.kind === 'table-chart' ? <TableChart data={data} /> : null}
-        {!['bar', 'scatter', 'line', 'pie', 'process', 'diagram', 'table-chart'].includes(chart.kind) ? (
+        {!['bar', 'scatter', 'line', 'pie', 'process', 'diagram', 'table-chart'].includes(
+          chart.kind,
+        ) ? (
           <div className="flex h-48 items-center justify-center text-xs opacity-60">
             Unsupported chart format
           </div>
         ) : null}
       </div>
-      <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-center text-xs">{chart.caption}</p>
+      <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-center text-xs">
+        {chart.caption}
+      </p>
     </figure>
   )
 }

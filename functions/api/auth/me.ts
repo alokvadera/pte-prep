@@ -95,7 +95,11 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 
   let body: { targetScore?: number; newPassword?: string; currentPassword?: string }
   try {
-    body = (await context.request.json()) as { targetScore?: number; newPassword?: string; currentPassword?: string }
+    body = (await context.request.json()) as {
+      targetScore?: number
+      newPassword?: string
+      currentPassword?: string
+    }
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
       status: 400,
@@ -147,7 +151,12 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
       })
     }
     const iterations = resolvePbkdf2Iterations(context.env)
-    const valid = await verifyPassword(body.currentPassword, userRec.password_hash, userRec.password_salt, iterations)
+    const valid = await verifyPassword(
+      body.currentPassword,
+      userRec.password_hash,
+      userRec.password_salt,
+      iterations,
+    )
     if (!valid) {
       return new Response(JSON.stringify({ error: 'Current password is incorrect.' }), {
         status: 400,
@@ -179,7 +188,9 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 
   if (passwordChange) {
     await db
-      .prepare('UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime("now") WHERE id = ?')
+      .prepare(
+        'UPDATE users SET password_hash = ?, password_salt = ?, updated_at = datetime("now") WHERE id = ?',
+      )
       .bind(passwordChange.hash, passwordChange.salt, session.userId)
       .run()
 
@@ -188,7 +199,9 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
 
     // Invalidate any outstanding reset links for this account
     await db
-      .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL")
+      .prepare(
+        "UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL",
+      )
       .bind(session.userId)
       .run()
       .catch((err) => console.warn('[Auth] Could not invalidate outstanding reset links:', err))

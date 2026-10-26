@@ -46,7 +46,10 @@ describe('the content bank shape', () => {
     id: 't1',
     context: ['A small table of results.'],
     headers: ['Year', 'Count'],
-    rows: [['2024', '10'], ['2025', null]],
+    rows: [
+      ['2024', '10'],
+      ['2025', null],
+    ],
     answers: ['20'],
   }
 
@@ -79,7 +82,12 @@ describe('the content bank shape', () => {
     mcqSingle: mcq('m1'),
     mcqMultiple: mcq('m2'),
     asq: [
-      { id: 'a1', question: 'Where is the study?', options: ['In a city', 'In a lab'], correct: 'In a lab' },
+      {
+        id: 'a1',
+        question: 'Where is the study?',
+        options: ['In a city', 'In a lab'],
+        correct: 'In a lab',
+      },
     ],
   }
 
@@ -117,7 +125,9 @@ describe('the content bank shape', () => {
       })),
     }
     expect(bank.passages).toHaveLength(1)
-    expect(bank.repeatSentences[0]!.text).toBe('Cities run hotter than the countryside around them.')
+    expect(bank.repeatSentences[0]!.text).toBe(
+      'Cities run hotter than the countryside around them.',
+    )
   })
 })
 

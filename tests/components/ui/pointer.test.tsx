@@ -163,7 +163,9 @@ describe('CursorGlow', () => {
     const { glow } = renderGlow()
     const control = document.querySelector('button') as HTMLElement
     act(() => {
-      control.dispatchEvent(new PointerEvent('pointermove', { clientX: 100, clientY: 120, bubbles: true }))
+      control.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 100, clientY: 120, bubbles: true }),
+      )
     })
     act(() => frames.flush())
     // The scale chases 1.35 and takes a sixth of the way each frame.
@@ -175,7 +177,9 @@ describe('CursorGlow', () => {
   it('stays at its resting size over plain ground', () => {
     const { glow } = renderGlow()
     act(() => {
-      document.body.dispatchEvent(new PointerEvent('pointermove', { clientX: 100, clientY: 120, bubbles: true }))
+      document.body.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 100, clientY: 120, bubbles: true }),
+      )
     })
     act(() => frames.flush())
     expect(glow.style.transform).toContain('scale(1)')
@@ -263,8 +267,7 @@ describe('ParallaxVisual', () => {
       </ParallaxVisual>,
     )
     const element = rendered.container.firstChild as HTMLElement
-    element.getBoundingClientRect = () =>
-      ({ left: 0, top: 0, width: 200, height: 100 }) as DOMRect
+    element.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 100 }) as DOMRect
     return { ...rendered, element }
   }
 
@@ -409,7 +412,9 @@ describe('SpotlightCard', () => {
     const card = container.firstChild as HTMLElement
     card.getBoundingClientRect = () => ({ left: 10, top: 20, width: 200, height: 100 }) as DOMRect
     act(() => {
-      card.dispatchEvent(new PointerEvent('pointermove', { clientX: 45, clientY: 60, bubbles: true }))
+      card.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 45, clientY: 60, bubbles: true }),
+      )
     })
     expect(card.style.getPropertyValue('--sp-x')).toBe('35px')
     expect(card.style.getPropertyValue('--sp-y')).toBe('40px')
@@ -534,7 +539,14 @@ describe('useMagneticControls', () => {
     const button = container.querySelector('button') as HTMLElement
     button.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
     act(() => {
-      button.dispatchEvent(new PointerEvent('pointermove', { pointerType: 'touch', clientX: 80, clientY: 20, bubbles: true }))
+      button.dispatchEvent(
+        new PointerEvent('pointermove', {
+          pointerType: 'touch',
+          clientX: 80,
+          clientY: 20,
+          bubbles: true,
+        }),
+      )
     })
     act(() => frames.flush())
     expect(button.style.getPropertyValue('--control-x')).toBe('')
@@ -675,7 +687,9 @@ describe('useMagneticControls', () => {
       </button>,
     )
     act(() => {
-      window.dispatchEvent(new PointerEvent('pointermove', { pointerType: 'mouse', clientX: 80, clientY: 20 }))
+      window.dispatchEvent(
+        new PointerEvent('pointermove', { pointerType: 'mouse', clientX: 80, clientY: 20 }),
+      )
     })
     act(() => frames.flush())
     expect(document.querySelector('button')?.style.getPropertyValue('--control-x')).toBe('')
@@ -712,7 +726,11 @@ describe('useMagneticControls', () => {
 
     act(() => {
       button.dispatchEvent(
-        new PointerEvent('pointerout', { pointerType: 'mouse', relatedTarget: document.body, bubbles: true }),
+        new PointerEvent('pointerout', {
+          pointerType: 'mouse',
+          relatedTarget: document.body,
+          bubbles: true,
+        }),
       )
     })
     expect(button.style.getPropertyValue('--control-x')).toBe('0px')
@@ -732,7 +750,11 @@ describe('useMagneticControls', () => {
     act(() => frames.flush())
     act(() => {
       button.dispatchEvent(
-        new PointerEvent('pointerout', { pointerType: 'mouse', relatedTarget: button, bubbles: true }),
+        new PointerEvent('pointerout', {
+          pointerType: 'mouse',
+          relatedTarget: button,
+          bubbles: true,
+        }),
       )
     })
     expect(button.style.getPropertyValue('--control-x')).toBe('5.4px')

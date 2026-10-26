@@ -1,4 +1,11 @@
-import { formBand, rawToPteScale, scoreBand, scoreItem, splitSentences, toCefr } from '../../src/domain/scoring'
+import {
+  formBand,
+  rawToPteScale,
+  scoreBand,
+  scoreItem,
+  splitSentences,
+  toCefr,
+} from '../../src/domain/scoring'
 import type { AnswerKey, AttemptRecord, Item, ItemResponse } from '../../src/domain/types'
 import { hasResponse } from '../../src/store/useTest'
 import { softF1 } from '../../src/lib/text'
@@ -25,14 +32,25 @@ import {
   verifyPassword,
   verifySessionToken,
 } from '../../functions/lib/auth'
-import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../functions/lib/rateLimit'
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitExceededResponse,
+} from '../../functions/lib/rateLimit'
 import { sendBrevoEmail } from '../../functions/lib/brevo'
 import { onRequestPost as loginPost } from '../../functions/api/auth/login'
 import { onRequestPost as logoutPost } from '../../functions/api/auth/logout'
 import { onRequestPost as registerPost } from '../../functions/api/auth/register'
 import { onRequestGet as meGet, onRequestPatch as mePatch } from '../../functions/api/auth/me'
-import { onRequestGet as attemptsGet, onRequestPost as attemptsPost, onRequestDelete as attemptsDelete } from '../../functions/api/attempts/index'
-import { onRequestGet as attemptIdGet, onRequestDelete as attemptIdDelete } from '../../functions/api/attempts/[id]'
+import {
+  onRequestGet as attemptsGet,
+  onRequestPost as attemptsPost,
+  onRequestDelete as attemptsDelete,
+} from '../../functions/api/attempts/index'
+import {
+  onRequestGet as attemptIdGet,
+  onRequestDelete as attemptIdDelete,
+} from '../../functions/api/attempts/[id]'
 import { onRequestPost as forgotPasswordPost } from '../../functions/api/auth/forgot-password'
 import { onRequestPost as resetPasswordPost } from '../../functions/api/auth/reset-password'
 import { evaluateWithAi, transcribeWithWhisper } from '../../src/lib/aiScorer'
@@ -75,8 +93,18 @@ import {
 import { createDefaultAiUsage } from '../../src/store/useSettings'
 import { describeMockPreview, primarySkill } from '../../src/domain/blueprint'
 import { paceReport, paceWarnings, formatSeconds } from '../../src/domain/pace'
-import { cefrLabel, nextBand, pteToIelts, endsWithSentencePunctuation } from '../../src/domain/scoring'
-import { getManifest, typesForSkill, manifestCapacityByType, manifestBankCapacity } from '../../src/content/manifest'
+import {
+  cefrLabel,
+  nextBand,
+  pteToIelts,
+  endsWithSentencePunctuation,
+} from '../../src/domain/scoring'
+import {
+  getManifest,
+  typesForSkill,
+  manifestCapacityByType,
+  manifestBankCapacity,
+} from '../../src/content/manifest'
 import { getPageMeta, notFoundMeta } from '../../src/seo/meta'
 import {
   organizationLd,
@@ -89,7 +117,11 @@ import {
   renderHeadTags,
 } from '../../src/seo/structured'
 import { prefersReducedMotion, scrollBehavior } from '../../src/lib/motion'
-import { isRecordingSupported, isSpeechRecognitionSupported, VoiceRecorder } from '../../src/lib/recorder'
+import {
+  isRecordingSupported,
+  isSpeechRecognitionSupported,
+  VoiceRecorder,
+} from '../../src/lib/recorder'
 import Dexie from 'dexie'
 import { buildFullMock } from '../../src/domain/assemble'
 import {
@@ -153,19 +185,36 @@ async function main() {
   console.log('\n--- 1. Sentence Splitting & Honorific Protection ---')
   const s1 = 'Dr. Smith and Prof. Jones visited the U.S. facility at 9 a.m. yesterday.'
   const split1 = splitSentences(s1)
-  assert(split1.length === 1, 'Sentence with Dr., Prof., U.S. counts as exactly 1 sentence', `got ${split1.length}`)
+  assert(
+    split1.length === 1,
+    'Sentence with Dr., Prof., U.S. counts as exactly 1 sentence',
+    `got ${split1.length}`,
+  )
 
-  const s2 = 'This is the first proposition. However, this is the second proposition! And here is the third?'
+  const s2 =
+    'This is the first proposition. However, this is the second proposition! And here is the third?'
   const split2 = splitSentences(s2)
-  assert(split2.length === 3, 'Multiple sentence splits correctly count 3 sentences', `got ${split2.length}`)
+  assert(
+    split2.length === 3,
+    'Multiple sentence splits correctly count 3 sentences',
+    `got ${split2.length}`,
+  )
 
   const s3 = 'Research by e.g. Watson et al. demonstrated high efficacy, i.e. over 90% accuracy.'
   const split3 = splitSentences(s3)
-  assert(split3.length === 1, 'Sentence with e.g., et al., i.e. counts as exactly 1 sentence', `got ${split3.length}`)
+  assert(
+    split3.length === 1,
+    'Sentence with e.g., et al., i.e. counts as exactly 1 sentence',
+    `got ${split3.length}`,
+  )
 
   const s4 = 'Mr. Davis met Mrs. Gable and Ms. Chen at 4 p.m.'
   const split4 = splitSentences(s4)
-  assert(split4.length === 1, 'Sentence with Mr., Mrs., Ms. counts as exactly 1 sentence', `got ${split4.length}`)
+  assert(
+    split4.length === 1,
+    'Sentence with Mr., Mrs., Ms. counts as exactly 1 sentence',
+    `got ${split4.length}`,
+  )
 
   // --------------------------------------------------------------------------
   // TEST 2: Word Count Form Bands (SWT, WE, SST)
@@ -178,37 +227,100 @@ async function main() {
   const swtTooShort = formBand('summarize-written-text', 'Too short.') // 2 words
   assert(swtTooShort.score === 0, 'SWT < 5 words receives Form 0')
 
-  const swtValid = formBand('summarize-written-text', 'Human language regulates information density to maintain a uniform communication rate across diverse grammars.')
+  const swtValid = formBand(
+    'summarize-written-text',
+    'Human language regulates information density to maintain a uniform communication rate across diverse grammars.',
+  )
   assert(swtValid.score === 1, 'SWT 1 sentence of 15 words receives Form 1')
 
-  assert(formBand('summarize-written-text', wordsN(75)).score === 1, 'SWT with 75 words receives Form 1')
-  assert(formBand('summarize-written-text', wordsN(76)).score === 0, 'SWT with 76 words (>75) receives Form 0')
+  assert(
+    formBand('summarize-written-text', wordsN(75)).score === 1,
+    'SWT with 75 words receives Form 1',
+  )
+  assert(
+    formBand('summarize-written-text', wordsN(76)).score === 0,
+    'SWT with 76 words (>75) receives Form 0',
+  )
 
-  const swtTwoSentences = formBand('summarize-written-text', 'This is sentence one. This is sentence two.')
+  const swtTwoSentences = formBand(
+    'summarize-written-text',
+    'This is sentence one. This is sentence two.',
+  )
   assert(swtTwoSentences.score === 0, 'SWT 2 sentences receives Form 0')
 
-  const swtNoPunctuation = formBand('summarize-written-text', 'This summary has no final terminal punctuation mark')
+  const swtNoPunctuation = formBand(
+    'summarize-written-text',
+    'This summary has no final terminal punctuation mark',
+  )
   assert(swtNoPunctuation.score === 0, 'SWT without end punctuation receives Form 0')
 
   // Write Essay (WE: 200–300 = Form 1.0; 120–199 or 301–380 = Form 0.5; outside = Form 0)
-  assert(formBand('write-essay', wordsN(119)).score === 0, 'Essay with 119 words (<120) receives Form 0')
-  assert(formBand('write-essay', wordsN(120)).score === 0.5, 'Essay with 120 words receives Form 0.5 (Band 1)')
-  assert(formBand('write-essay', wordsN(199)).score === 0.5, 'Essay with 199 words receives Form 0.5 (Band 1)')
-  assert(formBand('write-essay', wordsN(200)).score === 1.0, 'Essay with 200 words receives Form 1.0 (Band 2 top)')
-  assert(formBand('write-essay', wordsN(300)).score === 1.0, 'Essay with 300 words receives Form 1.0 (Band 2 top)')
-  assert(formBand('write-essay', wordsN(301)).score === 0.5, 'Essay with 301 words receives Form 0.5 (Band 1)')
-  assert(formBand('write-essay', wordsN(380)).score === 0.5, 'Essay with 380 words receives Form 0.5 (Band 1)')
-  assert(formBand('write-essay', wordsN(381)).score === 0, 'Essay with 381 words (>380) receives Form 0')
+  assert(
+    formBand('write-essay', wordsN(119)).score === 0,
+    'Essay with 119 words (<120) receives Form 0',
+  )
+  assert(
+    formBand('write-essay', wordsN(120)).score === 0.5,
+    'Essay with 120 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('write-essay', wordsN(199)).score === 0.5,
+    'Essay with 199 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('write-essay', wordsN(200)).score === 1.0,
+    'Essay with 200 words receives Form 1.0 (Band 2 top)',
+  )
+  assert(
+    formBand('write-essay', wordsN(300)).score === 1.0,
+    'Essay with 300 words receives Form 1.0 (Band 2 top)',
+  )
+  assert(
+    formBand('write-essay', wordsN(301)).score === 0.5,
+    'Essay with 301 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('write-essay', wordsN(380)).score === 0.5,
+    'Essay with 380 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('write-essay', wordsN(381)).score === 0,
+    'Essay with 381 words (>380) receives Form 0',
+  )
 
   // Summarize Spoken Text (SST: 50–70 = Form 1.0; 40–49 or 71–100 = Form 0.5; outside = Form 0)
-  assert(formBand('summarize-spoken-text', wordsN(39)).score === 0, 'SST with 39 words (<40) receives Form 0')
-  assert(formBand('summarize-spoken-text', wordsN(40)).score === 0.5, 'SST with 40 words receives Form 0.5 (Band 1)')
-  assert(formBand('summarize-spoken-text', wordsN(49)).score === 0.5, 'SST with 49 words receives Form 0.5 (Band 1)')
-  assert(formBand('summarize-spoken-text', wordsN(50)).score === 1.0, 'SST with 50 words receives Form 1.0 (Band 2 top)')
-  assert(formBand('summarize-spoken-text', wordsN(70)).score === 1.0, 'SST with 70 words receives Form 1.0 (Band 2 top)')
-  assert(formBand('summarize-spoken-text', wordsN(71)).score === 0.5, 'SST with 71 words receives Form 0.5 (Band 1)')
-  assert(formBand('summarize-spoken-text', wordsN(100)).score === 0.5, 'SST with 100 words receives Form 0.5 (Band 1)')
-  assert(formBand('summarize-spoken-text', wordsN(101)).score === 0, 'SST with 101 words (>100) receives Form 0')
+  assert(
+    formBand('summarize-spoken-text', wordsN(39)).score === 0,
+    'SST with 39 words (<40) receives Form 0',
+  )
+  assert(
+    formBand('summarize-spoken-text', wordsN(40)).score === 0.5,
+    'SST with 40 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('summarize-spoken-text', wordsN(49)).score === 0.5,
+    'SST with 49 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('summarize-spoken-text', wordsN(50)).score === 1.0,
+    'SST with 50 words receives Form 1.0 (Band 2 top)',
+  )
+  assert(
+    formBand('summarize-spoken-text', wordsN(70)).score === 1.0,
+    'SST with 70 words receives Form 1.0 (Band 2 top)',
+  )
+  assert(
+    formBand('summarize-spoken-text', wordsN(71)).score === 0.5,
+    'SST with 71 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('summarize-spoken-text', wordsN(100)).score === 0.5,
+    'SST with 100 words receives Form 0.5 (Band 1)',
+  )
+  assert(
+    formBand('summarize-spoken-text', wordsN(101)).score === 0,
+    'SST with 101 words (>100) receives Form 0',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 3: Negative Marking Floor (Never negative, floored at 0)
@@ -231,7 +343,10 @@ async function main() {
 
   // 1 correct + 2 wrong -> 1 - 2 = -1 floored at 0
   const scoreNetNeg = scoreItem(dummyItem, dummyKey, { choices: ['Opt A', 'Opt C', 'Opt D'] })
-  assert(scoreNetNeg.points === 0, 'Net negative selections floor cleanly at 0 points (never negative)')
+  assert(
+    scoreNetNeg.points === 0,
+    'Net negative selections floor cleanly at 0 points (never negative)',
+  )
   assert(scoreNetNeg.ratio === 0, 'Net negative selections ratio floors at 0')
 
   // 0 correct + 2 wrong -> 0 - 2 = -2 floored at 0
@@ -299,7 +414,10 @@ async function main() {
   assert(raGatedResult.points === 0, 'Content = 0 zeroes points despite flawless acoustic delivery')
   assert(raGatedResult.gated === true, 'Gated flag is set to true on Content 0')
   assert(raGatedResult.traits?.content === 0, 'Content trait is 0')
-  assert(raGatedResult.traits?.oralFluency === 1, 'Oral fluency still measured at 1.0 in trait record')
+  assert(
+    raGatedResult.traits?.oralFluency === 1,
+    'Oral fluency still measured at 1.0 in trait record',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 5: CEFR Mapping & Scale Shape
@@ -330,12 +448,24 @@ async function main() {
   // Scale bounds & raw accuracy mapping
   assert(rawToPteScale(0) === 10, '0% raw accuracy maps to PTE baseline 10')
   assert(rawToPteScale(1) === 90, '100% raw accuracy maps to PTE maximum 90')
-  assert(rawToPteScale(0.25) > 10 && rawToPteScale(0.25) < 50, '25% raw accuracy maps to lower-intermediate band')
-  assert(rawToPteScale(0.5) >= 50 && rawToPteScale(0.5) <= 60, '50% raw accuracy maps to realistic middle band (50-60)')
-  assert(rawToPteScale(0.75) > 60 && rawToPteScale(0.75) < 90, '75% raw accuracy maps to upper-intermediate band')
+  assert(
+    rawToPteScale(0.25) > 10 && rawToPteScale(0.25) < 50,
+    '25% raw accuracy maps to lower-intermediate band',
+  )
+  assert(
+    rawToPteScale(0.5) >= 50 && rawToPteScale(0.5) <= 60,
+    '50% raw accuracy maps to realistic middle band (50-60)',
+  )
+  assert(
+    rawToPteScale(0.75) > 60 && rawToPteScale(0.75) < 90,
+    '75% raw accuracy maps to upper-intermediate band',
+  )
 
   const band = scoreBand(0.75, 70)
-  assert(band.low <= band.mid && band.mid <= band.high, 'Score estimation uncertainty band is monotonic')
+  assert(
+    band.low <= band.mid && band.mid <= band.high,
+    'Score estimation uncertainty band is monotonic',
+  )
   assert(band.mid === 70, 'scoreBand midpoint anchors on displayed score')
   assert(band.low < band.high, 'scoreBand defines a non-empty range')
 
@@ -356,8 +486,34 @@ async function main() {
   assert(hasResponse({ text: 'Valid essay text' }), 'written text is true')
   assert(!hasResponse({ text: '    ' }), 'whitespace-only text is false')
   assert(hasResponse({ transcript: 'Spoken transcript' }), 'transcript is true')
-  assert(hasResponse({ audio: { durationMs: 600, wordsPerMinute: 120, speechRatio: 0.8, pauseCount: 0, meanPitchHz: 180, energyVariance: 0.5, reliable: true } }), 'audio > 500ms is true')
-  assert(!hasResponse({ audio: { durationMs: 300, wordsPerMinute: 120, speechRatio: 0.8, pauseCount: 0, meanPitchHz: 180, energyVariance: 0.5, reliable: true } }), 'audio <= 500ms is false')
+  assert(
+    hasResponse({
+      audio: {
+        durationMs: 600,
+        wordsPerMinute: 120,
+        speechRatio: 0.8,
+        pauseCount: 0,
+        meanPitchHz: 180,
+        energyVariance: 0.5,
+        reliable: true,
+      },
+    }),
+    'audio > 500ms is true',
+  )
+  assert(
+    !hasResponse({
+      audio: {
+        durationMs: 300,
+        wordsPerMinute: 120,
+        speechRatio: 0.8,
+        pauseCount: 0,
+        meanPitchHz: 180,
+        energyVariance: 0.5,
+        reliable: true,
+      },
+    }),
+    'audio <= 500ms is false',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 7: softF1 Mathematical Bounds & Operator Precedence
@@ -365,8 +521,14 @@ async function main() {
   console.log('\n--- 7. softF1 Bounds & Operator Precedence ---')
   assert(softF1('', ['term1', 'term2']) === 0, 'empty candidate gives 0')
   assert(softF1('random words here', []) === 0, 'empty reference terms gives 0')
-  assert(softF1('completely unrelated text', ['energy', 'climate']) === 0, 'zero term hits gives 0 cleanly')
-  assert(softF1('energy climate renewable', ['energy', 'climate', 'renewable']) === 1, 'perfect match gives 1')
+  assert(
+    softF1('completely unrelated text', ['energy', 'climate']) === 0,
+    'zero term hits gives 0 cleanly',
+  )
+  assert(
+    softF1('energy climate renewable', ['energy', 'climate', 'renewable']) === 1,
+    'perfect match gives 1',
+  )
   const partialF1 = softF1('energy climate', ['energy', 'climate', 'renewable'])
   assert(partialF1 > 0 && partialF1 < 1, 'partial match is in (0, 1)')
   assert(Number.isFinite(partialF1), 'partial score is finite number')
@@ -380,7 +542,11 @@ async function main() {
   assert(authState.token === null, 'initial token is null')
   assert(authState.error === null, 'initial error is null')
 
-  authState.setSession({ id: 'usr-test-1', email: 'test@example.com', targetScore: 79 }, 'mock-token-xyz', Date.now() + 3600000)
+  authState.setSession(
+    { id: 'usr-test-1', email: 'test@example.com', targetScore: 79 },
+    'mock-token-xyz',
+    Date.now() + 3600000,
+  )
   assert(useAuth.getState().user?.email === 'test@example.com', 'setSession sets user email')
   assert(useAuth.getState().token === 'mock-token-xyz', 'setSession sets token')
   assert(useAuth.getState().hasLoggedInBefore === true, 'hasLoggedInBefore is true')
@@ -395,7 +561,10 @@ async function main() {
   assert(useAuth.getState().lastEmail === null, 'logout clears the saved email')
   assert(useSettings.getState().settings.groqApiKey === '', 'logout clears the Groq key')
   assert(useSettings.getState().settings.aiScoringEnabled === false, 'logout disables AI scoring')
-  assert(useSettings.getState().settings.aiUsage.totalRequests === 0, 'logout resets AI usage telemetry')
+  assert(
+    useSettings.getState().settings.aiUsage.totalRequests === 0,
+    'logout resets AI usage telemetry',
+  )
 
   // checkRateLimit returns an object, never a bare truthy/falsy value. This
   // guards the regression where call sites wrote `if (limited)` and rejected
@@ -411,13 +580,22 @@ async function main() {
       }),
     }) as unknown as Parameters<typeof checkRateLimit>[0]
   const allowedRate = await checkRateLimit(rateDb(1), 'test:allowed', 5, 60)
-  assert(allowedRate.allowed === true && allowedRate.retryAfter === 0, 'rate limit allows a request below the limit')
+  assert(
+    allowedRate.allowed === true && allowedRate.retryAfter === 0,
+    'rate limit allows a request below the limit',
+  )
   const blockedRate = await checkRateLimit(rateDb(6), 'test:blocked', 5, 60)
-  assert(blockedRate.allowed === false && blockedRate.retryAfter > 0, 'rate limit reports blocked requests explicitly')
+  assert(
+    blockedRate.allowed === false && blockedRate.retryAfter > 0,
+    'rate limit reports blocked requests explicitly',
+  )
 
   const emptyKeyValidation = await validateGroqKey('   ')
   assert(!emptyKeyValidation.ok, 'empty Groq API key is rejected')
-  assert(emptyKeyValidation.error === 'API key is required', 'empty Groq API key gives descriptive error')
+  assert(
+    emptyKeyValidation.error === 'API key is required',
+    'empty Groq API key gives descriptive error',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 9: Auth Safety, Score Clamping & SSR Audio Guard
@@ -425,7 +603,10 @@ async function main() {
   console.log('\n--- 9. Auth Safety, Score Clamping & SSR Audio Guard ---')
   const testToken = 'abc123def456+&=/ '
   const encodedToken = encodeURIComponent(testToken)
-  assert(!encodedToken.includes(' ') && !encodedToken.includes('&') && !encodedToken.includes('+'), 'token is safely URL encoded')
+  assert(
+    !encodedToken.includes(' ') && !encodedToken.includes('&') && !encodedToken.includes('+'),
+    'token is safely URL encoded',
+  )
 
   const clampTarget = (raw: number) => Math.max(10, Math.min(90, Math.round(raw)))
   assert(clampTarget(5) === 10, 'score below 10 clamps to 10')
@@ -448,10 +629,16 @@ async function main() {
   const testSecret = '0123456789abcdef0123456789abcdef0123456789abcdef'
   const sessionData = { userId: 'usr-auth-test', email: 'candidate@pte-prep.com' }
   const validToken = await createSessionToken(sessionData, testSecret, 3600)
-  assert(typeof validToken === 'string' && validToken.includes('.'), 'createSessionToken creates signed token')
+  assert(
+    typeof validToken === 'string' && validToken.includes('.'),
+    'createSessionToken creates signed token',
+  )
 
   const verifiedSession = await verifySessionToken(validToken, testSecret)
-  assert(verifiedSession !== null && verifiedSession.userId === 'usr-auth-test', 'valid token verifies successfully')
+  assert(
+    verifiedSession !== null && verifiedSession.userId === 'usr-auth-test',
+    'valid token verifies successfully',
+  )
   assert(verifiedSession?.aud === 'pte-api', 'session audience matches pte-api')
 
   const tamperedSig = validToken.slice(0, -4) + 'zzzz'
@@ -484,11 +671,27 @@ async function main() {
   }
   assert(secretRejected, 'short JWT_SECRET is strictly rejected')
 
-  assert(resolveAllowedOrigin('https://pte-prep.pages.dev') === 'https://pte-prep.pages.dev', 'canonical domain is allowed')
-  assert(resolveAllowedOrigin('https://preview-123.pte-prep.pages.dev') === 'https://preview-123.pte-prep.pages.dev', 'pages.dev subdomains allowed')
-  assert(resolveAllowedOrigin('http://localhost:5173') === 'http://localhost:5173', 'localhost is allowed for dev')
-  assert(resolveAllowedOrigin('https://evil.com') === null, 'arbitrary third party origin is rejected')
-  assert(resolveAllowedOrigin('https://pte-prep.pages.dev.attacker.com') === null, 'subdomain spoofing origin is rejected')
+  assert(
+    resolveAllowedOrigin('https://pte-prep.pages.dev') === 'https://pte-prep.pages.dev',
+    'canonical domain is allowed',
+  )
+  assert(
+    resolveAllowedOrigin('https://preview-123.pte-prep.pages.dev') ===
+      'https://preview-123.pte-prep.pages.dev',
+    'pages.dev subdomains allowed',
+  )
+  assert(
+    resolveAllowedOrigin('http://localhost:5173') === 'http://localhost:5173',
+    'localhost is allowed for dev',
+  )
+  assert(
+    resolveAllowedOrigin('https://evil.com') === null,
+    'arbitrary third party origin is rejected',
+  )
+  assert(
+    resolveAllowedOrigin('https://pte-prep.pages.dev.attacker.com') === null,
+    'subdomain spoofing origin is rejected',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 11: Static XSS & Unsafe DOM Sink Audit
@@ -516,7 +719,12 @@ async function main() {
     return findings
   }
 
-  const forbiddenSinks = ['dangerouslySetInnerHTML', '.innerHTML =', '.outerHTML =', 'document.write(']
+  const forbiddenSinks = [
+    'dangerouslySetInnerHTML',
+    '.innerHTML =',
+    '.outerHTML =',
+    'document.write(',
+  ]
   const srcSinkFindings = scanSources(path.resolve(process.cwd(), 'src'), forbiddenSinks)
   const fnSinkFindings = scanSources(path.resolve(process.cwd(), 'functions'), forbiddenSinks)
   assert(srcSinkFindings.length === 0, 'zero unsafe DOM sinks in src/ directory')
@@ -552,10 +760,16 @@ async function main() {
     range: 2,
     hallucinatedKey: 99,
   }
-  assert(computeAiRawScore(essayWithExtra, 'essay') === 13, 'extraneous keys do not inflate essay rawScore')
+  assert(
+    computeAiRawScore(essayWithExtra, 'essay') === 13,
+    'extraneous keys do not inflate essay rawScore',
+  )
 
   const negativeTraits = { content: -5, pronunciation: 4, oralFluency: 3 }
-  assert(computeAiRawScore(negativeTraits, 'speaking') === 7, 'negative trait values floor cleanly at 0')
+  assert(
+    computeAiRawScore(negativeTraits, 'speaking') === 7,
+    'negative trait values floor cleanly at 0',
+  )
 
   const nonNumericTraits = { content: 'high', pronunciation: null, oralFluency: 5 }
   assert(
@@ -574,45 +788,95 @@ async function main() {
   // --------------------------------------------------------------------------
   console.log('\n--- 13. Sync Reconciliation & Tombstone Conflict Resolution ---')
   const cleanSync = planSyncReconciliation(['att-1', 'att-2'], ['att-2', 'att-3'], [])
-  assert(cleanSync.toPull.length === 1 && cleanSync.toPull[0] === 'att-1', 'missing cloud attempt is marked for pull')
-  assert(cleanSync.toPush.length === 1 && cleanSync.toPush[0] === 'att-3', 'new local attempt is marked for push')
+  assert(
+    cleanSync.toPull.length === 1 && cleanSync.toPull[0] === 'att-1',
+    'missing cloud attempt is marked for pull',
+  )
+  assert(
+    cleanSync.toPush.length === 1 && cleanSync.toPush[0] === 'att-3',
+    'new local attempt is marked for push',
+  )
 
   const tombstoneSync = planSyncReconciliation(['att-deleted'], [], ['att-deleted'])
-  assert(tombstoneSync.toPull.length === 0, 'tombstoned cloud attempt is never pulled (prevents resurrection)')
+  assert(
+    tombstoneSync.toPull.length === 0,
+    'tombstoned cloud attempt is never pulled (prevents resurrection)',
+  )
 
   const tombstonePushSync = planSyncReconciliation([], ['att-deleted'], ['att-deleted'])
   assert(tombstonePushSync.toPush.length === 0, 'tombstoned local attempt is never pushed to cloud')
 
   const identicalSync = planSyncReconciliation(['att-1'], ['att-1'], [])
-  assert(identicalSync.toPull.length === 0 && identicalSync.toPush.length === 0, 'identical sets yield zero push and pull')
+  assert(
+    identicalSync.toPull.length === 0 && identicalSync.toPush.length === 0,
+    'identical sets yield zero push and pull',
+  )
 
   const userAId = 'user-a-123'
   const userBId = 'user-b-456'
-  const attemptFromUserA: Partial<AttemptRecord> = { id: 'att-user-a', userId: userAId, ownerId: userAId }
+  const attemptFromUserA: Partial<AttemptRecord> = {
+    id: 'att-user-a',
+    userId: userAId,
+    ownerId: userAId,
+  }
   const attemptFromGuest: Partial<AttemptRecord> = { id: 'att-guest', ownerId: 'guest:device-1' }
-  const attemptFromUserB: Partial<AttemptRecord> = { id: 'att-user-b', userId: userBId, ownerId: userBId }
-  assert(canPushAttemptToCloud(attemptFromUserA, userAId) === true, 'user A attempt is allowed for user A sync')
-  assert(canPushAttemptToCloud(attemptFromGuest, userAId) === false, 'guest attempt is blocked from account sync')
-  assert(canPushAttemptToCloud(attemptFromUserB, userAId) === false, 'user B attempt is blocked from user A sync')
-  assert(canPushAttemptToCloud(attemptFromUserA, null) === false, 'no signed-in user blocks every upload')
-  assert(attemptOwnerId({ userId: userAId }, 'guest:device-1') === userAId, 'legacy account attempt is scoped to its user')
-  assert(attemptOwnerId({}, 'guest:device-1') === 'guest:device-1', 'legacy guest attempt is scoped to the device guest')
+  const attemptFromUserB: Partial<AttemptRecord> = {
+    id: 'att-user-b',
+    userId: userBId,
+    ownerId: userBId,
+  }
+  assert(
+    canPushAttemptToCloud(attemptFromUserA, userAId) === true,
+    'user A attempt is allowed for user A sync',
+  )
+  assert(
+    canPushAttemptToCloud(attemptFromGuest, userAId) === false,
+    'guest attempt is blocked from account sync',
+  )
+  assert(
+    canPushAttemptToCloud(attemptFromUserB, userAId) === false,
+    'user B attempt is blocked from user A sync',
+  )
+  assert(
+    canPushAttemptToCloud(attemptFromUserA, null) === false,
+    'no signed-in user blocks every upload',
+  )
+  assert(
+    attemptOwnerId({ userId: userAId }, 'guest:device-1') === userAId,
+    'legacy account attempt is scoped to its user',
+  )
+  assert(
+    attemptOwnerId({}, 'guest:device-1') === 'guest:device-1',
+    'legacy guest attempt is scoped to the device guest',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 14: Reset Password Form Contract Validation
   // --------------------------------------------------------------------------
   console.log('\n--- 14. Reset Password Form Contract Validation ---')
   const noToken = validateResetPasswordForm('', 'newPassword123', 'newPassword123')
-  assert(!noToken.valid && noToken.error?.includes('Missing or invalid reset token'), 'missing token rejected')
+  assert(
+    !noToken.valid && noToken.error?.includes('Missing or invalid reset token'),
+    'missing token rejected',
+  )
 
   const shortPass = validateResetPasswordForm('valid-token-xyz', 'short', 'short')
-  assert(!shortPass.valid && shortPass.error?.includes('at least 8 characters'), 'password under 8 chars rejected')
+  assert(
+    !shortPass.valid && shortPass.error?.includes('at least 8 characters'),
+    'password under 8 chars rejected',
+  )
 
   const mismatchPass = validateResetPasswordForm('valid-token-xyz', 'password123', 'password456')
-  assert(!mismatchPass.valid && mismatchPass.error?.includes('do not match'), 'password mismatch rejected')
+  assert(
+    !mismatchPass.valid && mismatchPass.error?.includes('do not match'),
+    'password mismatch rejected',
+  )
 
   const validForm = validateResetPasswordForm('valid-token-xyz', 'password123', 'password123')
-  assert(validForm.valid && validForm.error === undefined, 'valid reset password submission accepted')
+  assert(
+    validForm.valid && validForm.error === undefined,
+    'valid reset password submission accepted',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 15: Response Echo Formatting & XSS Plaintext Sanitization Contract
@@ -622,20 +886,37 @@ async function main() {
   assert(emptyEcho.length === 0, 'empty response echoes zero lines')
 
   const choiceEcho = formatResponseEchoLines({ choice: 'Option B' })
-  assert(choiceEcho.length === 1 && choiceEcho[0] === 'Your answer: Option B', 'choice formatted correctly')
+  assert(
+    choiceEcho.length === 1 && choiceEcho[0] === 'Your answer: Option B',
+    'choice formatted correctly',
+  )
 
   const choicesEcho = formatResponseEchoLines({ choices: ['Option A', 'Option C'] })
-  assert(choicesEcho.length === 1 && choicesEcho[0] === 'Your answers: Option A, Option C', 'choices array formatted')
+  assert(
+    choicesEcho.length === 1 && choicesEcho[0] === 'Your answers: Option A, Option C',
+    'choices array formatted',
+  )
 
   const blanksEcho = formatResponseEchoLines({ blanks: ['alpha', 'beta'] })
-  assert(blanksEcho.length === 1 && blanksEcho[0] === 'Your answers: alpha, beta', 'blanks formatted correctly')
+  assert(
+    blanksEcho.length === 1 && blanksEcho[0] === 'Your answers: alpha, beta',
+    'blanks formatted correctly',
+  )
 
   const orderEcho = formatResponseEchoLines({ order: ['Step 1', 'Step 2'] })
-  assert(orderEcho.length === 1 && orderEcho[0] === 'Your order: Step 1 → Step 2', 'order formatted with arrows')
-
-  const highlightEchoWithTokens = formatResponseEchoLines({ highlighted: [0, 2] }, ['apple', 'banana', 'cherry'])
   assert(
-    highlightEchoWithTokens.length === 1 && highlightEchoWithTokens[0] === 'You highlighted: “apple”, “cherry”',
+    orderEcho.length === 1 && orderEcho[0] === 'Your order: Step 1 → Step 2',
+    'order formatted with arrows',
+  )
+
+  const highlightEchoWithTokens = formatResponseEchoLines({ highlighted: [0, 2] }, [
+    'apple',
+    'banana',
+    'cherry',
+  ])
+  assert(
+    highlightEchoWithTokens.length === 1 &&
+      highlightEchoWithTokens[0] === 'You highlighted: “apple”, “cherry”',
     'highlighted tokens formatted with quotes',
   )
 
@@ -655,7 +936,8 @@ async function main() {
   const rawHtmlTranscript = '<img src=x onerror=alert(1)>'
   const xssTranscriptEcho = formatResponseEchoLines({ transcript: rawHtmlTranscript })
   assert(
-    xssTranscriptEcho.length === 1 && xssTranscriptEcho[0] === `Your answer (transcribed): ${rawHtmlTranscript}`,
+    xssTranscriptEcho.length === 1 &&
+      xssTranscriptEcho[0] === `Your answer (transcribed): ${rawHtmlTranscript}`,
     'speech transcript remains unparsed plain string data',
   )
 
@@ -673,8 +955,14 @@ async function main() {
   assert(formatDuration(125000) === '2m 5s', 'formatDuration minutes and seconds')
 
   const sampleDate = '2026-10-19T14:00:00.000Z'
-  assert(typeof formatDate(sampleDate) === 'string' && formatDate(sampleDate).length > 0, 'formatDate produces string')
-  assert(typeof formatDateTime(sampleDate) === 'string' && formatDateTime(sampleDate).includes(','), 'formatDateTime contains comma')
+  assert(
+    typeof formatDate(sampleDate) === 'string' && formatDate(sampleDate).length > 0,
+    'formatDate produces string',
+  )
+  assert(
+    typeof formatDateTime(sampleDate) === 'string' && formatDateTime(sampleDate).includes(','),
+    'formatDateTime contains comma',
+  )
 
   assert(pluralize(1, 'point') === '1 point', 'pluralize singular')
   assert(pluralize(2, 'point') === '2 points', 'pluralize plural default')
@@ -701,7 +989,10 @@ async function main() {
   const rng2 = makeRng(42)
   const seq1 = [rng1(), rng1(), rng1()]
   const seq2 = [rng2(), rng2(), rng2()]
-  assert(seq1.every((v, i) => v === seq2[i]), 'PRNG with same seed is deterministic')
+  assert(
+    seq1.every((v, i) => v === seq2[i]),
+    'PRNG with same seed is deterministic',
+  )
 
   const hash1 = hashString('pte-academic')
   const hash2 = hashString('pte-academic')
@@ -712,7 +1003,10 @@ async function main() {
   const itemsToShuffle = [1, 2, 3, 4, 5, 6, 7, 8]
   const shuffled = shuffle(itemsToShuffle, makeRng(999))
   assert(shuffled.length === itemsToShuffle.length, 'shuffle preserves array length')
-  assert(itemsToShuffle.every((item) => shuffled.includes(item)), 'shuffle preserves all elements')
+  assert(
+    itemsToShuffle.every((item) => shuffled.includes(item)),
+    'shuffle preserves all elements',
+  )
 
   const picked3 = pickN(itemsToShuffle, 3, makeRng(123))
   assert(picked3.length === 3, 'pickN selects requested number of elements')
@@ -731,7 +1025,10 @@ async function main() {
   assert(pickErrorThrown, 'pickOne on empty array throws error')
 
   const seedVal = randomSeed()
-  assert(typeof seedVal === 'number' && seedVal >= 0 && Number.isFinite(seedVal), 'randomSeed returns non-negative integer')
+  assert(
+    typeof seedVal === 'number' && seedVal >= 0 && Number.isFinite(seedVal),
+    'randomSeed returns non-negative integer',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 18: Tailwind CN Utility Contract
@@ -740,31 +1037,52 @@ async function main() {
   assert(cn('px-2 py-1', 'bg-blue-500') === 'px-2 py-1 bg-blue-500', 'cn joins class names')
   assert(cn('p-4', 'p-2') === 'p-2', 'cn resolves tailwind conflicts')
   const shouldHide = false
-  assert(cn('btn', shouldHide && 'hidden', null, undefined, 'active') === 'btn active', 'cn ignores falsy inputs')
+  assert(
+    cn('btn', shouldHide && 'hidden', null, undefined, 'active') === 'btn active',
+    'cn ignores falsy inputs',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 19: Chart Data Plaintext Description Contract
   // --------------------------------------------------------------------------
   console.log('\n--- 19. Chart Data Plaintext Description Contract ---')
-  assert(describeData('non-existent-chart-id') === '', 'describeData returns empty string for missing chart')
+  assert(
+    describeData('non-existent-chart-id') === '',
+    'describeData returns empty string for missing chart',
+  )
 
   const barDesc = describeData('chart-renewable')
   assert(typeof barDesc === 'string' && barDesc.length > 0, 'describeData bar chart produces text')
 
   const lineDesc = describeData('chart-sea-temp')
-  assert(typeof lineDesc === 'string' && lineDesc.length > 0, 'describeData line chart produces text')
+  assert(
+    typeof lineDesc === 'string' && lineDesc.length > 0,
+    'describeData line chart produces text',
+  )
 
   const pieDesc = describeData('chart-households')
-  assert(typeof pieDesc === 'string' && pieDesc.includes('per cent'), 'describeData pie chart includes per cent')
+  assert(
+    typeof pieDesc === 'string' && pieDesc.includes('per cent'),
+    'describeData pie chart includes per cent',
+  )
 
   const processDesc = describeData('process-compost')
-  assert(typeof processDesc === 'string' && processDesc.includes('—'), 'describeData process chart includes steps')
+  assert(
+    typeof processDesc === 'string' && processDesc.includes('—'),
+    'describeData process chart includes steps',
+  )
 
   const diagramDesc = describeData('diagram-ecosystem')
-  assert(typeof diagramDesc === 'string' && diagramDesc.length > 0, 'describeData diagram chart produces text')
+  assert(
+    typeof diagramDesc === 'string' && diagramDesc.length > 0,
+    'describeData diagram chart produces text',
+  )
 
   const tableDesc = describeData('table-study-design')
-  assert(typeof tableDesc === 'string' && tableDesc.length > 0, 'describeData table-chart produces text')
+  assert(
+    typeof tableDesc === 'string' && tableDesc.length > 0,
+    'describeData table-chart produces text',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 20: Weak Types Practice Ranking Contract
@@ -786,8 +1104,22 @@ async function main() {
     availablePoints: 100,
     skillScores: { speaking: 50, writing: 50, reading: 50, listening: 50 },
     breakdown: {
-      'read-aloud': { type: 'read-aloud', label: 'Read Aloud', earnedPoints: 2, maxPoints: 10, total: 5, accuracy: 0.2 },
-      'write-essay': { type: 'write-essay', label: 'Write Essay', earnedPoints: 9, maxPoints: 10, total: 1, accuracy: 0.9 },
+      'read-aloud': {
+        type: 'read-aloud',
+        label: 'Read Aloud',
+        earnedPoints: 2,
+        maxPoints: 10,
+        total: 5,
+        accuracy: 0.2,
+      },
+      'write-essay': {
+        type: 'write-essay',
+        label: 'Write Essay',
+        earnedPoints: 9,
+        maxPoints: 10,
+        total: 1,
+        accuracy: 0.9,
+      },
     },
   }
   const mockAttempt2: AttemptRecord = {
@@ -804,15 +1136,32 @@ async function main() {
     availablePoints: 100,
     skillScores: { speaking: 55, writing: 55, reading: 55, listening: 55 },
     breakdown: {
-      'read-aloud': { type: 'read-aloud', label: 'Read Aloud', earnedPoints: 3, maxPoints: 10, total: 5, accuracy: 0.3 },
-      'write-essay': { type: 'write-essay', label: 'Write Essay', earnedPoints: 8, maxPoints: 10, total: 1, accuracy: 0.8 },
+      'read-aloud': {
+        type: 'read-aloud',
+        label: 'Read Aloud',
+        earnedPoints: 3,
+        maxPoints: 10,
+        total: 5,
+        accuracy: 0.3,
+      },
+      'write-essay': {
+        type: 'write-essay',
+        label: 'Write Essay',
+        earnedPoints: 8,
+        maxPoints: 10,
+        total: 1,
+        accuracy: 0.8,
+      },
     },
   }
 
   const weakPractised = weakestTypes([mockAttempt1, mockAttempt2], 3, true)
   assert(weakPractised.length === 2, 'practised filter restricts to attempted types only')
   assert(weakPractised[0]?.type === 'read-aloud', 'read-aloud ranks weaker than write-essay')
-  assert(weakPractised[0]?.priority !== null && weakPractised[0].priority < 50, 'accuracy correctly calculated')
+  assert(
+    weakPractised[0]?.priority !== null && weakPractised[0].priority < 50,
+    'accuracy correctly calculated',
+  )
 
   const weakAll = weakestTypes([mockAttempt1, mockAttempt2], 5, false)
   assert(weakAll[0]?.type === 'read-aloud', 'measured weakest comes first')
@@ -829,7 +1178,10 @@ async function main() {
     subject: 'Test',
     htmlContent: '<p>Hi</p>',
   })
-  assert(!noApiKeyResult.ok && Boolean(noApiKeyResult.error?.includes('BREVO_API_KEY')), 'missing Brevo API key is rejected')
+  assert(
+    !noApiKeyResult.ok && Boolean(noApiKeyResult.error?.includes('BREVO_API_KEY')),
+    'missing Brevo API key is rejected',
+  )
 
   const noSenderResult = await sendBrevoEmail({
     apiKey: 'brevo-key-123',
@@ -838,7 +1190,10 @@ async function main() {
     subject: 'Test',
     htmlContent: '<p>Hi</p>',
   })
-  assert(!noSenderResult.ok && Boolean(noSenderResult.error?.includes('BREVO_SENDER_EMAIL')), 'missing sender email is rejected')
+  assert(
+    !noSenderResult.ok && Boolean(noSenderResult.error?.includes('BREVO_SENDER_EMAIL')),
+    'missing sender email is rejected',
+  )
 
   const origFetch = globalThis.fetch
   try {
@@ -855,7 +1210,10 @@ async function main() {
       subject: 'Welcome',
       htmlContent: '<p>Hello</p>',
     })
-    assert(successResult.ok && successResult.messageId === 'msg-abc-123', 'Brevo email succeeds with messageId')
+    assert(
+      successResult.ok && successResult.messageId === 'msg-abc-123',
+      'Brevo email succeeds with messageId',
+    )
 
     globalThis.fetch = (async () =>
       new Response(JSON.stringify({ message: 'Invalid recipient' }), {
@@ -870,7 +1228,10 @@ async function main() {
       subject: 'Welcome',
       htmlContent: '<p>Hello</p>',
     })
-    assert(!failResult.ok && failResult.error === 'Invalid recipient', 'Brevo API error is extracted')
+    assert(
+      !failResult.ok && failResult.error === 'Invalid recipient',
+      'Brevo API error is extracted',
+    )
 
     globalThis.fetch = (async () => {
       throw new Error('Connection refused')
@@ -883,7 +1244,10 @@ async function main() {
       subject: 'Welcome',
       htmlContent: '<p>Hello</p>',
     })
-    assert(!networkErrResult.ok && networkErrResult.error === 'Connection refused', 'Brevo network exception caught')
+    assert(
+      !networkErrResult.ok && networkErrResult.error === 'Connection refused',
+      'Brevo network exception caught',
+    )
   } finally {
     globalThis.fetch = origFetch
   }
@@ -902,7 +1266,10 @@ async function main() {
 
   const rateExceeded = rateLimitExceededResponse(45)
   assert(rateExceeded.status === 429, 'rateLimitExceededResponse status is 429')
-  assert(rateExceeded.headers.get('Retry-After') === '45', 'rateLimitExceededResponse sets Retry-After header')
+  assert(
+    rateExceeded.headers.get('Retry-After') === '45',
+    'rateLimitExceededResponse sets Retry-After header',
+  )
 
   const throwingDb = {
     exec: async () => undefined,
@@ -917,7 +1284,10 @@ async function main() {
   } as unknown as D1Database
 
   const failClosedResult = await checkRateLimit(throwingDb, 'test:err', 5, 60)
-  assert(failClosedResult.allowed === false && failClosedResult.retryAfter === 60, 'checkRateLimit fails closed on DB error')
+  assert(
+    failClosedResult.allowed === false && failClosedResult.retryAfter === 60,
+    'checkRateLimit fails closed on DB error',
+  )
 
   const nullRowDb = {
     exec: async () => undefined,
@@ -930,19 +1300,40 @@ async function main() {
   } as unknown as D1Database
 
   const nullRowResult = await checkRateLimit(nullRowDb, 'test:null', 5, 60)
-  assert(nullRowResult.allowed === false && nullRowResult.retryAfter === 60, 'checkRateLimit fails closed on null row')
+  assert(
+    nullRowResult.allowed === false && nullRowResult.retryAfter === 60,
+    'checkRateLimit fails closed on null row',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 23: Extended Auth & Session Table Contract
   // --------------------------------------------------------------------------
   console.log('\n--- 23. Extended Auth & Session Table Contract ---')
-  assert(resolveSessionExpiry() === DEFAULT_SESSION_EXPIRY_SECONDS, 'resolveSessionExpiry defaults to 7 days')
-  assert(resolveSessionExpiry({ SESSION_EXPIRY_SECONDS: '3600' } as any) === 3600, 'resolveSessionExpiry parses custom seconds')
-  assert(resolveSessionExpiry({ SESSION_EXPIRY_SECONDS: '10' } as any) === 60, 'resolveSessionExpiry clamps to minimum 60s')
+  assert(
+    resolveSessionExpiry() === DEFAULT_SESSION_EXPIRY_SECONDS,
+    'resolveSessionExpiry defaults to 7 days',
+  )
+  assert(
+    resolveSessionExpiry({ SESSION_EXPIRY_SECONDS: '3600' } as any) === 3600,
+    'resolveSessionExpiry parses custom seconds',
+  )
+  assert(
+    resolveSessionExpiry({ SESSION_EXPIRY_SECONDS: '10' } as any) === 60,
+    'resolveSessionExpiry clamps to minimum 60s',
+  )
 
-  assert(resolvePbkdf2Iterations() === DEFAULT_PBKDF2_ITERATIONS, 'resolvePbkdf2Iterations defaults to 100k')
-  assert(resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: '50000' } as any) === 50000, 'resolvePbkdf2Iterations parses custom iterations')
-  assert(resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: '500' } as any) === DEFAULT_PBKDF2_ITERATIONS, 'resolvePbkdf2Iterations rejects below 10k')
+  assert(
+    resolvePbkdf2Iterations() === DEFAULT_PBKDF2_ITERATIONS,
+    'resolvePbkdf2Iterations defaults to 100k',
+  )
+  assert(
+    resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: '50000' } as any) === 50000,
+    'resolvePbkdf2Iterations parses custom iterations',
+  )
+  assert(
+    resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: '500' } as any) === DEFAULT_PBKDF2_ITERATIONS,
+    'resolvePbkdf2Iterations rejects below 10k',
+  )
 
   const bearerReq = new Request('https://pte-prep.pages.dev', {
     headers: { Authorization: 'Bearer my-test-token-123' },
@@ -952,7 +1343,10 @@ async function main() {
   assert(extractBearerToken(noBearerReq) === null, 'extractBearerToken returns null when missing')
 
   const hashedHex = await sha256Hex('reset-password-test-token')
-  assert(typeof hashedHex === 'string' && hashedHex.length === 64, 'sha256Hex returns 64-char hex string')
+  assert(
+    typeof hashedHex === 'string' && hashedHex.length === 64,
+    'sha256Hex returns 64-char hex string',
+  )
 
   const mockSessionStorage = new Map<string, { userId: string; expiresAt: number }>()
   const mockSessionsDb = {
@@ -1001,9 +1395,17 @@ async function main() {
   const revokedVerify = await verifySessionToken(testSessionToken, secretKey, mockSessionsDb)
   assert(revokedVerify === null, 'revoked session rejected by DB verification')
 
-  await recordSession(mockSessionsDb, 'manual-jti-xyz', 'user-multi-device', Math.floor(Date.now() / 1000) + 3600)
+  await recordSession(
+    mockSessionsDb,
+    'manual-jti-xyz',
+    'user-multi-device',
+    Math.floor(Date.now() / 1000) + 3600,
+  )
   await revokeAllUserSessions(mockSessionsDb, 'user-multi-device')
-  assert(mockSessionStorage.has('manual-jti-xyz') === false, 'revokeAllUserSessions clears all device sessions')
+  assert(
+    mockSessionStorage.has('manual-jti-xyz') === false,
+    'revokeAllUserSessions clears all device sessions',
+  )
 
   // --------------------------------------------------------------------------
   // TEST 24: Middleware Edge Request Pipeline
@@ -1020,7 +1422,10 @@ async function main() {
 
   const preflightResponse = await middlewareOnRequest(preflightContext)
   assert(preflightResponse.status === 204, 'preflight OPTIONS request returns 204')
-  assert(preflightResponse.headers.get('Access-Control-Allow-Origin') === 'https://pte-prep.pages.dev', 'preflight allows valid origin')
+  assert(
+    preflightResponse.headers.get('Access-Control-Allow-Origin') === 'https://pte-prep.pages.dev',
+    'preflight allows valid origin',
+  )
 
   const normalContext = {
     request: new Request('https://pte-prep.pages.dev/api/test', {
@@ -1032,7 +1437,10 @@ async function main() {
 
   const normalResponse = await middlewareOnRequest(normalContext)
   assert(normalResponse.status === 200, 'normal request passes through')
-  assert(normalResponse.headers.get('X-Content-Type-Options') === 'nosniff', 'middleware injects nosniff header')
+  assert(
+    normalResponse.headers.get('X-Content-Type-Options') === 'nosniff',
+    'middleware injects nosniff header',
+  )
 
   const errorContext = {
     request: new Request('https://pte-prep.pages.dev/api/crash'),
@@ -1051,7 +1459,10 @@ async function main() {
   console.log('\n--- 25. Storage & Guest Owner Fallbacks ---')
   const storage = safeStateStorage()
   storage.setItem('test-key-abc', 'test-value-123')
-  assert(storage.getItem('test-key-abc') === 'test-value-123', 'safeStateStorage getItem returns set value')
+  assert(
+    storage.getItem('test-key-abc') === 'test-value-123',
+    'safeStateStorage getItem returns set value',
+  )
   storage.removeItem('test-key-abc')
   assert(storage.getItem('test-key-abc') === null, 'safeStateStorage removeItem clears value')
 
@@ -1132,7 +1543,10 @@ async function main() {
     env: { JWT_SECRET: secretKey, DB: mockSessionsDb } as any,
   } as any
   const attemptIdBadIdRes = await attemptIdGet(attemptIdBadIdContext)
-  assert(attemptIdBadIdRes.status === 400 || attemptIdBadIdRes.status === 401, 'attempt detail rejects invalid attempt ID')
+  assert(
+    attemptIdBadIdRes.status === 400 || attemptIdBadIdRes.status === 401,
+    'attempt detail rejects invalid attempt ID',
+  )
 
   // Full API lifecycle test with stateful in-memory D1 mock
   const mockUsers = new Map<string, any>()
@@ -1249,7 +1663,11 @@ async function main() {
           }
           if (sql.includes('FROM password_resets WHERE user_id = ?')) {
             for (const pr of mockPasswordResets.values()) {
-              if (pr.user_id === args[0] && new Date(pr.expires_at).getTime() > Date.now() && pr.simulatedRecent) {
+              if (
+                pr.user_id === args[0] &&
+                new Date(pr.expires_at).getTime() > Date.now() &&
+                pr.simulatedRecent
+              ) {
                 return { id: pr.id }
               }
             }
@@ -1288,7 +1706,11 @@ async function main() {
   const regSuccessRes = await registerPost({
     request: new Request('https://pte-prep.pages.dev/api/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email: 'newuser@example.com', password: 'Password123!', targetScore: 79 }),
+      body: JSON.stringify({
+        email: 'newuser@example.com',
+        password: 'Password123!',
+        targetScore: 79,
+      }),
     }),
     env: apiEnv,
   } as any)
@@ -1462,7 +1884,10 @@ async function main() {
     }),
     env: { ...apiEnv, BREVO_API_KEY: '' },
   } as any)
-  assert(fpMissingBrevo.status === 503, 'forgot-password fails uniformly when Brevo key missing (503)')
+  assert(
+    fpMissingBrevo.status === 503,
+    'forgot-password fails uniformly when Brevo key missing (503)',
+  )
 
   // 5. Non-existent user (timing probe path)
   const fpUnknownUser = await forgotPasswordPost({
@@ -1472,7 +1897,10 @@ async function main() {
     }),
     env: apiEnv,
   } as any)
-  assert(fpUnknownUser.status === 200, 'forgot-password returns 200 generic message for unknown email')
+  assert(
+    fpUnknownUser.status === 200,
+    'forgot-password returns 200 generic message for unknown email',
+  )
 
   // 6. Registered user with Brevo delivery failure (mock fetch rejects or 500)
   globalThis.fetch = async (url: any, opts: any) => {
@@ -1488,7 +1916,10 @@ async function main() {
     }),
     env: apiEnv,
   } as any)
-  assert(fpBrevoFail.status === 200, 'forgot-password answers generically when Brevo delivery fails')
+  assert(
+    fpBrevoFail.status === 200,
+    'forgot-password answers generically when Brevo delivery fails',
+  )
 
   // 7. Successful reset email sent
   let sentResetLink = ''
@@ -1606,74 +2037,165 @@ async function main() {
   const mwErrorRes = await middlewareOnRequest({
     request: new Request('https://pte-prep.pages.dev/api/attempts'),
     env: apiEnv,
-    next: async () => { throw new Error('Simulated unhandled exception') },
+    next: async () => {
+      throw new Error('Simulated unhandled exception')
+    },
   } as any)
   assert(mwErrorRes.status === 500, 'middleware returns 500 on unhandled exception')
   const mwErrJson = (await mwErrorRes.json()) as any
   assert(mwErrJson.error === 'Internal server error', 'middleware returns clean error JSON')
 
   // 2. sendBrevoEmail error branches
-  const brevoNoKey = await sendBrevoEmail({ apiKey: '', senderEmail: 's@a.com', to: 'r@a.com', subject: 'sub', htmlContent: 'html' })
-  assert(!brevoNoKey.ok && Boolean(brevoNoKey.error?.includes('BREVO_API_KEY')), 'sendBrevoEmail fails without API key')
-  const brevoNoSender = await sendBrevoEmail({ apiKey: 'k', senderEmail: '', to: 'r@a.com', subject: 'sub', htmlContent: 'html' })
-  assert(!brevoNoSender.ok && Boolean(brevoNoSender.error?.includes('BREVO_SENDER_EMAIL')), 'sendBrevoEmail fails without sender email')
+  const brevoNoKey = await sendBrevoEmail({
+    apiKey: '',
+    senderEmail: 's@a.com',
+    to: 'r@a.com',
+    subject: 'sub',
+    htmlContent: 'html',
+  })
+  assert(
+    !brevoNoKey.ok && Boolean(brevoNoKey.error?.includes('BREVO_API_KEY')),
+    'sendBrevoEmail fails without API key',
+  )
+  const brevoNoSender = await sendBrevoEmail({
+    apiKey: 'k',
+    senderEmail: '',
+    to: 'r@a.com',
+    subject: 'sub',
+    htmlContent: 'html',
+  })
+  assert(
+    !brevoNoSender.ok && Boolean(brevoNoSender.error?.includes('BREVO_SENDER_EMAIL')),
+    'sendBrevoEmail fails without sender email',
+  )
 
   // Brevo fetch exception
-  globalThis.fetch = async () => { throw new Error('DNS failure') }
-  const brevoNetworkError = await sendBrevoEmail({ apiKey: 'k', senderEmail: 's@a.com', to: 'r@a.com', subject: 'sub', htmlContent: 'html' })
-  assert(!brevoNetworkError.ok && brevoNetworkError.error === 'DNS failure', 'sendBrevoEmail handles network exception')
+  globalThis.fetch = async () => {
+    throw new Error('DNS failure')
+  }
+  const brevoNetworkError = await sendBrevoEmail({
+    apiKey: 'k',
+    senderEmail: 's@a.com',
+    to: 'r@a.com',
+    subject: 'sub',
+    htmlContent: 'html',
+  })
+  assert(
+    !brevoNetworkError.ok && brevoNetworkError.error === 'DNS failure',
+    'sendBrevoEmail handles network exception',
+  )
 
   // Brevo non-JSON response
   globalThis.fetch = async () => new Response('Internal Server Error', { status: 502 })
-  const brevoBadStatus = await sendBrevoEmail({ apiKey: 'k', senderEmail: 's@a.com', to: 'r@a.com', subject: 'sub', htmlContent: 'html' })
-  assert(!brevoBadStatus.ok && Boolean(brevoBadStatus.error?.includes('502')), 'sendBrevoEmail handles non-JSON HTTP failure')
+  const brevoBadStatus = await sendBrevoEmail({
+    apiKey: 'k',
+    senderEmail: 's@a.com',
+    to: 'r@a.com',
+    subject: 'sub',
+    htmlContent: 'html',
+  })
+  assert(
+    !brevoBadStatus.ok && Boolean(brevoBadStatus.error?.includes('502')),
+    'sendBrevoEmail handles non-JSON HTTP failure',
+  )
 
   // Brevo with toName and textContent
-  globalThis.fetch = async () => new Response(JSON.stringify({ messageId: 'm-999' }), { status: 200 })
-  const brevoSuccessExtra = await sendBrevoEmail({ apiKey: 'k', senderEmail: 's@a.com', senderName: 'PTE', to: 'r@a.com', toName: 'Recipient', subject: 'sub', htmlContent: 'html', textContent: 'text' })
-  assert(brevoSuccessExtra.ok && brevoSuccessExtra.messageId === 'm-999', 'sendBrevoEmail succeeds with optional name & textContent')
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ messageId: 'm-999' }), { status: 200 })
+  const brevoSuccessExtra = await sendBrevoEmail({
+    apiKey: 'k',
+    senderEmail: 's@a.com',
+    senderName: 'PTE',
+    to: 'r@a.com',
+    toName: 'Recipient',
+    subject: 'sub',
+    htmlContent: 'html',
+    textContent: 'text',
+  })
+  assert(
+    brevoSuccessExtra.ok && brevoSuccessExtra.messageId === 'm-999',
+    'sendBrevoEmail succeeds with optional name & textContent',
+  )
   globalThis.fetch = origFetch
 
   // 3. rateLimit.ts edge cases
   const ipEmptyReq = new Request('https://pte-prep.pages.dev')
-  assert(getClientIp(ipEmptyReq) === 'unknown', 'getClientIp falls back to unknown when cf-connecting-ip is missing')
+  assert(
+    getClientIp(ipEmptyReq) === 'unknown',
+    'getClientIp falls back to unknown when cf-connecting-ip is missing',
+  )
   const rlFailDb = {
-    exec: async () => { throw new Error('exec failed') },
+    exec: async () => {
+      throw new Error('exec failed')
+    },
     prepare: () => ({
       bind: () => ({
-        run: async () => { throw new Error('cleanup failed') },
+        run: async () => {
+          throw new Error('cleanup failed')
+        },
         first: async () => null,
       }),
     }),
   } as any
   const rlNoRowRes = await checkRateLimit(rlFailDb, 'key1', 5, 60)
-  assert(!rlNoRowRes.allowed && rlNoRowRes.retryAfter === 60, 'checkRateLimit fails closed when row is null')
+  assert(
+    !rlNoRowRes.allowed && rlNoRowRes.retryAfter === 60,
+    'checkRateLimit fails closed when row is null',
+  )
 
   const rlThrowDb = {
     exec: async () => undefined,
     prepare: () => ({
       bind: () => ({
         run: async () => undefined,
-        first: async () => { throw new Error('database down') },
+        first: async () => {
+          throw new Error('database down')
+        },
       }),
     }),
   } as any
   const rlThrowRes = await checkRateLimit(rlThrowDb, 'key2', 5, 60)
-  assert(!rlThrowRes.allowed && rlThrowRes.retryAfter === 60, 'checkRateLimit fails closed on database exception')
+  assert(
+    !rlThrowRes.allowed && rlThrowRes.retryAfter === 60,
+    'checkRateLimit fails closed on database exception',
+  )
 
   // 4. auth.ts edge cases
-  assert(resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: 'invalid' } as any) === DEFAULT_PBKDF2_ITERATIONS, 'resolvePbkdf2Iterations fallback on NaN')
-  assert(resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: '100' } as any) === DEFAULT_PBKDF2_ITERATIONS, 'resolvePbkdf2Iterations fallback on < 100k')
+  assert(
+    resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: 'invalid' } as any) === DEFAULT_PBKDF2_ITERATIONS,
+    'resolvePbkdf2Iterations fallback on NaN',
+  )
+  assert(
+    resolvePbkdf2Iterations({ PBKDF2_ITERATIONS: '100' } as any) === DEFAULT_PBKDF2_ITERATIONS,
+    'resolvePbkdf2Iterations fallback on < 100k',
+  )
   let threwNoSecret = false
-  try { requireSecret({} as any) } catch { threwNoSecret = true }
+  try {
+    requireSecret({} as any)
+  } catch {
+    threwNoSecret = true
+  }
   assert(threwNoSecret, 'requireSecret throws when JWT_SECRET missing')
   let threwShortSecret = false
-  try { requireSecret({ JWT_SECRET: 'short-secret' } as any) } catch { threwShortSecret = true }
+  try {
+    requireSecret({ JWT_SECRET: 'short-secret' } as any)
+  } catch {
+    threwShortSecret = true
+  }
   assert(threwShortSecret, 'requireSecret throws when JWT_SECRET < 32 chars')
 
-  assert((await verifySessionToken('no-dot-token', secretKey)) === null, 'verifySessionToken returns null for token with no dot')
-  assert((await verifySessionToken('a.b', secretKey)) === null, 'verifySessionToken returns null for invalid signature')
-  assert((await verifyPassword('pass', 'hash', 'invalid_base64_!@#$')) === false, 'verifyPassword returns false on malformed salt')
+  assert(
+    (await verifySessionToken('no-dot-token', secretKey)) === null,
+    'verifySessionToken returns null for token with no dot',
+  )
+  assert(
+    (await verifySessionToken('a.b', secretKey)) === null,
+    'verifySessionToken returns null for invalid signature',
+  )
+  assert(
+    (await verifyPassword('pass', 'hash', 'invalid_base64_!@#$')) === false,
+    'verifyPassword returns false on malformed salt',
+  )
 
   // 5. me.ts PATCH password change
   const mePatchNoPass = await mePatch({
@@ -1690,7 +2212,10 @@ async function main() {
     request: new Request('https://pte-prep.pages.dev/api/auth/me', {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${rpData.token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPassword: 'WrongPassword!', newPassword: 'AnotherPassword123!' }),
+      body: JSON.stringify({
+        currentPassword: 'WrongPassword!',
+        newPassword: 'AnotherPassword123!',
+      }),
     }),
     env: apiEnv,
   } as any)
@@ -1710,7 +2235,10 @@ async function main() {
     request: new Request('https://pte-prep.pages.dev/api/auth/me', {
       method: 'PATCH',
       headers: { Authorization: `Bearer ${rpData.token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPassword: 'NewValidPassword123!', newPassword: 'BrandNewPassword123!' }),
+      body: JSON.stringify({
+        currentPassword: 'NewValidPassword123!',
+        newPassword: 'BrandNewPassword123!',
+      }),
     }),
     env: apiEnv,
   } as any)
@@ -1723,12 +2251,19 @@ async function main() {
   const postTooLarge = await attemptsPost({
     request: new Request('https://pte-prep.pages.dev/api/attempts', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${freshUserToken}`, 'Content-Type': 'application/json', 'Content-Length': '2000000' },
+      headers: {
+        Authorization: `Bearer ${freshUserToken}`,
+        'Content-Type': 'application/json',
+        'Content-Length': '2000000',
+      },
       body: JSON.stringify({ id: 'att-toolarge-123' }),
     }),
     env: apiEnv,
   } as any)
-  assert(postTooLarge.status === 413, 'attempts POST rejects payload with Content-Length > 1MB (413)')
+  assert(
+    postTooLarge.status === 413,
+    'attempts POST rejects payload with Content-Length > 1MB (413)',
+  )
 
   const postBadId = await attemptsPost({
     request: new Request('https://pte-prep.pages.dev/api/attempts', {
@@ -1825,7 +2360,10 @@ async function main() {
   console.log('\n--- 29. Groq AI Scorer & Whisper STT Engine ---')
   // 1. validateGroqKey
   const valEmpty = await validateGroqKey('')
-  assert(!valEmpty.ok && valEmpty.error === 'API key is required', 'validateGroqKey fails on empty key')
+  assert(
+    !valEmpty.ok && valEmpty.error === 'API key is required',
+    'validateGroqKey fails on empty key',
+  )
 
   globalThis.fetch = async (url: any) => {
     if (String(url).includes('groq.com/openai/v1/models')) {
@@ -1838,38 +2376,64 @@ async function main() {
 
   globalThis.fetch = async () => new Response('Unauthorized', { status: 401 })
   const valAuthFail = await validateGroqKey('gsk_badkey')
-  assert(!valAuthFail.ok && Boolean(valAuthFail.error?.includes('401')), 'validateGroqKey reports HTTP status on failure')
+  assert(
+    !valAuthFail.ok && Boolean(valAuthFail.error?.includes('401')),
+    'validateGroqKey reports HTTP status on failure',
+  )
 
-  globalThis.fetch = async () => { throw new Error('Network error contacting Groq') }
+  globalThis.fetch = async () => {
+    throw new Error('Network error contacting Groq')
+  }
   const valNetworkFail = await validateGroqKey('gsk_key')
-  assert(!valNetworkFail.ok && Boolean(valNetworkFail.error?.includes('Network error')), 'validateGroqKey handles network error')
+  assert(
+    !valNetworkFail.ok && Boolean(valNetworkFail.error?.includes('Network error')),
+    'validateGroqKey handles network error',
+  )
 
   // 2. evaluateWithAi: empty inputs
-  assert((await evaluateWithAi({ id: 'essay-1', type: 'write-essay' }, undefined, '', 'key')) === null, 'evaluateWithAi returns null on empty text')
-  assert((await evaluateWithAi({ id: 'essay-1', type: 'write-essay' }, undefined, 'text', '')) === null, 'evaluateWithAi returns null on empty apiKey')
+  assert(
+    (await evaluateWithAi({ id: 'essay-1', type: 'write-essay' }, undefined, '', 'key')) === null,
+    'evaluateWithAi returns null on empty text',
+  )
+  assert(
+    (await evaluateWithAi({ id: 'essay-1', type: 'write-essay' }, undefined, 'text', '')) === null,
+    'evaluateWithAi returns null on empty apiKey',
+  )
 
   // 3. evaluateWithAi write-essay
   globalThis.fetch = async (url: any, opts: any) => {
     if (String(url).includes('chat/completions')) {
-      return new Response(JSON.stringify({
-        choices: [{
-          message: {
-            content: JSON.stringify({
-              traits: { content: 3, grammar: 2, vocabulary: 2, spelling: 2, development: 2, range: 2 },
-              feedback: ['Excellent cohesive flow', 'Wide academic vocabulary'],
-              modelRewrite: 'Band 90 model essay text',
-            }),
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  traits: {
+                    content: 3,
+                    grammar: 2,
+                    vocabulary: 2,
+                    spelling: 2,
+                    development: 2,
+                    range: 2,
+                  },
+                  feedback: ['Excellent cohesive flow', 'Wide academic vocabulary'],
+                  modelRewrite: 'Band 90 model essay text',
+                }),
+              },
+            },
+          ],
+          usage: { prompt_tokens: 150, completion_tokens: 200, total_tokens: 350 },
+        }),
+        {
+          status: 200,
+          headers: {
+            'x-ratelimit-remaining-requests': '99',
+            'x-ratelimit-limit-requests': '100',
+            'x-ratelimit-reset-requests': '1s',
           },
-        }],
-        usage: { prompt_tokens: 150, completion_tokens: 200, total_tokens: 350 },
-      }), {
-        status: 200,
-        headers: {
-          'x-ratelimit-remaining-requests': '99',
-          'x-ratelimit-limit-requests': '100',
-          'x-ratelimit-reset-requests': '1s',
         },
-      })
+      )
     }
     return origFetch(url, opts)
   }
@@ -1883,7 +2447,10 @@ async function main() {
   assert(essayEval !== null, 'evaluateWithAi evaluates write-essay')
   assert(essayEval?.rawScore === 13, 'evaluateWithAi scores perfect essay traits (13)')
   assert(essayEval?.traits.content === 1, 'evaluateWithAi normalizes essay content (3/3 = 1)')
-  assert(essayEval?.suggestedRewrittenEssay === 'Band 90 model essay text', 'evaluateWithAi extracts model rewrite')
+  assert(
+    essayEval?.suggestedRewrittenEssay === 'Band 90 model essay text',
+    'evaluateWithAi extracts model rewrite',
+  )
 
   // Cached hit verification
   const cachedEval = await evaluateWithAi(
@@ -1897,16 +2464,21 @@ async function main() {
   // 4. evaluateWithAi speaking (read-aloud)
   globalThis.fetch = async (url: any) => {
     if (String(url).includes('chat/completions')) {
-      return new Response(JSON.stringify({
-        choices: [{
-          message: {
-            content: JSON.stringify({
-              traits: { content: 3, pronunciation: 4, oralFluency: 5 },
-              feedback: ['Clear pronunciation with natural rhythm'],
-            }),
-          },
-        }],
-      }), { status: 200 })
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  traits: { content: 3, pronunciation: 4, oralFluency: 5 },
+                  feedback: ['Clear pronunciation with natural rhythm'],
+                }),
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      )
     }
     return origFetch(url)
   }
@@ -1916,22 +2488,30 @@ async function main() {
     'The quick brown fox jumps over the lazy dog.',
     'gsk_test_key',
   )
-  assert(speakingEval !== null && speakingEval.rawScore === 12, 'evaluateWithAi evaluates speaking item')
+  assert(
+    speakingEval !== null && speakingEval.rawScore === 12,
+    'evaluateWithAi evaluates speaking item',
+  )
   assert(speakingEval?.traits.oralFluency === 1, 'oral fluency 5/5 normalized to 1')
 
   // 5. evaluateWithAi summarize-spoken-text (sst)
   globalThis.fetch = async (url: any) => {
     if (String(url).includes('chat/completions')) {
-      return new Response(JSON.stringify({
-        choices: [{
-          message: {
-            content: JSON.stringify({
-              traits: { content: 2, grammar: 2, vocabulary: 2, spelling: 2 },
-              feedback: ['Comprehensive summary'],
-            }),
-          },
-        }],
-      }), { status: 200 })
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  traits: { content: 2, grammar: 2, vocabulary: 2, spelling: 2 },
+                  feedback: ['Comprehensive summary'],
+                }),
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      )
     }
     return origFetch(url)
   }
@@ -1946,16 +2526,21 @@ async function main() {
   // 6. evaluateWithAi summarize-written-text (swt)
   globalThis.fetch = async (url: any) => {
     if (String(url).includes('chat/completions')) {
-      return new Response(JSON.stringify({
-        choices: [{
-          message: {
-            content: JSON.stringify({
-              traits: { content: 2, form: 1, grammar: 2, vocabulary: 2 },
-              feedback: ['Single complete sentence maintained'],
-            }),
-          },
-        }],
-      }), { status: 200 })
+      return new Response(
+        JSON.stringify({
+          choices: [
+            {
+              message: {
+                content: JSON.stringify({
+                  traits: { content: 2, form: 1, grammar: 2, vocabulary: 2 },
+                  feedback: ['Single complete sentence maintained'],
+                }),
+              },
+            },
+          ],
+        }),
+        { status: 200 },
+      )
     }
     return origFetch(url)
   }
@@ -1969,35 +2554,68 @@ async function main() {
 
   // 7. evaluateWithAi error paths
   globalThis.fetch = async () => new Response('Internal error', { status: 500 })
-  assert((await evaluateWithAi({ id: 'item-err-1', type: 'write-essay' }, undefined, 'text', 'key')) === null, 'evaluateWithAi handles 500 API response')
+  assert(
+    (await evaluateWithAi({ id: 'item-err-1', type: 'write-essay' }, undefined, 'text', 'key')) ===
+      null,
+    'evaluateWithAi handles 500 API response',
+  )
 
-  globalThis.fetch = async () => { throw new Error('API unreachable') }
-  assert((await evaluateWithAi({ id: 'item-err-2', type: 'write-essay' }, undefined, 'text', 'key')) === null, 'evaluateWithAi handles network throw')
+  globalThis.fetch = async () => {
+    throw new Error('API unreachable')
+  }
+  assert(
+    (await evaluateWithAi({ id: 'item-err-2', type: 'write-essay' }, undefined, 'text', 'key')) ===
+      null,
+    'evaluateWithAi handles network throw',
+  )
 
   // 8. transcribeWithWhisper
-  assert((await transcribeWithWhisper(new Blob([]), 'gsk_test_key')) === null, 'transcribeWithWhisper returns null on empty blob')
-  assert((await transcribeWithWhisper(new Blob(['data'], { type: 'audio/webm' }), '')) === null, 'transcribeWithWhisper returns null on empty key')
+  assert(
+    (await transcribeWithWhisper(new Blob([]), 'gsk_test_key')) === null,
+    'transcribeWithWhisper returns null on empty blob',
+  )
+  assert(
+    (await transcribeWithWhisper(new Blob(['data'], { type: 'audio/webm' }), '')) === null,
+    'transcribeWithWhisper returns null on empty key',
+  )
 
   globalThis.fetch = async (url: any, opts: any) => {
     if (String(url).includes('audio/transcriptions')) {
-      return new Response(JSON.stringify({
-        text: 'This is the transcribed speech from Whisper.',
-        duration: 3.5,
-        words: [{ word: 'This', start: 0.1, end: 0.3 }],
-      }), { status: 200 })
+      return new Response(
+        JSON.stringify({
+          text: 'This is the transcribed speech from Whisper.',
+          duration: 3.5,
+          words: [{ word: 'This', start: 0.1, end: 0.3 }],
+        }),
+        { status: 200 },
+      )
     }
     return origFetch(url, opts)
   }
-  const whisperResult = await transcribeWithWhisper(new Blob(['dummy-mp4-data'], { type: 'audio/mp4' }), 'gsk_test_key')
+  const whisperResult = await transcribeWithWhisper(
+    new Blob(['dummy-mp4-data'], { type: 'audio/mp4' }),
+    'gsk_test_key',
+  )
   assert(whisperResult !== null, 'transcribeWithWhisper transcribes audio')
-  assert(whisperResult?.text === 'This is the transcribed speech from Whisper.', 'transcription text match')
+  assert(
+    whisperResult?.text === 'This is the transcribed speech from Whisper.',
+    'transcription text match',
+  )
   assert(whisperResult?.duration === 3.5, 'transcription duration match')
 
   globalThis.fetch = async () => new Response('Error', { status: 400 })
-  assert((await transcribeWithWhisper(new Blob(['data'], { type: 'audio/wav' }), 'key')) === null, 'transcribeWithWhisper handles 400 response')
+  assert(
+    (await transcribeWithWhisper(new Blob(['data'], { type: 'audio/wav' }), 'key')) === null,
+    'transcribeWithWhisper handles 400 response',
+  )
 
-  globalThis.fetch = async () => { throw new Error('Network error') }
-  assert((await transcribeWithWhisper(new Blob(['data'], { type: 'audio/ogg' }), 'key')) === null, 'transcribeWithWhisper handles network throw')
+  globalThis.fetch = async () => {
+    throw new Error('Network error')
+  }
+  assert(
+    (await transcribeWithWhisper(new Blob(['data'], { type: 'audio/ogg' }), 'key')) === null,
+    'transcribeWithWhisper handles network throw',
+  )
 
   globalThis.fetch = origFetch
 
@@ -2006,7 +2624,10 @@ async function main() {
   // --------------------------------------------------------------------------
   console.log('\n--- 30. Speech Prosody, Web Speech & Web Audio ---')
   // 1. cleanProsodyText
-  assert(cleanProsodyText('First—second – third    fourth') === 'First, second, third fourth', 'cleanProsodyText cleans dashes and extra spaces')
+  assert(
+    cleanProsodyText('First—second – third    fourth') === 'First, second, third fourth',
+    'cleanProsodyText cleans dashes and extra spaces',
+  )
 
   // 2. Mock SpeechSynthesis & Voices
   const mockVoices = [
@@ -2018,7 +2639,9 @@ async function main() {
 
   let synthSpeaking = false
   const mockSynth = {
-    get speaking() { return synthSpeaking },
+    get speaking() {
+      return synthSpeaking
+    },
     getVoices: () => mockVoices,
     speak: (utter: any) => {
       synthSpeaking = true
@@ -2027,7 +2650,9 @@ async function main() {
         synthSpeaking = false
       }, 10)
     },
-    cancel: () => { synthSpeaking = false },
+    cancel: () => {
+      synthSpeaking = false
+    },
     resume: () => undefined,
     addEventListener: (_event: string, cb: any) => cb(),
   }
@@ -2063,7 +2688,9 @@ async function main() {
     pitch: number = 1
     onend: any
     onerror: any
-    constructor(text: string) { this.text = text }
+    constructor(text: string) {
+      this.text = text
+    }
   }
 
   assert(isSpeechSupported(), 'isSpeechSupported returns true when window.speechSynthesis present')
@@ -2080,8 +2707,12 @@ async function main() {
   let turnStarted = false
   let playbackEnded = false
   const ctrl = await speakScript(testScript, {
-    onTurnStart: () => { turnStarted = true },
-    onEnd: () => { playbackEnded = true },
+    onTurnStart: () => {
+      turnStarted = true
+    },
+    onEnd: () => {
+      playbackEnded = true
+    },
   })
   assert(ctrl.speaking, 'speakScript begins in speaking state')
   await new Promise((r) => setTimeout(r, 300))
@@ -2090,7 +2721,11 @@ async function main() {
 
   // 4. speakText
   let textSpoken = false
-  await speakText('Ad-hoc prompt announcement', { onEnd: () => { textSpoken = true } })
+  await speakText('Ad-hoc prompt announcement', {
+    onEnd: () => {
+      textSpoken = true
+    },
+  })
   await new Promise((r) => setTimeout(r, 300))
   assert(textSpoken, 'speakText speaks ad-hoc prompt string')
 
@@ -2109,12 +2744,16 @@ async function main() {
       setValueAtTime: () => undefined,
       exponentialRampToValueAtTime: () => undefined,
     }
-    connect(dest: any) { return dest }
+    connect(dest: any) {
+      return dest
+    }
   }
   class MockOscillator {
     type: string = 'sine'
     frequency = { value: 440 }
-    connect(dest: any) { return dest }
+    connect(dest: any) {
+      return dest
+    }
     start() {}
     stop() {}
   }
@@ -2122,8 +2761,12 @@ async function main() {
     currentTime = 0
     state = 'running'
     destination = {}
-    createOscillator() { return new MockOscillator() }
-    createGain() { return new MockGain() }
+    createOscillator() {
+      return new MockOscillator()
+    }
+    createGain() {
+      return new MockGain()
+    }
     resume = async () => undefined
   }
   ;(globalThis as any).window.AudioContext = MockAudioContext
@@ -2163,18 +2806,30 @@ async function main() {
   // Quota exception handled in memory
   shouldThrowLs = true
   safeStorage.setItem('key2', 'value2')
-  assert(safeStorage.getItem('key2') === 'value2', 'safeStateStorage preserves in memory when setItem throws')
+  assert(
+    safeStorage.getItem('key2') === 'value2',
+    'safeStateStorage preserves in memory when setItem throws',
+  )
   safeStorage.removeItem('key1')
   shouldThrowLs = false
 
   // 2. throttledStateStorage
   const throttledStorage = throttledStateStorage(50)
   throttledStorage.setItem('throttleKey', 'initial')
-  assert(throttledStorage.getItem('throttleKey') === 'initial', 'throttledStateStorage retrieves pending write immediately')
+  assert(
+    throttledStorage.getItem('throttleKey') === 'initial',
+    'throttledStateStorage retrieves pending write immediately',
+  )
   await new Promise((r) => setTimeout(r, 70))
-  assert(mockStorageMap.get('throttleKey') === 'initial', 'throttledStateStorage flushes to storage after delay')
+  assert(
+    mockStorageMap.get('throttleKey') === 'initial',
+    'throttledStateStorage flushes to storage after delay',
+  )
   throttledStorage.removeItem('throttleKey')
-  assert(throttledStorage.getItem('throttleKey') === null, 'throttledStateStorage removeItem clears pending write')
+  assert(
+    throttledStorage.getItem('throttleKey') === null,
+    'throttledStateStorage removeItem clears pending write',
+  )
 
   // 3. guestOwner.ts
   const guestId1 = getGuestOwnerId()
@@ -2190,8 +2845,14 @@ async function main() {
     })
   }
   const hooksMarkup = renderToStaticMarkup(React.createElement(HooksTestComp))
-  assert(hooksMarkup.includes('data-ready="false"'), 'useClientReady returns false during server render snapshot')
-  assert(hooksMarkup.includes('data-owner="null"'), 'useLocalOwnerId returns null during server render snapshot')
+  assert(
+    hooksMarkup.includes('data-ready="false"'),
+    'useClientReady returns false during server render snapshot',
+  )
+  assert(
+    hooksMarkup.includes('data-owner="null"'),
+    'useLocalOwnerId returns null during server render snapshot',
+  )
 
   // 5. motion.ts
   ;(globalThis as any).window.matchMedia = (query: string) => ({
@@ -2206,9 +2867,16 @@ async function main() {
 
   // 6. recorder.ts
   assert(!isRecordingSupported(), 'isRecordingSupported returns false in server environment')
-  assert(!isSpeechRecognitionSupported(), 'isSpeechRecognitionSupported returns false when recognition missing')
+  assert(
+    !isSpeechRecognitionSupported(),
+    'isSpeechRecognitionSupported returns false when recognition missing',
+  )
   let recorderError = ''
-  const recorder = new VoiceRecorder({ onError: (m) => { recorderError = m } })
+  const recorder = new VoiceRecorder({
+    onError: (m) => {
+      recorderError = m
+    },
+  })
   assert(recorder.getState() === 'idle', 'VoiceRecorder starts in idle state')
   const started = await recorder.start()
   assert(!started, 'VoiceRecorder fails to start when recording unsupported')
@@ -2228,20 +2896,30 @@ async function main() {
   const origDexieVersion = Dexie.prototype.version
   Dexie.prototype.version = function () {
     ;(this as any).attempts = {
-      put: async (a: AttemptRecord) => { dbAttemptsMap.set(a.id, a) },
+      put: async (a: AttemptRecord) => {
+        dbAttemptsMap.set(a.id, a)
+      },
       get: async (id: string) => dbAttemptsMap.get(id),
-      delete: async (id: string) => { dbAttemptsMap.delete(id) },
-      clear: async () => { dbAttemptsMap.clear() },
+      delete: async (id: string) => {
+        dbAttemptsMap.delete(id)
+      },
+      clear: async () => {
+        dbAttemptsMap.clear()
+      },
       orderBy: () => ({
         reverse: () => ({
           toArray: async () => Array.from(dbAttemptsMap.values()),
-          limit: (n: number) => ({ toArray: async () => Array.from(dbAttemptsMap.values()).slice(0, n) }),
+          limit: (n: number) => ({
+            toArray: async () => Array.from(dbAttemptsMap.values()).slice(0, n),
+          }),
         }),
       }),
     }
     ;(this as any).kv = {
       get: async (key: string) => dbKvMap.get(key),
-      put: async (row: any) => { dbKvMap.set(row.key, row) },
+      put: async (row: any) => {
+        dbKvMap.set(row.key, row)
+      },
     }
     return { stores: () => this }
   } as any
@@ -2273,7 +2951,10 @@ async function main() {
 
   // 2. listAttempts and listAllAttempts
   const allAttempts = await listAllAttempts('owner-abc')
-  assert(allAttempts.length === 1 && allAttempts[0]?.id === 'att-local-1', 'listAllAttempts filters by owner')
+  assert(
+    allAttempts.length === 1 && allAttempts[0]?.id === 'att-local-1',
+    'listAllAttempts filters by owner',
+  )
   const pagedAttempts = await listAttempts(10, 'owner-abc')
   assert(pagedAttempts.length === 1, 'listAttempts limits results')
 
@@ -2316,7 +2997,10 @@ async function main() {
   assert(hasResponse({ text: 'candidate essay text' }), 'hasResponse true for text')
   assert(hasResponse({ transcript: 'candidate speech' }), 'hasResponse true for transcript')
   assert(hasResponse({ audio: { durationMs: 1500 } as any }), 'hasResponse true for audio > 500ms')
-  assert(!hasResponse({ audio: { durationMs: 200 } as any }), 'hasResponse false for audio <= 500ms')
+  assert(
+    !hasResponse({ audio: { durationMs: 200 } as any }),
+    'hasResponse false for audio <= 500ms',
+  )
 
   // Assemble mock and run lifecycle
   const testMock = buildFullMock(42)
@@ -2374,45 +3058,56 @@ async function main() {
   globalThis.fetch = async (url: any, opts: any) => {
     const sUrl = String(url)
     if (sUrl.includes('/api/auth/login')) {
-      return new Response(JSON.stringify({
-        token: 'auth-test-token-123',
-        user: { id: 'usr-auth-1', email: 'test@pteprep.com', targetScore: 79 },
-        expiresAt: Date.now() + 3600000,
-      }), { status: 200 })
+      return new Response(
+        JSON.stringify({
+          token: 'auth-test-token-123',
+          user: { id: 'usr-auth-1', email: 'test@pteprep.com', targetScore: 79 },
+          expiresAt: Date.now() + 3600000,
+        }),
+        { status: 200 },
+      )
     }
     if (sUrl.includes('/api/auth/me') && opts?.method === 'PATCH') {
       return new Response(JSON.stringify({ ok: true }), { status: 200 })
     }
     if (sUrl.includes('/api/auth/me')) {
-      return new Response(JSON.stringify({
-        user: { id: 'usr-auth-1', email: 'test@pteprep.com', targetScore: 79 },
-        expiresAt: Date.now() + 3600000,
-      }), { status: 200 })
+      return new Response(
+        JSON.stringify({
+          user: { id: 'usr-auth-1', email: 'test@pteprep.com', targetScore: 79 },
+          expiresAt: Date.now() + 3600000,
+        }),
+        { status: 200 },
+      )
     }
     if (sUrl.includes('/api/auth/logout')) {
       return new Response(JSON.stringify({ ok: true }), { status: 200 })
     }
     if (sUrl.includes('/api/attempts?ids=1')) {
-      return new Response(JSON.stringify({ ids: ['att-cloud-1'], hasMore: false, nextOffset: 1 }), { status: 200 })
+      return new Response(JSON.stringify({ ids: ['att-cloud-1'], hasMore: false, nextOffset: 1 }), {
+        status: 200,
+      })
     }
     if (sUrl.includes('/api/attempts/att-cloud-1')) {
-      return new Response(JSON.stringify({
-        attempt: {
-          id: 'att-cloud-1',
-          userId: 'usr-auth-1',
-          mockId: 'm1',
-          mockTitle: 'Cloud Mock',
-          mode: 'full',
-          startedAt: '2026-10-19T10:00:00Z',
-          finishedAt: '2026-10-19T12:00:00Z',
-          durationMs: 7200000,
-          overallScore: 82,
-          cefr: 'C1',
-          earnedPoints: 75,
-          availablePoints: 90,
-          skillScores: { speaking: 82, writing: 82, reading: 82, listening: 82 },
-        },
-      }), { status: 200 })
+      return new Response(
+        JSON.stringify({
+          attempt: {
+            id: 'att-cloud-1',
+            userId: 'usr-auth-1',
+            mockId: 'm1',
+            mockTitle: 'Cloud Mock',
+            mode: 'full',
+            startedAt: '2026-10-19T10:00:00Z',
+            finishedAt: '2026-10-19T12:00:00Z',
+            durationMs: 7200000,
+            overallScore: 82,
+            cefr: 'C1',
+            earnedPoints: 75,
+            availablePoints: 90,
+            skillScores: { speaking: 82, writing: 82, reading: 82, listening: 82 },
+          },
+        }),
+        { status: 200 },
+      )
     }
     if (sUrl.includes('/api/attempts') && opts?.method === 'POST') {
       return new Response(JSON.stringify({ ok: true }), { status: 200 })
@@ -2435,9 +3130,18 @@ async function main() {
   assert(useAuth.getState().user !== null, 'useAuth checkSession confirms valid session')
 
   // 2. sync.ts: canPushAttemptToCloud
-  assert(canPushAttemptToCloud({ userId: 'usr-auth-1' }, 'usr-auth-1'), 'canPushAttemptToCloud allows owned record')
-  assert(!canPushAttemptToCloud({ userId: 'usr-auth-1' }, 'different-user'), 'canPushAttemptToCloud rejects other user record')
-  assert(!canPushAttemptToCloud({} as any, 'usr-auth-1'), 'canPushAttemptToCloud rejects unowned guest record')
+  assert(
+    canPushAttemptToCloud({ userId: 'usr-auth-1' }, 'usr-auth-1'),
+    'canPushAttemptToCloud allows owned record',
+  )
+  assert(
+    !canPushAttemptToCloud({ userId: 'usr-auth-1' }, 'different-user'),
+    'canPushAttemptToCloud rejects other user record',
+  )
+  assert(
+    !canPushAttemptToCloud({} as any, 'usr-auth-1'),
+    'canPushAttemptToCloud rejects unowned guest record',
+  )
 
   // 3. syncAttemptToCloud & fetchAttemptFromCloud
   const syncOk = await syncAttemptToCloud({
@@ -2463,7 +3167,10 @@ async function main() {
 
   // 4. syncCloudToLocal
   const syncResult = await syncCloudToLocal()
-  assert(typeof syncResult.pulled === 'number' && typeof syncResult.pushed === 'number', 'syncCloudToLocal performs pull and push reconciliation')
+  assert(
+    typeof syncResult.pulled === 'number' && typeof syncResult.pushed === 'number',
+    'syncCloudToLocal performs pull and push reconciliation',
+  )
 
   // 5. deleteAttemptEverywhere and clearAllAttemptsEverywhere
   const delEverywhere = await deleteAttemptEverywhere('att-cloud-1')
@@ -2493,9 +3200,15 @@ async function main() {
   const defaultUsage = createDefaultAiUsage()
   assert(defaultUsage.totalRequests === 0, 'createDefaultAiUsage returns zeroed metrics')
   useSettings.getState().recordAiUsage({ totalTokens: 100, promptTokens: 60, completionTokens: 40 })
-  assert(useSettings.getState().settings.aiUsage.totalTokens === 100, 'recordAiUsage increments LLM usage')
+  assert(
+    useSettings.getState().settings.aiUsage.totalTokens === 100,
+    'recordAiUsage increments LLM usage',
+  )
   useSettings.getState().recordAiUsage({ whisperSeconds: 4.5 })
-  assert(useSettings.getState().settings.aiUsage.whisperSeconds === 4.5, 'recordAiUsage increments Whisper usage')
+  assert(
+    useSettings.getState().settings.aiUsage.whisperSeconds === 4.5,
+    'recordAiUsage increments Whisper usage',
+  )
   useSettings.getState().resetAiUsage()
   assert(useSettings.getState().settings.aiUsage.totalTokens === 0, 'resetAiUsage zeroes metrics')
   useSettings.getState().reset()
@@ -2510,8 +3223,14 @@ async function main() {
   const previewFull = describeMockPreview({ 'read-aloud': 5, 'write-essay': 1 })
   assert(previewFull.scoredCount === 6, 'describeMockPreview counts scored items')
   assert(previewFull.sectionIds.length === 3, 'describeMockPreview defaults to 3 sections')
-  const previewReading = describeMockPreview({ 'fill-in-blanks-dropdown': 4 }, { singleSection: 'reading', untimed: true })
-  assert(previewReading.sectionIds.length === 1 && previewReading.sectionIds[0] === 'reading', 'describeMockPreview singleSection')
+  const previewReading = describeMockPreview(
+    { 'fill-in-blanks-dropdown': 4 },
+    { singleSection: 'reading', untimed: true },
+  )
+  assert(
+    previewReading.sectionIds.length === 1 && previewReading.sectionIds[0] === 'reading',
+    'describeMockPreview singleSection',
+  )
 
   // 3. pace.ts: formatSeconds, paceReport, paceWarnings
   assert(formatSeconds(0) === '0s', 'formatSeconds 0s')
@@ -2520,8 +3239,26 @@ async function main() {
   assert(formatSeconds(85) === '1m 25s', 'formatSeconds 1m 25s')
 
   const paceItems: Item[] = [
-    { id: 'ra-1', type: 'read-aloud', section: 'speaking-writing', responseKind: 'audio', maxPoints: 3, seconds: 40, stimulusId: 's1', groupId: 'g1' },
-    { id: 'ra-2', type: 'read-aloud', section: 'speaking-writing', responseKind: 'audio', maxPoints: 3, seconds: 40, stimulusId: 's2', groupId: 'g2' },
+    {
+      id: 'ra-1',
+      type: 'read-aloud',
+      section: 'speaking-writing',
+      responseKind: 'audio',
+      maxPoints: 3,
+      seconds: 40,
+      stimulusId: 's1',
+      groupId: 'g1',
+    },
+    {
+      id: 'ra-2',
+      type: 'read-aloud',
+      section: 'speaking-writing',
+      responseKind: 'audio',
+      maxPoints: 3,
+      seconds: 40,
+      stimulusId: 's2',
+      groupId: 'g2',
+    },
   ]
   const paceResponses: Record<string, ItemResponse> = {
     'ra-1': { secondsOnItem: 60 },
@@ -2534,7 +3271,15 @@ async function main() {
   assert(warnings.length === 1, 'paceWarnings returns over-budget rows')
 
   // 4. scoring.ts: toCefr, cefrLabel, nextBand, pteToIelts, endsWithSentencePunctuation
-  assert(toCefr(90) === 'C2' && toCefr(80) === 'C1' && toCefr(65) === 'B2' && toCefr(50) === 'B1' && toCefr(35) === 'A2' && toCefr(20) === 'A1', 'toCefr maps scores across all CEFR bands')
+  assert(
+    toCefr(90) === 'C2' &&
+      toCefr(80) === 'C1' &&
+      toCefr(65) === 'B2' &&
+      toCefr(50) === 'B1' &&
+      toCefr(35) === 'A2' &&
+      toCefr(20) === 'A1',
+    'toCefr maps scores across all CEFR bands',
+  )
   assert(cefrLabel('C2') === 'Exceptional', 'cefrLabel maps C2 to Exceptional')
   assert(cefrLabel('unknown') === '', 'cefrLabel returns empty for unknown band')
   assert(nextBand('C2') === null, 'nextBand returns null for highest band C2')
@@ -2542,10 +3287,22 @@ async function main() {
   assert(pteToIelts(90) === '9.0', 'pteToIelts maps 90 to 9.0')
   assert(pteToIelts(86) === '8.5', 'pteToIelts maps 86 to 8.5')
   assert(pteToIelts(15) === null, 'pteToIelts returns null below minimum concordance')
-  assert(endsWithSentencePunctuation('This is a complete sentence.'), 'endsWithSentencePunctuation true for full stop')
-  assert(endsWithSentencePunctuation('Is this a question?'), 'endsWithSentencePunctuation true for question mark')
-  assert(endsWithSentencePunctuation('“Quoted ending.”'), 'endsWithSentencePunctuation true for quoted sentence')
-  assert(!endsWithSentencePunctuation('Unfinished sentence fragment'), 'endsWithSentencePunctuation false for unpunctuated text')
+  assert(
+    endsWithSentencePunctuation('This is a complete sentence.'),
+    'endsWithSentencePunctuation true for full stop',
+  )
+  assert(
+    endsWithSentencePunctuation('Is this a question?'),
+    'endsWithSentencePunctuation true for question mark',
+  )
+  assert(
+    endsWithSentencePunctuation('“Quoted ending.”'),
+    'endsWithSentencePunctuation true for quoted sentence',
+  )
+  assert(
+    !endsWithSentencePunctuation('Unfinished sentence fragment'),
+    'endsWithSentencePunctuation false for unpunctuated text',
+  )
 
   // 5. manifest.ts
   assert(getManifest().length === 22, 'getManifest returns all 22 question types')
@@ -2554,7 +3311,10 @@ async function main() {
   assert(typesForSkill('reading').length > 0, 'typesForSkill returns types for reading')
   assert(typesForSkill('listening').length > 0, 'typesForSkill returns types for listening')
   assert(manifestBankCapacity() === 1200, 'manifestBankCapacity returns 1200')
-  assert(Object.keys(manifestCapacityByType()).length === 22, 'manifestCapacityByType returns all types')
+  assert(
+    Object.keys(manifestCapacityByType()).length === 22,
+    'manifestCapacityByType returns all types',
+  )
 
   // 6. seo: meta.ts & structured.ts
   const homeMeta = getPageMeta('/')
@@ -2567,9 +3327,16 @@ async function main() {
   assert(webApp['@type'] === 'WebApplication', 'webApplicationLd produces valid schema')
   const faqSchema = faqLd([{ question: 'Q?', answer: 'A.' }])
   assert(faqSchema['@type'] === 'FAQPage', 'faqLd produces FAQPage schema')
-  const breadcrumb = breadcrumbLd([{ name: 'Home', path: '/' }, { name: 'Practice', path: '/practice' }])
+  const breadcrumb = breadcrumbLd([
+    { name: 'Home', path: '/' },
+    { name: 'Practice', path: '/practice' },
+  ])
   assert(breadcrumb['@type'] === 'BreadcrumbList', 'breadcrumbLd produces BreadcrumbList schema')
-  const howTo = howToLd({ name: 'How to prepare', description: 'Steps', steps: [{ name: 'Step 1', text: 'Practice' }] })
+  const howTo = howToLd({
+    name: 'How to prepare',
+    description: 'Steps',
+    steps: [{ name: 'Step 1', text: 'Practice' }],
+  })
   assert(howTo['@type'] === 'HowTo', 'howToLd produces HowTo schema')
   const itemLd = itemListLd([{ name: 'Item 1', path: '/p1' }])
   assert(itemLd['@type'] === 'ItemList', 'itemListLd produces ItemList schema')

@@ -144,7 +144,11 @@ function ActivityHeatmapGrid({
       {/* Weekday axis */}
       <div className="flex flex-col justify-between" style={{ gap: CELL_GAP }}>
         {DAY_LABELS.map((d, i) => (
-          <span key={i} className="text-ink-500 dark:text-ink-on-dark-muted h-3 text-[9px] font-semibold" style={{ height: CELL }}>
+          <span
+            key={i}
+            className="text-ink-500 dark:text-ink-on-dark-muted h-3 text-[9px] font-semibold"
+            style={{ height: CELL }}
+          >
             {d}
           </span>
         ))}
@@ -176,11 +180,20 @@ function ActivityHeatmapGrid({
       </div>
       {/* Legend */}
       <div className="ml-2 flex items-center gap-1">
-        <span className="text-ink-500 dark:text-ink-on-dark-muted text-[9px] font-semibold">Less</span>
+        <span className="text-ink-500 dark:text-ink-on-dark-muted text-[9px] font-semibold">
+          Less
+        </span>
         {LEVEL_CLASS.map((c, i) => (
-          <span key={i} className={cn('rounded-[3px]', c)} style={{ width: 10, height: 10 }} aria-hidden="true" />
+          <span
+            key={i}
+            className={cn('rounded-[3px]', c)}
+            style={{ width: 10, height: 10 }}
+            aria-hidden="true"
+          />
         ))}
-        <span className="text-ink-500 dark:text-ink-on-dark-muted text-[9px] font-semibold">More</span>
+        <span className="text-ink-500 dark:text-ink-on-dark-muted text-[9px] font-semibold">
+          More
+        </span>
       </div>
     </div>
   )

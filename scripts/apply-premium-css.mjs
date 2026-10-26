@@ -1,6 +1,6 @@
-import fs from 'fs';
+import fs from 'fs'
 
-let css = fs.readFileSync('src/index.css', 'utf-8');
+let css = fs.readFileSync('src/index.css', 'utf-8')
 
 // 1. Add premium shadows
 css = css.replace(
@@ -10,8 +10,8 @@ css = css.replace(
   --shadow-premium-light: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03), 0 8px 24px rgba(0,0,0,0.02);
   --shadow-premium-dark: 0 1px 2px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15);
   --shadow-premium-inset: inset 0 1px 0 rgba(255,255,255,0.08);
-  --shadow-premium-inset-light: inset 0 1px 0 rgba(255,255,255,0.7);`
-);
+  --shadow-premium-inset-light: inset 0 1px 0 rgba(255,255,255,0.7);`,
+)
 
 // 2. We will just use `replace` carefully, strictly matching the entire blocks.
 
@@ -21,7 +21,7 @@ const oldCard = `@utility card {
   &:where(.dark, .dark *) {
     @apply border-white/10 bg-white/[0.035] shadow-xs;
   }
-}`;
+}`
 
 const newCard = `@utility card {
   @apply bg-white border-ink-200 rounded-xl border p-6 sm:p-8 transition-[border-color,box-shadow,translate,background-color,transform] duration-300;
@@ -32,7 +32,7 @@ const newCard = `@utility card {
     background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
     box-shadow: var(--shadow-premium-dark), var(--shadow-premium-inset);
   }
-}`;
+}`
 
 const oldCardInteractive = `@utility card-interactive {
   @apply card;
@@ -48,7 +48,7 @@ const oldCardInteractive = `@utility card-interactive {
     @apply shadow-lg;
     border-color: var(--color-brand-400);
   }
-}`;
+}`
 
 const newCardInteractive = `@utility card-interactive {
   @apply card relative overflow-hidden;
@@ -63,7 +63,7 @@ const newCardInteractive = `@utility card-interactive {
     border-color: var(--color-brand-400);
     box-shadow: 0 12px 32px rgba(0,0,0,0.4), var(--shadow-premium-inset);
   }
-}`;
+}`
 
 const oldCardSolid = `@utility card-solid {
   @apply bg-white border-ink-200 rounded-xl border p-6 sm:p-8 transition-[border-color,box-shadow,translate,background-color] duration-200;
@@ -71,7 +71,7 @@ const oldCardSolid = `@utility card-solid {
   &:where(.dark, .dark *) {
     @apply bg-ink-850 border-white/12 shadow-xs;
   }
-}`;
+}`
 
 const newCardSolid = `@utility card-solid {
   @apply bg-white border-ink-200 rounded-xl border p-6 sm:p-8 transition-all duration-300;
@@ -82,7 +82,7 @@ const newCardSolid = `@utility card-solid {
     background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%), var(--color-ink-850);
     box-shadow: var(--shadow-premium-dark), var(--shadow-premium-inset);
   }
-}`;
+}`
 
 const oldBtnPrimary = `@utility btn-primary {
   @apply btn bg-brand-500 text-white;
@@ -115,7 +115,7 @@ const oldBtnPrimary = `@utility btn-primary {
   &:hover::before {
     opacity: 1;
   }
-}`;
+}`
 
 const newBtnPrimary = `@utility btn-primary {
   @apply btn text-white;
@@ -135,7 +135,7 @@ const newBtnPrimary = `@utility btn-primary {
     background: var(--color-brand-600);
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
   }
-}`;
+}`
 
 const oldBtnSecondary = `@utility btn-secondary {
   @apply btn border border-ink-200 bg-white text-ink-700;
@@ -144,7 +144,7 @@ const oldBtnSecondary = `@utility btn-secondary {
   &:where(.dark, .dark *) {
     @apply border-white/12 bg-white/6 text-ink-100 hover:bg-white/10 dark:hover:border-white/20;
   }
-}`;
+}`
 
 const newBtnSecondary = `@utility btn-secondary {
   @apply btn border border-ink-200 bg-white text-ink-800;
@@ -169,12 +169,12 @@ const newBtnSecondary = `@utility btn-secondary {
       box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 4px 12px rgba(0,0,0,0.3);
     }
   }
-}`;
+}`
 
-css = css.replace(oldCard, newCard);
-css = css.replace(oldCardInteractive, newCardInteractive);
-css = css.replace(oldCardSolid, newCardSolid);
-css = css.replace(oldBtnPrimary, newBtnPrimary);
-css = css.replace(oldBtnSecondary, newBtnSecondary);
+css = css.replace(oldCard, newCard)
+css = css.replace(oldCardInteractive, newCardInteractive)
+css = css.replace(oldCardSolid, newCardSolid)
+css = css.replace(oldBtnPrimary, newBtnPrimary)
+css = css.replace(oldBtnSecondary, newBtnSecondary)
 
-fs.writeFileSync('src/index.css', css);
+fs.writeFileSync('src/index.css', css)

@@ -99,7 +99,8 @@ export function weakestTypes(attempts: AttemptRecord[], limit = 3, practised = f
       // Measured types first, weakest at the top of them; never-attempted after.
       if (a.untested !== b.untested) return a.untested ? 1 : -1
       /* v8 ignore next -- a measured type always has a priority */
-      if (!a.untested && !b.untested && a.priority !== b.priority) return (a.priority ?? 0) - (b.priority ?? 0)
+      if (!a.untested && !b.untested && a.priority !== b.priority)
+        return (a.priority ?? 0) - (b.priority ?? 0)
       // Stable, meaningful tie-break: fewer attempts seen is less certain, so it
       // comes first and is worth looking at.
       if (a.attemptsSeen !== b.attemptsSeen) return a.attemptsSeen - b.attemptsSeen

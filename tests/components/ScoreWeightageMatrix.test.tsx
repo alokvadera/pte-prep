@@ -97,7 +97,9 @@ describe('ScoreWeightageMatrix', () => {
     await user.click(screen.getByRole('button', { name: 'writing' }))
 
     expect(container.textContent).toContain('Showing 6 of 22 question types')
-    expect(screen.getByText('Highlighted: all tasks that provide marks toward writing')).toBeInTheDocument()
+    expect(
+      screen.getByText('Highlighted: all tasks that provide marks toward writing'),
+    ).toBeInTheDocument()
 
     // Only the tasks that feed Writing survive the filter.
     const names = cardNames()
@@ -151,8 +153,12 @@ describe('ScoreWeightageMatrix', () => {
   it('warns that the point values are estimates, not published weights', () => {
     renderMatrix()
 
-    const callout = screen.getByText('Estimates, not official weights').closest('div') as HTMLElement
-    expect(within(callout).getByText(/Pearson does not publish official per-item point values/i)).toBeInTheDocument()
+    const callout = screen
+      .getByText('Estimates, not official weights')
+      .closest('div') as HTMLElement
+    expect(
+      within(callout).getByText(/Pearson does not publish official per-item point values/i),
+    ).toBeInTheDocument()
   })
 
   it('links every task to its detail page and to practice', () => {
@@ -162,8 +168,9 @@ describe('ScoreWeightageMatrix', () => {
       'href',
       '/question-types/write-from-dictation/',
     )
-    expect(
-      screen.getAllByRole('link', { name: 'Practice now' })[0],
-    ).toHaveAttribute('href', '/practice?type=write-from-dictation')
+    expect(screen.getAllByRole('link', { name: 'Practice now' })[0]).toHaveAttribute(
+      'href',
+      '/practice?type=write-from-dictation',
+    )
   })
 })

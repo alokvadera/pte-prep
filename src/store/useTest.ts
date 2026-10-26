@@ -3,7 +3,15 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { saveAttempt } from '../db/db'
 import { QUESTION_META } from '../domain/blueprint'
 import { buildReport } from '../domain/scoring'
-import type { AttemptRecord, ItemResponse, MockMode, MockTest, QuestionType, SectionId, Skill } from '../domain/types'
+import type {
+  AttemptRecord,
+  ItemResponse,
+  MockMode,
+  MockTest,
+  QuestionType,
+  SectionId,
+  Skill,
+} from '../domain/types'
 import { throttledStateStorage } from '../lib/storage'
 import { getGuestOwnerId } from '../lib/guestOwner'
 import { useAuth } from './useAuth'
@@ -186,7 +194,9 @@ export const useTest = create<TestStore>()(
        */
       extendSection: (seconds) =>
         set((st) =>
-          st.sectionEndsAt === null ? {} : { sectionEndsAt: st.sectionEndsAt + seconds * 1000, timeExpired: false },
+          st.sectionEndsAt === null
+            ? {}
+            : { sectionEndsAt: st.sectionEndsAt + seconds * 1000, timeExpired: false },
         ),
 
       tick: () => {
@@ -230,13 +240,17 @@ export const useTest = create<TestStore>()(
             : ownerId
 
         const attempt: AttemptRecord = {
-          id: attemptId ?? (typeof crypto !== 'undefined' && 'randomUUID' in crypto
-            ? `att-${crypto.randomUUID()}`
-            : `att-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`),
+          id:
+            attemptId ??
+            (typeof crypto !== 'undefined' && 'randomUUID' in crypto
+              ? `att-${crypto.randomUUID()}`
+              : `att-${Date.now().toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`),
           // Stamp the owner that started the test, or the newly signed-in
           // account if a guest authenticated while taking the test. A stale tab cannot
           // silently move one registered account's work into another registered account.
-          ...(effectiveOwnerId && !effectiveOwnerId.startsWith('guest:') ? { userId: effectiveOwnerId } : {}),
+          ...(effectiveOwnerId && !effectiveOwnerId.startsWith('guest:')
+            ? { userId: effectiveOwnerId }
+            : {}),
           ...(effectiveOwnerId ? { ownerId: effectiveOwnerId } : {}),
           mockId: mock.id,
           mockTitle: mock.title,

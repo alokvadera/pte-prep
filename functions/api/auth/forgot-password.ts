@@ -45,10 +45,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const senderName = context.env.BREVO_SENDER_NAME || 'PTE Prep'
   if (!brevoKey || !senderEmail) {
     console.warn('Brevo email service is not configured in environment.')
-    return new Response(
-      JSON.stringify({ error: 'Email service is currently unavailable.' }),
-      { status: 503, headers: { 'Content-Type': 'application/json' } },
-    )
+    return new Response(JSON.stringify({ error: 'Email service is currently unavailable.' }), {
+      status: 503,
+      headers: { 'Content-Type': 'application/json' },
+    })
   }
 
   // Rate limit: 10 requests per 10 minutes per IP, 3 requests per 10 minutes per email
@@ -120,7 +120,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // Store hashed token in D1
   await db
-    .prepare('INSERT INTO password_resets (id, user_id, token_hash, expires_at) VALUES (?, ?, ?, ?)')
+    .prepare(
+      'INSERT INTO password_resets (id, user_id, token_hash, expires_at) VALUES (?, ?, ?, ?)',
+    )
     .bind(resetId, user.id, tokenHash, expiresAt)
     .run()
 
@@ -129,7 +131,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const resetLink = `${origin}/reset-password?token=${encodeURIComponent(rawToken)}`
 
   const escHtml = (s: string): string => {
-    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
   }
 
   const htmlContent = `

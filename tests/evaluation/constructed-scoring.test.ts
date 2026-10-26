@@ -56,7 +56,10 @@ describe('constructed item scoring', () => {
   })
 
   it('scores a half-correct repeat as partial', () => {
-    const half = rsText.split(/\s+/).slice(0, Math.ceil(rsWords / 2)).join(' ')
+    const half = rsText
+      .split(/\s+/)
+      .slice(0, Math.ceil(rsWords / 2))
+      .join(' ')
     const ratio = scoreItem(rs, key(rs.id), { transcript: half }).ratio
     expect(ratio).toBeGreaterThan(0.1)
     expect(ratio).toBeLessThan(0.95)
@@ -133,19 +136,32 @@ describe('constructed item scoring', () => {
 
 describe('scoring modes are the ones the blueprint declares', () => {
   it('marks the spoken types as trait-composite', () => {
-    for (const type of ['read-aloud', 'repeat-sentence', 'describe-image', 'retell-lecture'] as const) {
+    for (const type of [
+      'read-aloud',
+      'repeat-sentence',
+      'describe-image',
+      'retell-lecture',
+    ] as const) {
       expect(QUESTION_META[type].scoring).toBe('trait-composite')
     }
   })
 
   it('marks the choice types as binary', () => {
-    for (const type of ['answer-short-question', 'multiple-choice-single', 'highlight-correct-summary'] as const) {
+    for (const type of [
+      'answer-short-question',
+      'multiple-choice-single',
+      'highlight-correct-summary',
+    ] as const) {
       expect(QUESTION_META[type].scoring).toBe('binary')
     }
   })
 
   it('marks the multi-select types as per-unit-negated', () => {
-    for (const type of ['multiple-choice-multiple', 'listening-multiple-choice-multiple', 'highlight-incorrect-words'] as const) {
+    for (const type of [
+      'multiple-choice-multiple',
+      'listening-multiple-choice-multiple',
+      'highlight-incorrect-words',
+    ] as const) {
       expect(QUESTION_META[type].scoring).toBe('per-unit-negated')
     }
   })

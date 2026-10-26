@@ -126,7 +126,9 @@ describe('Tilt arithmetic', () => {
     stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 20, height: 20 }) as DOMRect
 
     act(() => {
-      stage.dispatchEvent(new PointerEvent('pointermove', { clientX: 15, clientY: 15, bubbles: true }))
+      stage.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 15, clientY: 15, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -146,7 +148,9 @@ describe('Tilt arithmetic', () => {
     stage.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 200 }) as DOMRect
 
     act(() => {
-      stage.dispatchEvent(new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }))
+      stage.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 300, clientY: 150, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -179,24 +183,34 @@ describe('PointerField arithmetic', () => {
   }
 
   it('leaves a card that is out of range where it is', () => {
-    const { field, target } = fieldWith(() => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect)
+    const { field, target } = fieldWith(
+      () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect,
+    )
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 5000, clientY: 5000, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 5000, clientY: 5000, bubbles: true }),
+      )
       frames.flush()
     })
     expect(target.style.getPropertyValue('--pf-x')).toBe('')
   })
 
   it('resets a card that was already leaning', () => {
-    const { field, target } = fieldWith(() => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect)
+    const { field, target } = fieldWith(
+      () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect,
+    )
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }),
+      )
       frames.flush()
     })
     expect(target.style.getPropertyValue('--pf-x')).not.toBe('')
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 5000, clientY: 5000, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 5000, clientY: 5000, bubbles: true }),
+      )
       frames.flush()
     })
     expect(target.style.getPropertyValue('--pf-x')).toBe('0px')
@@ -205,16 +219,22 @@ describe('PointerField arithmetic', () => {
   it('skips a card with no size', () => {
     const { field, target } = fieldWith(() => ({ left: 0, top: 0, width: 0, height: 0 }) as DOMRect)
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }),
+      )
       frames.flush()
     })
     expect(target.style.getPropertyValue('--pf-x')).toBe('')
   })
 
   it('handles a pointer exactly on the centre of a card', () => {
-    const { field, target } = fieldWith(() => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect)
+    const { field, target } = fieldWith(
+      () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect,
+    )
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }),
+      )
       frames.flush()
     })
     expect(target.style.getPropertyValue('--pf-x')).not.toBe('')
@@ -223,7 +243,9 @@ describe('PointerField arithmetic', () => {
   it('does nothing when there is no pointer to apply', () => {
     const { field } = fieldWith(() => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect)
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }),
+      )
       frames.flush()
       frames.flush()
     })
@@ -232,9 +254,13 @@ describe('PointerField arithmetic', () => {
 
   it('does not drift when motion is reduced', () => {
     setMedia('(prefers-reduced-motion: reduce)', true)
-    const { field, target } = fieldWith(() => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect)
+    const { field, target } = fieldWith(
+      () => ({ left: 0, top: 0, width: 100, height: 100 }) as DOMRect,
+    )
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 50, clientY: 50, bubbles: true }),
+      )
       frames.flush()
     })
     expect(target.style.getPropertyValue('--pf-x')).toBe('')
@@ -263,9 +289,13 @@ describe('Magnetic arithmetic', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 60, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 60, clientY: 20, bubbles: true }),
+      )
       frames.flush()
-      window.dispatchEvent(new PointerEvent('pointermove', { clientX: 60, clientY: 20, bubbles: true }))
+      window.dispatchEvent(
+        new PointerEvent('pointermove', { clientX: 60, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -282,9 +312,13 @@ describe('Magnetic arithmetic', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }),
+      )
       frames.flush()
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 90, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 90, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 
@@ -301,7 +335,9 @@ describe('Magnetic arithmetic', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }),
+      )
       frames.flush()
       frames.flush()
     })
@@ -320,7 +356,9 @@ describe('Magnetic arithmetic', () => {
     field.getBoundingClientRect = () => ({ left: 0, top: 0, width: 100, height: 40 }) as DOMRect
 
     act(() => {
-      field.dispatchEvent(new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }))
+      field.dispatchEvent(
+        new PointerEvent('pointerenter', { clientX: 55, clientY: 20, bubbles: true }),
+      )
       frames.flush()
     })
 

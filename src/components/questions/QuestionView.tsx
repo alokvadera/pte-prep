@@ -41,17 +41,39 @@ const BLANK_MARKER = /______/
 export function QuestionView({ item, response, onChange, examMode, showTranscript = true }: Props) {
   switch (item.responseKind) {
     case 'choice':
-      return <ChoiceQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      return (
+        <ChoiceQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      )
     case 'multi-choice':
-      return <MultiChoiceQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      return (
+        <MultiChoiceQuestion
+          item={item}
+          response={response}
+          onChange={onChange}
+          examMode={examMode}
+        />
+      )
     case 'blanks':
-      return <BlanksQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      return (
+        <BlanksQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      )
     case 'order':
-      return <OrderQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      return (
+        <OrderQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      )
     case 'highlight':
-      return <HighlightQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      return (
+        <HighlightQuestion
+          item={item}
+          response={response}
+          onChange={onChange}
+          examMode={examMode}
+        />
+      )
     case 'text':
-      return <TextQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      return (
+        <TextQuestion item={item} response={response} onChange={onChange} examMode={examMode} />
+      )
     case 'audio':
       return (
         <AudioQuestion
@@ -109,9 +131,7 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
               className={cn(
                 'choice-row',
                 'has-[input:focus-visible]:border-brand-500 has-[input:focus-visible]:shadow-[0_0_0_1px_var(--color-brand-500)]',
-                selected
-                  ? 'choice-active'
-                  : 'choice-idle-solid',
+                selected ? 'choice-active' : 'choice-idle-solid',
               )}
             >
               <input
@@ -123,7 +143,9 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
                 onChange={() => onChange({ choice: opt })}
               />
               <span className="text-ink-700 dark:text-ink-200 text-sm leading-relaxed">
-                <span className="text-ink-500 dark:text-ink-on-dark-muted mr-2 font-mono text-xs">{LETTERS[i]}</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted mr-2 font-mono text-xs">
+                  {LETTERS[i]}
+                </span>
                 {opt}
               </span>
             </label>
@@ -132,7 +154,10 @@ function ChoiceQuestion({ item, response, onChange, examMode }: Props) {
       </div>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
-          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ No negative marking:</span> Select one best answer. Always guess if you are unsure.
+          <span className="font-semibold text-mint-700 dark:text-mint-300">
+            ✓ No negative marking:
+          </span>{' '}
+          Select one best answer. Always guess if you are unsure.
         </p>
       ) : null}
     </fieldset>
@@ -180,9 +205,7 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
               className={cn(
                 'choice-row',
                 'has-[input:focus-visible]:border-brand-500 has-[input:focus-visible]:shadow-[0_0_0_1px_var(--color-brand-500)]',
-                isOn
-                  ? 'choice-active'
-                  : 'choice-idle-solid',
+                isOn ? 'choice-active' : 'choice-idle-solid',
               )}
             >
               <input
@@ -193,7 +216,9 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
                 onChange={() => toggle(opt)}
               />
               <span className="text-ink-700 dark:text-ink-200 text-sm leading-relaxed">
-                <span className="text-ink-500 dark:text-ink-on-dark-muted mr-2 font-mono text-xs">{LETTERS[i]}</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted mr-2 font-mono text-xs">
+                  {LETTERS[i]}
+                </span>
                 {opt}
               </span>
             </label>
@@ -201,8 +226,13 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
         })}
       </div>
       <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
-        <span className="font-bold text-amber-700 dark:text-amber-300">⚠️ Negative marking (-1 per wrong option, min 0):</span>
-        <span>Only select options you are confident in. Leaving an unsure option unselected is better than guessing wrong.</span>
+        <span className="font-bold text-amber-700 dark:text-amber-300">
+          ⚠️ Negative marking (-1 per wrong option, min 0):
+        </span>
+        <span>
+          Only select options you are confident in. Leaving an unsure option unselected is better
+          than guessing wrong.
+        </span>
       </div>
     </fieldset>
   )
@@ -210,10 +240,20 @@ function MultiChoiceQuestion({ item, response, onChange, examMode }: Props) {
 
 function BlanksQuestion({ item, response, onChange, examMode }: Props) {
   if (item.type === 'fill-in-blanks-table' && item.table) {
-    return <TableBlanks table={item.table} prompt={item.prompt} response={response} onChange={onChange} examMode={examMode} />
+    return (
+      <TableBlanks
+        table={item.table}
+        prompt={item.prompt}
+        response={response}
+        onChange={onChange}
+        examMode={examMode}
+      />
+    )
   }
   if (item.type === 'fill-in-blanks-dropdown') {
-    return <DropdownBlanks item={item} response={response} onChange={onChange} examMode={examMode} />
+    return (
+      <DropdownBlanks item={item} response={response} onChange={onChange} examMode={examMode} />
+    )
   }
   return <InlineBlanks item={item} response={response} onChange={onChange} examMode={examMode} />
 }
@@ -267,7 +307,9 @@ function DropdownBlanks({ item, response, onChange, examMode }: Props) {
       </p>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-xs">
-          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ Partial credit:</span> Each correct blank earns 1 point with no penalty for errors. Read the whole text before choosing.
+          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ Partial credit:</span>{' '}
+          Each correct blank earns 1 point with no penalty for errors. Read the whole text before
+          choosing.
         </p>
       ) : null}
     </div>
@@ -319,14 +361,21 @@ function InlineBlanks({ item, response, onChange, examMode }: Props) {
       </p>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 text-xs">
-          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ Partial credit:</span> +1 per correct word. Fill every blank before proceeding.
+          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ Partial credit:</span>{' '}
+          +1 per correct word. Fill every blank before proceeding.
         </p>
       ) : null}
     </div>
   )
 }
 
-function TableBlanks({ table, response, onChange, examMode, prompt }: Omit<Props, 'item'> & { table: TableSpec; prompt: string }) {
+function TableBlanks({
+  table,
+  response,
+  onChange,
+  examMode,
+  prompt,
+}: Omit<Props, 'item'> & { table: TableSpec; prompt: string }) {
   const values = response?.blanks ?? []
 
   const set = (index: number, v: string) => {
@@ -366,7 +415,10 @@ function TableBlanks({ table, response, onChange, examMode, prompt }: Omit<Props
                 {row.map((cell, c) => {
                   const blankIndex = table.blankCells.findIndex((b) => b.row === r && b.col === c)
                   return (
-                    <td key={c} className="border-ink-200 dark:border-white/10 border-b px-3 py-2 align-middle">
+                    <td
+                      key={c}
+                      className="border-ink-200 dark:border-white/10 border-b px-3 py-2 align-middle"
+                    >
                       {blankIndex >= 0 ? (
                         <input
                           type="text"
@@ -390,7 +442,8 @@ function TableBlanks({ table, response, onChange, examMode, prompt }: Omit<Props
       </div>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
-          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ Partial credit:</span> Each blank is scored separately (+1 each, no penalty).
+          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ Partial credit:</span>{' '}
+          Each blank is scored separately (+1 each, no penalty).
         </p>
       ) : null}
     </div>
@@ -420,7 +473,10 @@ function OrderQuestion({ item, response, onChange, examMode }: Props) {
           const block = blocks.find((b) => b.id === id)
           if (!block) return null
           return (
-            <li key={id} className="card-solid flex items-start gap-3 p-4 transition-[transform,border-color,background-color] duration-200">
+            <li
+              key={id}
+              className="card-solid flex items-start gap-3 p-4 transition-[transform,border-color,background-color] duration-200"
+            >
               <span className="bg-brand-500 text-white mt-0.5 grid size-6 shrink-0 place-items-center rounded-md text-xs font-bold transition-all duration-150">
                 {i + 1}
               </span>
@@ -451,8 +507,11 @@ function OrderQuestion({ item, response, onChange, examMode }: Props) {
       </ol>
       {!examMode ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
-          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ Partial credit (+1 per correct adjacent pair):</span> Use
-          the arrows to reorder. Check the chain of pronouns, definite articles and time markers before moving on.
+          <span className="font-semibold text-mint-700 dark:text-mint-300">
+            ✓ Partial credit (+1 per correct adjacent pair):
+          </span>{' '}
+          Use the arrows to reorder. Check the chain of pronouns, definite articles and time markers
+          before moving on.
         </p>
       ) : null}
     </div>
@@ -520,8 +579,12 @@ function HighlightQuestion({ item, response, onChange, examMode }: Props) {
         })}
       </p>
       <div className="mt-4 flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
-        <span className="font-bold text-amber-700 dark:text-amber-300">⚠️ Negative marking (-1 per wrong word, min 0):</span>
-        <span>Only highlight words you clearly heard were different. Unhighlight any uncertain words.</span>
+        <span className="font-bold text-amber-700 dark:text-amber-300">
+          ⚠️ Negative marking (-1 per wrong word, min 0):
+        </span>
+        <span>
+          Only highlight words you clearly heard were different. Unhighlight any uncertain words.
+        </span>
       </div>
     </div>
   )
@@ -578,7 +641,10 @@ function TextQuestion({ item, response, onChange, examMode }: Props) {
       ) : null}
       {!examMode && isDictation ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
-          <span className="font-semibold text-mint-700 dark:text-mint-300">✓ No negative marking:</span> +1 point per correct word spelled correctly. There is no deduction for extra words.
+          <span className="font-semibold text-mint-700 dark:text-mint-300">
+            ✓ No negative marking:
+          </span>{' '}
+          +1 point per correct word spelled correctly. There is no deduction for extra words.
         </p>
       ) : null}
     </div>
@@ -606,7 +672,9 @@ function AudioQuestion({ item, response, onChange, examMode, showTranscript }: P
       {item.chartId ? <ChartRenderer chartId={item.chartId} className="mb-4" /> : null}
 
       {item.tokens && !hasTarget && !isShort ? (
-        <p className="passage mb-4 font-semibold">{item.tokens.filter((t) => t !== '___').join(' ')}</p>
+        <p className="passage mb-4 font-semibold">
+          {item.tokens.filter((t) => t !== '___').join(' ')}
+        </p>
       ) : null}
 
       {item.stimulusId || item.audioUtterance ? (

@@ -74,7 +74,12 @@ export function howToLd(opts: {
     '@type': 'HowTo',
     name: opts.name,
     description: opts.description,
-    step: opts.steps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.name, text: s.text })),
+    step: opts.steps.map((s, i) => ({
+      '@type': 'HowToStep',
+      position: i + 1,
+      name: s.name,
+      text: s.text,
+    })),
   }
 }
 
@@ -96,15 +101,10 @@ export function itemListLd(entries: Array<{ name: string; path: string }>) {
 // ---------------------------------------------------------------------------
 
 const escapeAttr = (value: string): string =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
+  value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 
 /** JSON-LD is embedded in a script element, so it only needs `<` escaped. */
-const escapeJsonLd = (value: unknown): string =>
-  JSON.stringify(value).replace(/</g, '\\u003c')
+const escapeJsonLd = (value: unknown): string => JSON.stringify(value).replace(/</g, '\\u003c')
 
 export interface HeadTag {
   tag: 'title' | 'meta' | 'link' | 'script'

@@ -34,7 +34,8 @@ export function SpotlightCard({
 
   useEffect(() => {
     if (prefersReducedMotion()) return
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+      return
     live.current = true
   }, [])
 

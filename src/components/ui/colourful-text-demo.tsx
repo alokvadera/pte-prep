@@ -1,6 +1,6 @@
-"use client";
-import ColourfulText from "@/components/ui/colourful-text";
-import { motion } from "motion/react";
+'use client'
+import ColourfulText from '@/components/ui/colourful-text'
+import { motion } from 'motion/react'
 
 export default function ColourfulTextDemo() {
   return (
@@ -17,5 +17,5 @@ export default function ColourfulTextDemo() {
         The best <ColourfulText text="components" /> <br /> you will ever find
       </h1>
     </div>
-  );
+  )
 }

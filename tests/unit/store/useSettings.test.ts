@@ -1,9 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import {
-  createDefaultAiUsage,
-  DEFAULT_AI_USAGE,
-  useSettings,
-} from '../../../src/store/useSettings'
+import { createDefaultAiUsage, DEFAULT_AI_USAGE, useSettings } from '../../../src/store/useSettings'
 import type { AiUsageMetrics, Settings } from '../../../src/store/useSettings'
 
 /* ---------------------------------------------------------------------------
@@ -181,7 +177,9 @@ describe('useSettings', () => {
     })
 
     it('accumulates across calls', () => {
-      useSettings.getState().recordAiUsage({ promptTokens: 10, completionTokens: 4, totalTokens: 14 })
+      useSettings
+        .getState()
+        .recordAiUsage({ promptTokens: 10, completionTokens: 4, totalTokens: 14 })
       useSettings.getState().recordAiUsage({ promptTokens: 5, completionTokens: 1, totalTokens: 6 })
       useSettings.getState().recordAiUsage({ whisperSeconds: 1.5 })
 
@@ -293,7 +291,9 @@ describe('useSettings', () => {
 
   describe('resetAiUsage', () => {
     it('zeroes the usage ledger', () => {
-      useSettings.getState().recordAiUsage({ promptTokens: 10, completionTokens: 5, totalTokens: 15 })
+      useSettings
+        .getState()
+        .recordAiUsage({ promptTokens: 10, completionTokens: 5, totalTokens: 15 })
       useSettings.getState().recordAiUsage({ whisperSeconds: 3.2 })
 
       useSettings.getState().resetAiUsage()
@@ -408,10 +408,7 @@ describe('useSettings', () => {
     })
 
     it('ignores a v1 record that has no settings at all', async () => {
-      localStorage.setItem(
-        'pte-prep-settings',
-        JSON.stringify({ state: {}, version: 1 }),
-      )
+      localStorage.setItem('pte-prep-settings', JSON.stringify({ state: {}, version: 1 }))
 
       await useSettings.persist.rehydrate()
 

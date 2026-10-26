@@ -88,8 +88,9 @@ export class ErrorBoundary extends Component<Props, State> {
           <h1 className="page-title">The page could not finish loading</h1>
 
           <p className="text-ink-600 dark:text-ink-200 mt-4 leading-relaxed">
-            Your test data is stored only in this browser, so this usually means the browser could not read it. Clearing
-            the local data below starts the app fresh. Anything already saved on this device will be lost.
+            Your test data is stored only in this browser, so this usually means the browser could
+            not read it. Clearing the local data below starts the app fresh. Anything already saved
+            on this device will be lost.
           </p>
 
           <pre className="border-ink-200 dark:border-white/10 text-ink-500 dark:text-ink-on-dark-muted mt-6 overflow-x-auto border p-3 font-mono text-xs leading-relaxed">

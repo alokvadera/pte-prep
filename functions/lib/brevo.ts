@@ -20,7 +20,16 @@ export interface BrevoSendResult {
  * Uses standard fetch, requiring zero Node packages.
  */
 export async function sendBrevoEmail(options: BrevoSendOptions): Promise<BrevoSendResult> {
-  const { apiKey, senderEmail, senderName = 'PTE Prep', to, toName, subject, htmlContent, textContent } = options
+  const {
+    apiKey,
+    senderEmail,
+    senderName = 'PTE Prep',
+    to,
+    toName,
+    subject,
+    htmlContent,
+    textContent,
+  } = options
 
   if (!apiKey) {
     return { ok: false, error: 'BREVO_API_KEY is not configured.' }
@@ -64,7 +73,8 @@ export async function sendBrevoEmail(options: BrevoSendOptions): Promise<BrevoSe
     }
 
     if (!response.ok) {
-      const errorMessage = data.message || `Brevo API error (${response.status}): ${rawText.slice(0, 200)}`
+      const errorMessage =
+        data.message || `Brevo API error (${response.status}): ${rawText.slice(0, 200)}`
       console.error('Brevo API delivery failed:', response.status, data, rawText)
       return { ok: false, error: errorMessage }
     }

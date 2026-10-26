@@ -20,15 +20,17 @@ export const AnimatedShinyText: FC<AnimatedShinyTextProps> = ({
 }) => {
   return (
     <span
-      style={{
-        '--shiny-width': `${shimmerWidth}px`,
-        ...style,
-      } as CSSProperties}
+      style={
+        {
+          '--shiny-width': `${shimmerWidth}px`,
+          ...style,
+        } as CSSProperties
+      }
       className={cn(
         'mx-auto inline-block max-w-md text-ink-600 dark:text-ink-on-dark-muted',
         'animate-shiny-text bg-clip-text bg-no-repeat [background-size:var(--shiny-width)_100%]',
         'bg-gradient-to-r from-transparent via-brand-600 via-50% to-transparent dark:via-brand-300',
-        className
+        className,
       )}
       {...props}
     >

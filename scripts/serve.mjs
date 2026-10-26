@@ -160,7 +160,11 @@ const server = createServer(async (req, res) => {
   headers['accept-ranges'] = 'bytes'
 
   const range = req.headers.range
-  if (range && fileSize > 0 && (ext === '.m4a' || ext === '.mp3' || ext === '.wav' || ext === '.mp4')) {
+  if (
+    range &&
+    fileSize > 0 &&
+    (ext === '.m4a' || ext === '.mp3' || ext === '.wav' || ext === '.mp4')
+  ) {
     const parts = range.replace(/bytes=/, '').split('-')
     const start = parseInt(parts[0], 10)
     const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1
@@ -187,7 +191,9 @@ const server = createServer(async (req, res) => {
 
 server.on('error', (err) => {
   if (err && err.code === 'EADDRINUSE') {
-    console.error(`\n  Port ${PORT} is already in use. Stop the existing process or choose another port.\n`)
+    console.error(
+      `\n  Port ${PORT} is already in use. Stop the existing process or choose another port.\n`,
+    )
     process.exit(1)
   }
   throw err

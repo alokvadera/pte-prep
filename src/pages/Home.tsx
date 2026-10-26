@@ -14,12 +14,7 @@ import { ButtonLink, CtaBand } from '../components/ui/primitives'
 import { CountUp, Reveal } from '../components/ui/motion'
 import { DottedGlowBackground } from '../components/ui/dotted-glow-background'
 import { cn } from '../lib/cn'
-import {
-  ProgressDots,
-  SectionDivider,
-  NumberTicker,
-  HeroScoreCard,
-} from '../components/ui'
+import { ProgressDots, SectionDivider, NumberTicker, HeroScoreCard } from '../components/ui'
 
 /**
  * The three parts, in the order they are sat.
@@ -59,10 +54,25 @@ const OBJECTIVE_TYPES = ALL_QUESTION_TYPES.filter(
 /* FAQ copy is shared with the structured-data block in seo/meta.ts. */
 
 const COMPARISON: Array<{ label: string; prep: string; coaching: string; packs: string }> = [
-  { label: 'Full mock under timed conditions', prep: 'Yes, unlimited', coaching: 'Two per course', packs: 'Five per pack' },
-  { label: 'Score on the 10 to 90 scale', prep: 'Every attempt', coaching: 'At course end', packs: 'Per paid mock' },
+  {
+    label: 'Full mock under timed conditions',
+    prep: 'Yes, unlimited',
+    coaching: 'Two per course',
+    packs: 'Five per pack',
+  },
+  {
+    label: 'Score on the 10 to 90 scale',
+    prep: 'Every attempt',
+    coaching: 'At course end',
+    packs: 'Per paid mock',
+  },
   { label: 'Retake the same week', prep: 'Anytime', coaching: 'Next batch', packs: 'Buy again' },
-  { label: 'Review per question with correct answer', prep: 'Yes', coaching: 'In class only', packs: 'Score only' },
+  {
+    label: 'Review per question with correct answer',
+    prep: 'Yes',
+    coaching: 'In class only',
+    packs: 'Score only',
+  },
   { label: 'Price to start', prep: 'Free', coaching: 'Paid by term', packs: 'Paid per pack' },
 ]
 
@@ -120,7 +130,7 @@ export default function Home() {
    *  first step is the current one, so it carries
    *  aria-current and the active marker.
    */
-  const STEP_RAIL = (step: typeof STEPS[number], i: number) => (
+  const STEP_RAIL = (step: (typeof STEPS)[number], i: number) => (
     <Reveal as="li" key={step.title} className="step-rail-cell" delay={Math.min(i, 3) * 70}>
       <span
         aria-hidden="true"
@@ -150,9 +160,15 @@ export default function Home() {
       <Seo />
 
       {/* Hero. The claim, one action, and the score report the product shows. */}
-      <section id="hero" className="border-ink-200 dark:border-white/10 relative overflow-hidden border-b">
+      <section
+        id="hero"
+        className="border-ink-200 dark:border-white/10 relative overflow-hidden border-b"
+      >
         {/* Dotted glow field behind the hero with smooth radial vignette mask */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]"
+        >
           <DottedGlowBackground
             gap={16}
             radius={1.6}
@@ -172,7 +188,10 @@ export default function Home() {
             <Reveal variant="blur-up">
               <p className="mb-6">
                 <span className="inline-flex items-center gap-2 rounded-full border border-mint-500/30 bg-mint-50/80 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-mint-700 backdrop-blur-xs dark:border-mint-400/30 dark:bg-mint-500/10 dark:text-mint-300">
-                  <span className="size-2 rounded-full bg-mint-500 animate-pulse" aria-hidden="true" />
+                  <span
+                    className="size-2 rounded-full bg-mint-500 animate-pulse"
+                    aria-hidden="true"
+                  />
                   Free PTE Academic Mock Tests · 22 Question Types
                 </span>
               </p>
@@ -217,20 +236,44 @@ export default function Home() {
               {/* High-trust assurance strip */}
               <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2.5 text-[13.5px] font-semibold text-ink-600 dark:text-ink-on-dark-muted">
                 <span className="inline-flex items-center gap-2">
-                  <svg className="size-4 text-mint-600 dark:text-mint-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="size-4 text-mint-600 dark:text-mint-400 shrink-0"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   Official 10–90 Pearson scale
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <svg className="size-4 text-mint-600 dark:text-mint-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="size-4 text-mint-600 dark:text-mint-400 shrink-0"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   Real 2h 15m countdown timers
                 </span>
                 <span className="inline-flex items-center gap-2">
-                  <svg className="size-4 text-mint-600 dark:text-mint-400 shrink-0" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  <svg
+                    className="size-4 text-mint-600 dark:text-mint-400 shrink-0"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                   100% Free · No card or login
                 </span>
@@ -241,43 +284,39 @@ export default function Home() {
           <Reveal delay={180} variant="blur-up">
             <HeroScoreCard />
           </Reveal>
-      </div>
-    </section>
+        </div>
+      </section>
 
       {/* Key numbers — a quiet proof strip. The four
           figures each answer a trust question; the
           item count leads as the hero figure and
           the rest rest at body scale. */}
-      <section id="numbers" aria-label="Key numbers" className="py-12 border-b border-ink-200/70 dark:border-white/5 bg-ink-50/40 dark:bg-ink-950/30">
+      <section
+        id="numbers"
+        aria-label="Key numbers"
+        className="py-12 border-b border-ink-200/70 dark:border-white/5 bg-ink-50/40 dark:bg-ink-950/30"
+      >
         <div className="page-shell-wide">
           <div className="stat-strip">
             <div className="stat-hero">
               <span className="stat-hero-figure">
                 <NumberTicker value={capacity} />+
               </span>
-              <span className="stat-hero-caption">
-                Practice items in the verified exam bank
-              </span>
+              <span className="stat-hero-caption">Practice items in the verified exam bank</span>
             </div>
             <div className="stat-cell">
               <span className="stat-figure">
                 <NumberTicker value={ALL_QUESTION_TYPES.length} />
               </span>
-              <span className="stat-label">
-                Question types · 100% official coverage
-              </span>
+              <span className="stat-label">Question types · 100% official coverage</span>
             </div>
             <div className="stat-cell">
               <span className="stat-figure">10–90</span>
-              <span className="stat-label">
-                Pearson scale · with aligned CEFR bands
-              </span>
+              <span className="stat-label">Pearson scale · with aligned CEFR bands</span>
             </div>
             <div className="stat-cell">
               <span className="stat-figure">100% Free</span>
-              <span className="stat-label">
-                No card, no account required
-              </span>
+              <span className="stat-label">No card, no account required</span>
             </div>
           </div>
         </div>
@@ -289,9 +328,7 @@ export default function Home() {
           <Reveal variant="up">
             <div className="sec-head">
               <span className="pill-orange">What changes here</span>
-              <h2 className="section-title">
-                Studying more is not the same as scoring more
-              </h2>
+              <h2 className="section-title">Studying more is not the same as scoring more</h2>
               <p className="page-intro">
                 Most preparation gives you hours of material and one vague score at the end. You
                 finish tired, with no idea which skill cost you the test.
@@ -304,8 +341,8 @@ export default function Home() {
                 1
               </span>
               <p className="rule-body">
-                <strong className="rule-label">Timed sections</strong>
-                {' '}that match test day pressure, so your score means something.
+                <strong className="rule-label">Timed sections</strong> that match test day pressure,
+                so your score means something.
               </p>
             </Reveal>
             <Reveal as="li" className="rule-item" delay={70}>
@@ -313,8 +350,8 @@ export default function Home() {
                 2
               </span>
               <p className="rule-body">
-                <strong className="rule-label">Scores on the official scale</strong>
-                {' '}with the CEFR band, not a percent that maps to nothing.
+                <strong className="rule-label">Scores on the official scale</strong> with the CEFR
+                band, not a percent that maps to nothing.
               </p>
             </Reveal>
             <Reveal as="li" className="rule-item" delay={140}>
@@ -322,8 +359,8 @@ export default function Home() {
                 3
               </span>
               <p className="rule-body">
-                <strong className="rule-label">Loss per question type</strong>
-                {' '}so you drill the two types that cost you most.
+                <strong className="rule-label">Loss per question type</strong> so you drill the two
+                types that cost you most.
               </p>
             </Reveal>
           </ul>
@@ -346,9 +383,7 @@ export default function Home() {
           </Reveal>
           <Reveal variant="up" duration={650} className="mt-[46px] overflow-x-auto">
             <table className="table-data">
-              <caption>
-                The three parts of the mock, in the order they are sat
-              </caption>
+              <caption>The three parts of the mock, in the order they are sat</caption>
               <thead>
                 <tr>
                   <th scope="col">Part</th>
@@ -372,11 +407,7 @@ export default function Home() {
                       <td>
                         <span
                           className={`dur-sm ${
-                            idx === 0
-                              ? 'dur-sm-mint'
-                              : idx === 1
-                                ? 'dur-sm-lav'
-                                : 'dur-sm-org'
+                            idx === 0 ? 'dur-sm-mint' : idx === 1 ? 'dur-sm-lav' : 'dur-sm-org'
                           }`}
                         >
                           {meta.weightNote}
@@ -402,8 +433,8 @@ export default function Home() {
       <section className="band-tagline" aria-label="Focus your drilling">
         <div className="page-shell-wide">
           <Reveal as="p" variant="blur-up" duration={750} className="tagline-text">
-            Find the <span className="hl">one type</span> that keeps costing you
-            points. Then fix only that one.
+            Find the <span className="hl">one type</span> that keeps costing you points. Then fix
+            only that one.
           </Reveal>
         </div>
       </section>
@@ -455,9 +486,9 @@ export default function Home() {
               <span className="pill-plain">Scoring honesty</span>
               <h2 className="section-title">Which half of your score is exact</h2>
               <p className="page-intro">
-                {OBJECTIVE_TYPES.length} of the {ALL_QUESTION_TYPES.length} question types are marked
-                against the answer key. The rest are estimated from a written rubric, and every item
-                on your report says which it was.
+                {OBJECTIVE_TYPES.length} of the {ALL_QUESTION_TYPES.length} question types are
+                marked against the answer key. The rest are estimated from a written rubric, and
+                every item on your report says which it was.
               </p>
             </div>
           </Reveal>
@@ -472,9 +503,9 @@ export default function Home() {
             <Reveal as="article" className="col" delay={90}>
               <h3 className="col-title">Estimated from a rubric</h3>
               <p className="col-body">
-                Speaking and writing answers are scored with a written rubric covering content, form,
-                fluency and pronunciation — the same four constructs the real test uses. Every one is
-                labelled as an estimate.
+                Speaking and writing answers are scored with a written rubric covering content,
+                form, fluency and pronunciation — the same four constructs the real test uses. Every
+                one is labelled as an estimate.
               </p>
             </Reveal>
           </div>
@@ -533,9 +564,7 @@ export default function Home() {
               <h2 className="section-title">Ready in three steps</h2>
             </div>
           </Reveal>
-          <ol className="step-rail">
-            {STEPS.map((step, i) => STEP_RAIL(step, i))}
-          </ol>
+          <ol className="step-rail">{STEPS.map((step, i) => STEP_RAIL(step, i))}</ol>
         </div>
       </section>
 

@@ -62,8 +62,16 @@ export const EXTRA_CHARTS_2: ChartSpec[] = [
       unit: 'index, daily average',
       x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
       series: [
-        { name: 'Solar output', values: [18, 26, 44, 62, 76, 85, 91, 84, 63, 41, 24, 16], color: '#f5a524' },
-        { name: 'Rainfall', values: [78, 62, 54, 41, 33, 27, 24, 29, 38, 57, 71, 83], color: '#3665f6' },
+        {
+          name: 'Solar output',
+          values: [18, 26, 44, 62, 76, 85, 91, 84, 63, 41, 24, 16],
+          color: '#f5a524',
+        },
+        {
+          name: 'Rainfall',
+          values: [78, 62, 54, 41, 33, 27, 24, 29, 38, 57, 71, 83],
+          color: '#3665f6',
+        },
       ],
     },
   },
@@ -131,10 +139,22 @@ export const EXTRA_CHARTS_2: ChartSpec[] = [
     keyTerms: ['survey', 'clear', 'plant', 'monitor', 'repeated', 'final stage'],
     data: {
       steps: [
-        { label: '1. Survey', detail: 'Existing species and soil condition are recorded across the site.' },
-        { label: '2. Clearance', detail: 'Invasive growth is removed and the ground is left bare over winter.' },
-        { label: '3. Planting', detail: 'Local stock is sown and young trees planted in the cleared ground.' },
-        { label: '4. Monitoring', detail: 'Survival is checked each year and gaps are replanted as needed.' },
+        {
+          label: '1. Survey',
+          detail: 'Existing species and soil condition are recorded across the site.',
+        },
+        {
+          label: '2. Clearance',
+          detail: 'Invasive growth is removed and the ground is left bare over winter.',
+        },
+        {
+          label: '3. Planting',
+          detail: 'Local stock is sown and young trees planted in the cleared ground.',
+        },
+        {
+          label: '4. Monitoring',
+          detail: 'Survival is checked each year and gaps are replanted as needed.',
+        },
       ],
       loop: true,
     },

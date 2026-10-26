@@ -154,7 +154,10 @@ describe('Dashboard account state', () => {
     renderDashboard()
     await act(async () => {})
 
-    expect(screen.getByRole('link', { name: 'Create free account' })).toHaveAttribute('href', '/register')
+    expect(screen.getByRole('link', { name: 'Create free account' })).toHaveAttribute(
+      'href',
+      '/register',
+    )
   })
 
   it('offers a returning candidate a sign-in', async () => {
@@ -321,8 +324,16 @@ describe('Dashboard history', () => {
     vi.useFakeTimers()
     try {
       stubs.listAttempts.mockResolvedValue([
-        attemptWithBreakdown({ id: 'a1', finishedAt: '2026-01-01T00:00:00.000Z', overallScore: 50 }),
-        attemptWithBreakdown({ id: 'a2', finishedAt: '2026-01-02T00:00:00.000Z', overallScore: 70 }),
+        attemptWithBreakdown({
+          id: 'a1',
+          finishedAt: '2026-01-01T00:00:00.000Z',
+          overallScore: 50,
+        }),
+        attemptWithBreakdown({
+          id: 'a2',
+          finishedAt: '2026-01-02T00:00:00.000Z',
+          overallScore: 70,
+        }),
       ])
       const { container } = renderDashboard()
       await act(async () => {})
@@ -632,9 +643,7 @@ describe('Dashboard history', () => {
   })
 
   it('leaves out a skill the attempt never scored', async () => {
-    stubs.listAttempts.mockResolvedValue([
-      attemptWithBreakdown({ skillScores: { reading: 60 } }),
-    ])
+    stubs.listAttempts.mockResolvedValue([attemptWithBreakdown({ skillScores: { reading: 60 } })])
     renderDashboard()
     await act(async () => {})
 

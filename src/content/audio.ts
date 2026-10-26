@@ -142,7 +142,13 @@ export const LECTURES: AudioScript[] = [
         text: 'I want to end on a point that is often missed in public discussion. Resistance is not a failure of individual doctors and it is not a failure of individual patients. It is a predictable property of using an intervention faster than we can replace it. The question is not whether we will run out. It is how gracefully we manage the interval. Thank you.',
       },
     ],
-    keyTerms: ['selection pressure', 'horizontal transfer', 'plasmid', 'pre-existing', 'finite classes'],
+    keyTerms: [
+      'selection pressure',
+      'horizontal transfer',
+      'plasmid',
+      'pre-existing',
+      'finite classes',
+    ],
   },
   {
     id: 'lec-tides',
@@ -260,7 +266,12 @@ export const RETELL_ITEMS: RetellItem[] = [
   {
     id: 'rtl-deep-learning',
     audioId: 'lec-deep-learning',
-    skeleton: ['redundancy in the data', 'flat basin in parameter space', 'simple explanation', 'prediction: less redundancy → less generalisation'],
+    skeleton: [
+      'redundancy in the data',
+      'flat basin in parameter space',
+      'simple explanation',
+      'prediction: less redundancy → less generalisation',
+    ],
     reference:
       'Deep networks generalise not in spite of their size but because the data are highly redundant, so an imperfect fit must prefer the simplest explanation; and because an overparameterised model has many solutions, training lands in a flat basin where small weight changes allow large behavioural changes. The prediction is that deliberately reducing redundancy in a dataset should widen the gap between training and test accuracy.',
     keyTerms: ['redundant', 'simplest', 'basin', 'flat', 'accuracy', 'parameters'],
@@ -269,16 +280,32 @@ export const RETELL_ITEMS: RetellItem[] = [
   {
     id: 'rtl-memory',
     audioId: 'lec-memory',
-    skeleton: ['retrieval reconstructs, never plays back', 'intrusions are semantically related', 'confidence ≠ accuracy', 'consistency rewrites memory'],
+    skeleton: [
+      'retrieval reconstructs, never plays back',
+      'intrusions are semantically related',
+      'confidence ≠ accuracy',
+      'consistency rewrites memory',
+    ],
     reference:
       'Recall is a constrained reconstruction rather than playback, so errors are semantically related intrusions whose frequency rises with list size. Because confidence is produced by the same unreliable process, a confident eyewitness can be wrong. Repeated, consistent retelling then rewrites the memory, which helps accuracy and also consolidates errors.',
-    keyTerms: ['reconstruction', 'intrusion', 'intrusions', 'confidence', 'consistency', 'rewrites'],
+    keyTerms: [
+      'reconstruction',
+      'intrusion',
+      'intrusions',
+      'confidence',
+      'consistency',
+      'rewrites',
+    ],
     minWords: 30,
   },
   {
     id: 'rtl-antibiotic',
     audioId: 'lec-antibiotic',
-    skeleton: ['selection pressure → resistance is predictable', 'three routes: mutation, horizontal transfer, pre-existing genes', 'finite classes, negative marginal value of misuse'],
+    skeleton: [
+      'selection pressure → resistance is predictable',
+      'three routes: mutation, horizontal transfer, pre-existing genes',
+      'finite classes, negative marginal value of misuse',
+    ],
     reference:
       'Antibiotic use creates selection pressure, so resistance is a predictable outcome rather than a failure. It arises by selection of existing mutations, by horizontal transfer of genes on plasmids and by pre-existing resistance in the environment. Because antibiotic classes are finite and not increasing, and because unnecessary prescribing imposes costs on others, the problem is one of managing the interval until replacements exist.',
     keyTerms: ['selection', 'mutation', 'horizontal transfer', 'pre-existing', 'finite'],
@@ -287,7 +314,12 @@ export const RETELL_ITEMS: RetellItem[] = [
   {
     id: 'rtl-tides',
     audioId: 'lec-tides',
-    skeleton: ['predictable vs wind/solar', 'concentrated in narrow channels → local ecological cost', 'storage is capital, not accessory', 'diurnal clash with baseload'],
+    skeleton: [
+      'predictable vs wind/solar',
+      'concentrated in narrow channels → local ecological cost',
+      'storage is capital, not accessory',
+      'diurnal clash with baseload',
+    ],
     reference:
       'Tidal power is uniquely predictable, which is its entire commercial argument, but the resource is concentrated in narrow channels with serious local effects on salinity and sediment. Because the tide cycles twice daily and independently of demand, storage becomes a large part of capital cost, and in some markets the plant competes directly with baseload generation. Predictability is defeated by the mismatch between the resource cycle and the demand cycle.',
     keyTerms: ['predictable', 'channels', 'sediment', 'storage', 'baseload', 'demand'],
@@ -296,7 +328,12 @@ export const RETELL_ITEMS: RetellItem[] = [
   {
     id: 'rtl-cursive',
     audioId: 'lc-handwriting',
-    skeleton: ['continuous motor program', 'forces grapheme segmentation', 'speed in dictation is the strongest argument', 'only fails if taught badly'],
+    skeleton: [
+      'continuous motor program',
+      'forces grapheme segmentation',
+      'speed in dictation is the strongest argument',
+      'only fails if taught badly',
+    ],
     reference:
       'Cursive asks a child to execute one continuous movement with visual feedback, which is a richer perceptual task than disconnected letters, and it forces segmentation by requiring a decision at every grapheme boundary. The cognitive reading benefit is small and inconsistent, but handwriting speed under dictation is decisive. The case against is that it is slow to teach and badly taught cursive is worse than none.',
     keyTerms: ['motor', 'segmentation', 'speed', 'dictation', 'legible', 'teach'],
@@ -305,7 +342,11 @@ export const RETELL_ITEMS: RetellItem[] = [
   {
     id: 'rtl-sleep',
     audioId: 'lec-sleep',
-    skeleton: ['brain and body theories both treat sleep as restoration', 'octopus sleeps without those functions', 'sleep = accepting vulnerability to save metabolic cost'],
+    skeleton: [
+      'brain and body theories both treat sleep as restoration',
+      'octopus sleeps without those functions',
+      'sleep = accepting vulnerability to save metabolic cost',
+    ],
     reference:
       'Traditional theories treat sleep as restoration of the brain or the body, but both assume depletion during waking. Octopuses sleep without evidence of memory replay, disorientation or any vertebrate-style brain function, so sleep cannot be primarily about those. What they share with us is metabolic cost, which suggests sleep is a decision to stop maintaining readiness and accept temporary vulnerability, and what predicts it is whether the organism can afford that risk.',
     keyTerms: ['restoration', 'octopus', 'metabolic', 'vulnerability', 'readiness', 'afford'],
@@ -326,7 +367,16 @@ export const SPOKEN_SUMMARY_ITEMS: SpokenSummaryItem[] = [
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
       'The lecture argues that tidal power is uniquely predictable, unlike wind or solar, which is the whole of its commercial case. The speaker then identifies three obstacles. The resource is concentrated in a few narrow channels, so a barrage would disturb the estuary. The cycle is twice daily and unrelated to the demand peak, making storage a large share of capital cost, and it competes with baseload nuclear.',
-    keyTerms: ['predictable', 'channels', 'salinity', 'sediment', 'storage', 'demand', 'baseload', 'twice'],
+    keyTerms: [
+      'predictable',
+      'channels',
+      'salinity',
+      'sediment',
+      'storage',
+      'demand',
+      'baseload',
+      'twice',
+    ],
     minWords: 30,
   },
   ...EXTRA_SPOKEN_SUMMARY_ITEMS,
@@ -414,7 +464,12 @@ export const GROUP_DISCUSSIONS: AudioScript[] = [
         text: 'If I may, the three of us do not actually disagree. None of us is calling for an indefinite delay. We are calling for the capacity, the exemptions and the enforcement to be specified before the restriction begins. The chair can confirm that none of that requires abandoning the proposal.',
       },
     ],
-    keyTerms: ['public transport capacity', 'retail impact', 'exemptions for deliveries', 'enforcement'],
+    keyTerms: [
+      'public transport capacity',
+      'retail impact',
+      'exemptions for deliveries',
+      'enforcement',
+    ],
   },
   ...EXTRA_GROUP_DISCUSSIONS,
   ...EXTRA_DISCUSSIONS_2,
@@ -428,20 +483,34 @@ export const GROUP_DISCUSSION_ITEMS: GroupDiscussionItem[] = [
     id: 'sgd-university',
     audioId: 'gd-university',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel largely rejects full automation of marking and agrees that automated marking is reliable for narrow, well-specified tasks, but they disagree about whether the tool is neutral. The assessment researcher worries that tools are chosen first and justified afterwards, the lecturer wants to protect argument judgement, and the student representative warns that automating the assessable removes the teaching of writing.',
-    keyTerms: ['partial automation', 'narrow tasks', 'clear answer key', 'written response', 'neutral', 'accountable'],
+    keyTerms: [
+      'partial automation',
+      'narrow tasks',
+      'clear answer key',
+      'written response',
+      'neutral',
+      'accountable',
+    ],
     minWords: 40,
   },
   {
     id: 'sgd-transit',
     audioId: 'gd-transit',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel supports the restriction in principle but insists on sequencing and detail. The planner shows that comparable cities failed when transport capacity was not increased first, the retailer argues the loss is floor space rather than traffic, and the resident claims exemptions for deliveries decide whether the policy works. They agree the capacity, exemptions and enforcement must be specified before the restriction begins.',
-    keyTerms: ['restriction', 'capacity', 'retail vacancy', 'exemptions', 'enforcement', 'sequencing'],
+    keyTerms: [
+      'restriction',
+      'capacity',
+      'retail vacancy',
+      'exemptions',
+      'enforcement',
+      'sequencing',
+    ],
     minWords: 40,
   },
   ...EXTRA_GROUP_DISCUSSION_ITEMS,

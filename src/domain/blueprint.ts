@@ -126,7 +126,7 @@ export const QUESTION_META: Record<QuestionType, QuestionMeta> = {
     perTest: '2–3',
     traits: ['Content', 'Pronunciation', 'Oral Fluency'],
     count: { min: 2, max: 3 },
-    tip: 'Listen for each speaker\'s position, not the detail. Summarise the group\'s overall stance plus how the speakers relate to one another.',
+    tip: "Listen for each speaker's position, not the detail. Summarise the group's overall stance plus how the speakers relate to one another.",
   },
   'respond-to-situation': {
     type: 'respond-to-situation',
@@ -448,11 +448,7 @@ const BLUEPRINT_SCORED_BY_SECTION: Record<SectionId, number> = (() => {
 // ---------------------------------------------------------------------------
 
 /** Section order, mirroring `SECTION_ORDER` in domain/assemble.ts. */
-export const SECTION_IDS: readonly SectionId[] = [
-  'speaking-writing',
-  'reading',
-  'listening',
-]
+export const SECTION_IDS: readonly SectionId[] = ['speaking-writing', 'reading', 'listening']
 
 /**
  * The order question types first appear in a built mock, mirroring the
@@ -535,7 +531,8 @@ export function describeMockPreview(
     // Mirrors `sectionSeconds` in domain/assemble.ts: official minimum scaled by
     // the share of the blueprint's items, floored for a drill, then by timing.
     /* v8 ignore next -- every section has scored items in the blueprint */
-    const base = reference > 0 ? Math.max(180, Math.round(full * Math.min(1, scored / reference))) : full
+    const base =
+      reference > 0 ? Math.max(180, Math.round(full * Math.min(1, scored / reference))) : full
     return sum + (untimed ? base : Math.round(base * timeScale))
   }, 0)
 
@@ -553,8 +550,7 @@ export function describeMockPreview(
   const hasIntro = !opts.singleSection || opts.singleSection === 'speaking-writing'
   const includedTypes = MOCK_TYPE_ORDER.filter(
     (type) =>
-      inScope(type) &&
-      ((counts[type] ?? 0) > 0 || (type === 'respond-to-situation' && hasIntro)),
+      inScope(type) && ((counts[type] ?? 0) > 0 || (type === 'respond-to-situation' && hasIntro)),
   )
 
   return { sectionIds, scoredCount, totalSeconds, includedTypes }

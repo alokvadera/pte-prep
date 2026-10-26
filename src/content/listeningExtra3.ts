@@ -73,7 +73,14 @@ export const EXTRA_CONVERSATIONS_3: AudioScript[] = [
         text: 'Your blood pressure readings would help, and a list of anything you have bought for a cold since we last spoke. Nothing else is required.',
       },
     ],
-    keyTerms: ['annual review', 'telephone', 'days left', 'emergency supply', 'readings', 'prescription'],
+    keyTerms: [
+      'annual review',
+      'telephone',
+      'days left',
+      'emergency supply',
+      'readings',
+      'prescription',
+    ],
   },
 
   {
@@ -128,7 +135,14 @@ export const EXTRA_CONVERSATIONS_3: AudioScript[] = [
         text: 'I can put a hold on rows F to H for twenty minutes while you decide. The total comes to fifty-four pounds with the concession applied.',
       },
     ],
-    keyTerms: ['Wednesday matinee', 'interval', 'amplified sound', 'three weeks', 'concession', 'hold'],
+    keyTerms: [
+      'Wednesday matinee',
+      'interval',
+      'amplified sound',
+      'three weeks',
+      'concession',
+      'hold',
+    ],
   },
 
   {
@@ -216,7 +230,12 @@ export const EXTRA_LISTENING_MCQ_SINGLE_3: ListeningMcqItem[] = [
     id: 'lmcq-rental-1',
     audioId: 'con-rental-contract',
     question: 'According to the friend, how long is a full calendar month?',
-    options: ['Thirty days exactly', 'Between twenty eight and thirty two days', 'Always thirty one days', 'Six weeks'],
+    options: [
+      'Thirty days exactly',
+      'Between twenty eight and thirty two days',
+      'Always thirty one days',
+      'Six weeks',
+    ],
     correct: ['Between twenty eight and thirty two days'],
   },
 ]
@@ -246,7 +265,10 @@ export const EXTRA_LISTENING_MCQ_MULTI_3: ListeningMcqItem[] = [
       'The deposit must be protected',
       'The rent must be paid quarterly',
     ],
-    correct: ['Notice may be served only in the first six months', 'Rent must not be more than thirty days late'],
+    correct: [
+      'Notice may be served only in the first six months',
+      'Rent must not be more than thirty days late',
+    ],
   },
 ]
 
@@ -310,18 +332,59 @@ export const EXTRA_HIGHLIGHT_INCORRECT_3: HighlightIncorrectItem[] = [
 ]
 
 export const EXTRA_DICTATION_3: DictationItem[] = [
-  { id: 'wfd-pharmacy-1', audioId: 'con-pharmacy-repeat', turnIndex: 8, text: 'Is there anything I should bring to the call?' },
-  { id: 'wfd-theatre-1', audioId: 'con-theatre-booking', turnIndex: 5, text: 'About three weeks for the centre of the stalls.' },
-  { id: 'wfd-rental-1', audioId: 'con-rental-contract', turnIndex: 6, text: 'I was thirty-one days late in the second month.' },
-  { id: 'wfd-rental-2', audioId: 'con-rental-contract', turnIndex: 7, text: 'That is worth knowing before you plan around it.' },
+  {
+    id: 'wfd-pharmacy-1',
+    audioId: 'con-pharmacy-repeat',
+    turnIndex: 8,
+    text: 'Is there anything I should bring to the call?',
+  },
+  {
+    id: 'wfd-theatre-1',
+    audioId: 'con-theatre-booking',
+    turnIndex: 5,
+    text: 'About three weeks for the centre of the stalls.',
+  },
+  {
+    id: 'wfd-rental-1',
+    audioId: 'con-rental-contract',
+    turnIndex: 6,
+    text: 'I was thirty-one days late in the second month.',
+  },
+  {
+    id: 'wfd-rental-2',
+    audioId: 'con-rental-contract',
+    turnIndex: 7,
+    text: 'That is worth knowing before you plan around it.',
+  },
 ]
 
 export const EXTRA_MISSING_WORD_3: MissingWordItem[] = [
   // Both of these blanked a position that was not the keyed word. The word the
   // option family describes is spoken in the turn named here.
-  { id: 'smw-pharmacy-1', audioId: 'con-pharmacy-repeat', turnIndex: 7, wordIndex: 24, options: ['usually', 'unusual', 'usuallyly', 'user'], correct: 0 },
-  { id: 'smw-theatre-1', audioId: 'con-theatre-booking', turnIndex: 4, wordIndex: 2, options: ['ahead', 'head', 'aheadly', 'heade'], correct: 0 },
-  { id: 'smw-rental-1', audioId: 'con-rental-contract', turnIndex: 1, wordIndex: 8, options: ['define', 'refine', 'defined', 'defining'], correct: 0 },
+  {
+    id: 'smw-pharmacy-1',
+    audioId: 'con-pharmacy-repeat',
+    turnIndex: 7,
+    wordIndex: 24,
+    options: ['usually', 'unusual', 'usuallyly', 'user'],
+    correct: 0,
+  },
+  {
+    id: 'smw-theatre-1',
+    audioId: 'con-theatre-booking',
+    turnIndex: 4,
+    wordIndex: 2,
+    options: ['ahead', 'head', 'aheadly', 'heade'],
+    correct: 0,
+  },
+  {
+    id: 'smw-rental-1',
+    audioId: 'con-rental-contract',
+    turnIndex: 1,
+    wordIndex: 8,
+    options: ['define', 'refine', 'defined', 'defining'],
+    correct: 0,
+  },
 ]
 
 export const EXTRA_SITUATIONS_3: SituationItem[] = [

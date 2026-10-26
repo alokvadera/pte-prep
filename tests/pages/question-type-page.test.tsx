@@ -61,7 +61,9 @@ describe('QuestionTypePage', () => {
 
   it('answers the questions a candidate asks about the type', () => {
     const { container } = renderType('read-aloud')
-    expect(container.textContent).toContain('How many Read Aloud questions are on the PTE Academic?')
+    expect(container.textContent).toContain(
+      'How many Read Aloud questions are on the PTE Academic?',
+    )
     expect(container.textContent).toContain('How is Read Aloud scored?')
     expect(container.textContent).toContain('What goes wrong most often on Read Aloud?')
   })

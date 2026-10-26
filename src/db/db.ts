@@ -125,7 +125,9 @@ function ownedAttempts(
   ownerId: string | undefined,
   guestOwnerId: string,
 ): AttemptRecord[] {
-  return ownerId ? attempts.filter((attempt) => attemptOwnerId(attempt, guestOwnerId) === ownerId) : attempts
+  return ownerId
+    ? attempts.filter((attempt) => attemptOwnerId(attempt, guestOwnerId) === ownerId)
+    : attempts
 }
 
 /**
@@ -194,10 +196,7 @@ export function deleteAttempt(id: string): Promise<void> {
 }
 
 /** Clears one owner's history, or the entire store when `ownerId` is omitted. */
-export function clearAttempts(
-  ownerId?: string,
-  guestOwnerId = 'guest:server',
-): Promise<void> {
+export function clearAttempts(ownerId?: string, guestOwnerId = 'guest:server'): Promise<void> {
   return withDb(async (db) => {
     if (!ownerId) {
       await db.attempts.clear()

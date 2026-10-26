@@ -86,7 +86,12 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const valid = await verifyPassword(password, existing.password_hash, existing.password_salt ?? '', iterations)
+  const valid = await verifyPassword(
+    password,
+    existing.password_hash,
+    existing.password_salt ?? '',
+    iterations,
+  )
   if (!valid) {
     await padDuration(start)
     return new Response(JSON.stringify({ error: 'Incorrect email or password.' }), {

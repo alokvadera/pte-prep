@@ -41,7 +41,11 @@ const reducedMotionServerSnapshot = () => false
  * break hydration on a prerendered page.
  */
 export function usePrefersReducedMotion(): boolean {
-  return useSyncExternalStore(subscribeToReducedMotion, prefersReducedMotion, reducedMotionServerSnapshot)
+  return useSyncExternalStore(
+    subscribeToReducedMotion,
+    prefersReducedMotion,
+    reducedMotionServerSnapshot,
+  )
 }
 
 /** 'smooth' for everyone who did not opt out, 'auto' for those who did. */

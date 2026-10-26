@@ -1,7 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import { act, renderHook } from '@testing-library/react'
 import { setMedia } from '../../setup/browser-env'
-import { prefersReducedMotion, scrollBehavior, usePrefersReducedMotion } from '../../../src/lib/motion'
+import {
+  prefersReducedMotion,
+  scrollBehavior,
+  usePrefersReducedMotion,
+} from '../../../src/lib/motion'
 
 /* ---------------------------------------------------------------------------
    Motion preferences.

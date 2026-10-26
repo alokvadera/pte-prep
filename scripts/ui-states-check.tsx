@@ -45,13 +45,19 @@ const check = (label: string, ok: boolean, detail = '') => {
 
 console.log('\n== Error boundary (B9 error state) ==\n')
 
-check('healthy children render through the boundary', healthyOut.includes('the app rendered normally'))
+check(
+  'healthy children render through the boundary',
+  healthyOut.includes('the app rendered normally'),
+)
 check('the boundary derives state from a thrown error', caught.state.error instanceof Error)
 check('the fallback explains what happened', caughtOut.includes('could not finish loading'))
 check('the fallback names the cause', caughtOut.includes('IndexedDB is unavailable'))
 check('the fallback offers recovery', caughtOut.includes('Clear local data and start over'))
 check('the fallback offers a plain retry', caughtOut.includes('Try again'))
-check('the fallback does not blame the user', !/your fault|you broke|invalid input/i.test(caughtOut))
+check(
+  'the fallback does not blame the user',
+  !/your fault|you broke|invalid input/i.test(caughtOut),
+)
 check('the fallback avoids a generic "Oops!"', !/oops/i.test(caughtOut))
 
 console.log('\n== Route fallback (B9 loading state) ==\n')
@@ -65,13 +71,15 @@ function countPulse(node: unknown): number {
 }
 
 const skeletonCount = countPulse(RouteFallback())
-const fallback = flatten(
-  (RouteFallback() as unknown as { props?: { children?: unknown } }),
-)
+const fallback = flatten(RouteFallback() as unknown as { props?: { children?: unknown } })
 
 check('the loading fallback renders content, not a blank page', fallback.length > 0)
 check('it announces itself to assistive technology', fallback.includes('Loading the test'))
-check('it uses skeleton blocks rather than a spinner', skeletonCount >= 8, `${skeletonCount} blocks`)
+check(
+  'it uses skeleton blocks rather than a spinner',
+  skeletonCount >= 8,
+  `${skeletonCount} blocks`,
+)
 
 console.log(`\n== Score band (conversion sensitivity) ==\n`)
 
@@ -104,8 +112,16 @@ for (let i = 0; i <= 200; i++) {
     if (s.low > s.mid || s.mid > s.high) outsideRail++
   }
 }
-check('the rail is anchored on the displayed score, never re-derived', outsideRail === 0, `${outsideRail} cases`)
-check('the band collapses only at the ends of the scale', degenerateMidRange === 0, `${degenerateMidRange} mid-range`)
+check(
+  'the rail is anchored on the displayed score, never re-derived',
+  outsideRail === 0,
+  `${outsideRail} cases`,
+)
+check(
+  'the band collapses only at the ends of the scale',
+  degenerateMidRange === 0,
+  `${degenerateMidRange} mid-range`,
+)
 check('the band is wide enough to be worth drawing', widest >= 6, `widest ${widest} points`)
 
 const midBand = scoreBand(0.5, rawToPteScale(0.5))
@@ -117,7 +133,10 @@ check(
 
 const bandedHtml = flatten(ScoreRangeBar({ score: 60, band: 'B2', fraction: 0.6 }))
 check('a supplied fraction draws the rail', bandedHtml.includes('bound on the mapping'))
-check('the rail states both ends', bandedHtml.includes(String(midBand.mid)) || bandedHtml.includes('60'))
+check(
+  'the rail states both ends',
+  bandedHtml.includes(String(midBand.mid)) || bandedHtml.includes('60'),
+)
 check(
   'the copy never calls it a confidence interval',
   !bandedHtml.toLowerCase().includes('confidence interval of') && bandedHtml.includes('not a'),
@@ -128,7 +147,10 @@ const fullMarksHtml = flatten(ScoreRangeBar({ score: 90, band: 'C1', fraction: 1
 check('a degenerate band draws no rail', !fullMarksHtml.includes('bound on the mapping'))
 
 const noFractionHtml = flatten(ScoreRangeBar({ score: 60, band: 'B2' }))
-check('an unknown fraction draws no rail rather than a zero-width one', !noFractionHtml.includes('bound on the mapping'))
+check(
+  'an unknown fraction draws no rail rather than a zero-width one',
+  !noFractionHtml.includes('bound on the mapping'),
+)
 
 console.log(`\n${fail === 0 ? 'UI STATE CHECKS PASSED' : `${fail} FAILED`} (${pass} passed)\n`)
 process.exit(fail === 0 ? 0 : 1)

@@ -49,8 +49,8 @@ const BAND_COLOR: Record<string, string> = {
  * CEFR_BANDS is ordered from the top band down, so each band ends one point
  * below the band above it — the *previous* entry, not the next.
  */
-const BAND_EDGES: Array<{ band: string; from: number; to: number; color: string }> =
-  CEFR_BANDS.map((b, i) => {
+const BAND_EDGES: Array<{ band: string; from: number; to: number; color: string }> = CEFR_BANDS.map(
+  (b, i) => {
     const above = CEFR_BANDS[i - 1]
     return {
       band: b.band,
@@ -59,7 +59,8 @@ const BAND_EDGES: Array<{ band: string; from: number; to: number; color: string 
       /* v8 ignore next -- every band has a colour */
       color: BAND_COLOR[b.band] ?? 'bg-ink-400 dark:bg-ink-on-dark-faint',
     }
-  })
+  },
+)
 
 interface Props {
   /** Score on the 10–90 scale. */
@@ -83,7 +84,9 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
   const pct = ((clamped - 10) / 80) * 100
   const current = BAND_EDGES.find((b) => b.band === band)
   const inBandPosition = current
-    ? (((Math.min(clamped, current.to) - current.from) / Math.max(1, current.to - current.from + 1)) * 100)
+    ? ((Math.min(clamped, current.to) - current.from) /
+        Math.max(1, current.to - current.from + 1)) *
+      100
     : 0
 
   // Undefined when the caller has no attempt to measure. Degenerate (90–90 at
@@ -96,7 +99,10 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
   return (
     <div className={className}>
       <div
-        className={cn('relative w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10', size === 'lg' ? 'h-3' : 'h-1.5')}
+        className={cn(
+          'relative w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10',
+          size === 'lg' ? 'h-3' : 'h-1.5',
+        )}
         role="img"
         aria-label={
           label ??
@@ -110,13 +116,19 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
           <div
             key={b.band}
             className={cn('absolute inset-y-0 opacity-25', b.color)}
-            style={{ left: `${((b.from - 10) / 80) * 100}%`, width: `${((b.to - b.from + 1) / 80) * 100}%` }}
+            style={{
+              left: `${((b.from - 10) / 80) * 100}%`,
+              width: `${((b.to - b.from + 1) / 80) * 100}%`,
+            }}
             aria-hidden="true"
           />
         ))}
         {/* The score, as a linear fill. */}
         <div
-          className={cn('absolute inset-y-0 left-0 rounded-full origin-left animate-bar-reveal transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]', current?.color ?? 'bg-brand-400')}
+          className={cn(
+            'absolute inset-y-0 left-0 rounded-full origin-left animate-bar-reveal transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]',
+            current?.color ?? 'bg-brand-400',
+          )}
           style={{ width: `${pct}%` }}
           aria-hidden="true"
         />
@@ -143,14 +155,20 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
           <div className="relative h-1 w-full overflow-hidden rounded-full bg-ink-200 dark:bg-white/10">
             <div
               className="absolute inset-y-0 bg-ink-700 dark:bg-white/50"
-              style={{ left: `${toPct(bounds.low)}%`, width: `${toPct(bounds.high) - toPct(bounds.low)}%` }}
+              style={{
+                left: `${toPct(bounds.low)}%`,
+                width: `${toPct(bounds.high) - toPct(bounds.low)}%`,
+              }}
             />
           </div>
         </div>
       ) : null}
 
       {/* Band edges along the track, and the current band called out once. */}
-      <div className="mt-2 flex justify-between gap-3 text-xs font-semibold text-ink-500 dark:text-ink-on-dark-muted tabular-nums" aria-hidden="true">
+      <div
+        className="mt-2 flex justify-between gap-3 text-xs font-semibold text-ink-500 dark:text-ink-on-dark-muted tabular-nums"
+        aria-hidden="true"
+      >
         <span>10</span>
         <span className="text-ink-700 dark:text-ink-on-dark">{band}</span>
         <span>90</span>
@@ -158,21 +176,28 @@ export function ScoreRangeBar({ score, band, fraction, size = 'lg', className, l
 
       {current ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 text-xs">
-          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{clamped}</span> of 90,{' '}
-          {band} runs {current.from}–{current.to}, so you are{' '}
-          {Math.round(Math.max(0, current.to - clamped) * 10) / 10} point{Math.round(current.to - clamped) === 1 ? '' : 's'} short of{' '}
+          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{clamped}</span>{' '}
+          of 90, {band} runs {current.from}–{current.to}, so you are{' '}
+          {Math.round(Math.max(0, current.to - clamped) * 10) / 10} point
+          {Math.round(current.to - clamped) === 1 ? '' : 's'} short of{' '}
           {nextBand(band)?.band ?? 'the top of the scale'}.
         </p>
       ) : null}
       {showRail && bounds ? (
         <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 max-w-prose text-xs">
           The same attempt could land between{' '}
-          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.low}</span> and{' '}
-          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">{bounds.high}</span> if our 10–90
-          conversion is wrong — a bound on the mapping, not a confidence interval. Pearson's IRT parameters are
-          unpublished, so the conversion reproduces the shape of the scale rather than the scale itself, and the one
-          number that could reasonably have been written differently moves the score most through the middle and not
-          at all at 90. Your answers are not in doubt; the mapping is.
+          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">
+            {bounds.low}
+          </span>{' '}
+          and{' '}
+          <span className="text-ink-900 dark:text-white font-semibold tabular-nums">
+            {bounds.high}
+          </span>{' '}
+          if our 10–90 conversion is wrong — a bound on the mapping, not a confidence interval.
+          Pearson's IRT parameters are unpublished, so the conversion reproduces the shape of the
+          scale rather than the scale itself, and the one number that could reasonably have been
+          written differently moves the score most through the middle and not at all at 90. Your
+          answers are not in doubt; the mapping is.
         </p>
       ) : null}
 
@@ -207,17 +232,24 @@ export function SkillBars({
               <span className="text-ink-700 dark:text-ink-200 font-medium">
                 <span className="capitalize">{skill}</span>
                 {isWeak ? (
-                  <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 text-xs normal-case">work on this one</span>
+                  <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 text-xs normal-case">
+                    work on this one
+                  </span>
                 ) : null}
                 {isStrong && !isWeak ? (
-                  <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 text-xs normal-case">strongest</span>
+                  <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 text-xs normal-case">
+                    strongest
+                  </span>
                 ) : null}
               </span>
               <span className="text-ink-900 dark:text-white font-bold tabular-nums">{value}</span>
             </div>
             <div className="bg-ink-200 dark:bg-white/10 h-2 w-full overflow-hidden rounded-full">
               <div
-                className={cn('h-full rounded-sm origin-left animate-bar-reveal transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]', isWeak ? 'bg-rose-brand' : 'bg-brand-500')}
+                className={cn(
+                  'h-full rounded-sm origin-left animate-bar-reveal transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]',
+                  isWeak ? 'bg-rose-brand' : 'bg-brand-500',
+                )}
                 style={{ width: `${pct}%` }}
               />
             </div>

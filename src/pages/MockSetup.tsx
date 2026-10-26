@@ -21,7 +21,6 @@ import { useTest } from '../store/useTest'
 import { formatClock } from '../lib/format'
 import { cn } from '../lib/cn'
 
-
 type Length = 'full' | 'half' | 'quick'
 
 /**
@@ -32,7 +31,10 @@ type Length = 'full' | 'half' | 'quick'
  */
 type TimingId = 'standard' | 'extended' | 'long' | 'untimed'
 
-const TIMINGS: Record<TimingId, { label: string; detail: string; scale: number; untimed?: boolean }> = {
+const TIMINGS: Record<
+  TimingId,
+  { label: string; detail: string; scale: number; untimed?: boolean }
+> = {
   standard: {
     label: 'Official timing',
     detail: `Current section ranges: ${SECTION_META['speaking-writing'].weightNote}, ${SECTION_META.reading.weightNote}, and ${SECTION_META.listening.weightNote}.`,
@@ -67,7 +69,7 @@ export default function MockSetup() {
   const start = useTest((s) => s.start)
   const activeMock = useTest((s) => s.mock)
   const activeStatus = useTest((s) => s.status)
-  
+
   const [length, setLength] = useState<Length>('full')
   const [singleSection, setSingleSection] = useState<SectionId | null>(null)
   const [timing, setTiming] = useState<TimingId>('standard')
@@ -182,8 +184,18 @@ export default function MockSetup() {
         <ActiveSessionNotice />
         <div className="mt-6 flex items-start gap-3.5 rounded-2xl border border-mark-500/25 bg-mark-500/[0.04] p-4.5 dark:border-mark-400/25 dark:bg-mark-500/[0.08]">
           <div className="size-8 rounded-xl bg-mark-500/10 text-mark-600 dark:bg-mark-400/20 dark:text-mark-300 grid place-items-center shrink-0 mt-0.5">
-            <svg className="size-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            <svg
+              className="size-4.5"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              />
             </svg>
           </div>
           <div>
@@ -196,176 +208,188 @@ export default function MockSetup() {
               </span>
             </div>
             <p className="mt-1 text-xs leading-relaxed text-ink-600 dark:text-ink-on-dark-muted">
-              Section clocks run continuously without pausing, matching real Pearson test-centre rules. Verify your headset microphone below before beginning Part 1.
+              Section clocks run continuously without pausing, matching real Pearson test-centre
+              rules. Verify your headset microphone below before beginning Part 1.
             </p>
           </div>
         </div>
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-6">
             <Reveal variant="up" duration={550}>
-            <div className="card-solid relative overflow-hidden">
-              <h2 className="text-ink-900 dark:text-ink-50 border-ink-200 dark:border-white/10 mb-4 border-b pb-4 text-xs font-extrabold uppercase tracking-wider">
-                Test length and timing
-              </h2>
-              
-              <div className="space-y-3">
-                {(['full', 'half', 'quick'] as const).map((len) => {
-                  const isActive = length === len
-                  const meta =
-                    len === 'full'
-                      ? {
-                          label: 'Full mock',
-                          badge: 'Official pace',
-                          badgeTone: 'mint' as const,
-                          specs: 'All 3 sections · 22 types · ~2h 15m',
-                          desc: 'Full Pearson Academic simulation with machine scoring across Speaking, Writing, Reading, and Listening.',
-                        }
-                      : len === 'half'
+              <div className="card-solid relative overflow-hidden">
+                <h2 className="text-ink-900 dark:text-ink-50 border-ink-200 dark:border-white/10 mb-4 border-b pb-4 text-xs font-extrabold uppercase tracking-wider">
+                  Test length and timing
+                </h2>
+
+                <div className="space-y-3">
+                  {(['full', 'half', 'quick'] as const).map((len) => {
+                    const isActive = length === len
+                    const meta =
+                      len === 'full'
                         ? {
-                            label: 'Half mock',
-                            badge: 'Accelerated',
-                            badgeTone: 'brand' as const,
-                            specs: 'Every section halved · ~1h',
-                            desc: 'Proportional question distribution across all sections. Ideal for mid-week pacing and stamina drills.',
+                            label: 'Full mock',
+                            badge: 'Official pace',
+                            badgeTone: 'mint' as const,
+                            specs: 'All 3 sections · 22 types · ~2h 15m',
+                            desc: 'Full Pearson Academic simulation with machine scoring across Speaking, Writing, Reading, and Listening.',
                           }
-                        : {
-                            label: 'Quick run',
-                            badge: 'Diagnostic',
-                            badgeTone: 'neutral' as const,
-                            specs: 'Around 25 items · ~30m',
-                            desc: 'Rapid diagnostic run. Validates microphone input, speech recognition latency, and pacing.',
-                          }
+                        : len === 'half'
+                          ? {
+                              label: 'Half mock',
+                              badge: 'Accelerated',
+                              badgeTone: 'brand' as const,
+                              specs: 'Every section halved · ~1h',
+                              desc: 'Proportional question distribution across all sections. Ideal for mid-week pacing and stamina drills.',
+                            }
+                          : {
+                              label: 'Quick run',
+                              badge: 'Diagnostic',
+                              badgeTone: 'neutral' as const,
+                              specs: 'Around 25 items · ~30m',
+                              desc: 'Rapid diagnostic run. Validates microphone input, speech recognition latency, and pacing.',
+                            }
 
-                  return (
-                    <label
-                      key={len}
-                      className={cn(
-                        'group relative flex cursor-pointer items-start gap-4 rounded-2xl border p-4 sm:p-5 transition-all duration-200',
-                        isActive
-                          ? 'border-mark-500/80 bg-mark-500/[0.07] ring-1 ring-mark-500/40 dark:border-mark-400 dark:bg-mark-500/[0.12] dark:ring-mark-400/40 shadow-sm shadow-mark-500/10'
-                          : 'border-ink-200/80 bg-white hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-white/20 dark:hover:bg-white/[0.04]',
-                      )}
-                    >
-                      <input
-                        type="radio"
-                        name="length"
-                        className="peer sr-only"
-                        checked={isActive}
-                        onChange={() => { setLength(len); setSingleSection(null); }}
-                      />
-
-                      <span
-                        aria-hidden="true"
+                    return (
+                      <label
+                        key={len}
                         className={cn(
-                          // The native input is `sr-only`, so the browser's own
-                          // focus ring is clipped to a pixel. The visible
-                          // control has to show the focus instead.
-                          'peer-focus-visible:ring-brand-500 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border transition-all',
+                          'group relative flex cursor-pointer items-start gap-4 rounded-2xl border p-4 sm:p-5 transition-all duration-200',
                           isActive
-                            ? 'border-mark-600 bg-mark-600 dark:border-mark-400 dark:bg-mark-600 text-white shadow-sm'
-                            : 'border-ink-300 group-hover:border-ink-400 dark:border-white/20 dark:group-hover:border-white/40',
+                            ? 'border-mark-500/80 bg-mark-500/[0.07] ring-1 ring-mark-500/40 dark:border-mark-400 dark:bg-mark-500/[0.12] dark:ring-mark-400/40 shadow-sm shadow-mark-500/10'
+                            : 'border-ink-200/80 bg-white hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:hover:border-white/20 dark:hover:bg-white/[0.04]',
                         )}
                       >
-                        {isActive ? (
-                          <span className="size-2 rounded-full bg-white dark:bg-ink-950" />
-                        ) : null}
-                      </span>
+                        <input
+                          type="radio"
+                          name="length"
+                          className="peer sr-only"
+                          checked={isActive}
+                          onChange={() => {
+                            setLength(len)
+                            setSingleSection(null)
+                          }}
+                        />
 
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
-                          <div className="flex items-center gap-2.5">
-                            <span className="text-ink-900 dark:text-ink-50 text-base font-bold">
-                              {meta.label}
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            // The native input is `sr-only`, so the browser's own
+                            // focus ring is clipped to a pixel. The visible
+                            // control has to show the focus instead.
+                            'peer-focus-visible:ring-brand-500 peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 mt-0.5 grid size-5 shrink-0 place-items-center rounded-full border transition-all',
+                            isActive
+                              ? 'border-mark-600 bg-mark-600 dark:border-mark-400 dark:bg-mark-600 text-white shadow-sm'
+                              : 'border-ink-300 group-hover:border-ink-400 dark:border-white/20 dark:group-hover:border-white/40',
+                          )}
+                        >
+                          {isActive ? (
+                            <span className="size-2 rounded-full bg-white dark:bg-ink-950" />
+                          ) : null}
+                        </span>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1">
+                            <div className="flex items-center gap-2.5">
+                              <span className="text-ink-900 dark:text-ink-50 text-base font-bold">
+                                {meta.label}
+                              </span>
+                              <Badge tone={meta.badgeTone}>{meta.badge}</Badge>
+                            </div>
+                            <span className="text-ink-500 dark:text-ink-on-dark-muted font-mono text-xs">
+                              {meta.specs}
                             </span>
-                            <Badge tone={meta.badgeTone}>{meta.badge}</Badge>
                           </div>
-                          <span className="text-ink-500 dark:text-ink-on-dark-muted font-mono text-xs">
-                            {meta.specs}
-                          </span>
+                          <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 text-xs leading-relaxed">
+                            {meta.desc}
+                          </p>
                         </div>
-                        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 text-xs leading-relaxed">
-                          {meta.desc}
-                        </p>
-                      </div>
-                    </label>
-                  )
-                })}
-              </div>
-
-              <div className="border-ink-100 dark:border-white/10 mt-6 border-t pt-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-ink-900 dark:text-white text-xs font-bold uppercase tracking-wider">Pacing &amp; Clock</h3>
-                  <span className="text-[11px] font-mono text-ink-500 dark:text-ink-on-dark-muted">WCAG 2.2 accessible</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" role="group" aria-label="Timing">
-                  {(Object.keys(TIMINGS) as TimingId[]).map((id) => {
-                    const isActive = timing === id
-                    return (
-                      <button
-                        key={id}
-                        type="button"
-                        onClick={() => setTiming(id)}
-                        aria-pressed={isActive}
-                        className={`cursor-pointer rounded-xl border px-3 py-2.5 text-center text-xs font-bold transition-all duration-150 ${
-                          isActive
-                            ? 'border-mark-500 bg-mark-600 text-white shadow-sm shadow-mark-500/20 dark:border-mark-400 dark:bg-mark-600 dark:text-white'
-                            : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-ink-on-dark dark:hover:border-white/20'
-                        }`}
-                      >
-                        {TIMINGS[id].label}
-                      </button>
+                      </label>
                     )
                   })}
                 </div>
-                <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs leading-relaxed">
-                  {TIMINGS[timing].detail}
-                </p>
-              </div>
 
-              {length !== 'full' && (
-                <div className="mt-6 pt-6 border-t border-ink-100 dark:border-white/10">
+                <div className="border-ink-100 dark:border-white/10 mt-6 border-t pt-6">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-bold text-ink-900 dark:text-white uppercase tracking-wider">
-                      Section filter (optional)
+                    <h3 className="text-ink-900 dark:text-white text-xs font-bold uppercase tracking-wider">
+                      Pacing &amp; Clock
                     </h3>
+                    <span className="text-[11px] font-mono text-ink-500 dark:text-ink-on-dark-muted">
+                      WCAG 2.2 accessible
+                    </span>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setSingleSection(null)}
-                      aria-pressed={singleSection === null}
-                      className={`px-3 py-2 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer ${
-                        singleSection === null
-                          ? 'border-mark-500 bg-mark-600 text-white dark:border-mark-400 dark:bg-mark-600 dark:text-white'
-                          : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-ink-on-dark dark:hover:border-white/20'
-                      }`}
-                    >
-                      All sections
-                    </button>
-                    {(['speaking-writing', 'reading', 'listening'] as const).map((sId) => {
-                      const isActive = singleSection === sId
-                      const sectionTitle = SECTION_META[sId]?.longTitle || sId
-
+                  <div
+                    className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+                    role="group"
+                    aria-label="Timing"
+                  >
+                    {(Object.keys(TIMINGS) as TimingId[]).map((id) => {
+                      const isActive = timing === id
                       return (
                         <button
-                          key={sId}
+                          key={id}
                           type="button"
-                          onClick={() => setSingleSection(sId)}
+                          onClick={() => setTiming(id)}
                           aria-pressed={isActive}
-                          className={`px-3 py-2 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer truncate ${
+                          className={`cursor-pointer rounded-xl border px-3 py-2.5 text-center text-xs font-bold transition-all duration-150 ${
                             isActive
-                              ? 'border-mark-500 bg-mark-600 text-white dark:border-mark-400 dark:bg-mark-600 dark:text-white'
+                              ? 'border-mark-500 bg-mark-600 text-white shadow-sm shadow-mark-500/20 dark:border-mark-400 dark:bg-mark-600 dark:text-white'
                               : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-ink-on-dark dark:hover:border-white/20'
                           }`}
-                          title={sectionTitle}
                         >
-                          {SECTION_META[sId]?.longTitle || sId}
+                          {TIMINGS[id].label}
                         </button>
                       )
                     })}
                   </div>
+                  <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs leading-relaxed">
+                    {TIMINGS[timing].detail}
+                  </p>
                 </div>
-              )}
+
+                {length !== 'full' && (
+                  <div className="mt-6 pt-6 border-t border-ink-100 dark:border-white/10">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xs font-bold text-ink-900 dark:text-white uppercase tracking-wider">
+                        Section filter (optional)
+                      </h3>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSingleSection(null)}
+                        aria-pressed={singleSection === null}
+                        className={`px-3 py-2 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer ${
+                          singleSection === null
+                            ? 'border-mark-500 bg-mark-600 text-white dark:border-mark-400 dark:bg-mark-600 dark:text-white'
+                            : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-ink-on-dark dark:hover:border-white/20'
+                        }`}
+                      >
+                        All sections
+                      </button>
+                      {(['speaking-writing', 'reading', 'listening'] as const).map((sId) => {
+                        const isActive = singleSection === sId
+                        const sectionTitle = SECTION_META[sId]?.longTitle || sId
+
+                        return (
+                          <button
+                            key={sId}
+                            type="button"
+                            onClick={() => setSingleSection(sId)}
+                            aria-pressed={isActive}
+                            className={`px-3 py-2 rounded-xl text-xs font-bold border text-center transition-all cursor-pointer truncate ${
+                              isActive
+                                ? 'border-mark-500 bg-mark-600 text-white dark:border-mark-400 dark:bg-mark-600 dark:text-white'
+                                : 'border-ink-200 bg-white text-ink-700 hover:border-ink-300 dark:border-white/10 dark:bg-white/[0.02] dark:text-ink-on-dark dark:hover:border-white/20'
+                            }`}
+                            title={sectionTitle}
+                          >
+                            {SECTION_META[sId]?.longTitle || sId}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             </Reveal>
 
@@ -377,55 +401,85 @@ export default function MockSetup() {
           <div className="lg:col-span-1">
             <Reveal variant="up" delay={40} duration={550}>
               <div className="card-solid sticky top-24 border-t-2 border-t-mark-500 shadow-lg shadow-mark-500/5">
-              <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-3 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-mint-500 animate-pulse" />
-                  <h2 className="text-xs font-extrabold uppercase tracking-wider text-ink-900 dark:text-white">
-                    Session summary
-                  </h2>
+                <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-3 mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="size-2 rounded-full bg-mint-500 animate-pulse" />
+                    <h2 className="text-xs font-extrabold uppercase tracking-wider text-ink-900 dark:text-white">
+                      Session summary
+                    </h2>
+                  </div>
+                  <Badge tone="mint">Ready</Badge>
                 </div>
-                <Badge tone="mint">Ready</Badge>
-              </div>
-              
-              <dl className="space-y-3 mb-6 border-b border-ink-100 dark:border-white/10 pb-5">
-                <Row label="Type" value={LENGTHS[length].label} />
-                <Row label="Timing" value={TIMINGS[timing].label} />
-                <Row label="Sections" value={preview.sectionIds.map((s) => SECTION_META[s]?.longTitle || s).join(' → ')} />
-                <Row label="Scored items" value={`${preview.scoredCount} items`} popKey={preview.scoredCount} />
-                <Row label="Estimated time" value={formatClock(preview.totalSeconds)} popKey={preview.totalSeconds} />
-                <Row label="Scoring" value="Pearson Automated (AI)" />
-              </dl>
-              
-              <Button size="lg" className="w-full justify-center text-sm font-bold shadow-md shadow-mark-500/20" onClick={handleStart} disabled={starting}>
-                {starting ? 'Preparing your mock…' : 'Start mock test'}
-              </Button>
 
-              {loadError ? (
-                <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs font-medium text-red-600 dark:text-red-400" role="alert">
-                  {loadError}
-                </div>
-              ) : null}
+                <dl className="space-y-3 mb-6 border-b border-ink-100 dark:border-white/10 pb-5">
+                  <Row label="Type" value={LENGTHS[length].label} />
+                  <Row label="Timing" value={TIMINGS[timing].label} />
+                  <Row
+                    label="Sections"
+                    value={preview.sectionIds
+                      .map((s) => SECTION_META[s]?.longTitle || s)
+                      .join(' → ')}
+                  />
+                  <Row
+                    label="Scored items"
+                    value={`${preview.scoredCount} items`}
+                    popKey={preview.scoredCount}
+                  />
+                  <Row
+                    label="Estimated time"
+                    value={formatClock(preview.totalSeconds)}
+                    popKey={preview.totalSeconds}
+                  />
+                  <Row label="Scoring" value="Pearson Automated (AI)" />
+                </dl>
 
-              <details className="border-ink-200 dark:border-white/10 group mt-5 border-t pt-4">
-                <summary className="text-ink-700 dark:text-ink-200 flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold">
-                  <span className="flex items-center gap-1.5">
-                    <span className="rounded-full bg-mark-500/10 dark:bg-mark-400/20 px-2 py-0.5 font-mono text-[11px] font-bold text-mark-700 dark:text-mark-300">
-                      {includedTypes.length}
+                <Button
+                  size="lg"
+                  className="w-full justify-center text-sm font-bold shadow-md shadow-mark-500/20"
+                  onClick={handleStart}
+                  disabled={starting}
+                >
+                  {starting ? 'Preparing your mock…' : 'Start mock test'}
+                </Button>
+
+                {loadError ? (
+                  <div
+                    className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 p-3.5 text-xs font-medium text-red-600 dark:text-red-400"
+                    role="alert"
+                  >
+                    {loadError}
+                  </div>
+                ) : null}
+
+                <details className="border-ink-200 dark:border-white/10 group mt-5 border-t pt-4">
+                  <summary className="text-ink-700 dark:text-ink-200 flex cursor-pointer items-center justify-between gap-3 text-xs font-semibold">
+                    <span className="flex items-center gap-1.5">
+                      <span className="rounded-full bg-mark-500/10 dark:bg-mark-400/20 px-2 py-0.5 font-mono text-[11px] font-bold text-mark-700 dark:text-mark-300">
+                        {includedTypes.length}
+                      </span>
+                      <span>question types</span>
                     </span>
-                    <span>question types</span>
-                  </span>
-                  <span className="text-ink-500 dark:text-ink-on-dark-muted font-normal group-open:hidden">Inspect ↓</span>
-                  <span className="text-ink-500 dark:text-ink-on-dark-muted hidden font-normal group-open:inline">Collapse ↑</span>
-                </summary>
-                <ul className="text-ink-600 dark:text-ink-on-dark mt-3 max-h-48 space-y-1.5 overflow-y-auto pr-2 text-xs">
-                  {includedTypes.map((type, idx) => (
-                    <li key={type} className="flex items-center justify-between py-1 border-b border-ink-100/60 dark:border-white/5">
-                      <span className="truncate">{QUESTION_META[type]?.label || type}</span>
-                      <span className="text-ink-500 dark:text-ink-on-dark-muted font-mono text-xs shrink-0 ml-2">#{String(idx + 1).padStart(2, '0')}</span>
-                    </li>
-                  ))}
-                </ul>
-              </details>
+                    <span className="text-ink-500 dark:text-ink-on-dark-muted font-normal group-open:hidden">
+                      Inspect ↓
+                    </span>
+                    <span className="text-ink-500 dark:text-ink-on-dark-muted hidden font-normal group-open:inline">
+                      Collapse ↑
+                    </span>
+                  </summary>
+                  <ul className="text-ink-600 dark:text-ink-on-dark mt-3 max-h-48 space-y-1.5 overflow-y-auto pr-2 text-xs">
+                    {includedTypes.map((type, idx) => (
+                      <li
+                        key={type}
+                        className="flex items-center justify-between py-1 border-b border-ink-100/60 dark:border-white/5"
+                      >
+                        <span className="truncate">{QUESTION_META[type]?.label || type}</span>
+                        <span className="text-ink-500 dark:text-ink-on-dark-muted font-mono text-xs shrink-0 ml-2">
+                          #{String(idx + 1).padStart(2, '0')}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
               </div>
             </Reveal>
           </div>
@@ -452,7 +506,14 @@ export default function MockSetup() {
               <Button variant="secondary" size="sm" onClick={() => setConfirmOverwrite(false)}>
                 Cancel
               </Button>
-              <Button variant="danger" size="sm" onClick={() => { setConfirmOverwrite(false); void begin(); }}>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => {
+                  setConfirmOverwrite(false)
+                  void begin()
+                }}
+              >
                 Discard & start
               </Button>
             </>
@@ -462,7 +523,8 @@ export default function MockSetup() {
             This conflicts with your current selection
           </p>
           <p>
-            You have an active mock ({activeMock?.title}). Starting a new one will discard its progress.
+            You have an active mock ({activeMock?.title}). Starting a new one will discard its
+            progress.
           </p>
         </Dialog>
       </PageWrapper>
@@ -529,7 +591,11 @@ function MicChecker() {
       setAudioUrl(null)
     }
 
-    if (typeof window === 'undefined' || typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+    if (
+      typeof window === 'undefined' ||
+      typeof navigator === 'undefined' ||
+      !navigator.mediaDevices?.getUserMedia
+    ) {
       startingRef.current = false
       setState('error')
       setErrorMsg('Microphone recording is not supported in this browser.')
@@ -572,7 +638,9 @@ function MicChecker() {
         typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported('audio/webm')
           ? 'audio/webm'
           : ''
-      const recorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream)
+      const recorder = mimeType
+        ? new MediaRecorder(stream, { mimeType })
+        : new MediaRecorder(stream)
       recorderRef.current = recorder
 
       recorder.ondataavailable = (e) => {
@@ -643,16 +711,24 @@ function MicChecker() {
     <div className="card-solid relative overflow-hidden">
       <div className="flex items-center justify-between border-b border-ink-100 dark:border-white/10 pb-4 mb-5">
         <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-ink-500 dark:text-ink-on-dark-muted">
-          <svg className="size-3.5 text-mark-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 1.5a3 3 0 00-3 3v7.5a3 3 0 006 0V4.5a3 3 0 00-3-3z" />
+          <svg
+            className="size-3.5 text-mark-500"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 1.5a3 3 0 00-3 3v7.5a3 3 0 006 0V4.5a3 3 0 00-3-3z"
+            />
           </svg>
           <span>Hardware Readiness</span>
         </div>
         <div className="flex items-center gap-2">
           {state === 'idle' && (
-            <span className="text-xs text-ink-500 dark:text-ink-on-dark-muted">
-              Ready
-            </span>
+            <span className="text-xs text-ink-500 dark:text-ink-on-dark-muted">Ready</span>
           )}
           {state === 'recording' && (
             <span className="inline-flex items-center gap-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 animate-pulse">
@@ -678,7 +754,8 @@ function MicChecker() {
         <div className="max-w-md">
           <h3 className="text-sm font-bold text-ink-900 dark:text-white">Microphone input test</h3>
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-xs leading-relaxed">
-            Record a 3-second sample to verify browser microphone permissions and ensure acoustic clarity before starting Part 1.
+            Record a 3-second sample to verify browser microphone permissions and ensure acoustic
+            clarity before starting Part 1.
           </p>
         </div>
 
@@ -730,8 +807,12 @@ function MicChecker() {
           </div>
 
           <div className="pt-2 text-xs text-ink-600 dark:text-ink-on-dark">
-            <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs block mb-1">Say this phrase:</span>
-            <span className="font-semibold text-ink-900 dark:text-white">"The quick brown fox jumps over the lazy dog."</span>
+            <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs block mb-1">
+              Say this phrase:
+            </span>
+            <span className="font-semibold text-ink-900 dark:text-white">
+              "The quick brown fox jumps over the lazy dog."
+            </span>
           </div>
         </div>
       )}
@@ -750,7 +831,9 @@ function MicChecker() {
             </span>
             <div>
               <p className="text-xs font-bold text-ink-900 dark:text-white">Microphone works</p>
-              <p className="text-xs text-ink-500 dark:text-ink-on-dark-muted">Your voice was recorded clearly. Listen back to check.</p>
+              <p className="text-xs text-ink-500 dark:text-ink-on-dark-muted">
+                Your voice was recorded clearly. Listen back to check.
+              </p>
             </div>
           </div>
           <audio controls src={audioUrl} className="h-8 max-w-xs" />
@@ -760,7 +843,11 @@ function MicChecker() {
       {state === 'error' && (
         <div className="mt-4 flex items-start gap-2 rounded-xl border border-rose-500/30 bg-rose-500/5 p-3 text-xs text-rose-600 dark:text-rose-400">
           <span>⚠️ {errorMsg}</span>
-          <button type="button" onClick={startTest} className="underline font-bold ml-1 cursor-pointer">
+          <button
+            type="button"
+            onClick={startTest}
+            className="underline font-bold ml-1 cursor-pointer"
+          >
             Retry
           </button>
         </div>

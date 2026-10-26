@@ -99,7 +99,7 @@ export const REBALANCED_HIGHLIGHT_SUMMARY: HighlightSummaryItem[] = [
       'The student disputes a fine for a book returned on the Thursday, the assistant finds no desk scan but a reshelving trolley record, cannot remove the fine at the desk, offers to submit the record for review, and warns that fines over fifteen pounds elsewhere block lending.',
       'The student disputes a fine for a book returned on the Friday, the assistant finds a reshelving trolley record but no desk scan, cannot remove the fine at the desk, offers to submit that record for review, and warns that fines over fifteen pounds elsewhere block lending.',
       'The student disputes a fine for a book returned on the Thursday, the assistant finds no desk scan but a reshelving trolley record, removes the fine at the desk immediately, and confirms that no other fines affect borrowing at all.',
-      'The student disputes a fine for a book returned on the Thursday, the assistant finds no desk scan and no trolley record of any kind on the system, refers the student back to the drop box rules for the correct procedure, and warns that fines over fifteen pounds elsewhere block borrowing entirely.'
+      'The student disputes a fine for a book returned on the Thursday, the assistant finds no desk scan and no trolley record of any kind on the system, refers the student back to the drop box rules for the correct procedure, and warns that fines over fifteen pounds elsewhere block borrowing entirely.',
     ],
     correct: 0,
   },

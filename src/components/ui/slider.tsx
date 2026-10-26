@@ -36,10 +36,15 @@ export function Slider({
   return (
     <div className={cn('flex items-center justify-between gap-4 py-2.5', className)}>
       <div className="min-w-0">
-        <label htmlFor={id} className="text-ink-800 dark:text-ink-100 block text-sm font-medium cursor-pointer">
+        <label
+          htmlFor={id}
+          className="text-ink-800 dark:text-ink-100 block text-sm font-medium cursor-pointer"
+        >
           {label}
         </label>
-        {hint ? <span className="text-ink-500 dark:text-ink-on-dark-muted block text-xs">{hint}</span> : null}
+        {hint ? (
+          <span className="text-ink-500 dark:text-ink-on-dark-muted block text-xs">{hint}</span>
+        ) : null}
       </div>
       <div className="flex shrink-0 items-center gap-3">
         <input

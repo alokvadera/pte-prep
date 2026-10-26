@@ -39,7 +39,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   if (url.searchParams.get('ids') === '1') {
     const rawLimit = Number(url.searchParams.get('limit') ?? '1000')
     const rawOffset = Number(url.searchParams.get('offset') ?? '0')
-    const limit = Number.isFinite(rawLimit) ? Math.min(2000, Math.max(1, Math.floor(rawLimit))) : 1000
+    const limit = Number.isFinite(rawLimit)
+      ? Math.min(2000, Math.max(1, Math.floor(rawLimit)))
+      : 1000
     const offset = Number.isFinite(rawOffset) ? Math.max(0, Math.floor(rawOffset)) : 0
 
     // Fetch one extra row so `hasMore` is exact without a second count query.
@@ -190,13 +192,19 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     })
   }
-  if (attempt.details !== undefined && (!Array.isArray(attempt.details) || attempt.details.length > 200)) {
+  if (
+    attempt.details !== undefined &&
+    (!Array.isArray(attempt.details) || attempt.details.length > 200)
+  ) {
     return new Response(JSON.stringify({ error: 'Invalid details payload' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
-  if (attempt.sectionIds !== undefined && (!Array.isArray(attempt.sectionIds) || attempt.sectionIds.length > 50)) {
+  if (
+    attempt.sectionIds !== undefined &&
+    (!Array.isArray(attempt.sectionIds) || attempt.sectionIds.length > 50)
+  ) {
     return new Response(JSON.stringify({ error: 'Invalid sectionIds payload' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
@@ -240,10 +248,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         .bind(id, session.userId)
         .first()
       if (!exists) {
-        return new Response(JSON.stringify({ error: 'Attempt limit reached for this account (max 2,000).' }), {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        })
+        return new Response(
+          JSON.stringify({ error: 'Attempt limit reached for this account (max 2,000).' }),
+          {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          },
+        )
       }
     }
 
@@ -281,10 +292,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       .run()
 
     if (res.meta && res.meta.changes === 0) {
-      return new Response(JSON.stringify({ error: 'Conflict: attempt belongs to another account' }), {
-        status: 409,
-        headers: { 'Content-Type': 'application/json' },
-      })
+      return new Response(
+        JSON.stringify({ error: 'Conflict: attempt belongs to another account' }),
+        {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
     }
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err)

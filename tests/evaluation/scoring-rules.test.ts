@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import { buildFullMock } from '../../src/domain/assemble'
-import { ALL_QUESTION_TYPES, NEGATIVE_MARKING_TYPES, QUESTION_META } from '../../src/domain/blueprint'
+import {
+  ALL_QUESTION_TYPES,
+  NEGATIVE_MARKING_TYPES,
+  QUESTION_META,
+} from '../../src/domain/blueprint'
 import { expectedMaxPoints, formBand, scoreItem } from '../../src/domain/scoring'
 import { keyTermCoverage } from '../../src/lib/text'
 import type { Item, ItemResponse } from '../../src/domain/types'
@@ -65,7 +69,9 @@ describe('objective item scoring', () => {
   })
 
   it('scores a reversed order below full marks', () => {
-    expect(scoreItem(rop, key(rop.id), { order: [...(key(rop.id).order ?? [])].reverse() }).ratio).toBeLessThan(1)
+    expect(
+      scoreItem(rop, key(rop.id), { order: [...(key(rop.id).order ?? [])].reverse() }).ratio,
+    ).toBeLessThan(1)
   })
 
   it('scores a wholly wrong order as zero', () => {
@@ -92,18 +98,26 @@ describe('objective item scoring', () => {
   it('scores partial dropdown blanks proportionally', () => {
     const half = fibdAll.map((value, index) => (index % 2 === 0 ? value : 'wrong'))
     const expected = fibdAll.filter((_, index) => index % 2 === 0).length / fibdAll.length
-    expect(Math.abs(scoreItem(fibd, key(fibd.id), { blanks: half }).ratio - expected)).toBeLessThan(0.01)
+    expect(Math.abs(scoreItem(fibd, key(fibd.id), { blanks: half }).ratio - expected)).toBeLessThan(
+      0.01,
+    )
   })
 
   it('charges exactly one nth for a single wrong blank', () => {
     const oneWrong = fibdAll.map((value, index) => (index === 0 ? 'nope' : value))
-    expect(Math.abs(scoreItem(fibd, key(fibd.id), { blanks: oneWrong }).ratio - (1 - 1 / fibdAll.length))).toBeLessThan(0.01)
+    expect(
+      Math.abs(
+        scoreItem(fibd, key(fibd.id), { blanks: oneWrong }).ratio - (1 - 1 / fibdAll.length),
+      ),
+    ).toBeLessThan(0.01)
   })
 
   const wfd = byType('write-from-dictation')
 
   it('scores an exact dictation highly', () => {
-    expect(scoreItem(wfd, key(wfd.id), { text: key(wfd.id).reference ?? '' }).ratio).toBeGreaterThan(0.7)
+    expect(
+      scoreItem(wfd, key(wfd.id), { text: key(wfd.id).reference ?? '' }).ratio,
+    ).toBeGreaterThan(0.7)
   })
 
   it('scores garbage dictation low', () => {
@@ -122,11 +136,15 @@ describe('re-order paragraphs: one point per adjacent pair', () => {
   })
 
   it('charges exactly one point for one broken link', () => {
-    expect(Math.abs(scoreItem(item, itemKey, { order: ['a', 'b', 'd', 'c'] }).ratio - 1 / 3)).toBeLessThan(0.001)
+    expect(
+      Math.abs(scoreItem(item, itemKey, { order: ['a', 'b', 'd', 'c'] }).ratio - 1 / 3),
+    ).toBeLessThan(0.001)
   })
 
   it('earns two points for a chain of three correct boxes', () => {
-    expect(Math.abs(scoreItem(item, itemKey, { order: ['d', 'a', 'b', 'c'] }).ratio - 2 / 3)).toBeLessThan(0.001)
+    expect(
+      Math.abs(scoreItem(item, itemKey, { order: ['d', 'a', 'b', 'c'] }).ratio - 2 / 3),
+    ).toBeLessThan(0.001)
   })
 
   it('scores zero when no adjacency is right', () => {
@@ -134,15 +152,21 @@ describe('re-order paragraphs: one point per adjacent pair', () => {
   })
 
   it('reports four points for a five-box item', () => {
-    expect(expectedMaxPoints('reorder-paragraphs', { order: ['p0', 'p1', 'p2', 'p3', 'p4'] })).toBe(4)
+    expect(expectedMaxPoints('reorder-paragraphs', { order: ['p0', 'p1', 'p2', 'p3', 'p4'] })).toBe(
+      4,
+    )
   })
 })
 
 describe('per-unit item maxima come from the item itself', () => {
   const refWords = (id: string) => (key(id).reference ?? '').split(/\s+/).filter(Boolean).length
   const perWordItems = scored.filter((item) => QUESTION_META[item.type].scoring === 'per-word')
-  const perPairItems = scored.filter((item) => QUESTION_META[item.type].scoring === 'per-adjacent-pair')
-  const negatedItems = scored.filter((item) => QUESTION_META[item.type].scoring === 'per-unit-negated')
+  const perPairItems = scored.filter(
+    (item) => QUESTION_META[item.type].scoring === 'per-adjacent-pair',
+  )
+  const negatedItems = scored.filter(
+    (item) => QUESTION_META[item.type].scoring === 'per-unit-negated',
+  )
 
   it('has per-word items to check', () => {
     expect(perWordItems.length).toBeGreaterThan(0)
@@ -161,7 +185,11 @@ describe('per-unit item maxima come from the item itself', () => {
   })
 
   it('makes every re-order item worth one point per adjacent pair', () => {
-    expect(perPairItems.every((item) => item.maxPoints === Math.max(1, (key(item.id).order ?? []).length - 1))).toBe(true)
+    expect(
+      perPairItems.every(
+        (item) => item.maxPoints === Math.max(1, (key(item.id).order ?? []).length - 1),
+      ),
+    ).toBe(true)
   })
 
   it('makes every negatively marked item worth one point per correct unit', () => {
@@ -177,17 +205,27 @@ describe('per-unit item maxima come from the item itself', () => {
   it('gives no per-unit item a maximum below one point', () => {
     expect(
       scored
-        .filter((item) => ['per-word', 'per-adjacent-pair', 'per-unit-negated', 'per-blank'].includes(QUESTION_META[item.type].scoring))
+        .filter((item) =>
+          ['per-word', 'per-adjacent-pair', 'per-unit-negated', 'per-blank'].includes(
+            QUESTION_META[item.type].scoring,
+          ),
+        )
         .every((item) => item.maxPoints >= 1),
     ).toBe(true)
   })
 
   it('reports a dictation maximum equal to its reference word count', () => {
-    expect(expectedMaxPoints('write-from-dictation', { reference: 'The professor explained the theory to the students.' })).toBe(8)
+    expect(
+      expectedMaxPoints('write-from-dictation', {
+        reference: 'The professor explained the theory to the students.',
+      }),
+    ).toBe(8)
   })
 
   it('agrees with expectedMaxPoints on every assembled item', () => {
-    expect(scored.every((item) => item.maxPoints === expectedMaxPoints(item.type, key(item.id)))).toBe(true)
+    expect(
+      scored.every((item) => item.maxPoints === expectedMaxPoints(item.type, key(item.id))),
+    ).toBe(true)
   })
 })
 
@@ -204,7 +242,11 @@ describe('negative marking', () => {
   })
 
   it('cancels one correct answer with one wrong selection', () => {
-    expect(scoreItem(mcqM, key(mcqM.id), { choices: [...correct.slice(0, 1), 'definitely not an option'] }).ratio).toBe(0)
+    expect(
+      scoreItem(mcqM, key(mcqM.id), {
+        choices: [...correct.slice(0, 1), 'definitely not an option'],
+      }).ratio,
+    ).toBe(0)
   })
 
   it('does not double count duplicate selections', () => {
@@ -241,12 +283,18 @@ describe('write from dictation: one point per correct word', () => {
   const itemKey = { reference: sentence }
 
   it('scores seven of eight when the first word is missing', () => {
-    const ratio = scoreItem(item, itemKey, { text: 'professor explained the theory to the students.' }).ratio
+    const ratio = scoreItem(item, itemKey, {
+      text: 'professor explained the theory to the students.',
+    }).ratio
     expect(Math.abs(ratio - 7 / 8)).toBeLessThan(0.001)
   })
 
   it('retains full marks when an extra word is inserted', () => {
-    expect(scoreItem(item, itemKey, { text: 'The professor quickly explained the theory to the students.' }).ratio).toBe(1)
+    expect(
+      scoreItem(item, itemKey, {
+        text: 'The professor quickly explained the theory to the students.',
+      }).ratio,
+    ).toBe(1)
   })
 })
 
@@ -280,7 +328,12 @@ describe('form bands', () => {
   })
 
   it('gives a summary with abbreviations Form 1', () => {
-    expect(formBand('summarize-written-text', 'Dr. Smith showed that the U.S. economy grew by three percent.').score).toBe(1)
+    expect(
+      formBand(
+        'summarize-written-text',
+        'Dr. Smith showed that the U.S. economy grew by three percent.',
+      ).score,
+    ).toBe(1)
   })
 
   it('gives a two-sentence written summary Form 0', () => {
@@ -309,7 +362,9 @@ describe('form bands', () => {
   })
 
   it('gives an essay of very short sentences Form 0', () => {
-    expect(formBand('write-essay', 'It is good. That is true. This is fine. '.repeat(20).trim()).score).toBe(0)
+    expect(
+      formBand('write-essay', 'It is good. That is true. This is fine. '.repeat(20).trim()).score,
+    ).toBe(0)
   })
 
   it('gives an all-caps spoken summary Form 0', () => {
@@ -317,7 +372,9 @@ describe('form bands', () => {
   })
 
   it('gives an all-caps written summary Form 0', () => {
-    expect(formBand('summarize-written-text', 'This is one complete sentence.'.toUpperCase()).score).toBe(0)
+    expect(
+      formBand('summarize-written-text', 'This is one complete sentence.'.toUpperCase()).score,
+    ).toBe(0)
   })
 
   it('names the condition that triggered Form 0', () => {
@@ -397,15 +454,25 @@ describe('integrated items and skill routing', () => {
 describe('content gating', () => {
   it('scores a fluent answer with no content as zero, because Content gates the item', () => {
     const rtl = byType('retell-lecture')
-    const score = scoreItem(rtl, key(rtl.id), { transcript: 'so anyway it was basically that in the end you know', audio: MIC })
+    const score = scoreItem(rtl, key(rtl.id), {
+      transcript: 'so anyway it was basically that in the end you know',
+      audio: MIC,
+    })
     expect(score.ratio).toBe(0)
   })
 
   it('covers every model answer with its own key terms', () => {
     expect(
       scored
-        .filter((item) => QUESTION_META[item.type].scoring === 'trait-composite' && (key(item.id).keyTerms ?? []).length > 0)
-        .every((item) => keyTermCoverage(key(item.id).reference ?? '', key(item.id).keyTerms ?? []) > 0.9),
+        .filter(
+          (item) =>
+            QUESTION_META[item.type].scoring === 'trait-composite' &&
+            (key(item.id).keyTerms ?? []).length > 0,
+        )
+        .every(
+          (item) =>
+            keyTermCoverage(key(item.id).reference ?? '', key(item.id).keyTerms ?? []) > 0.9,
+        ),
     ).toBe(true)
   })
 })

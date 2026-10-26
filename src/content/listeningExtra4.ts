@@ -32,16 +32,34 @@ export const EXTRA_CONVERSATIONS_4: AudioScript[] = [
       { id: 'b', name: 'Receptionist', role: 'Dental practice', voiceHint: 'mid' },
     ],
     turns: [
-      { speaker: 'a', text: 'Hello, I have broken a molar on a seed and part of it is quite sharp. Is there any chance of being seen today?' },
-      { speaker: 'b', text: 'We keep two emergency slots each day, and the morning one has just been taken, so I can offer you half past three this afternoon.' },
+      {
+        speaker: 'a',
+        text: 'Hello, I have broken a molar on a seed and part of it is quite sharp. Is there any chance of being seen today?',
+      },
+      {
+        speaker: 'b',
+        text: 'We keep two emergency slots each day, and the morning one has just been taken, so I can offer you half past three this afternoon.',
+      },
       { speaker: 'a', text: 'That would be a relief. Will it be my usual dentist?' },
-      { speaker: 'b', text: 'Emergency slots are covered by the duty dentist, which today is Dr Patel. Your records will be on screen, so nothing is lost by seeing someone different.' },
+      {
+        speaker: 'b',
+        text: 'Emergency slots are covered by the duty dentist, which today is Dr Patel. Your records will be on screen, so nothing is lost by seeing someone different.',
+      },
       { speaker: 'a', text: 'And what should I do about the sharp edge until then?' },
-      { speaker: 'b', text: 'The pharmacist can sell you a temporary filling kit, and covering the edge with dental wax usually stops it catching. Avoid chewing on that side and keep the area clean with warm salty water.' },
+      {
+        speaker: 'b',
+        text: 'The pharmacist can sell you a temporary filling kit, and covering the edge with dental wax usually stops it catching. Avoid chewing on that side and keep the area clean with warm salty water.',
+      },
       { speaker: 'a', text: 'Is there a charge for an emergency appointment?' },
-      { speaker: 'b', text: 'The examination is forty-five pounds, and any treatment is charged separately. If you are in the practice plan, the examination is included but the treatment is discounted rather than free.' },
+      {
+        speaker: 'b',
+        text: 'The examination is forty-five pounds, and any treatment is charged separately. If you are in the practice plan, the examination is included but the treatment is discounted rather than free.',
+      },
       { speaker: 'a', text: 'I am in the plan, so that helps. Where should I go when I arrive?' },
-      { speaker: 'b', text: 'Report to the first-floor reception, not the ground floor, because the duty surgery is upstairs. Bring your plan card so we can apply the discount without a second visit.' },
+      {
+        speaker: 'b',
+        text: 'Report to the first-floor reception, not the ground floor, because the duty surgery is upstairs. Bring your plan card so we can apply the discount without a second visit.',
+      },
     ],
     keyTerms: ['emergency slot', 'duty dentist', 'dental wax', 'practice plan', 'first floor'],
   },
@@ -56,16 +74,37 @@ export const EXTRA_CONVERSATIONS_4: AudioScript[] = [
       { id: 'b', name: 'Adviser', role: 'Careers adviser', voiceHint: 'low' },
     ],
     turns: [
-      { speaker: 'a', text: 'I have an interview on Thursday for a six-week marketing internship, and I have never done one before. Where should I start?' },
-      { speaker: 'b', text: 'Start with the job description, not the company history. Circle every verb — analyse, draft, present — because the questions will ask for a time you did each one.' },
-      { speaker: 'a', text: 'Most of my experience is a student society newsletter. Is that usable?' },
-      { speaker: 'b', text: 'It is ideal, provided you quantify it. Saying you grew readership by thirty per cent in a term beats saying you wrote articles, because the number proves the claim.' },
+      {
+        speaker: 'a',
+        text: 'I have an interview on Thursday for a six-week marketing internship, and I have never done one before. Where should I start?',
+      },
+      {
+        speaker: 'b',
+        text: 'Start with the job description, not the company history. Circle every verb — analyse, draft, present — because the questions will ask for a time you did each one.',
+      },
+      {
+        speaker: 'a',
+        text: 'Most of my experience is a student society newsletter. Is that usable?',
+      },
+      {
+        speaker: 'b',
+        text: 'It is ideal, provided you quantify it. Saying you grew readership by thirty per cent in a term beats saying you wrote articles, because the number proves the claim.',
+      },
       { speaker: 'a', text: 'What about weaknesses? Every guide says to prepare one.' },
-      { speaker: 'b', text: 'Choose a real one you have already addressed, and name the system you built. I used to miss deadlines, so I now time-block the calendar each Sunday is honest and shows a fix.' },
+      {
+        speaker: 'b',
+        text: 'Choose a real one you have already addressed, and name the system you built. I used to miss deadlines, so I now time-block the calendar each Sunday is honest and shows a fix.',
+      },
       { speaker: 'a', text: 'Should I bring anything to the room?' },
-      { speaker: 'b', text: 'Bring one page: three bullet examples with numbers, and two questions about the team. Questions about the rota and the supervisor signal that you picture yourself in the role.' },
+      {
+        speaker: 'b',
+        text: 'Bring one page: three bullet examples with numbers, and two questions about the team. Questions about the rota and the supervisor signal that you picture yourself in the role.',
+      },
       { speaker: 'a', text: 'And after the interview?' },
-      { speaker: 'b', text: 'Send a short email the same evening naming one thing you discussed. Panels decide on Friday mornings, so Thursday night is your last chance to be remembered accurately.' },
+      {
+        speaker: 'b',
+        text: 'Send a short email the same evening naming one thing you discussed. Panels decide on Friday mornings, so Thursday night is your last chance to be remembered accurately.',
+      },
     ],
     keyTerms: ['job description', 'quantify', 'time-block', 'bullet examples', 'same evening'],
   },
@@ -80,16 +119,34 @@ export const EXTRA_CONVERSATIONS_4: AudioScript[] = [
       { id: 'b', name: 'Officer', role: 'Council officer', voiceHint: 'mid' },
     ],
     turns: [
-      { speaker: 'a', text: 'I have moved into a flat on Alder Street and I need a residents permit. Can I apply before my council tax bill arrives?' },
-      { speaker: 'b', text: 'You can, because the tenancy agreement counts as proof of address for the first month. After that we ask for the bill or a utility statement.' },
+      {
+        speaker: 'a',
+        text: 'I have moved into a flat on Alder Street and I need a residents permit. Can I apply before my council tax bill arrives?',
+      },
+      {
+        speaker: 'b',
+        text: 'You can, because the tenancy agreement counts as proof of address for the first month. After that we ask for the bill or a utility statement.',
+      },
       { speaker: 'a', text: 'The flat has no allocated bay. Does the permit guarantee a space?' },
-      { speaker: 'b', text: 'It guarantees the right to park in the zone, not a particular bay. Alder Street sits in Zone C, which covers twelve streets, and pressure is highest after six in the evening.' },
+      {
+        speaker: 'b',
+        text: 'It guarantees the right to park in the zone, not a particular bay. Alder Street sits in Zone C, which covers twelve streets, and pressure is highest after six in the evening.',
+      },
       { speaker: 'a', text: 'How much does it cost, and how long does it last?' },
-      { speaker: 'b', text: 'The first permit is ninety pounds for twelve months from the date of issue, not the calendar year. A second permit for the same household is one hundred and forty pounds.' },
+      {
+        speaker: 'b',
+        text: 'The first permit is ninety pounds for twelve months from the date of issue, not the calendar year. A second permit for the same household is one hundred and forty pounds.',
+      },
       { speaker: 'a', text: 'My car is registered at my parents address. Is that a problem?' },
-      { speaker: 'b', text: 'The registration must show the Alder Street address before we issue the permit. Update the logbook first, because we check it against the national database automatically.' },
+      {
+        speaker: 'b',
+        text: 'The registration must show the Alder Street address before we issue the permit. Update the logbook first, because we check it against the national database automatically.',
+      },
       { speaker: 'a', text: 'How do visitors park in the meantime?' },
-      { speaker: 'b', text: 'You can buy books of scratch cards, five for twelve pounds, each valid for one day. They cannot be used on match days when the stadium restriction applies.' },
+      {
+        speaker: 'b',
+        text: 'You can buy books of scratch cards, five for twelve pounds, each valid for one day. They cannot be used on match days when the stadium restriction applies.',
+      },
     ],
     keyTerms: ['tenancy agreement', 'Zone C', 'twelve months', 'logbook', 'scratch cards'],
   },
@@ -104,16 +161,43 @@ export const EXTRA_CONVERSATIONS_4: AudioScript[] = [
       { id: 'b', name: 'Supervisor', role: 'Supervisor', voiceHint: 'low' },
     ],
     turns: [
-      { speaker: 'a', text: 'I have drafted the methods chapter at six thousand words, but the results keep pulling me back into rewriting it. Should I freeze the methods first?' },
-      { speaker: 'b', text: 'Freeze the structure, not the sentences. Fix your headings and the word budget per section now, and allow the wording to move until the results are stable.' },
-      { speaker: 'a', text: 'My budget gives two thousand words to sampling and one thousand to analysis. Does that sound right?' },
-      { speaker: 'b', text: 'It is backwards for this project. Your sampling is standard, so five hundred words with a citation does the work. The analysis is novel, so it earns the two thousand.' },
-      { speaker: 'a', text: 'One reviewer will ask why I did not use the longitudinal data. How do I handle that?' },
-      { speaker: 'b', text: 'Answer it in one paragraph before they ask. State the reason — access was withdrawn in March — give the consequence, and name what you did instead. Reviewers pursue what you appear to hide.' },
+      {
+        speaker: 'a',
+        text: 'I have drafted the methods chapter at six thousand words, but the results keep pulling me back into rewriting it. Should I freeze the methods first?',
+      },
+      {
+        speaker: 'b',
+        text: 'Freeze the structure, not the sentences. Fix your headings and the word budget per section now, and allow the wording to move until the results are stable.',
+      },
+      {
+        speaker: 'a',
+        text: 'My budget gives two thousand words to sampling and one thousand to analysis. Does that sound right?',
+      },
+      {
+        speaker: 'b',
+        text: 'It is backwards for this project. Your sampling is standard, so five hundred words with a citation does the work. The analysis is novel, so it earns the two thousand.',
+      },
+      {
+        speaker: 'a',
+        text: 'One reviewer will ask why I did not use the longitudinal data. How do I handle that?',
+      },
+      {
+        speaker: 'b',
+        text: 'Answer it in one paragraph before they ask. State the reason — access was withdrawn in March — give the consequence, and name what you did instead. Reviewers pursue what you appear to hide.',
+      },
       { speaker: 'a', text: 'When do you want the next draft?' },
-      { speaker: 'b', text: 'Send the frozen structure by Friday with the word budgets in the margin. I will return it with comments within a week, and we will lock the full draft the week after.' },
-      { speaker: 'a', text: 'That sequence helps. I will stop polishing sentences I am about to move.' },
-      { speaker: 'b', text: 'Exactly. A chapter is finished in the order structure, evidence, wording — never the reverse.' },
+      {
+        speaker: 'b',
+        text: 'Send the frozen structure by Friday with the word budgets in the margin. I will return it with comments within a week, and we will lock the full draft the week after.',
+      },
+      {
+        speaker: 'a',
+        text: 'That sequence helps. I will stop polishing sentences I am about to move.',
+      },
+      {
+        speaker: 'b',
+        text: 'Exactly. A chapter is finished in the order structure, evidence, wording — never the reverse.',
+      },
     ],
     keyTerms: ['freeze structure', 'word budget', 'longitudinal', 'withdrawn', 'by Friday'],
   },
@@ -124,49 +208,43 @@ export const EXTRA_LISTENING_FIB_4: ListeningFibItem[] = [
     id: 'lfib-dental-1',
     audioId: 'con-dental-appointment',
     startTurn: 1,
-    text:
-      'We keep two emergency ______ each day, and the morning one has just been taken. Emergency slots are covered by the ______ dentist, and your records will be on screen. Covering the edge with dental ______ usually stops it catching. The examination is forty-five ______ .',
-    answers: [[ 'slots'], ['duty'], ['wax'], ['pounds']],
+    text: 'We keep two emergency ______ each day, and the morning one has just been taken. Emergency slots are covered by the ______ dentist, and your records will be on screen. Covering the edge with dental ______ usually stops it catching. The examination is forty-five ______ .',
+    answers: [['slots'], ['duty'], ['wax'], ['pounds']],
   },
   {
     id: 'lfib-internship-1',
     audioId: 'con-internship-interview',
     startTurn: 1,
-    text:
-      'Start with the job ______ , not the company history. Saying you grew readership by thirty per ______ in a term beats saying you wrote articles. Choose a real weakness you have already ______ , and name the system you built. Panels decide on Friday ______ , so Thursday night matters.',
-    answers: [[ 'description'], ['cent'], ['addressed'], ['mornings']],
+    text: 'Start with the job ______ , not the company history. Saying you grew readership by thirty per ______ in a term beats saying you wrote articles. Choose a real weakness you have already ______ , and name the system you built. Panels decide on Friday ______ , so Thursday night matters.',
+    answers: [['description'], ['cent'], ['addressed'], ['mornings']],
   },
   {
     id: 'lfib-permit-1',
     audioId: 'con-parking-permit',
     startTurn: 1,
-    text:
-      'The tenancy ______ counts as proof of address for the first month. The permit guarantees the right to park in the ______ , not a particular bay. The first permit is ninety pounds for twelve ______ from the date of issue. Update the ______ first, because we check it automatically.',
-    answers: [[ 'agreement'], ['zone'], ['months'], ['logbook']],
+    text: 'The tenancy ______ counts as proof of address for the first month. The permit guarantees the right to park in the ______ , not a particular bay. The first permit is ninety pounds for twelve ______ from the date of issue. Update the ______ first, because we check it automatically.',
+    answers: [['agreement'], ['zone'], ['months'], ['logbook']],
   },
   {
     id: 'lfib-supervisor-1',
     audioId: 'con-supervisor-meeting',
     startTurn: 1,
-    text:
-      'Freeze the ______ , not the sentences, and fix your headings and the word ______ per section now. Your sampling is standard, so five hundred words with a ______ does the work. State the reason access was ______ in March, and name what you did instead.',
-    answers: [[ 'structure'], ['budget'], ['citation'], ['withdrawn']],
+    text: 'Freeze the ______ , not the sentences, and fix your headings and the word ______ per section now. Your sampling is standard, so five hundred words with a ______ does the work. State the reason access was ______ in March, and name what you did instead.',
+    answers: [['structure'], ['budget'], ['citation'], ['withdrawn']],
   },
   {
     id: 'lfib-dental-2',
     audioId: 'con-dental-appointment',
     startTurn: 7,
-    text:
-      'If you are in the practice ______ , the examination is included but the treatment is ______ rather than free. Report to the first-floor ______ , not the ground floor, because the duty surgery is upstairs.',
-    answers: [[ 'plan'], ['discounted'], ['reception']],
+    text: 'If you are in the practice ______ , the examination is included but the treatment is ______ rather than free. Report to the first-floor ______ , not the ground floor, because the duty surgery is upstairs.',
+    answers: [['plan'], ['discounted'], ['reception']],
   },
   {
     id: 'lfib-permit-2',
     audioId: 'con-parking-permit',
     startTurn: 8,
-    text:
-      'You can buy books of scratch ______ , five for twelve pounds, each valid for one ______ . They cannot be used on match ______ when the stadium restriction applies.',
-    answers: [[ 'cards'], ['day'], ['days']],
+    text: 'You can buy books of scratch ______ , five for twelve pounds, each valid for one ______ . They cannot be used on match ______ when the stadium restriction applies.',
+    answers: [['cards'], ['day'], ['days']],
   },
 ]
 
@@ -390,28 +468,100 @@ export const EXTRA_HIGHLIGHT_INCORRECT_4: HighlightIncorrectItem[] = [
 ]
 
 export const EXTRA_DICTATION_4: DictationItem[] = [
-  { id: 'wfd-dental-1', audioId: 'con-dental-appointment', turnIndex: 4, text: 'And what should I do about the sharp edge until then?' },
-  { id: 'wfd-dental-2', audioId: 'con-dental-appointment', turnIndex: 7, text: 'The examination is forty-five pounds, and any treatment is charged separately.' },
-  { id: 'wfd-internship-1', audioId: 'con-internship-interview', turnIndex: 1, text: 'Start with the job description, not the company history.' },
-  { id: 'wfd-permit-1', audioId: 'con-parking-permit', turnIndex: 0, text: 'Can I apply before my council tax bill arrives?' },
-  { id: 'wfd-supervisor-1', audioId: 'con-supervisor-meeting', turnIndex: 3, text: 'The analysis is novel, so it earns the two thousand.' },
-  { id: 'wfd-supervisor-2', audioId: 'con-supervisor-meeting', turnIndex: 8, text: 'I will stop polishing sentences I am about to move.' },
+  {
+    id: 'wfd-dental-1',
+    audioId: 'con-dental-appointment',
+    turnIndex: 4,
+    text: 'And what should I do about the sharp edge until then?',
+  },
+  {
+    id: 'wfd-dental-2',
+    audioId: 'con-dental-appointment',
+    turnIndex: 7,
+    text: 'The examination is forty-five pounds, and any treatment is charged separately.',
+  },
+  {
+    id: 'wfd-internship-1',
+    audioId: 'con-internship-interview',
+    turnIndex: 1,
+    text: 'Start with the job description, not the company history.',
+  },
+  {
+    id: 'wfd-permit-1',
+    audioId: 'con-parking-permit',
+    turnIndex: 0,
+    text: 'Can I apply before my council tax bill arrives?',
+  },
+  {
+    id: 'wfd-supervisor-1',
+    audioId: 'con-supervisor-meeting',
+    turnIndex: 3,
+    text: 'The analysis is novel, so it earns the two thousand.',
+  },
+  {
+    id: 'wfd-supervisor-2',
+    audioId: 'con-supervisor-meeting',
+    turnIndex: 8,
+    text: 'I will stop polishing sentences I am about to move.',
+  },
 ]
 
 export const EXTRA_MISSING_WORD_4: MissingWordItem[] = [
   // The rendered clip beeps the plural spoken in that turn, so the key has to
   // be the plural too.
-  { id: 'smw-dental-1', audioId: 'con-dental-appointment', turnIndex: 1, wordIndex: 4, options: ['slot', 'slots', 'slotted', 'sloth'], correct: 1 },
+  {
+    id: 'smw-dental-1',
+    audioId: 'con-dental-appointment',
+    turnIndex: 1,
+    wordIndex: 4,
+    options: ['slot', 'slots', 'slotted', 'sloth'],
+    correct: 1,
+  },
   // Every index below pointed at a word other than the one its option family
   // describes, which left the item unanswerable: the clip omitted one word and
   // the key asked for another. Each now blanks the keyed word in its own turn.
-  { id: 'smw-dental-2', audioId: 'con-dental-appointment', turnIndex: 7, wordIndex: 17, options: ['plan', 'planes', 'planned', 'plank'], correct: 0 },
-  { id: 'smw-internship-1', audioId: 'con-internship-interview', turnIndex: 1, wordIndex: 11, options: ['verb', 'verbs', 'verbal', 'verse'], correct: 0 },
-  { id: 'smw-permit-1', audioId: 'con-parking-permit', turnIndex: 3, wordIndex: 8, options: ['zone', 'zones', 'zoned', 'zonal'], correct: 0 },
+  {
+    id: 'smw-dental-2',
+    audioId: 'con-dental-appointment',
+    turnIndex: 7,
+    wordIndex: 17,
+    options: ['plan', 'planes', 'planned', 'plank'],
+    correct: 0,
+  },
+  {
+    id: 'smw-internship-1',
+    audioId: 'con-internship-interview',
+    turnIndex: 1,
+    wordIndex: 11,
+    options: ['verb', 'verbs', 'verbal', 'verse'],
+    correct: 0,
+  },
+  {
+    id: 'smw-permit-1',
+    audioId: 'con-parking-permit',
+    turnIndex: 3,
+    wordIndex: 8,
+    options: ['zone', 'zones', 'zoned', 'zonal'],
+    correct: 0,
+  },
   // The turn says "citation", so that is the word to blank; the authored family
   // was the root "cite", which the conversation never says.
-  { id: 'smw-supervisor-1', audioId: 'con-supervisor-meeting', turnIndex: 3, wordIndex: 16, options: ['citation', 'citations', 'citing', 'citizen'], correct: 0 },
-  { id: 'smw-supervisor-2', audioId: 'con-supervisor-meeting', turnIndex: 5, wordIndex: 8, options: ['state', 'states', 'stated', 'stately'], correct: 0 },
+  {
+    id: 'smw-supervisor-1',
+    audioId: 'con-supervisor-meeting',
+    turnIndex: 3,
+    wordIndex: 16,
+    options: ['citation', 'citations', 'citing', 'citizen'],
+    correct: 0,
+  },
+  {
+    id: 'smw-supervisor-2',
+    audioId: 'con-supervisor-meeting',
+    turnIndex: 5,
+    wordIndex: 8,
+    options: ['state', 'states', 'stated', 'stately'],
+    correct: 0,
+  },
 ]
 
 export const EXTRA_SITUATIONS_4: SituationItem[] = [

@@ -141,7 +141,13 @@ describe('Dialog', () => {
 describe('AlertDialog', () => {
   it('renders its title, description and the default confirm label', () => {
     render(
-      <AlertDialog open onClose={() => {}} onConfirm={() => {}} title="Clear history" description="Everything goes." />,
+      <AlertDialog
+        open
+        onClose={() => {}}
+        onConfirm={() => {}}
+        title="Clear history"
+        description="Everything goes."
+      />,
     )
     expect(screen.getByText('Clear history')).toBeInTheDocument()
     expect(screen.getByText('Everything goes.')).toBeInTheDocument()
@@ -181,7 +187,13 @@ describe('AlertDialog', () => {
     const onConfirm = vi.fn()
     const onClose = vi.fn()
     render(
-      <AlertDialog open onClose={onClose} onConfirm={onConfirm} title="Clear history" description="Everything goes." />,
+      <AlertDialog
+        open
+        onClose={onClose}
+        onConfirm={onConfirm}
+        title="Clear history"
+        description="Everything goes."
+      />,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(onConfirm).not.toHaveBeenCalled()
@@ -190,14 +202,26 @@ describe('AlertDialog', () => {
 
   it('puts focus on the safe action when it opens', () => {
     render(
-      <AlertDialog open onClose={() => {}} onConfirm={() => {}} title="Clear history" description="Everything goes." />,
+      <AlertDialog
+        open
+        onClose={() => {}}
+        onConfirm={() => {}}
+        title="Clear history"
+        description="Everything goes."
+      />,
     )
     expect(screen.getByRole('button', { name: 'Cancel' })).toHaveFocus()
   })
 
   it('keeps its contents out of the accessibility tree while it is closed', () => {
     render(
-      <AlertDialog open={false} onClose={() => {}} onConfirm={() => {}} title="Clear history" description="Everything goes." />,
+      <AlertDialog
+        open={false}
+        onClose={() => {}}
+        onConfirm={() => {}}
+        title="Clear history"
+        description="Everything goes."
+      />,
     )
     // A closed native dialog hides its contents, so nothing inside it is
     // reachable by a screen reader or by a keyboard.
@@ -381,24 +405,18 @@ describe('Tabs', () => {
 
 describe('FlipCard', () => {
   it('starts face up', () => {
-    const { container } = render(
-      <FlipCard front={<span>Front</span>} back={<span>Back</span>} />,
-    )
+    const { container } = render(<FlipCard front={<span>Front</span>} back={<span>Back</span>} />)
     expect(container.querySelector('.flip-inner')).not.toHaveClass('flip-inner-flipped')
   })
 
   it('turns over on a click', () => {
-    const { container } = render(
-      <FlipCard front={<span>Front</span>} back={<span>Back</span>} />,
-    )
+    const { container } = render(<FlipCard front={<span>Front</span>} back={<span>Back</span>} />)
     fireEvent.click(screen.getByText('Front'))
     expect(container.querySelector('.flip-inner')).toHaveClass('flip-inner-flipped')
   })
 
   it('turns back over on a second click', () => {
-    const { container } = render(
-      <FlipCard front={<span>Front</span>} back={<span>Back</span>} />,
-    )
+    const { container } = render(<FlipCard front={<span>Front</span>} back={<span>Back</span>} />)
     fireEvent.click(screen.getByText('Front'))
     fireEvent.click(screen.getByText('Front'))
     expect(container.querySelector('.flip-inner')).not.toHaveClass('flip-inner-flipped')
@@ -421,9 +439,7 @@ describe('FlipCard', () => {
   })
 
   it('turns over from the keyboard affordance', () => {
-    const { container } = render(
-      <FlipCard front={<span>Front</span>} back={<span>Back</span>} />,
-    )
+    const { container } = render(<FlipCard front={<span>Front</span>} back={<span>Back</span>} />)
     const button = screen.getByRole('button', { name: 'Flip card' })
     expect(button).toHaveAttribute('aria-pressed', 'false')
     fireEvent.click(button)
@@ -432,7 +448,9 @@ describe('FlipCard', () => {
   })
 
   it('uses a custom flip label', () => {
-    render(<FlipCard front={<span>Front</span>} back={<span>Back</span>} flipLabel="Show the tip" />)
+    render(
+      <FlipCard front={<span>Front</span>} back={<span>Back</span>} flipLabel="Show the tip" />,
+    )
     expect(screen.getByRole('button', { name: 'Show the tip' })).toBeInTheDocument()
   })
 })
@@ -734,7 +752,13 @@ describe('ConfettiBurst', () => {
 })
 
 describe('ToastProvider', () => {
-  function Push({ message, tone }: { message: string; tone?: 'brand' | 'mint' | 'amber' | 'rose' }) {
+  function Push({
+    message,
+    tone,
+  }: {
+    message: string
+    tone?: 'brand' | 'mint' | 'amber' | 'rose'
+  }) {
     const toast = useToast()
     return (
       <button type="button" onClick={() => toast.push(message, tone)}>
@@ -768,7 +792,9 @@ describe('ToastProvider', () => {
       </ToastProvider>,
     )
     fireEvent.click(screen.getByRole('button', { name: 'Push' }))
-    expect(screen.getByText('Saved').closest('.card-solid')?.className).toContain('border-mint-500/40')
+    expect(screen.getByText('Saved').closest('.card-solid')?.className).toContain(
+      'border-mint-500/40',
+    )
   })
 
   it.each(['brand', 'mint', 'amber', 'rose'] as const)('renders the %s tone', (tone) => {

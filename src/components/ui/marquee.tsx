@@ -30,7 +30,9 @@ export function Marquee({
       {items.map((item, i) => (
         <span key={i} className="flex items-center">
           <span className="px-5">{item}</span>
-          <span aria-hidden="true" className="opacity-40">{separator}</span>
+          <span aria-hidden="true" className="opacity-40">
+            {separator}
+          </span>
         </span>
       ))}
     </div>

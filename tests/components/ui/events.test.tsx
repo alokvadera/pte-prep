@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { render } from '@testing-library/react'
-import { OPEN_COMMAND_PALETTE_EVENT, openCommandPalette } from '../../../src/components/ui/command-palette-events'
+import {
+  OPEN_COMMAND_PALETTE_EVENT,
+  openCommandPalette,
+} from '../../../src/components/ui/command-palette-events'
 import DottedGlowBackgroundDemo from '../../../src/components/ui/dotted-glow-background-demo'
 
 /* ---------------------------------------------------------------------------

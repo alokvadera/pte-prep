@@ -47,12 +47,11 @@ export function Dialog({
       onClick={(e) => {
         if (e.target === ref.current) {
           const rect = ref.current.getBoundingClientRect()
-          const isInDialog = (
+          const isInDialog =
             rect.top <= e.clientY &&
             e.clientY <= rect.top + rect.height &&
             rect.left <= e.clientX &&
             e.clientX <= rect.left + rect.width
-          )
           if (!isInDialog) {
             onClose()
           }
@@ -70,21 +69,36 @@ export function Dialog({
       )}
     >
       <div className="flex items-center justify-between gap-4 border-b border-ink-100 px-6 py-4 dark:border-white/10">
-        <h2 id={titleId} className="font-display text-lg font-extrabold text-ink-900 dark:text-ink-50">{title}</h2>
+        <h2
+          id={titleId}
+          className="font-display text-lg font-extrabold text-ink-900 dark:text-ink-50"
+        >
+          {title}
+        </h2>
         <button
           type="button"
           onClick={onClose}
           aria-label="Close"
           className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-400 hover:bg-ink-100 hover:text-ink-900 dark:text-ink-on-dark-muted dark:hover:bg-white/10 dark:hover:text-white cursor-pointer transition-colors"
         >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
-      <div className="px-6 py-5 text-sm leading-relaxed text-ink-700 dark:text-ink-100">{children}</div>
+      <div className="px-6 py-5 text-sm leading-relaxed text-ink-700 dark:text-ink-100">
+        {children}
+      </div>
       {footer ? (
-        <div className="flex justify-end gap-3 border-t border-ink-100 px-6 py-4 dark:border-white/10">{footer}</div>
+        <div className="flex justify-end gap-3 border-t border-ink-100 px-6 py-4 dark:border-white/10">
+          {footer}
+        </div>
       ) : null}
     </dialog>
   )

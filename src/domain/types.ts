@@ -36,7 +36,8 @@ export type QuestionType =
   | 'highlight-incorrect-words'
   | 'write-from-dictation'
 
-export type ResponseKind = 'audio' | 'text' | 'choice' | 'multi-choice' | 'blanks' | 'order' | 'highlight'
+export type ResponseKind =
+  'audio' | 'text' | 'choice' | 'multi-choice' | 'blanks' | 'order' | 'highlight'
 
 export interface AudioAnalysis {
   /** Duration of the recorded take, milliseconds. */

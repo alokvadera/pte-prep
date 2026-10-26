@@ -131,9 +131,8 @@ const OriginalDevicePixelRatio = window.devicePixelRatio
 function installAudioContext(): void {
   RecordedAudioContext.instances = []
   window.AudioContext = RecordedAudioContext as unknown as typeof AudioContext
-  ;(
-    window as unknown as { webkitAudioContext?: typeof AudioContext }
-  ).webkitAudioContext = RecordedAudioContext as unknown as typeof AudioContext
+  ;(window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext =
+    RecordedAudioContext as unknown as typeof AudioContext
 }
 
 describe('HeroScoreCard', () => {
@@ -145,9 +144,8 @@ describe('HeroScoreCard', () => {
   afterEach(() => {
     vi.useRealTimers()
     window.AudioContext = OriginalAudioContext
-    ;(
-      window as unknown as { webkitAudioContext?: typeof AudioContext }
-    ).webkitAudioContext = OriginalWebkitAudioContext
+    ;(window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext =
+      OriginalWebkitAudioContext
     document.documentElement.classList.remove('dark', 'light')
   })
 
@@ -158,23 +156,17 @@ describe('HeroScoreCard', () => {
 
   /** The dial: the clickable row that holds the SVG gauge. */
   function dial(container: HTMLElement): HTMLElement {
-    return container.querySelector(
-      '[title="Click to replay score simulation"]',
-    ) as HTMLElement
+    return container.querySelector('[title="Click to replay score simulation"]') as HTMLElement
   }
 
   /** The floating CEFR badge that cycles the target profile. */
   function badge(container: HTMLElement): HTMLElement {
-    return container.querySelector(
-      '[aria-label^="Active target:"]',
-    ) as HTMLElement
+    return container.querySelector('[aria-label^="Active target:"]') as HTMLElement
   }
 
   /** The mascot. */
   function mascot(container: HTMLElement): HTMLElement {
-    return container.querySelector(
-      '[aria-label^="PTE Mascot companion"]',
-    ) as HTMLElement
+    return container.querySelector('[aria-label^="PTE Mascot companion"]') as HTMLElement
   }
 
   /** The card surface that carries the 3D transform. */
@@ -251,10 +243,7 @@ describe('HeroScoreCard', () => {
     const total = Math.PI * 35
 
     // Preset 1 scores 76: (76 - 10) / 80 of the arc.
-    expect(Number(arc.getAttribute('stroke-dashoffset'))).toBeCloseTo(
-      total * (1 - 66 / 80),
-      6,
-    )
+    expect(Number(arc.getAttribute('stroke-dashoffset'))).toBeCloseTo(total * (1 - 66 / 80), 6)
     expect(Number(arc.getAttribute('stroke-dashoffset'))).toBeCloseTo(total * (1 - 0.825), 6)
 
     // The simulated run pins the dial to the top of the 10-90 scale.
@@ -394,10 +383,7 @@ describe('HeroScoreCard', () => {
     act(() => {
       vi.advanceTimersByTime(1200)
     })
-    expect(Number(arc.getAttribute('stroke-dashoffset'))).toBeCloseTo(
-      Math.PI * 35 * (1 - 0.825),
-      6,
-    )
+    expect(Number(arc.getAttribute('stroke-dashoffset'))).toBeCloseTo(Math.PI * 35 * (1 - 0.825), 6)
 
     act(() => {
       fireEvent.keyDown(dial(container), { key: ' ' })
@@ -409,10 +395,7 @@ describe('HeroScoreCard', () => {
       vi.advanceTimersByTime(1200)
       fireEvent.keyDown(dial(container), { key: 'Tab' })
     })
-    expect(Number(arc.getAttribute('stroke-dashoffset'))).toBeCloseTo(
-      Math.PI * 35 * (1 - 0.825),
-      6,
-    )
+    expect(Number(arc.getAttribute('stroke-dashoffset'))).toBeCloseTo(Math.PI * 35 * (1 - 0.825), 6)
   })
 
   it('tilts the card towards the pointer and springs back when it leaves', () => {
@@ -701,7 +684,10 @@ describe('DottedGlowBackground', () => {
   })
 
   /** The canvas and its wrapper. */
-  function canvasParts(container: HTMLElement): { canvas: HTMLCanvasElement; wrapper: HTMLElement } {
+  function canvasParts(container: HTMLElement): {
+    canvas: HTMLCanvasElement
+    wrapper: HTMLElement
+  } {
     const canvas = container.querySelector('canvas') as HTMLCanvasElement
     return { canvas, wrapper: canvas.parentElement as HTMLElement }
   }
@@ -896,9 +882,7 @@ describe('DottedGlowBackground', () => {
       (element: Element) =>
         ({
           getPropertyValue: (name: string) =>
-            element === document.documentElement && name === '--color-zinc-100'
-              ? '#f4f4f5'
-              : '',
+            element === document.documentElement && name === '--color-zinc-100' ? '#f4f4f5' : '',
         }) as unknown as CSSStyleDeclaration,
     )
 
@@ -1016,7 +1000,10 @@ describe('DottedGlowBackground', () => {
 
     // The layer scrolls out of view.
     act(() => {
-      callbacks[0]!([{ isIntersecting: false } as IntersectionObserverEntry], {} as IntersectionObserver)
+      callbacks[0]!(
+        [{ isIntersecting: false } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      )
     })
     act(() => {
       frames.flush()
@@ -1026,7 +1013,10 @@ describe('DottedGlowBackground', () => {
 
     // And back in again.
     act(() => {
-      callbacks[0]!([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver)
+      callbacks[0]!(
+        [{ isIntersecting: true } as IntersectionObserverEntry],
+        {} as IntersectionObserver,
+      )
     })
     act(() => {
       frames.flush()
@@ -1128,10 +1118,7 @@ describe('RadialProgress', () => {
     expect(bar.getAttribute('aria-valuemin')).toBe('90')
     expect(bar.getAttribute('aria-valuemax')).toBe('90')
     const circumference = 2 * Math.PI * ((120 - 10) / 2)
-    expect(Number(fill(container).getAttribute('stroke-dashoffset'))).toBeCloseTo(
-      circumference,
-      6,
-    )
+    expect(Number(fill(container).getAttribute('stroke-dashoffset'))).toBeCloseTo(circumference, 6)
   })
 
   it('paints the ring in the tone it is asked for', () => {

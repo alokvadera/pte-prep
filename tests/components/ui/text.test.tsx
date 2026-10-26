@@ -49,7 +49,10 @@ describe('TaglineReveal', () => {
     act(() => flushIntersections())
     act(() => vi.advanceTimersByTime(0))
     expect(container.querySelector('[data-reveal-word="0"]')).toHaveAttribute('data-active', 'true')
-    expect(container.querySelector('[data-reveal-word="1"]')).toHaveAttribute('data-active', 'false')
+    expect(container.querySelector('[data-reveal-word="1"]')).toHaveAttribute(
+      'data-active',
+      'false',
+    )
 
     act(() => vi.advanceTimersByTime(42))
     expect(container.querySelector('[data-reveal-word="1"]')).toHaveAttribute('data-active', 'true')

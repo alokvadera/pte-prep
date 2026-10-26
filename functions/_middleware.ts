@@ -2,7 +2,10 @@ import type { Env } from './types'
 
 export const onRequest: PagesFunction<Env> = async (context) => {
   const origin = context.request.headers.get('Origin')
-  const allowedOrigin = resolveAllowedOrigin(origin, context.env.CORS_ORIGIN ?? context.env.SITE_ORIGIN)
+  const allowedOrigin = resolveAllowedOrigin(
+    origin,
+    context.env.CORS_ORIGIN ?? context.env.SITE_ORIGIN,
+  )
 
   if (context.request.method === 'OPTIONS') {
     const headers: Record<string, string> = {

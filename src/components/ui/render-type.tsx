@@ -77,7 +77,8 @@ export function RenderType({
 
   const currentPhrase = phrases[phraseIndex] ?? ''
   const renderedText = isReduced ? (phrases[0] ?? '') : displayText
-  const isTypingActive = !isReduced && displayText.length > 0 && displayText.length < currentPhrase.length
+  const isTypingActive =
+    !isReduced && displayText.length > 0 && displayText.length < currentPhrase.length
 
   useEffect(() => {
     // If the candidate prefers reduced motion, notify completion immediately without typing loop
@@ -164,7 +165,7 @@ export function RenderType({
             'ml-1 select-none pointer-events-none transition-opacity duration-150',
             cursorShapeClass,
             !isTypingActive && 'animate-type-cursor',
-            cursorClassName
+            cursorClassName,
           )}
         />
       )}

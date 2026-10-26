@@ -28,7 +28,13 @@ const SKILL_LABEL: Record<Skill, string> = {
   listening: 'Listening',
 }
 
-export function ScoreCalculator({ className, hideEyebrow = false }: { className?: string; hideEyebrow?: boolean }) {
+export function ScoreCalculator({
+  className,
+  hideEyebrow = false,
+}: {
+  className?: string
+  hideEyebrow?: boolean
+}) {
   const [skills, setSkills] = useState<Record<Skill, number>>({
     speaking: 58,
     writing: 58,
@@ -61,8 +67,8 @@ export function ScoreCalculator({ className, hideEyebrow = false }: { className?
             Score calculator
           </h3>
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm leading-relaxed">
-            Drag your current skill scores and the target. The ring is the estimated overall;
-            the gap is what is left to close.
+            Drag your current skill scores and the target. The ring is the estimated overall; the
+            gap is what is left to close.
           </p>
         </div>
         <RadialProgress
@@ -91,13 +97,20 @@ export function ScoreCalculator({ className, hideEyebrow = false }: { className?
           min={10}
           max={90}
           onChange={setTarget}
-          hint={<span className="inline-flex items-center gap-1.5"><Crosshair className="size-3" /> Admissions & visa benchmarks live on the scoring guide</span>}
+          hint={
+            <span className="inline-flex items-center gap-1.5">
+              <Crosshair className="size-3" /> Admissions & visa benchmarks live on the scoring
+              guide
+            </span>
+          }
         />
       </div>
 
       <div className="mt-4 grid gap-3 sm:grid-cols-3">
         <div className="rounded-xl border border-ink-100 bg-ink-50 p-3 dark:border-white/10 dark:bg-white/5">
-          <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">Gap to target</p>
+          <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
+            Gap to target
+          </p>
           <p
             className={cn(
               'font-display mt-1 text-2xl font-extrabold tabular-nums',
@@ -111,7 +124,9 @@ export function ScoreCalculator({ className, hideEyebrow = false }: { className?
           </p>
         </div>
         <div className="rounded-xl border border-ink-100 bg-ink-50 p-3 dark:border-white/10 dark:bg-white/5 sm:col-span-2">
-          <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">Focus first</p>
+          <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
+            Focus first
+          </p>
           <p className="text-ink-900 mt-1 text-base font-bold dark:text-white">
             {SKILL_LABEL[weakest]}
             <span className="text-ink-500 dark:text-ink-on-dark-muted ml-2 font-mono text-xs font-semibold">
@@ -119,22 +134,30 @@ export function ScoreCalculator({ className, hideEyebrow = false }: { className?
             </span>
           </p>
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-[11px]">
-            Your lowest skill lifts the overall fastest — gaining 4 points across skills adds 1 point to the overall average.
+            Your lowest skill lifts the overall fastest — gaining 4 points across skills adds 1
+            point to the overall average.
           </p>
         </div>
       </div>
 
       {gap <= 0 ? (
         <Callout tone="mint" label="Target met" className="mt-4">
-          Your current skill scores meet or exceed your target of {target}. Keep practising under timed conditions to maintain consistency.
+          Your current skill scores meet or exceed your target of {target}. Keep practising under
+          timed conditions to maintain consistency.
         </Callout>
       ) : reachable ? (
         <Callout tone="mint" label="Within reach" className="mt-4">
-          A gap of {gap} overall points requires gaining {gap * 4} total skill points — for example, gaining {canClearOnWeakestAlone ? `${pointsNeededOnWeakest} points on ${SKILL_LABEL[weakest]}` : `an average of ${gap} points across each skill`} would clear the target on this estimate.
+          A gap of {gap} overall points requires gaining {gap * 4} total skill points — for example,
+          gaining{' '}
+          {canClearOnWeakestAlone
+            ? `${pointsNeededOnWeakest} points on ${SKILL_LABEL[weakest]}`
+            : `an average of ${gap} points across each skill`}{' '}
+          would clear the target on this estimate.
         </Callout>
       ) : (
         <Callout tone="amber" label="A longer climb" className="mt-4">
-          The target is {gap} points above your estimated overall. Focus on high-weight item types in {SKILL_LABEL[weakest]} and plan in 5-point milestones.
+          The target is {gap} points above your estimated overall. Focus on high-weight item types
+          in {SKILL_LABEL[weakest]} and plan in 5-point milestones.
         </Callout>
       )}
 

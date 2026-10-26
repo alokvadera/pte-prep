@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest'
-import { buildDrillMock, buildFullMock, buildMock, buildSectionMock } from '../../../src/domain/assemble'
+import {
+  buildDrillMock,
+  buildFullMock,
+  buildMock,
+  buildSectionMock,
+} from '../../../src/domain/assemble'
 import { MOCK_BLUEPRINT } from '../../../src/domain/blueprint'
 import { BANK, PASSAGES } from '../../../src/content/bank'
 import type { ChartSpec } from '../../../src/content/schema'
@@ -82,7 +87,11 @@ describe('a drill of one type', () => {
   it('still keeps the scored Respond to a Situation items', () => {
     const drill = buildDrillMock(11, ['respond-to-situation'], 2)
     const ids = drill.sections.flatMap((section) => section.itemIds)
-    expect(ids.some((id) => id.startsWith('respond-to-situation:') && id !== 'respond-to-situation:intro')).toBe(true)
+    expect(
+      ids.some(
+        (id) => id.startsWith('respond-to-situation:') && id !== 'respond-to-situation:intro',
+      ),
+    ).toBe(true)
   })
 
   it('returns the built mock when the drill contains nothing at all', () => {
@@ -115,7 +124,9 @@ type BankModule = typeof import('../../../src/content/bank')
 type AssembleModule = typeof import('../../../src/domain/assemble')
 
 /** Rebuild the assembler against a patched content bank. */
-async function assembleWithBank(patch: (actual: BankModule) => Partial<BankModule>): Promise<AssembleModule> {
+async function assembleWithBank(
+  patch: (actual: BankModule) => Partial<BankModule>,
+): Promise<AssembleModule> {
   vi.resetModules()
   vi.doMock('../../../src/content/bank', async (importOriginal) => {
     const actual = await importOriginal<BankModule>()
@@ -226,13 +237,17 @@ describe('a listening multiple-choice item whose key has no right answer', () =>
 
   it('falls back to the first option', async () => {
     const mock = await build(['First option', 'Second option'])
-    const item = Object.values(mock.items).find((entry) => entry.type === 'listening-multiple-choice-single')
+    const item = Object.values(mock.items).find(
+      (entry) => entry.type === 'listening-multiple-choice-single',
+    )
     expect(mock.answers[item?.id ?? '']?.correctChoice).toBe('First option')
   })
 
   it('falls back to an empty answer when there are no options either', async () => {
     const mock = await build([])
-    const item = Object.values(mock.items).find((entry) => entry.type === 'listening-multiple-choice-single')
+    const item = Object.values(mock.items).find(
+      (entry) => entry.type === 'listening-multiple-choice-single',
+    )
     expect(mock.answers[item?.id ?? '']?.correctChoice).toBe('')
   })
 })
@@ -246,7 +261,9 @@ describe('a missing-word item whose turn does not exist', () => {
       },
     }))
     const mock = build(5, 'listening', { 'select-missing-word': 1 })
-    expect(Object.values(mock.items).some((entry) => entry.type === 'select-missing-word')).toBe(false)
+    expect(Object.values(mock.items).some((entry) => entry.type === 'select-missing-word')).toBe(
+      false,
+    )
   })
 
   it('keeps the rest of the listening section', async () => {
@@ -257,7 +274,9 @@ describe('a missing-word item whose turn does not exist', () => {
       },
     }))
     const mock = build(5, 'listening', { 'select-missing-word': 1, 'write-from-dictation': 1 })
-    expect(Object.values(mock.items).some((entry) => entry.type === 'write-from-dictation')).toBe(true)
+    expect(Object.values(mock.items).some((entry) => entry.type === 'write-from-dictation')).toBe(
+      true,
+    )
   })
 })
 
@@ -276,7 +295,9 @@ describe('a listening blanks item with more gaps than answers', () => {
       },
     }))
     const mock = build(5, 'listening', { 'fill-in-blanks-listening': 1 })
-    const item = Object.values(mock.items).find((entry) => entry.type === 'fill-in-blanks-listening')
+    const item = Object.values(mock.items).find(
+      (entry) => entry.type === 'fill-in-blanks-listening',
+    )
     expect(mock.answers[item?.id ?? '']?.reference).toContain('___')
   })
 })
@@ -305,7 +326,9 @@ describe('the assembled mock as a whole', () => {
   const mock = buildFullMock(31337)
 
   it('gives every item a group that holds it', () => {
-    const held = new Set(mock.sections.flatMap((section) => section.groups.flatMap((group) => group.itemIds)))
+    const held = new Set(
+      mock.sections.flatMap((section) => section.groups.flatMap((group) => group.itemIds)),
+    )
     expect(Object.keys(mock.items).every((id) => held.has(id))).toBe(true)
   })
 
@@ -330,7 +353,9 @@ describe('the assembled mock as a whole', () => {
   })
 
   it('adds up the item maxima into the total', () => {
-    expect(mock.totalPoints).toBe(Object.values(mock.items).reduce((sum, item) => sum + item.maxPoints, 0))
+    expect(mock.totalPoints).toBe(
+      Object.values(mock.items).reduce((sum, item) => sum + item.maxPoints, 0),
+    )
   })
 
   it('gives every item an answer key', () => {
@@ -362,11 +387,15 @@ describe('a section mock', () => {
   })
 
   it('can be run forward only', () => {
-    expect(buildSectionMock(9, 'reading', { ...MOCK_BLUEPRINT }, { forwardOnly: true }).forwardOnly).toBe(true)
+    expect(
+      buildSectionMock(9, 'reading', { ...MOCK_BLUEPRINT }, { forwardOnly: true }).forwardOnly,
+    ).toBe(true)
   })
 
   it('can be run untimed', () => {
-    expect(buildSectionMock(9, 'reading', { ...MOCK_BLUEPRINT }, { untimed: true }).untimed).toBe(true)
+    expect(buildSectionMock(9, 'reading', { ...MOCK_BLUEPRINT }, { untimed: true }).untimed).toBe(
+      true,
+    )
   })
 
   it('scales its clock with the timing multiplier', () => {

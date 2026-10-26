@@ -46,7 +46,14 @@ export const EXTRA_LECTURES_5: AudioScript[] = [
         text: 'So the summary is this. Prices work because they compress dispersed knowledge into a single figure that coordinates behaviour and aligns incentives at the same time. They fail where the figure leaves out a cost. In both cases the lesson is the same: the economy is coordinated by information, and the only question is whether the information is honest. Thank you.',
       },
     ],
-    keyTerms: ['signal', 'dispersed knowledge', 'incentives', 'equilibrium', 'externality', 'compact'],
+    keyTerms: [
+      'signal',
+      'dispersed knowledge',
+      'incentives',
+      'equilibrium',
+      'externality',
+      'compact',
+    ],
   },
   {
     id: 'lec-silk-road',
@@ -116,7 +123,14 @@ export const EXTRA_LECTURES_5: AudioScript[] = [
         text: 'So precedent is a compromise between stability and reform. Law grows by analogy, one case at a time, which makes change slow but rarely arbitrary. Its strength is predictability, its weakness is inherited error, and the health of the system depends on the willingness of courts to say, openly and with reasons, when an earlier decision was wrong. Thank you.',
       },
     ],
-    keyTerms: ['precedent', 'stare decisis', 'ratio decidendi', 'distinguishing', 'duty of care', 'predictability'],
+    keyTerms: [
+      'precedent',
+      'stare decisis',
+      'ratio decidendi',
+      'distinguishing',
+      'duty of care',
+      'predictability',
+    ],
   },
 ]
 
@@ -133,7 +147,14 @@ export const EXTRA_RETELL_ITEMS_5: RetellItem[] = [
     ],
     reference:
       'A market price is a signal rather than a cost, compressing dispersed knowledge into one compact figure that updates continuously. When frost damages the coffee crop, distant consumers adjust without knowing about it, because the signal informs and creates incentives at once. Experiments confirm rapid convergence on equilibrium. The failure is an externality, where price omits a cost, and the remedy is to repair the signal rather than abandon it.',
-    keyTerms: ['signal', 'dispersed knowledge', 'incentives', 'equilibrium', 'externality', 'compact'],
+    keyTerms: [
+      'signal',
+      'dispersed knowledge',
+      'incentives',
+      'equilibrium',
+      'externality',
+      'compact',
+    ],
     minWords: 40,
   },
   {
@@ -164,7 +185,14 @@ export const EXTRA_RETELL_ITEMS_5: RetellItem[] = [
     ],
     reference:
       'Common law rests on precedent, deciding new cases by reference to old ones under stare decisis, where the ratio decidendi of an earlier decision binds later courts. This treats like cases alike and disciplines judges against deciding by preference. Its weakness is inherited error, remedied by distinguishing and overruling. The 1932 duty of care in negligence shows law can depart from precedent and grow a new branch by analogy.',
-    keyTerms: ['precedent', 'stare decisis', 'ratio decidendi', 'distinguishing', 'duty of care', 'analogy'],
+    keyTerms: [
+      'precedent',
+      'stare decisis',
+      'ratio decidendi',
+      'distinguishing',
+      'duty of care',
+      'analogy',
+    ],
     minWords: 40,
   },
 ]

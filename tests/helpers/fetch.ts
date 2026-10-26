@@ -45,7 +45,11 @@ function matches(url: string, pattern: string | RegExp): boolean {
   return url.startsWith(pattern)
 }
 
-export function jsonResponse(body: unknown, status = 200, headers: Record<string, string> = {}): Response {
+export function jsonResponse(
+  body: unknown,
+  status = 200,
+  headers: Record<string, string> = {},
+): Response {
   return new Response(JSON.stringify(body), {
     status,
     headers: { 'Content-Type': 'application/json', ...headers },
@@ -61,37 +65,39 @@ export function installFetchMock(routes: FetchRoute[] = []): FetchMock {
   const calls: RecordedCall[] = []
   const used = new Set<FetchRoute>()
 
-  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
-    const url =
-      typeof input === 'string'
-        ? input
-        : input instanceof URL
-          ? input.toString()
-          : (input as Request).url
-    const method = (
-      init?.method ??
-      (typeof input === 'object' && 'method' in input ? (input as Request).method : 'GET')
-    ).toUpperCase()
+  const fetchMock = vi.fn(
+    async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
+      const url =
+        typeof input === 'string'
+          ? input
+          : input instanceof URL
+            ? input.toString()
+            : (input as Request).url
+      const method = (
+        init?.method ??
+        (typeof input === 'object' && 'method' in input ? (input as Request).method : 'GET')
+      ).toUpperCase()
 
-    calls.push({ url, method, init })
+      calls.push({ url, method, init })
 
-    for (const route of routes) {
-      if (route.once && used.has(route)) continue
-      if (route.method && route.method.toUpperCase() !== method) continue
-      if (!matches(url, route.url)) continue
-      if (route.once) used.add(route)
+      for (const route of routes) {
+        if (route.once && used.has(route)) continue
+        if (route.method && route.method.toUpperCase() !== method) continue
+        if (!matches(url, route.url)) continue
+        if (route.once) used.add(route)
 
-      if (route.networkError) {
-        throw new TypeError('Failed to fetch')
+        if (route.networkError) {
+          throw new TypeError('Failed to fetch')
+        }
+        if (route.body !== undefined) {
+          return jsonResponse(route.body, route.status ?? 200, route.headers)
+        }
+        return new Response(null, { status: route.status ?? 200, headers: route.headers })
       }
-      if (route.body !== undefined) {
-        return jsonResponse(route.body, route.status ?? 200, route.headers)
-      }
-      return new Response(null, { status: route.status ?? 200, headers: route.headers })
-    }
 
-    return jsonResponse({ error: `No fetch route for ${method} ${url}` }, 404)
-  })
+      return jsonResponse({ error: `No fetch route for ${method} ${url}` }, 404)
+    },
+  )
 
   vi.stubGlobal('fetch', fetchMock)
 

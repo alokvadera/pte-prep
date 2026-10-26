@@ -63,25 +63,22 @@ function sleep(ms) {
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-audio-'))
 const PORT = 9334
-const chrome = spawnChrome(
-  binary,
-  [
-    '--headless=new',
-    `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    '--window-size=1280,900',
-    '--blink-settings=primaryPointerType=4,primaryHoverType=2,availablePointerTypes=4,availableHoverTypes=2',
-    // Media autoplay is normally blocked in headless runs; the player waits for
-    // a real click, which this check supplies, but the policy would still deny
-    // it without a user gesture recorded for the page.
-    '--autoplay-policy=no-user-gesture-required',
-    'about:blank',
-  ],
-)
+const chrome = spawnChrome(binary, [
+  '--headless=new',
+  `--remote-debugging-port=${PORT}`,
+  `--user-data-dir=${profile}`,
+  '--no-first-run',
+  '--no-default-browser-check',
+  '--disable-gpu',
+  '--hide-scrollbars',
+  '--window-size=1280,900',
+  '--blink-settings=primaryPointerType=4,primaryHoverType=2,availablePointerTypes=4,availableHoverTypes=2',
+  // Media autoplay is normally blocked in headless runs; the player waits for
+  // a real click, which this check supplies, but the policy would still deny
+  // it without a user gesture recorded for the page.
+  '--autoplay-policy=no-user-gesture-required',
+  'about:blank',
+])
 
 let failures = 0
 function report(ok, label, detail = '') {
@@ -147,7 +144,11 @@ function send(method, params = {}, sessionId) {
 }
 
 async function evaluate(sessionId, expression) {
-  const res = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+  const res = await send(
+    'Runtime.evaluate',
+    { expression, returnByValue: true, awaitPromise: true },
+    sessionId,
+  )
   return res.result.value
 }
 
@@ -178,11 +179,15 @@ collectors.add((msg) => {
     console.error('  [browser console.error]', errText)
   }
   if (msg.method === 'Runtime.exceptionThrown') {
-    console.error('  [browser exception]', msg.params.exceptionDetails?.exception?.description ?? msg.params.exceptionDetails?.text)
+    console.error(
+      '  [browser exception]',
+      msg.params.exceptionDetails?.exception?.description ?? msg.params.exceptionDetails?.text,
+    )
   }
   if (msg.method === 'Network.responseReceived') {
     const r = msg.params.response
-    if (r.url.includes('/audio/')) audioResponses.push({ url: r.url, status: r.status, type: r.mimeType })
+    if (r.url.includes('/audio/'))
+      audioResponses.push({ url: r.url, status: r.status, type: r.mimeType })
   }
   if (msg.method === 'Network.loadingFailed' && msg.params.type === 'Media') {
     audioFailures.push(msg.params.errorText)
@@ -241,13 +246,14 @@ const reachedRunner = await (async () => {
   return false
 })()
 
-report(
-  reachedRunner,
-  'starting the drill opens the test runner',
-)
+report(reachedRunner, 'starting the drill opens the test runner')
 
 // The runner opens on a section briefing; start it to reveal the question.
-await waitUntil(sessionId, `!![...document.querySelectorAll('button')].find((b) => /^Begin /i.test((b.textContent ?? '').trim()))`, 15000)
+await waitUntil(
+  sessionId,
+  `!![...document.querySelectorAll('button')].find((b) => /^Begin /i.test((b.textContent ?? '').trim()))`,
+  15000,
+)
 
 const hasPlayControl = await (async () => {
   const deadline = Date.now() + 15000
@@ -266,15 +272,20 @@ const hasPlayControl = await (async () => {
   return false
 })()
 
-report(
-  hasPlayControl,
-  'the listening item offers a play control',
-)
+report(hasPlayControl, 'the listening item offers a play control')
 
 // Dispatch a trusted user click on the document to satisfy Chrome's autoplay user activation policy
-await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: 200, y: 200, button: 'left', clickCount: 1 }, sessionId)
+await send(
+  'Input.dispatchMouseEvent',
+  { type: 'mousePressed', x: 200, y: 200, button: 'left', clickCount: 1 },
+  sessionId,
+)
 await sleep(50)
-await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: 200, y: 200, button: 'left', clickCount: 1 }, sessionId)
+await send(
+  'Input.dispatchMouseEvent',
+  { type: 'mouseReleased', x: 200, y: 200, button: 'left', clickCount: 1 },
+  sessionId,
+)
 await sleep(50)
 
 const started = await evaluate(
@@ -285,11 +296,18 @@ report(started === 'clicked', 'play was pressed')
 
 // The player counts down before the audio starts; the SMW lead-in is four
 // seconds, so the clip itself is only live a little later.
-const live = await waitUntil(sessionId, `(() => { const a = window.__audioInstances?.[0] || document.querySelector('audio'); return a && a.currentTime > 0.3 && !a.paused })()`, 20000)
+const live = await waitUntil(
+  sessionId,
+  `(() => { const a = window.__audioInstances?.[0] || document.querySelector('audio'); return a && a.currentTime > 0.3 && !a.paused })()`,
+  20000,
+)
 report(live, 'the clip is actually playing in the page')
 
 await sleep(1500)
-const position = await evaluate(sessionId, `(window.__audioInstances?.[0] || document.querySelector('audio'))?.currentTime ?? 0`)
+const position = await evaluate(
+  sessionId,
+  `(window.__audioInstances?.[0] || document.querySelector('audio'))?.currentTime ?? 0`,
+)
 report(position > 1.2, 'playback advanced past the lead-in', `currentTime ${position}`)
 
 const clip = audioResponses.filter((r) => /\.m4a(\?|$)/.test(r.url))
@@ -301,7 +319,9 @@ report(
 )
 report(audioFailures.length === 0, 'no media request failed', audioFailures.join(', '))
 
-const requested = clip.map((r) => decodeURIComponent(r.url.split('/').pop() ?? '').replace(/\.(m4a|mp3)$/, ''))
+const requested = clip.map((r) =>
+  decodeURIComponent(r.url.split('/').pop() ?? '').replace(/\.(m4a|mp3)$/, ''),
+)
 // The risk this check exists for: a listening item whose own clip does not load
 // falls back to the parent conversation, a minute of audio that for Select
 // Missing Word speaks the very word the blank asks for. The clip id carries the

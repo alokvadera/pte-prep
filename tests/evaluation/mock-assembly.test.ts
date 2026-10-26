@@ -34,12 +34,16 @@ describe('full mock assembly', () => {
 
   it('points every item at a real group', () => {
     expect(
-      allItems.every((item) => mock.sections.some((section) => section.groups.some((group) => group.id === item.groupId))),
+      allItems.every((item) =>
+        mock.sections.some((section) => section.groups.some((group) => group.id === item.groupId)),
+      ),
     ).toBe(true)
   })
 
   it('orders the sections the way the real test does', () => {
-    expect(mock.sections.map((section) => section.id).join(',')).toBe('speaking-writing,reading,listening')
+    expect(mock.sections.map((section) => section.id).join(',')).toBe(
+      'speaking-writing,reading,listening',
+    )
   })
 
   it('includes an unscored warm-up', () => {
@@ -107,7 +111,9 @@ describe('drill integrity', () => {
 
   it('produces questions for every drill type', () => {
     const noItems = drillTypes.filter(
-      (type) => buildDrillMock(20240917, [type]).sections.flatMap((section) => section.itemIds).length === 0,
+      (type) =>
+        buildDrillMock(20240917, [type]).sections.flatMap((section) => section.itemIds).length ===
+        0,
     )
     expect(noItems).toEqual([])
   })
@@ -133,11 +139,15 @@ describe('drill integrity', () => {
   })
 
   it('totals only the points it includes', () => {
-    expect(drill.totalPoints).toBe(drillIds.reduce((sum, id) => sum + (drill.items[id]?.maxPoints ?? 0), 0))
+    expect(drill.totalPoints).toBe(
+      drillIds.reduce((sum, id) => sum + (drill.items[id]?.maxPoints ?? 0), 0),
+    )
   })
 
   it('totals only the seconds it includes', () => {
-    expect(drill.totalSeconds).toBe(drill.sections.reduce((sum, section) => sum + section.seconds, 0))
+    expect(drill.totalSeconds).toBe(
+      drill.sections.reduce((sum, section) => sum + section.seconds, 0),
+    )
   })
 })
 
@@ -182,19 +192,24 @@ describe('stimulus integrity', () => {
     expect(
       scored
         .filter((item) => item.type === 'fill-in-blanks-dropdown')
-        .every((item) => (item.options?.length ?? 0) >= (item.targetText?.split(/______/).length ?? 0) - 1),
+        .every(
+          (item) =>
+            (item.options?.length ?? 0) >= (item.targetText?.split(/______/).length ?? 0) - 1,
+        ),
     ).toBe(true)
   })
 
   it('keeps every correct dropdown answer inside the word bank', () => {
     expect(
-      scored.filter((item) => item.type === 'fill-in-blanks-dropdown').every((item) => {
-        const answers = (mock.answers[item.id]?.blanks ?? []).map((answer) => answer[0] ?? '')
-        return (
-          answers.length === (item.targetText?.split(/______/).length ?? 0) - 1 &&
-          answers.every((answer) => (item.options ?? []).includes(answer))
-        )
-      }),
+      scored
+        .filter((item) => item.type === 'fill-in-blanks-dropdown')
+        .every((item) => {
+          const answers = (mock.answers[item.id]?.blanks ?? []).map((answer) => answer[0] ?? '')
+          return (
+            answers.length === (item.targetText?.split(/______/).length ?? 0) - 1 &&
+            answers.every((answer) => (item.options ?? []).includes(answer))
+          )
+        }),
     ).toBe(true)
   })
 
@@ -202,17 +217,21 @@ describe('stimulus integrity', () => {
     expect(
       scored
         .filter((item) => item.type === 'fill-in-blanks-table')
-        .every((item) => item.table?.blankCells.length === (mock.answers[item.id]?.blanks?.length ?? 0)),
+        .every(
+          (item) => item.table?.blankCells.length === (mock.answers[item.id]?.blanks?.length ?? 0),
+        ),
     ).toBe(true)
   })
 
   it('matches the reorder key to the blocks', () => {
     expect(
-      scored.filter((item) => item.type === 'reorder-paragraphs').every((item) => {
-        const key = mock.answers[item.id]?.order ?? []
-        const ids = (item.blocks ?? []).map((block) => block.id)
-        return key.length === ids.length && key.every((entry) => ids.includes(entry))
-      }),
+      scored
+        .filter((item) => item.type === 'reorder-paragraphs')
+        .every((item) => {
+          const key = mock.answers[item.id]?.order ?? []
+          const ids = (item.blocks ?? []).map((block) => block.id)
+          return key.length === ids.length && key.every((entry) => ids.includes(entry))
+        }),
     ).toBe(true)
   })
 
@@ -221,7 +240,9 @@ describe('stimulus integrity', () => {
       scored
         .filter((item) => item.responseKind === 'multi-choice')
         .every((item) =>
-          (mock.answers[item.id]?.correctChoices ?? []).every((choice) => (item.options ?? []).includes(choice)),
+          (mock.answers[item.id]?.correctChoices ?? []).every((choice) =>
+            (item.options ?? []).includes(choice),
+          ),
         ),
     ).toBe(true)
   })
@@ -236,16 +257,23 @@ describe('stimulus integrity', () => {
 
   it('gives select-missing-word exactly one blank token', () => {
     expect(
-      scored.filter((item) => item.type === 'select-missing-word').every((item) => (item.tokens ?? []).filter((token) => token === '___').length === 1),
+      scored
+        .filter((item) => item.type === 'select-missing-word')
+        .every((item) => (item.tokens ?? []).filter((token) => token === '___').length === 1),
     ).toBe(true)
   })
 
   it('targets exactly two tokens for highlight-incorrect-words', () => {
     expect(
-      scored.filter((item) => item.type === 'highlight-incorrect-words').every((item) => {
-        const highlighted = mock.answers[item.id]?.correctHighlighted ?? []
-        return highlighted.length === 2 && highlighted.every((index) => index < (item.tokens?.length ?? 0))
-      }),
+      scored
+        .filter((item) => item.type === 'highlight-incorrect-words')
+        .every((item) => {
+          const highlighted = mock.answers[item.id]?.correctHighlighted ?? []
+          return (
+            highlighted.length === 2 &&
+            highlighted.every((index) => index < (item.tokens?.length ?? 0))
+          )
+        }),
     ).toBe(true)
   })
 
@@ -255,7 +283,9 @@ describe('stimulus integrity', () => {
         .filter((item) => item.stimulusId)
         .every(
           (item) =>
-            BANK.lectures.concat(BANK.conversations, BANK.groupDiscussions).some((audio) => audio.id === item.stimulusId) ||
+            BANK.lectures
+              .concat(BANK.conversations, BANK.groupDiscussions)
+              .some((audio) => audio.id === item.stimulusId) ||
             item.stimulusId?.startsWith('asq-') ||
             item.stimulusId?.startsWith('rs-') ||
             item.stimulusId?.startsWith('wfd-') ||
@@ -286,7 +316,9 @@ describe('stimulus integrity', () => {
   })
 
   it('never points a clip back at the parent recording', () => {
-    expect(scored.every((item) => !item.audioClipId || item.audioClipId !== item.stimulusId)).toBe(true)
+    expect(scored.every((item) => !item.audioClipId || item.audioClipId !== item.stimulusId)).toBe(
+      true,
+    )
   })
 
   // When that clip cannot play, the player falls back to speech synthesis over
@@ -294,19 +326,33 @@ describe('stimulus integrity', () => {
   // fallback is worse than silence: it would read out the word the blank asks for.
   it('scopes the speech fallback of select-missing-word to the blanked word', () => {
     expect(
-      scored.filter((item) => item.type === 'select-missing-word').every((item) => {
-        const blank = (item.tokens ?? []).indexOf('___')
-        return typeof item.audioFromTurn === 'number' && item.audioFromTurn === item.audioToTurn && item.audioBeepWord === blank
-      }),
+      scored
+        .filter((item) => item.type === 'select-missing-word')
+        .every((item) => {
+          const blank = (item.tokens ?? []).indexOf('___')
+          return (
+            typeof item.audioFromTurn === 'number' &&
+            item.audioFromTurn === item.audioToTurn &&
+            item.audioBeepWord === blank
+          )
+        }),
     ).toBe(true)
   })
 
   it('resolves every describe-image item to a chart', () => {
-    expect(scored.filter((item) => item.type === 'describe-image').every((item) => Boolean(item.chartId))).toBe(true)
+    expect(
+      scored
+        .filter((item) => item.type === 'describe-image')
+        .every((item) => Boolean(item.chartId)),
+    ).toBe(true)
   })
 
   it('gives every describer target a reference answer', () => {
-    expect(scored.filter((item) => item.responseKind === 'audio').every((item) => Boolean(mock.answers[item.id]?.reference))).toBe(true)
+    expect(
+      scored
+        .filter((item) => item.responseKind === 'audio')
+        .every((item) => Boolean(mock.answers[item.id]?.reference)),
+    ).toBe(true)
   })
 
   it('gives every writing item key terms', () => {
@@ -333,27 +379,40 @@ describe('determinism', () => {
 })
 
 describe('section and drill mocks', () => {
-  it.each(['speaking-writing', 'reading', 'listening'] as const)('builds a %s section mock', (section) => {
-    const built = buildSectionMock(42, section, MOCK_BLUEPRINT)
-    expect(built.sections[0]?.itemIds.length ?? 0).toBeGreaterThan(0)
-  })
+  it.each(['speaking-writing', 'reading', 'listening'] as const)(
+    'builds a %s section mock',
+    (section) => {
+      const built = buildSectionMock(42, section, MOCK_BLUEPRINT)
+      expect(built.sections[0]?.itemIds.length ?? 0).toBeGreaterThan(0)
+    },
+  )
 
   it('keeps a drill to the requested types', () => {
     const drill = buildDrillMock(7, ['reorder-paragraphs', 'write-from-dictation'], 2)
     expect(
       drill.sections
         .flatMap((section) => section.itemIds)
-        .every((id) => drill.items[id] && ['reorder-paragraphs', 'write-from-dictation'].includes(drill.items[id]!.type)),
+        .every(
+          (id) =>
+            drill.items[id] &&
+            ['reorder-paragraphs', 'write-from-dictation'].includes(drill.items[id]!.type),
+        ),
     ).toBe(true)
   })
 
   it('excludes the unscored warm-up from a drill', () => {
     const drill = buildDrillMock(7, ['reorder-paragraphs', 'write-from-dictation'], 2)
-    expect(drill.sections.flatMap((section) => section.itemIds).every((id) => id !== 'respond-to-situation:intro')).toBe(true)
+    expect(
+      drill.sections
+        .flatMap((section) => section.itemIds)
+        .every((id) => id !== 'respond-to-situation:intro'),
+    ).toBe(true)
   })
 
   it('routes every item through the blueprint skill list', () => {
-    expect(scored.every((item) => item.skills.join('+') === QUESTION_META[item.type].skills.join('+'))).toBe(true)
+    expect(
+      scored.every((item) => item.skills.join('+') === QUESTION_META[item.type].skills.join('+')),
+    ).toBe(true)
   })
 
   it('keeps every item type in the blueprint', () => {

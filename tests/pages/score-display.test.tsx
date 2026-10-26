@@ -163,7 +163,13 @@ describe('the result report shows the numbers it was given', () => {
 
   it('shows no share of the points when the attempt had none to earn', async () => {
     stubs.getAttempt.mockResolvedValue(
-      anAttempt({ availablePoints: 0, earnedPoints: 0, skillScores: {}, overallScore: 10, cefr: 'A1' }),
+      anAttempt({
+        availablePoints: 0,
+        earnedPoints: 0,
+        skillScores: {},
+        overallScore: 10,
+        cefr: 'A1',
+      }),
     )
 
     renderRoute(<ResultPage />, '/result', { route: '/result?attempt=attempt-1' })

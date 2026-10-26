@@ -54,7 +54,9 @@ describe('pace report', () => {
   })
 
   it('flags a type that overran its budget', () => {
-    expect(rows.some((row) => row.type === 'summarize-written-text' && row.verdict === 'over')).toBe(true)
+    expect(
+      rows.some((row) => row.type === 'summarize-written-text' && row.verdict === 'over'),
+    ).toBe(true)
   })
 
   it('marks a type finished very fast as under, not steady', () => {
@@ -70,7 +72,9 @@ describe('pace report', () => {
   })
 
   it('ignores an item that was never engaged with', () => {
-    expect(paceReport(items, { i1: resp(40) }).find((row) => row.type === 'read-aloud')?.items).toBe(1)
+    expect(
+      paceReport(items, { i1: resp(40) }).find((row) => row.type === 'read-aloud')?.items,
+    ).toBe(1)
   })
 
   it('returns nothing without timing data', () => {
@@ -158,10 +162,46 @@ describe('a type the blueprint does not know', () => {
 describe('the warnings list', () => {
   it('offers three warnings by default', () => {
     const over = [
-      { type: 'write-essay' as QuestionType, label: 'Write Essay', short: 'WE', averageSeconds: 100, budgetSeconds: 40, items: 1, ratio: 2.5, verdict: 'over' as const },
-      { type: 'read-aloud' as QuestionType, label: 'Read Aloud', short: 'RA', averageSeconds: 100, budgetSeconds: 40, items: 1, ratio: 2.5, verdict: 'over' as const },
-      { type: 'repeat-sentence' as QuestionType, label: 'Repeat Sentence', short: 'RS', averageSeconds: 100, budgetSeconds: 40, items: 1, ratio: 2.5, verdict: 'over' as const },
-      { type: 'describe-image' as QuestionType, label: 'Describe Image', short: 'DI', averageSeconds: 100, budgetSeconds: 40, items: 1, ratio: 2.5, verdict: 'over' as const },
+      {
+        type: 'write-essay' as QuestionType,
+        label: 'Write Essay',
+        short: 'WE',
+        averageSeconds: 100,
+        budgetSeconds: 40,
+        items: 1,
+        ratio: 2.5,
+        verdict: 'over' as const,
+      },
+      {
+        type: 'read-aloud' as QuestionType,
+        label: 'Read Aloud',
+        short: 'RA',
+        averageSeconds: 100,
+        budgetSeconds: 40,
+        items: 1,
+        ratio: 2.5,
+        verdict: 'over' as const,
+      },
+      {
+        type: 'repeat-sentence' as QuestionType,
+        label: 'Repeat Sentence',
+        short: 'RS',
+        averageSeconds: 100,
+        budgetSeconds: 40,
+        items: 1,
+        ratio: 2.5,
+        verdict: 'over' as const,
+      },
+      {
+        type: 'describe-image' as QuestionType,
+        label: 'Describe Image',
+        short: 'DI',
+        averageSeconds: 100,
+        budgetSeconds: 40,
+        items: 1,
+        ratio: 2.5,
+        verdict: 'over' as const,
+      },
     ]
     expect(paceWarnings(over)).toHaveLength(3)
   })

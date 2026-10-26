@@ -127,7 +127,9 @@ describe('syncAttemptToCloud', () => {
     const mock = installFetchMock()
     useAuth.setState({ token: null, user: { ...USER } })
 
-    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe('failed')
+    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe(
+      'failed',
+    )
     expect(mock.calls).toHaveLength(0)
   })
 
@@ -135,7 +137,9 @@ describe('syncAttemptToCloud', () => {
     const mock = installFetchMock()
     useAuth.setState({ token: 'tok', user: null })
 
-    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe('failed')
+    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe(
+      'failed',
+    )
     expect(mock.calls).toHaveLength(0)
   })
 
@@ -143,7 +147,9 @@ describe('syncAttemptToCloud', () => {
     const mock = installFetchMock()
     signIn()
 
-    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_2', ownerId: 'usr_2' }))).toBe('failed')
+    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_2', ownerId: 'usr_2' }))).toBe(
+      'failed',
+    )
     expect(mock.calls).toHaveLength(0)
   })
 
@@ -153,9 +159,9 @@ describe('syncAttemptToCloud', () => {
     ])
     signIn()
 
-    expect(await syncAttemptToCloud(makeAttempt({ id: 'a1', userId: 'usr_1', ownerId: 'usr_1' }))).toBe(
-      'pushed',
-    )
+    expect(
+      await syncAttemptToCloud(makeAttempt({ id: 'a1', userId: 'usr_1', ownerId: 'usr_1' })),
+    ).toBe('pushed')
 
     const posted = callsTo(mock, 'POST')
     expect(posted).toHaveLength(1)
@@ -181,14 +187,18 @@ describe('syncAttemptToCloud', () => {
     installFetchMock([{ url: '/api/attempts', method: 'POST', status: 409 }])
     signIn()
 
-    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe('conflict')
+    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe(
+      'conflict',
+    )
   })
 
   it('signs the user out when the cloud answers 401', async () => {
     installFetchMock([{ url: '/api/attempts', method: 'POST', status: 401 }])
     signIn()
 
-    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe('failed')
+    expect(await syncAttemptToCloud(makeAttempt({ userId: 'usr_1', ownerId: 'usr_1' }))).toBe(
+      'failed',
+    )
     expect(useAuth.getState().token).toBeNull()
     expect(useAuth.getState().user).toBeNull()
   })
@@ -278,9 +288,13 @@ describe('fetchAttemptFromCloud', () => {
     const cloud = makeAttempt({ id: 'c1' })
     const mock = installFetchMock([{ url: '/api/attempts/c1', body: { attempt: cloud } }])
     signIn()
-    changeSessionAfter(mock, (url) => url.includes('/api/attempts/c1'), () => {
-      useAuth.setState({ token: 'another-token' })
-    })
+    changeSessionAfter(
+      mock,
+      (url) => url.includes('/api/attempts/c1'),
+      () => {
+        useAuth.setState({ token: 'another-token' })
+      },
+    )
 
     expect(await fetchAttemptFromCloud('c1')).toBeNull()
     expect(await db.getAttempt('c1')).toBeUndefined()
@@ -299,9 +313,7 @@ describe('deleteAttemptEverywhere', () => {
     // The local copy can be evicted, or pulled by another device. The cloud
     // delete is what actually removes it, so the local lookup is not the gate:
     // without this, a record that is not on this device could never be deleted.
-    const mock = installFetchMock([
-      { url: '/api/attempts/missing', method: 'DELETE', status: 404 },
-    ])
+    const mock = installFetchMock([{ url: '/api/attempts/missing', method: 'DELETE', status: 404 }])
     signIn()
 
     expect(await deleteAttemptEverywhere('missing')).toBe(true)
@@ -759,7 +771,9 @@ describe('syncCloudToLocal', () => {
 
   it('gives up when the id listing never finishes', async () => {
     const mock = installFetchMock([])
-    mock.fetch.mockImplementation(async () => jsonResponse({ ids: ['c1'], hasMore: true, nextOffset: 1 }))
+    mock.fetch.mockImplementation(async () =>
+      jsonResponse({ ids: ['c1'], hasMore: true, nextOffset: 1 }),
+    )
     signIn()
 
     expect(await syncCloudToLocal()).toEqual({ pushed: 0, pulled: 0, failed: 0 })
@@ -788,10 +802,20 @@ describe('syncCloudToLocal', () => {
 
   it('stops the upload loop when the session changes between uploads', async () => {
     await db.saveAttempt(
-      makeAttempt({ id: 'l1', ownerId: 'usr_1', userId: 'usr_1', finishedAt: '2026-01-01T00:00:00.000Z' }),
+      makeAttempt({
+        id: 'l1',
+        ownerId: 'usr_1',
+        userId: 'usr_1',
+        finishedAt: '2026-01-01T00:00:00.000Z',
+      }),
     )
     await db.saveAttempt(
-      makeAttempt({ id: 'l2', ownerId: 'usr_1', userId: 'usr_1', finishedAt: '2026-02-01T00:00:00.000Z' }),
+      makeAttempt({
+        id: 'l2',
+        ownerId: 'usr_1',
+        userId: 'usr_1',
+        finishedAt: '2026-02-01T00:00:00.000Z',
+      }),
     )
     const mock = installFetchMock([
       { url: IDS_URL, body: { ids: [], hasMore: false } },

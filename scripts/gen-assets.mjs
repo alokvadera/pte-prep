@@ -15,15 +15,17 @@ import path from 'node:path'
 
 function crc32(buf) {
   let c
-  const table = crc32.table ?? (crc32.table = (() => {
-    const t = new Int32Array(256)
-    for (let n = 0; n < 256; n++) {
-      c = n
-      for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
-      t[n] = c
-    }
-    return t
-  })())
+  const table =
+    crc32.table ??
+    (crc32.table = (() => {
+      const t = new Int32Array(256)
+      for (let n = 0; n < 256; n++) {
+        c = n
+        for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
+        t[n] = c
+      }
+      return t
+    })())
   let crc = -1
   for (let i = 0; i < buf.length; i++) crc = table[(crc ^ buf[i]) & 0xff] ^ (crc >>> 8)
   return (crc ^ -1) >>> 0
@@ -154,12 +156,12 @@ class Canvas {
 
 // The palette mirrors src/index.css, so the marks and the site are one system:
 // graphite ink on paper, with one vermilion that only ever means "a mark".
-const INK = [16, 21, 24]          // --color-ink-900
-const INK_DEEP = [10, 14, 16]     // --color-ink-950
-const PAPER = [255, 255, 255]     // --color-ink-50
-const WASH = [244, 246, 247]      // --color-ink-100
-const RULE = [223, 227, 230]      // --color-ink-200
-const MARK = [212, 42, 30]        // --color-mark-500
+const INK = [16, 21, 24] // --color-ink-900
+const INK_DEEP = [10, 14, 16] // --color-ink-950
+const PAPER = [255, 255, 255] // --color-ink-50
+const WASH = [244, 246, 247] // --color-ink-100
+const RULE = [223, 227, 230] // --color-ink-200
+const MARK = [212, 42, 30] // --color-mark-500
 const WHITE = [255, 255, 255]
 
 // --- icon ------------------------------------------------------------------

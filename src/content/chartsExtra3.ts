@@ -79,7 +79,11 @@ export const EXTRA_CHARTS_3: ChartSpec[] = [
       unit: 'pence per kWh, real terms',
       x: ['2010', '2012', '2014', '2016', '2018', '2020', '2022', '2023'],
       series: [
-        { name: 'Average price', values: [13.2, 14.1, 14.8, 14.2, 14.6, 15.1, 21.4, 19.8], color: '#f4526b' },
+        {
+          name: 'Average price',
+          values: [13.2, 14.1, 14.8, 14.2, 14.6, 15.1, 21.4, 19.8],
+          color: '#f4526b',
+        },
       ],
     },
   },
@@ -184,11 +188,20 @@ export const EXTRA_CHARTS_3: ChartSpec[] = [
     minWords: 25,
     data: {
       steps: [
-        { label: '1. Collection', detail: 'Used paper is gathered from kerbside bins and office schemes.' },
+        {
+          label: '1. Collection',
+          detail: 'Used paper is gathered from kerbside bins and office schemes.',
+        },
         { label: '2. Pulping', detail: 'Material is mixed with water and churned into a slurry.' },
         { label: '3. Screening', detail: 'Staples, coatings and contaminants are filtered out.' },
-        { label: '4. De-inking', detail: 'Air bubbles lift ink to the surface where it is skimmed away.' },
-        { label: '5. Drying', detail: 'The cleaned pulp is pressed, dried and rolled for printing.' },
+        {
+          label: '4. De-inking',
+          detail: 'Air bubbles lift ink to the surface where it is skimmed away.',
+        },
+        {
+          label: '5. Drying',
+          detail: 'The cleaned pulp is pressed, dried and rolled for printing.',
+        },
       ],
       loop: 'Offcuts from printing return to the pulping stage.',
     },
@@ -203,11 +216,23 @@ export const EXTRA_CHARTS_3: ChartSpec[] = [
     minWords: 25,
     data: {
       steps: [
-        { label: '1. Submission', detail: 'The application and personal statement arrive by the deadline.' },
+        {
+          label: '1. Submission',
+          detail: 'The application and personal statement arrive by the deadline.',
+        },
         { label: '2. Eligibility check', detail: 'Grades and language requirements are verified.' },
-        { label: '3. Academic assessment', detail: 'Two tutors mark the statement against the course criteria.' },
-        { label: '4. Interview', detail: 'Shortlisted candidates discuss a set problem with a tutor.' },
-        { label: '5. Decision', detail: 'Offers, rejections and waiting-list places are issued together.' },
+        {
+          label: '3. Academic assessment',
+          detail: 'Two tutors mark the statement against the course criteria.',
+        },
+        {
+          label: '4. Interview',
+          detail: 'Shortlisted candidates discuss a set problem with a tutor.',
+        },
+        {
+          label: '5. Decision',
+          detail: 'Offers, rejections and waiting-list places are issued together.',
+        },
       ],
       loop: false,
     },

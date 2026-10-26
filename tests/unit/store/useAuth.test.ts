@@ -105,7 +105,11 @@ describe('useAuth', () => {
 
     it('falls back to a seven-day expiry when the API sends a nonsensical one', async () => {
       installFetchMock([
-        { method: 'POST', url: '/api/auth/login', body: { token: 'tok_123', expiresAt: 0, user: USER } },
+        {
+          method: 'POST',
+          url: '/api/auth/login',
+          body: { token: 'tok_123', expiresAt: 0, user: USER },
+        },
       ])
 
       await useAuth.getState().login('learner@example.com', 'hunter2')
@@ -142,9 +146,7 @@ describe('useAuth', () => {
     })
 
     it('refuses a response that carries no token or no user', async () => {
-      installFetchMock([
-        { method: 'POST', url: '/api/auth/login', body: { user: USER } },
-      ])
+      installFetchMock([{ method: 'POST', url: '/api/auth/login', body: { user: USER } }])
 
       const ok = await useAuth.getState().login('learner@example.com', 'hunter2')
 
@@ -155,7 +157,9 @@ describe('useAuth', () => {
 
     it('handles a malformed JSON response', async () => {
       const mock = installFetchMock([{ method: 'POST', url: '/api/auth/login' }])
-      mock.fetch.mockImplementationOnce(async () => new Response('not json at all', { status: 200 }))
+      mock.fetch.mockImplementationOnce(
+        async () => new Response('not json at all', { status: 200 }),
+      )
 
       const ok = await useAuth.getState().login('learner@example.com', 'hunter2')
 
@@ -272,9 +276,7 @@ describe('useAuth', () => {
     })
 
     it('refuses a response that carries no user', async () => {
-      installFetchMock([
-        { method: 'POST', url: '/api/auth/register', body: { token: 'tok_new' } },
-      ])
+      installFetchMock([{ method: 'POST', url: '/api/auth/register', body: { token: 'tok_new' } }])
 
       const ok = await useAuth.getState().register('other@example.com', 'hunter2')
 
@@ -326,7 +328,9 @@ describe('useAuth', () => {
       installFetchMock([{ method: 'POST', url: '/api/auth/logout', body: {} }])
       useSettings.getState().set('groqApiKey', 'gsk_secret')
       useSettings.getState().set('aiScoringEnabled', true)
-      useSettings.getState().recordAiUsage({ promptTokens: 10, completionTokens: 5, totalTokens: 15 })
+      useSettings
+        .getState()
+        .recordAiUsage({ promptTokens: 10, completionTokens: 5, totalTokens: 15 })
 
       useAuth.getState().logout()
 
@@ -422,9 +426,7 @@ describe('useAuth', () => {
     })
 
     it('patches the profile with the bearer token and returns true', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
 
       const result = await useAuth.getState().changePassword('oldpassword', 'newpassword')
 
@@ -454,9 +456,7 @@ describe('useAuth', () => {
     })
 
     it('falls back to a generic message when the server sends none', async () => {
-      installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', status: 400, body: { ok: false } },
-      ])
+      installFetchMock([{ method: 'PATCH', url: '/api/auth/me', status: 400, body: { ok: false } }])
 
       const result = await useAuth.getState().changePassword('oldpassword', 'newpassword')
 
@@ -533,9 +533,7 @@ describe('useAuth', () => {
     })
 
     it('patches the profile and updates the stored user', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
 
       await useAuth.getState().setTargetScore(72)
 
@@ -546,9 +544,7 @@ describe('useAuth', () => {
     })
 
     it('does nothing without a session', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
       useAuth.setState({ token: null, user: null })
 
       await useAuth.getState().setTargetScore(72)
@@ -557,9 +553,7 @@ describe('useAuth', () => {
     })
 
     it('does nothing when the token is there but the user is not', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
       useAuth.setState({ user: null })
 
       await useAuth.getState().setTargetScore(72)
@@ -606,9 +600,7 @@ describe('useAuth', () => {
     })
 
     it('keeps the newer score when a later change supersedes an earlier one', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
       const resolvers: Array<(response: Response) => void> = []
       mock.fetch.mockImplementation(
         () => new Promise<Response>((resolve) => resolvers.push(resolve)),
@@ -627,9 +619,7 @@ describe('useAuth', () => {
     })
 
     it('ignores the confirmation of a change that was already superseded', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
       const resolvers: Array<(response: Response) => void> = []
       mock.fetch.mockImplementation(
         () => new Promise<Response>((resolve) => resolvers.push(resolve)),
@@ -648,9 +638,7 @@ describe('useAuth', () => {
     })
 
     it('ignores a failure of a change that was already superseded', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
       const resolvers: Array<(response: Response) => void> = []
       const rejecters: Array<(reason: Error) => void> = []
       mock.fetch.mockImplementation(
@@ -672,9 +660,7 @@ describe('useAuth', () => {
     })
 
     it('does not roll the score back when a failed request finds no user', async () => {
-      const mock = installFetchMock([
-        { method: 'PATCH', url: '/api/auth/me', body: { ok: true } },
-      ])
+      const mock = installFetchMock([{ method: 'PATCH', url: '/api/auth/me', body: { ok: true } }])
       const rejecters: Array<(reason: Error) => void> = []
       mock.fetch.mockImplementation(
         () =>
@@ -822,7 +808,9 @@ describe('useAuth', () => {
     })
 
     it('ignores a response that arrives after the session was replaced', async () => {
-      const mock = installFetchMock([{ method: 'GET', url: '/api/auth/me', body: { user: OTHER_USER } }])
+      const mock = installFetchMock([
+        { method: 'GET', url: '/api/auth/me', body: { user: OTHER_USER } },
+      ])
       const resolvers: Array<(response: Response) => void> = []
       mock.fetch.mockImplementation(
         () => new Promise<Response>((resolve) => resolvers.push(resolve)),
@@ -884,7 +872,9 @@ describe('useAuth', () => {
     })
 
     it('ignores a user that arrives after the token was replaced mid-response', async () => {
-      const mock = installFetchMock([{ method: 'GET', url: '/api/auth/me', body: { user: OTHER_USER } }])
+      const mock = installFetchMock([
+        { method: 'GET', url: '/api/auth/me', body: { user: OTHER_USER } },
+      ])
       let resolveJson: ((value: unknown) => void) | undefined
       mock.fetch.mockImplementation(
         async () =>
@@ -931,7 +921,12 @@ describe('useAuth', () => {
       const raw = localStorage.getItem('pte-prep-auth')
       expect(raw).not.toBeNull()
       const parsed = JSON.parse(raw ?? '{}') as {
-        state: { user: { email: string } | null; token: string | null; hasLoggedInBefore: boolean; lastEmail: string | null }
+        state: {
+          user: { email: string } | null
+          token: string | null
+          hasLoggedInBefore: boolean
+          lastEmail: string | null
+        }
         version: number
       }
       expect(parsed.version).toBe(0)
@@ -971,7 +966,13 @@ describe('useAuth', () => {
       localStorage.setItem(
         'pte-prep-auth',
         JSON.stringify({
-          state: { user: null, token: null, expiresAt: null, hasLoggedInBefore: false, lastEmail: null },
+          state: {
+            user: null,
+            token: null,
+            expiresAt: null,
+            hasLoggedInBefore: false,
+            lastEmail: null,
+          },
           version: 0,
         }),
       )
@@ -991,7 +992,13 @@ describe('useAuth', () => {
       localStorage.setItem(
         'pte-prep-auth',
         JSON.stringify({
-          state: { user: USER, token: 'tok_stored', expiresAt: null, hasLoggedInBefore: true, lastEmail: null },
+          state: {
+            user: USER,
+            token: 'tok_stored',
+            expiresAt: null,
+            hasLoggedInBefore: true,
+            lastEmail: null,
+          },
           version: 0,
         }),
       )

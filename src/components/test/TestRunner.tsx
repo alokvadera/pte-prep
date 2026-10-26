@@ -34,7 +34,10 @@ function SectionBriefing({ onStart }: { onStart: () => void }) {
       <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
         <section aria-labelledby="section-question-types">
           <div className="flex items-baseline justify-between gap-4 border-b border-ink-200 pb-3 dark:border-white/10">
-            <h2 id="section-question-types" className="text-lg leading-[1.3] text-balance text-ink-900 dark:text-white">
+            <h2
+              id="section-question-types"
+              className="text-lg leading-[1.3] text-balance text-ink-900 dark:text-white"
+            >
               In this section
             </h2>
             <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs tabular-nums">
@@ -47,13 +50,21 @@ function SectionBriefing({ onStart }: { onStart: () => void }) {
               return (
                 <Reveal key={type} variant="up" delay={Math.min(i, 5) * 25} duration={500}>
                   <li className="flex items-start justify-between gap-5 py-4">
-                  <div className="min-w-0">
-                    <p className="text-ink-900 dark:text-white text-sm font-semibold">{qm?.label ?? type}</p>
-                    {qm?.tip ? <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm leading-relaxed">{qm.tip}</p> : null}
-                  </div>
-                  <span className="text-ink-500 dark:text-ink-on-dark shrink-0 pt-0.5 text-sm font-semibold tabular-nums">×{count}</span>
-                </li>
-              </Reveal>
+                    <div className="min-w-0">
+                      <p className="text-ink-900 dark:text-white text-sm font-semibold">
+                        {qm?.label ?? type}
+                      </p>
+                      {qm?.tip ? (
+                        <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1 text-sm leading-relaxed">
+                          {qm.tip}
+                        </p>
+                      ) : null}
+                    </div>
+                    <span className="text-ink-500 dark:text-ink-on-dark shrink-0 pt-0.5 text-sm font-semibold tabular-nums">
+                      ×{count}
+                    </span>
+                  </li>
+                </Reveal>
               )
             })}
           </ul>
@@ -62,12 +73,15 @@ function SectionBriefing({ onStart }: { onStart: () => void }) {
         <aside className="rounded-md bg-ink-900 p-6 text-white lg:sticky lg:top-24 dark:border dark:border-white/10 dark:bg-ink-850">
           <p className="text-xs font-bold text-brand-300">Ready when you are</p>
           <p className="mt-3 text-3xl font-bold tracking-tight tabular-nums">
-            {section.itemIds.length}<span className="ml-2 text-sm font-medium text-ink-on-dark-muted">questions</span>
+            {section.itemIds.length}
+            <span className="ml-2 text-sm font-medium text-ink-on-dark-muted">questions</span>
           </p>
           <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-white/10 pt-5">
             <div>
               <dt className="text-xs text-ink-on-dark-muted">Time</dt>
-              <dd className="mt-1 text-sm font-semibold tabular-nums">{mock.untimed ? 'No limit' : `${Math.round(section.seconds / 60)} min`}</dd>
+              <dd className="mt-1 text-sm font-semibold tabular-nums">
+                {mock.untimed ? 'No limit' : `${Math.round(section.seconds / 60)} min`}
+              </dd>
             </div>
             <div>
               <dt className="text-xs text-ink-on-dark-muted">Scored skill</dt>
@@ -75,9 +89,15 @@ function SectionBriefing({ onStart }: { onStart: () => void }) {
             </div>
           </dl>
           <p className="mt-5 text-xs leading-relaxed text-ink-on-dark-muted">
-            {mock.untimed ? 'Take your time. Your answers are saved as you go.' : 'The clock starts when you begin and continues through every question.'}
+            {mock.untimed
+              ? 'Take your time. Your answers are saved as you go.'
+              : 'The clock starts when you begin and continues through every question.'}
           </p>
-          <button type="button" className="btn-primary mt-6 w-full px-7 py-3 text-base" onClick={onStart}>
+          <button
+            type="button"
+            className="btn-primary mt-6 w-full px-7 py-3 text-base"
+            onClick={onStart}
+          >
             Begin {meta.longTitle}
           </button>
         </aside>
@@ -107,7 +127,9 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
 
     const previousActive = document.activeElement as HTMLElement | null
     // Move focus into the drawer
-    const focusable = panel.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    const focusable = panel.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    )
     focusable[0]?.focus()
 
     const onKeyDown = (e: KeyboardEvent) => {
@@ -139,11 +161,26 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" role="dialog" aria-modal="true" aria-labelledby="nav-drawer-title">
-      <button type="button" className="bg-ink-950/60 animate-fade-in absolute inset-0 cursor-pointer" onClick={onClose} aria-label="Close question overview" />
-      <div ref={panelRef} className="scrollbar-thin border-ink-200 dark:border-white/10 animate-drawer-enter relative h-full w-full max-w-sm overflow-y-auto border-l bg-white p-5 dark:bg-ink-850">
+    <div
+      className="fixed inset-0 z-50 flex justify-end"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="nav-drawer-title"
+    >
+      <button
+        type="button"
+        className="bg-ink-950/60 animate-fade-in absolute inset-0 cursor-pointer"
+        onClick={onClose}
+        aria-label="Close question overview"
+      />
+      <div
+        ref={panelRef}
+        className="scrollbar-thin border-ink-200 dark:border-white/10 animate-drawer-enter relative h-full w-full max-w-sm overflow-y-auto border-l bg-white p-5 dark:bg-ink-850"
+      >
         <div className="mb-4 flex items-center justify-between">
-          <h2 id="nav-drawer-title" className="text-ink-900 dark:text-white font-bold text-balance">{section.title}</h2>
+          <h2 id="nav-drawer-title" className="text-ink-900 dark:text-white font-bold text-balance">
+            {section.title}
+          </h2>
           <button type="button" className="btn-ghost" onClick={onClose}>
             Close
           </button>
@@ -176,10 +213,16 @@ function Navigator({ open, onClose }: { open: boolean; onClose: () => void }) {
               >
                 {i + 1}
                 {answered && item?.maxPoints !== 0 ? (
-                  <span className="absolute bottom-1 size-1 rounded-full bg-white/80" aria-hidden="true" />
+                  <span
+                    className="absolute bottom-1 size-1 rounded-full bg-white/80"
+                    aria-hidden="true"
+                  />
                 ) : null}
                 {flagged ? (
-                  <span className="bg-amber-500 absolute -top-1 -right-1 size-2.5 rounded-full" aria-hidden="true" />
+                  <span
+                    className="bg-amber-500 absolute -top-1 -right-1 size-2.5 rounded-full"
+                    aria-hidden="true"
+                  />
                 ) : null}
               </button>
             )
@@ -281,7 +324,8 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         e.target instanceof HTMLTextAreaElement ||
         e.target instanceof HTMLSelectElement ||
         (e.target as HTMLElement)?.isContentEditable
-      ) return
+      )
+        return
       if (e.repeat) return
 
       const curSection = mock.sections[sectionIndex]
@@ -292,7 +336,11 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         e.preventDefault()
         const atEnd = curIsLast && curIsLastSection
         setAnnouncement(
-          atEnd ? 'Test finished, scoring your responses.' : curIsLast ? 'Section finished.' : 'Question advanced.',
+          atEnd
+            ? 'Test finished, scoring your responses.'
+            : curIsLast
+              ? 'Section finished.'
+              : 'Question advanced.',
         )
         // The region only re-announces when its content changes, so the same
         // message twice in a row would be silent. The counter changes the key
@@ -437,7 +485,9 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
               ))}
             </div>
             {group.stimulus.note ? (
-              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 border-t pt-3 text-xs italic">{group.stimulus.note}</p>
+              <p className="text-ink-500 dark:text-ink-on-dark-muted mt-4 border-t pt-3 text-xs italic">
+                {group.stimulus.note}
+              </p>
             ) : null}
           </article>
         ) : null}
@@ -458,7 +508,9 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
         ) : null}
 
         {group?.stimulus.note && !group.stimulus.passageParagraphs ? (
-          <p className="text-ink-500 dark:text-ink-on-dark-muted mb-5 text-sm italic">{group.stimulus.note}</p>
+          <p className="text-ink-500 dark:text-ink-on-dark-muted mb-5 text-sm italic">
+            {group.stimulus.note}
+          </p>
         ) : null}
 
         <section key={item.id} className="card animate-question-enter p-6 sm:p-8">
@@ -468,23 +520,33 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
             </span>
             <div className="flex items-center gap-2">
               {forwardOnly ? (
-                <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">Test-day mode, forward only</span>
+                <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold">
+                  Test-day mode, forward only
+                </span>
               ) : (
                 <button
                   type="button"
                   className="btn-ghost text-xs"
                   onClick={() => {
                     toggleFlag(item.id)
-                    setAnnouncement(responses[item.id]?.flagged ? 'Flag removed.' : 'Flagged for review.')
+                    setAnnouncement(
+                      responses[item.id]?.flagged ? 'Flag removed.' : 'Flagged for review.',
+                    )
                   }}
                   aria-pressed={Boolean(response?.flagged)}
                 >
-                  <span className={response?.flagged ? 'text-amber-500 dark:text-amber-300' : ''}>⚑</span>
+                  <span className={response?.flagged ? 'text-amber-500 dark:text-amber-300' : ''}>
+                    ⚑
+                  </span>
                   {response?.flagged ? 'Flagged' : 'Flag'}
                 </button>
               )}
               {forwardOnly ? null : (
-                <button type="button" className="btn-ghost text-xs" onClick={() => setNavOpen(true)}>
+                <button
+                  type="button"
+                  className="btn-ghost text-xs"
+                  onClick={() => setNavOpen(true)}
+                >
                   All questions
                 </button>
               )}
@@ -511,11 +573,20 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
       <div className="border-ink-200 dark:border-white/10 fixed inset-x-0 bottom-0 z-30 border-t bg-white/90 backdrop-blur-md pb-[max(0.75rem,env(safe-area-inset-bottom,0px))] dark:bg-ink-900/90">
         <div className="page-shell-wide flex items-center justify-between gap-3 pt-3">
           {forwardOnly ? (
-            <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">Test-day mode, no going back</span>
+            <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
+              Test-day mode, no going back
+            </span>
           ) : (
-            <button type="button" className="btn-secondary" onClick={prev} disabled={itemIndex === 0}>
+            <button
+              type="button"
+              className="btn-secondary"
+              onClick={prev}
+              disabled={itemIndex === 0}
+            >
               ← Back
-              <kbd className="hidden sm:inline-block ml-1 rounded-sm bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-xs font-mono text-ink-500 dark:text-ink-on-dark-muted">Alt+B</kbd>
+              <kbd className="hidden sm:inline-block ml-1 rounded-sm bg-ink-200/60 dark:bg-white/10 px-1 py-0.5 text-xs font-mono text-ink-500 dark:text-ink-on-dark-muted">
+                Alt+B
+              </kbd>
             </button>
           )}
           {forwardOnly ? (
@@ -523,9 +594,17 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
               {answered} of {section.itemIds.length} answered
             </span>
           ) : (
-            <button type="button" className="btn-ghost inline-flex" onClick={() => setNavOpen(true)}>
-              <span className="hidden sm:inline">{answered} of {section.itemIds.length} answered</span>
-              <span className="sm:hidden tabular-nums">{answered}/{section.itemIds.length}</span>
+            <button
+              type="button"
+              className="btn-ghost inline-flex"
+              onClick={() => setNavOpen(true)}
+            >
+              <span className="hidden sm:inline">
+                {answered} of {section.itemIds.length} answered
+              </span>
+              <span className="sm:hidden tabular-nums">
+                {answered}/{section.itemIds.length}
+              </span>
             </button>
           )}
           <button
@@ -534,13 +613,19 @@ export function TestRunner({ onExit }: { onExit: () => void }) {
             onClick={() => {
               const atEnd = isLast && isLastSection
               setAnnouncement(
-                atEnd ? 'Test finished, scoring your responses.' : isLast ? 'Section finished.' : 'Question advanced.',
+                atEnd
+                  ? 'Test finished, scoring your responses.'
+                  : isLast
+                    ? 'Section finished.'
+                    : 'Question advanced.',
               )
               next()
             }}
           >
             {isLast ? (isLastSection ? 'Finish test' : 'End section') : 'Next'}
-            <kbd className="hidden sm:inline-block ml-1.5 rounded-sm bg-white/25 px-1 py-0.5 text-xs font-mono text-white">Alt+N</kbd>
+            <kbd className="hidden sm:inline-block ml-1.5 rounded-sm bg-white/25 px-1 py-0.5 text-xs font-mono text-white">
+              Alt+N
+            </kbd>
           </button>
         </div>
       </div>

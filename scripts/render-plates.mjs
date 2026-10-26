@@ -23,13 +23,17 @@ const CHROME = [
   '/Applications/Chromium.app/Contents/MacOS/Chromium',
   '/usr/bin/google-chrome',
   process.env.CHROME_PATH,
-].filter(Boolean).find((p) => existsSync(p))
+]
+  .filter(Boolean)
+  .find((p) => existsSync(p))
 
 if (!CHROME) {
   console.log('  No Chrome binary found — skipping the plates.')
   const allowSkip = process.argv.includes('--allow-skip') || process.env.ALLOW_SKIP_BROWSER === '1'
   if ((process.env.CI || process.argv.includes('--strict')) && !allowSkip) {
-    console.error('  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.')
+    console.error(
+      '  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.',
+    )
     process.exit(1)
   }
   process.exit(0)
@@ -274,20 +278,17 @@ const H = 1850
 async function render(html, outPath) {
   const profile = await mkdtemp(path.join(tmpdir(), 'plate-'))
   const port = 9500 + Math.floor(Math.random() * 300)
-  const chrome = spawnChrome(
-    CHROME,
-    [
-      '--headless=new',
-      `--remote-debugging-port=${port}`,
-      `--user-data-dir=${profile}`,
-      '--no-first-run',
-      '--no-default-browser-check',
-      '--disable-gpu',
-      '--hide-scrollbars',
-      `--window-size=${W},${H}`,
-      'about:blank',
-    ],
-  )
+  const chrome = spawnChrome(CHROME, [
+    '--headless=new',
+    `--remote-debugging-port=${port}`,
+    `--user-data-dir=${profile}`,
+    '--no-first-run',
+    '--no-default-browser-check',
+    '--disable-gpu',
+    '--hide-scrollbars',
+    `--window-size=${W},${H}`,
+    'about:blank',
+  ])
 
   try {
     for (let i = 0; i < 80; i++) {
@@ -326,10 +327,22 @@ async function render(html, outPath) {
     const { targetId } = await send('Target.createTarget', { url: 'about:blank' })
     const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
     await send('Page.enable', {}, sessionId)
-    await send('Emulation.setDeviceMetricsOverride', { width: W, height: H, deviceScaleFactor: 1, mobile: false }, sessionId)
-    await send('Page.navigate', { url: `data:text/html;charset=utf-8,${encodeURIComponent(html)}` }, sessionId)
+    await send(
+      'Emulation.setDeviceMetricsOverride',
+      { width: W, height: H, deviceScaleFactor: 1, mobile: false },
+      sessionId,
+    )
+    await send(
+      'Page.navigate',
+      { url: `data:text/html;charset=utf-8,${encodeURIComponent(html)}` },
+      sessionId,
+    )
     await sleep(2200)
-    const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }, sessionId)
+    const shot = await send(
+      'Page.captureScreenshot',
+      { format: 'png', captureBeyondViewport: false },
+      sessionId,
+    )
     await writeFile(outPath, Buffer.from(shot.data, 'base64'))
     ws.close()
     return true

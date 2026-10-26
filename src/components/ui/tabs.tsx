@@ -75,7 +75,13 @@ export function Tabs({
 
   return (
     <div className={className}>
-      <div ref={listRef} role="tablist" aria-label="Sections" onKeyDown={onListKey} className="border-ink-200 dark:border-white/10 flex flex-wrap gap-1 border-b">
+      <div
+        ref={listRef}
+        role="tablist"
+        aria-label="Sections"
+        onKeyDown={onListKey}
+        className="border-ink-200 dark:border-white/10 flex flex-wrap gap-1 border-b"
+      >
         {tabs.map((t) => {
           const isActive = t.id === active.id
           return (
@@ -108,7 +114,13 @@ export function Tabs({
         })}
       </div>
       {hasPanels ? (
-        <div key={active.id} id={panelId(active.id)} role="tabpanel" aria-labelledby={`tab-${active.id}`} className={cn('pt-5 animate-tab-enter', panelClassName)}>
+        <div
+          key={active.id}
+          id={panelId(active.id)}
+          role="tabpanel"
+          aria-labelledby={`tab-${active.id}`}
+          className={cn('pt-5 animate-tab-enter', panelClassName)}
+        >
           {active.content}
         </div>
       ) : null}

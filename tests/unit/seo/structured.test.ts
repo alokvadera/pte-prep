@@ -180,12 +180,8 @@ describe('pageHeadTags', () => {
   })
 
   it('indexes a public page and excludes a private one', () => {
-    const indexed = pageHeadTags(base).find(
-      (t) => t.tag === 'meta' && t.attrs?.name === 'robots',
-    )
-    expect(indexed?.attrs?.content).toBe(
-      'index, follow, max-image-preview:large, max-snippet:-1',
-    )
+    const indexed = pageHeadTags(base).find((t) => t.tag === 'meta' && t.attrs?.name === 'robots')
+    expect(indexed?.attrs?.content).toBe('index, follow, max-image-preview:large, max-snippet:-1')
 
     const hidden = pageHeadTags({ ...base, noindex: true }).find(
       (t) => t.tag === 'meta' && t.attrs?.name === 'robots',
@@ -195,16 +191,16 @@ describe('pageHeadTags', () => {
 
   it('defaults the Open Graph type to website and honours an override', () => {
     const ogType = (meta: PageMeta) =>
-      pageHeadTags(meta).find((t) => t.tag === 'meta' && t.attrs?.property === 'og:type')
-        ?.attrs?.content
+      pageHeadTags(meta).find((t) => t.tag === 'meta' && t.attrs?.property === 'og:type')?.attrs
+        ?.content
     expect(ogType(base)).toBe('website')
     expect(ogType({ ...base, type: 'article' })).toBe('article')
   })
 
   it('uses the default social image and honours an absolute one', () => {
     const ogImage = (meta: PageMeta) =>
-      pageHeadTags(meta).find((t) => t.tag === 'meta' && t.attrs?.property === 'og:image')
-        ?.attrs?.content
+      pageHeadTags(meta).find((t) => t.tag === 'meta' && t.attrs?.property === 'og:image')?.attrs
+        ?.content
     expect(ogImage(base)).toBe(absoluteUrl('/og-default.png'))
     expect(ogImage({ ...base, image: 'https://cdn.example.test/og.png' })).toBe(
       'https://cdn.example.test/og.png',
@@ -260,16 +256,12 @@ describe('renderHeadTags', () => {
 
   it('renders a JSON-LD script element', () => {
     expect(
-      renderHeadTags([
-        { tag: 'script', attrs: { type: 'application/ld+json' }, text: '{"a":1}' },
-      ]),
+      renderHeadTags([{ tag: 'script', attrs: { type: 'application/ld+json' }, text: '{"a":1}' }]),
     ).toBe('<script type="application/ld+json">{"a":1}</script>')
   })
 
   it('defaults the script type and tolerates a missing body', () => {
-    expect(renderHeadTags([{ tag: 'script' }])).toBe(
-      '<script type="application/ld+json"></script>',
-    )
+    expect(renderHeadTags([{ tag: 'script' }])).toBe('<script type="application/ld+json"></script>')
   })
 
   it('escapes the characters that would break out of an attribute', () => {

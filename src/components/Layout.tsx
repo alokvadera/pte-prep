@@ -155,17 +155,24 @@ export function Layout() {
             <Logo />
             <div className="ml-auto hidden items-center gap-1 lg:flex">
               {NAV.map((item) => {
-                const isMatch = item.to === '/format'
-                  ? currentRoute === '/format' || currentRoute.startsWith('/question-types')
-                  : item.to === '/practice'
-                    ? currentRoute.startsWith('/practice')
-                    : currentRoute === item.to
+                const isMatch =
+                  item.to === '/format'
+                    ? currentRoute === '/format' || currentRoute.startsWith('/question-types')
+                    : item.to === '/practice'
+                      ? currentRoute.startsWith('/practice')
+                      : currentRoute === item.to
 
                 return (
                   <Link
                     key={item.to}
                     to={item.to}
-                    aria-current={isMatch ? (location.pathname.startsWith('/question-types') ? 'location' : 'page') : undefined}
+                    aria-current={
+                      isMatch
+                        ? location.pathname.startsWith('/question-types')
+                          ? 'location'
+                          : 'page'
+                        : undefined
+                    }
                     className={cn(
                       /* Pill nav — lavender wash on hover, mint when current,
                          the same active/hover language as the playful mockup. */
@@ -189,8 +196,18 @@ export function Layout() {
                 title="Open Command Palette (⌘K)"
                 aria-label="Open Command Palette"
               >
-                <svg className="size-3 text-ink-500 dark:text-ink-on-dark-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                <svg
+                  className="size-3 text-ink-500 dark:text-ink-on-dark-muted"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
                 </svg>
                 <span className="text-xs text-ink-500 dark:text-ink-on-dark-muted">⌘K</span>
               </button>
@@ -211,14 +228,16 @@ export function Layout() {
                       : 'Create a free account'
                 }
                 aria-label={
-                  user
-                    ? `Account: ${user.email}`
-                    : hasLoggedInBefore
-                      ? 'Sign in'
-                      : 'Create account'
+                  user ? `Account: ${user.email}` : hasLoggedInBefore ? 'Sign in' : 'Create account'
                 }
               >
-                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg
+                  className="size-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -228,7 +247,10 @@ export function Layout() {
               </NavLink>
               <ThemeToggle theme={settings.theme} onChange={(t) => set('theme', t)} />
               <Magnetic className="hidden lg:inline-flex">
-                <NavLink to={hasActiveSession ? '/test' : '/mock'} className="btn-primary px-5 py-[11px] text-[14.5px]">
+                <NavLink
+                  to={hasActiveSession ? '/test' : '/mock'}
+                  className="btn-primary px-5 py-[11px] text-[14.5px]"
+                >
                   {hasActiveSession ? 'Resume session' : 'Start a mock'}
                 </NavLink>
               </Magnetic>
@@ -267,17 +289,24 @@ export function Layout() {
               />
               <div className="page-shell-wide flex flex-col gap-2 py-8">
                 {NAV.map((item, index) => {
-                  const isMatch = item.to === '/format'
-                    ? currentRoute === '/format' || currentRoute.startsWith('/question-types')
-                    : item.to === '/practice'
-                      ? currentRoute.startsWith('/practice')
-                      : currentRoute === item.to
+                  const isMatch =
+                    item.to === '/format'
+                      ? currentRoute === '/format' || currentRoute.startsWith('/question-types')
+                      : item.to === '/practice'
+                        ? currentRoute.startsWith('/practice')
+                        : currentRoute === item.to
 
                   return (
                     <Link
                       key={item.to}
                       to={item.to}
-                      aria-current={isMatch ? (location.pathname.startsWith('/question-types') ? 'location' : 'page') : undefined}
+                      aria-current={
+                        isMatch
+                          ? location.pathname.startsWith('/question-types')
+                            ? 'location'
+                            : 'page'
+                          : undefined
+                      }
                       className={cn(
                         /* Staggered mask reveal: each link fades in and slides
                            up from an invisible box, staggered per item. */
@@ -307,7 +336,10 @@ export function Layout() {
       </header>
 
       <main id="main" ref={mainRef} tabIndex={-1} className="flex-1 outline-none">
-        <div key={location.pathname} className={cn('route-enter', location.pathname === '/' ? '' : 'route-inner')}>
+        <div
+          key={location.pathname}
+          className={cn('route-enter', location.pathname === '/' ? '' : 'route-inner')}
+        >
           <Outlet />
         </div>
       </main>
@@ -341,7 +373,6 @@ function ThemeToggle({ theme, onChange }: { theme: Theme; onChange: (t: Theme) =
   )
 }
 
-
 function Footer() {
   return (
     <footer className="bg-ink-900 text-ink-on-dark mt-16">
@@ -350,9 +381,9 @@ function Footer() {
           <div className="lg:col-span-2">
             <Logo tone="onDark" />
             <p className="text-ink-on-dark-muted mt-4 max-w-sm text-xs leading-relaxed sm:text-sm">
-              Free, unlimited PTE Academic practice. Everything runs in your browser, so there is
-              no account to create and no payment step. An optional account syncs your history
-              between devices.
+              Free, unlimited PTE Academic practice. Everything runs in your browser, so there is no
+              account to create and no payment step. An optional account syncs your history between
+              devices.
             </p>
           </div>
           <div>
@@ -360,9 +391,15 @@ function Footer() {
               Practice
             </h2>
             <ul className="mt-3 flex flex-col gap-1 text-xs">
-              <li><FooterLink to="/mock">Full mock tests</FooterLink></li>
-              <li><FooterLink to="/practice">Single-skill drills</FooterLink></li>
-              <li><FooterLink to="/dashboard">Progress history</FooterLink></li>
+              <li>
+                <FooterLink to="/mock">Full mock tests</FooterLink>
+              </li>
+              <li>
+                <FooterLink to="/practice">Single-skill drills</FooterLink>
+              </li>
+              <li>
+                <FooterLink to="/dashboard">Progress history</FooterLink>
+              </li>
             </ul>
           </div>
           <div>
@@ -370,20 +407,33 @@ function Footer() {
               Reference
             </h2>
             <ul className="mt-3 flex flex-col gap-1 text-xs">
-              <li><FooterLink to="/format">Test format</FooterLink></li>
-              <li><FooterLink to="/question-types/">All 22 question types</FooterLink></li>
-              <li><FooterLink to="/scoring">How scoring works</FooterLink></li>
-              <li><FooterLink to="/guide">Question type guide</FooterLink></li>
-              <li><FooterLink to="/about">About</FooterLink></li>
-              <li><FooterLink to="/privacy/">Privacy policy</FooterLink></li>
+              <li>
+                <FooterLink to="/format">Test format</FooterLink>
+              </li>
+              <li>
+                <FooterLink to="/question-types/">All 22 question types</FooterLink>
+              </li>
+              <li>
+                <FooterLink to="/scoring">How scoring works</FooterLink>
+              </li>
+              <li>
+                <FooterLink to="/guide">Question type guide</FooterLink>
+              </li>
+              <li>
+                <FooterLink to="/about">About</FooterLink>
+              </li>
+              <li>
+                <FooterLink to="/privacy/">Privacy policy</FooterLink>
+              </li>
             </ul>
           </div>
         </div>
 
         <p className="text-ink-on-dark-muted mt-10 border-t border-white/15 pt-6 text-xs leading-relaxed">
-          PTE Academic and the PTE logo are trademarks of Pearson Education Ltd. This is an independent practice tool
-          and is not affiliated with, endorsed by, or sponsored by Pearson. Practice material is original and written
-          specifically for this simulator. Scores produced are estimates for practice only.
+          PTE Academic and the PTE logo are trademarks of Pearson Education Ltd. This is an
+          independent practice tool and is not affiliated with, endorsed by, or sponsored by
+          Pearson. Practice material is original and written specifically for this simulator. Scores
+          produced are estimates for practice only.
         </p>
       </div>
     </footer>
@@ -410,16 +460,33 @@ function FooterLink({ to, children }: { to: string; children: ReactNode }) {
 
 function SunIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="size-4.5" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      className="size-4.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden="true"
+    >
       <circle cx="12" cy="12" r="4" />
-      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" strokeLinecap="round" />
+      <path
+        d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+        strokeLinecap="round"
+      />
     </svg>
   )
 }
 
 function MoonIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="size-4.5" fill="none" stroke="currentColor" strokeWidth={2} aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      className="size-4.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      aria-hidden="true"
+    >
       <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z" strokeLinejoin="round" />
     </svg>
   )

@@ -144,7 +144,9 @@ describe('loadVoices', () => {
   it('copes with an engine that reports nothing at all', async () => {
     vi.useFakeTimers()
     const getVoices = vi.spyOn(window.speechSynthesis, 'getVoices')
-    getVoices.mockReturnValueOnce([]).mockReturnValue(undefined as unknown as SpeechSynthesisVoice[])
+    getVoices
+      .mockReturnValueOnce([])
+      .mockReturnValue(undefined as unknown as SpeechSynthesisVoice[])
     const promise = loadVoices()
     await vi.advanceTimersByTimeAsync(600)
     await expect(promise).resolves.toEqual([])
@@ -275,52 +277,60 @@ describe('speakScript', () => {
 
   it('reports an error that is not an interruption', async () => {
     const spoken: SpeechSynthesisUtterance[] = []
-    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation((utterance: SpeechSynthesisUtterance) => {
-      spoken.push(utterance)
-    })
+    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation(
+      (utterance: SpeechSynthesisUtterance) => {
+        spoken.push(utterance)
+      },
+    )
     const onError = vi.fn()
     const onEnd = vi.fn()
     await speakScript(SCRIPT, { onError, onEnd })
-    spoken[0]?.onerror?.call(spoken[0]!, { error: 'network' } as unknown as SpeechSynthesisErrorEvent)
+    spoken[0]?.onerror?.call(spoken[0]!, {
+      error: 'network',
+    } as unknown as SpeechSynthesisErrorEvent)
     expect(onError).toHaveBeenCalledWith('network')
     expect(onEnd).toHaveBeenCalledTimes(1)
   })
 
   it('ignores an interruption', async () => {
     const spoken: SpeechSynthesisUtterance[] = []
-    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation((utterance: SpeechSynthesisUtterance) => {
-      spoken.push(utterance)
-    })
+    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation(
+      (utterance: SpeechSynthesisUtterance) => {
+        spoken.push(utterance)
+      },
+    )
     const onError = vi.fn()
     const onEnd = vi.fn()
     await speakScript(SCRIPT, { onError, onEnd })
-    spoken[0]?.onerror?.call(
-      spoken[0]!,
-      { error: 'interrupted' } as unknown as SpeechSynthesisErrorEvent,
-    )
+    spoken[0]?.onerror?.call(spoken[0]!, {
+      error: 'interrupted',
+    } as unknown as SpeechSynthesisErrorEvent)
     expect(onError).not.toHaveBeenCalled()
     expect(onEnd).not.toHaveBeenCalled()
   })
 
   it('ignores a cancelled utterance', async () => {
     const spoken: SpeechSynthesisUtterance[] = []
-    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation((utterance: SpeechSynthesisUtterance) => {
-      spoken.push(utterance)
-    })
+    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation(
+      (utterance: SpeechSynthesisUtterance) => {
+        spoken.push(utterance)
+      },
+    )
     const onError = vi.fn()
     await speakScript(SCRIPT, { onError })
-    spoken[0]?.onerror?.call(
-      spoken[0]!,
-      { error: 'canceled' } as unknown as SpeechSynthesisErrorEvent,
-    )
+    spoken[0]?.onerror?.call(spoken[0]!, {
+      error: 'canceled',
+    } as unknown as SpeechSynthesisErrorEvent)
     expect(onError).not.toHaveBeenCalled()
   })
 
   it('reports a failure that carries no error code', async () => {
     const spoken: SpeechSynthesisUtterance[] = []
-    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation((utterance: SpeechSynthesisUtterance) => {
-      spoken.push(utterance)
-    })
+    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation(
+      (utterance: SpeechSynthesisUtterance) => {
+        spoken.push(utterance)
+      },
+    )
     const onError = vi.fn()
     await speakScript(SCRIPT, { onError })
     spoken[0]?.onerror?.call(spoken[0]!, {} as SpeechSynthesisErrorEvent)
@@ -414,7 +424,13 @@ describe('speakScript', () => {
 
   it('prefers a neural voice over a plain one', async () => {
     const voices: SpeechSynthesisVoice[] = [
-      { name: 'Plain Sam', lang: 'en-US', localService: true, default: true, voiceURI: 'Plain Sam' },
+      {
+        name: 'Plain Sam',
+        lang: 'en-US',
+        localService: true,
+        default: true,
+        voiceURI: 'Plain Sam',
+      },
       {
         name: 'Siri Neural',
         lang: 'en-US',
@@ -546,37 +562,39 @@ describe('speakWithBeep', () => {
 
   it('reports an error in the lead-in', async () => {
     const spoken: SpeechSynthesisUtterance[] = []
-    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation((utterance: SpeechSynthesisUtterance) => {
-      spoken.push(utterance)
-    })
+    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation(
+      (utterance: SpeechSynthesisUtterance) => {
+        spoken.push(utterance)
+      },
+    )
     const onError = vi.fn()
     const controller = await speakWithBeep('The lead-in.', 'The tail.', { onError })
-    spoken[0]?.onerror?.call(
-      spoken[0]!,
-      { error: 'network' } as unknown as SpeechSynthesisErrorEvent,
-    )
+    spoken[0]?.onerror?.call(spoken[0]!, {
+      error: 'network',
+    } as unknown as SpeechSynthesisErrorEvent)
     expect(onError).toHaveBeenCalledWith('network')
     expect(controller.speaking).toBe(false)
   })
 
   it('reports an error in the remainder', async () => {
     const spoken: SpeechSynthesisUtterance[] = []
-    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation((utterance: SpeechSynthesisUtterance) => {
-      spoken.push(utterance)
-      if (spoken.length === 1) {
-        window.setTimeout(() => {
-          utterance.onend?.(new Event('end') as unknown as SpeechSynthesisEvent)
-        }, 0)
-      }
-    })
+    vi.spyOn(window.speechSynthesis, 'speak').mockImplementation(
+      (utterance: SpeechSynthesisUtterance) => {
+        spoken.push(utterance)
+        if (spoken.length === 1) {
+          window.setTimeout(() => {
+            utterance.onend?.(new Event('end') as unknown as SpeechSynthesisEvent)
+          }, 0)
+        }
+      },
+    )
     const onError = vi.fn()
     await speakWithBeep('The lead-in.', 'The tail.', { onError })
     await vi.advanceTimersByTimeAsync(2000)
     expect(spoken).toHaveLength(2)
-    spoken[1]?.onerror?.call(
-      spoken[1]!,
-      { error: 'network' } as unknown as SpeechSynthesisErrorEvent,
-    )
+    spoken[1]?.onerror?.call(spoken[1]!, {
+      error: 'network',
+    } as unknown as SpeechSynthesisErrorEvent)
     expect(onError).toHaveBeenCalledWith('network')
   })
 })
@@ -686,12 +704,9 @@ describe('tones', () => {
         connect: (node: unknown) => node,
       }),
     }
-    vi.stubGlobal(
-      'AudioContext',
-      function () {
-        return fakeContext
-      } as unknown as typeof AudioContext,
-    )
+    vi.stubGlobal('AudioContext', function () {
+      return fakeContext
+    } as unknown as typeof AudioContext)
     speech.playTone(440, 50)
     expect(resume).toHaveBeenCalled()
     vi.unstubAllGlobals()
@@ -726,12 +741,9 @@ describe('tones', () => {
         connect: (node: unknown) => node,
       }),
     }
-    vi.stubGlobal(
-      'AudioContext',
-      function () {
-        return fakeContext
-      } as unknown as typeof AudioContext,
-    )
+    vi.stubGlobal('AudioContext', function () {
+      return fakeContext
+    } as unknown as typeof AudioContext)
     speech.playTone(440, 50)
     expect(close).not.toHaveBeenCalled()
     // The context is shared for the life of the page, so it is closed when the

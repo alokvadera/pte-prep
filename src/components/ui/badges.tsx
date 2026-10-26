@@ -61,7 +61,9 @@ const ACHIEVEMENTS: Achievement[] = [
     icon: <TrendingUp className="size-5" />,
     earned: (a) => {
       if (a.length < 2) return false
-      const sorted = [...a].sort((x, y) => new Date(x.startedAt).getTime() - new Date(y.startedAt).getTime())
+      const sorted = [...a].sort(
+        (x, y) => new Date(x.startedAt).getTime() - new Date(y.startedAt).getTime(),
+      )
       const first = sorted[0]
       /* v8 ignore next -- the array has at least two entries, so the first exists */
       if (!first) return false
@@ -92,7 +94,10 @@ export function AchievementBadges({
   attempts: AttemptRecord[]
   className?: string
 }) {
-  const earnedCount = useMemo(() => ACHIEVEMENTS.filter((b) => b.earned(attempts)).length, [attempts])
+  const earnedCount = useMemo(
+    () => ACHIEVEMENTS.filter((b) => b.earned(attempts)).length,
+    [attempts],
+  )
 
   return (
     <div className={className}>
@@ -119,10 +124,19 @@ export function AchievementBadges({
                 {earned ? b.icon : <Lock className="size-5" />}
               </span>
               <div>
-                <p className={cn('text-sm font-bold', earned ? 'text-ink-900 dark:text-white' : 'text-ink-500 dark:text-ink-on-dark-muted')}>
+                <p
+                  className={cn(
+                    'text-sm font-bold',
+                    earned
+                      ? 'text-ink-900 dark:text-white'
+                      : 'text-ink-500 dark:text-ink-on-dark-muted',
+                  )}
+                >
                   {b.label}
                 </p>
-                <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-[11px] leading-snug">{b.description}</p>
+                <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-[11px] leading-snug">
+                  {b.description}
+                </p>
               </div>
             </li>
           )

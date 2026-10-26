@@ -5,7 +5,6 @@ import { ASQ_RECORDINGS } from '../content/listening'
 import {
   AUDIO_INDEX,
   BANK,
-
   ESSAY_PROMPTS,
   PASSAGES,
   READ_ALOUD_POOL,
@@ -73,7 +72,11 @@ function group(input: GroupInput): ItemGroup {
 // Part 1 — Speaking & Writing
 // ---------------------------------------------------------------------------
 
-function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, number>>, excludePassages: Set<string>): ItemGroup[] {
+function buildSpeakingWriting(
+  ctx: Ctx,
+  counts: Partial<Record<QuestionType, number>>,
+  excludePassages: Set<string>,
+): ItemGroup[] {
   const groups: ItemGroup[] = []
   const passages = PASSAGES.filter((p) => !excludePassages.has(p.id))
 
@@ -107,15 +110,15 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
     {},
   )
   groups.push(
-      group({
-    id: 'g-intro',
-    section: 'speaking-writing',
-    type: 'respond-to-situation',
-    order: 0,
-    stimulus: {},
-    itemIds: [introId],
+    group({
+      id: 'g-intro',
+      section: 'speaking-writing',
+      type: 'respond-to-situation',
+      order: 0,
+      stimulus: {},
+      itemIds: [introId],
     }),
-    )
+  )
 
   let order = 1
 
@@ -134,7 +137,8 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
           section: 'speaking-writing',
           groupId: gid,
           responseKind: 'audio',
-          prompt: 'Look at the text below. You will have 30–40 seconds to prepare before the recording starts.',
+          prompt:
+            'Look at the text below. You will have 30–40 seconds to prepare before the recording starts.',
           targetText: extract.text,
           maxPoints: 1,
           seconds: 45,
@@ -143,15 +147,15 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         { reference: extract.text, minWords: Math.max(6, wordCount(extract.text) - 3) },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'read-aloud',
-        order: order++,
-        stimulus: {},
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'read-aloud',
+          order: order++,
+          stimulus: {},
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
@@ -181,15 +185,15 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         { reference: s.text, minWords: Math.max(5, wordCount(s.text) - 4) },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'repeat-sentence',
-        order: order++,
-        stimulus: {},
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'repeat-sentence',
+          order: order++,
+          stimulus: {},
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
@@ -227,15 +231,15 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'describe-image',
-        order: order++,
-        stimulus: { chartId: chart.id, imageAlt: chartTitle(chart.title, chart.kind) },
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'describe-image',
+          order: order++,
+          stimulus: { chartId: chart.id, imageAlt: chartTitle(chart.title, chart.kind) },
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
@@ -255,7 +259,8 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
           section: 'speaking-writing',
           groupId: gid,
           responseKind: 'audio',
-          prompt: 'Listen to the recording and re-tell what you heard in your own words. You have 25 seconds to prepare.',
+          prompt:
+            'Listen to the recording and re-tell what you heard in your own words. You have 25 seconds to prepare.',
           stimulusId: rtl.audioId,
           maxPoints: 1,
           seconds: 50,
@@ -266,15 +271,15 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         { reference: rtl.reference, keyTerms: rtl.keyTerms, minWords: rtl.minWords },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'retell-lecture',
-        order: order++,
-        stimulus: audioStimulus(rtl.audioId, script?.title),
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'retell-lecture',
+          order: order++,
+          stimulus: audioStimulus(rtl.audioId, script?.title),
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
@@ -296,7 +301,8 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
           section: 'speaking-writing',
           groupId: gid,
           responseKind: 'audio',
-          prompt: 'Listen to the recording and answer the question below. Answer in no more than four words.',
+          prompt:
+            'Listen to the recording and answer the question below. Answer in no more than four words.',
           tokens: [q.question],
           stimulusId: rec,
           maxPoints: 1,
@@ -305,18 +311,24 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
           audioLeadIn: 3,
           replays: 1,
         },
-        { correctChoice: q.correct, blanks: [[q.correct]], reference: q.correct, minWords: 1, maxWords: 4 },
+        {
+          correctChoice: q.correct,
+          blanks: [[q.correct]],
+          reference: q.correct,
+          minWords: 1,
+          maxWords: 4,
+        },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'answer-short-question',
-        order: order++,
-        stimulus: { audioId: rec, note: script?.scene },
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'answer-short-question',
+          order: order++,
+          stimulus: { audioId: rec, note: script?.scene },
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
@@ -347,15 +359,15 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         { reference: sgd.reference, keyTerms: sgd.keyTerms, minWords: sgd.minWords },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'summarize-group-discussion',
-        order: order++,
-        stimulus: audioStimulus(sgd.audioId, script?.title),
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'summarize-group-discussion',
+          order: order++,
+          stimulus: audioStimulus(sgd.audioId, script?.title),
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
@@ -383,22 +395,26 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         { reference: rts.reference, keyTerms: rts.keyTerms, minWords: rts.minWords },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'respond-to-situation',
-        order: order++,
-        stimulus: {},
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'respond-to-situation',
+          order: order++,
+          stimulus: {},
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
   // Summarize Written Text
   {
     const pool = passages
-    const picks = pickN(pool, counts['summarize-written-text'] ?? MOCK_BLUEPRINT['summarize-written-text'], makeRng(ctx.seed + 8))
+    const picks = pickN(
+      pool,
+      counts['summarize-written-text'] ?? MOCK_BLUEPRINT['summarize-written-text'],
+      makeRng(ctx.seed + 8),
+    )
     for (const p of picks) {
       const id = itemId('summarize-written-text', p.swt.id)
       const gid = `g-swt-${p.id}`
@@ -424,25 +440,29 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'summarize-written-text',
-        order: order++,
-        stimulus: {
-          passageId: p.id,
-          passageTitle: p.swt.excerptLabel,
-          passageParagraphs: p.swt.excerpt,
-        },
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'summarize-written-text',
+          order: order++,
+          stimulus: {
+            passageId: p.id,
+            passageTitle: p.swt.excerptLabel,
+            passageParagraphs: p.swt.excerpt,
+          },
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
   // Write Essay
   {
-    const picks = pickN(ESSAY_PROMPTS, counts['write-essay'] ?? MOCK_BLUEPRINT['write-essay'], makeRng(ctx.seed + 9))
+    const picks = pickN(
+      ESSAY_PROMPTS,
+      counts['write-essay'] ?? MOCK_BLUEPRINT['write-essay'],
+      makeRng(ctx.seed + 9),
+    )
     for (const essay of picks) {
       const id = itemId('write-essay', essay.id)
       const gid = `g-we-${essay.id}`
@@ -479,15 +499,15 @@ function buildSpeakingWriting(ctx: Ctx, counts: Partial<Record<QuestionType, num
         },
       )
       groups.push(
-      group({
-        id: gid,
-        section: 'speaking-writing',
-        type: 'write-essay',
-        order: order++,
-        stimulus,
-        itemIds: [id],
+        group({
+          id: gid,
+          section: 'speaking-writing',
+          type: 'write-essay',
+          order: order++,
+          stimulus,
+          itemIds: [id],
         }),
-    )
+      )
     }
   }
 
@@ -529,7 +549,10 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
     // paragraphs printed every answer directly above its own blank. The reading
     // multiple choice items share this passage and genuinely need to see it, so
     // the two cannot live in one group.
-    if (dropdownMade < (counts['fill-in-blanks-dropdown'] ?? MOCK_BLUEPRINT['fill-in-blanks-dropdown'])) {
+    if (
+      dropdownMade <
+      (counts['fill-in-blanks-dropdown'] ?? MOCK_BLUEPRINT['fill-in-blanks-dropdown'])
+    ) {
       dropdownMade += 1
       const rng = variantRng(p.dropdown.id, ctx.seed)
       const bank = shuffle(p.dropdown.bank, rng)
@@ -584,7 +607,9 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
       itemIds.push(id)
     }
 
-    if (multiMade < (counts['multiple-choice-multiple'] ?? MOCK_BLUEPRINT['multiple-choice-multiple'])) {
+    if (
+      multiMade < (counts['multiple-choice-multiple'] ?? MOCK_BLUEPRINT['multiple-choice-multiple'])
+    ) {
       multiMade += 1
       const rng = variantRng(p.mcqMultiple.id, ctx.seed)
       const correct = new Set(p.mcqMultiple.correct)
@@ -619,7 +644,9 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
       itemIds.push(id)
     }
 
-    if (singleMade < (counts['multiple-choice-single'] ?? MOCK_BLUEPRINT['multiple-choice-single'])) {
+    if (
+      singleMade < (counts['multiple-choice-single'] ?? MOCK_BLUEPRINT['multiple-choice-single'])
+    ) {
       singleMade += 1
       const rng = variantRng(p.mcqSingle.id, ctx.seed)
       const correct = p.mcqSingle.correct[0] ?? p.mcqSingle.options[0] ?? ''
@@ -646,18 +673,18 @@ function buildReading(ctx: Ctx, counts: Partial<Record<QuestionType, number>>): 
       itemIds.push(id)
     }
 
-if (itemIds.length > 0) {
-    groups.push(
-      group({
-        id: gid,
-        section: 'reading',
-        /* v8 ignore next -- a table group always has an item */
-        type: (itemIds[0] ? ctx.items[itemIds[0]]?.type : undefined) ?? 'fill-in-blanks-table',
-        order: order++,
-        stimulus: { passageId: p.id, passageTitle: p.title, passageParagraphs: p.paragraphs },
-        itemIds,
-      }),
-    )
+    if (itemIds.length > 0) {
+      groups.push(
+        group({
+          id: gid,
+          section: 'reading',
+          /* v8 ignore next -- a table group always has an item */
+          type: (itemIds[0] ? ctx.items[itemIds[0]]?.type : undefined) ?? 'fill-in-blanks-table',
+          order: order++,
+          stimulus: { passageId: p.id, passageTitle: p.title, passageParagraphs: p.paragraphs },
+          itemIds,
+        }),
+      )
     }
   }
 
@@ -672,7 +699,10 @@ if (itemIds.length > 0) {
     const gid = `g-rop-${p.id}-${i}`
     const id = itemId('reorder-paragraphs', p.id, i)
     const rng = variantRng(`${p.id}-rop-${i}`, ctx.seed)
-    const correctBlocks: ParagraphBlock[] = p.paragraphs.map((text, idx) => ({ id: `p${idx}`, text }))
+    const correctBlocks: ParagraphBlock[] = p.paragraphs.map((text, idx) => ({
+      id: `p${idx}`,
+      text,
+    }))
     addItem(
       ctx,
       {
@@ -681,7 +711,8 @@ if (itemIds.length > 0) {
         section: 'reading',
         groupId: gid,
         responseKind: 'order',
-        prompt: 'The paragraphs below are in the wrong order. Read them and put them in the correct sequence.',
+        prompt:
+          'The paragraphs below are in the wrong order. Read them and put them in the correct sequence.',
         blocks: shuffle(correctBlocks, rng),
         // N boxes yield N-1 adjacent pairs, so the item maximum is N-1.
         maxPoints: expectedMaxPoints('reorder-paragraphs', {
@@ -693,12 +724,12 @@ if (itemIds.length > 0) {
     )
     groups.push(
       group({
-      id: gid,
-      section: 'reading',
-      type: 'reorder-paragraphs',
-      order: order++,
-      stimulus: {},
-      itemIds: [id],
+        id: gid,
+        section: 'reading',
+        type: 'reorder-paragraphs',
+        order: order++,
+        stimulus: {},
+        itemIds: [id],
       }),
     )
   }
@@ -729,7 +760,11 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
   const groups: ItemGroup[] = []
   let order = 0
 
-  const sst = pickN(BANK.spokenSummary, counts['summarize-spoken-text'] ?? MOCK_BLUEPRINT['summarize-spoken-text'], makeRng(ctx.seed + 30))
+  const sst = pickN(
+    BANK.spokenSummary,
+    counts['summarize-spoken-text'] ?? MOCK_BLUEPRINT['summarize-spoken-text'],
+    makeRng(ctx.seed + 30),
+  )
   for (const s of sst) {
     const id = itemId('summarize-spoken-text', s.id)
     const gid = `g-sst-${s.id}`
@@ -750,17 +785,21 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
     )
     groups.push(
       group({
-      id: gid,
-      section: 'listening',
-      type: 'summarize-spoken-text',
-      order: order++,
-      stimulus: audioStimulus(s.audioId, AUDIO_INDEX.get(s.audioId)?.title),
-      itemIds: [id],
+        id: gid,
+        section: 'listening',
+        type: 'summarize-spoken-text',
+        order: order++,
+        stimulus: audioStimulus(s.audioId, AUDIO_INDEX.get(s.audioId)?.title),
+        itemIds: [id],
       }),
     )
   }
 
-  const fibs = pickN(BANK.listeningFib, counts['fill-in-blanks-listening'] ?? MOCK_BLUEPRINT['fill-in-blanks-listening'], makeRng(ctx.seed + 31))
+  const fibs = pickN(
+    BANK.listeningFib,
+    counts['fill-in-blanks-listening'] ?? MOCK_BLUEPRINT['fill-in-blanks-listening'],
+    makeRng(ctx.seed + 31),
+  )
   for (const f of fibs) {
     const id = itemId('fill-in-blanks-listening', f.id)
     const gid = `g-fibl-${f.id}`
@@ -772,13 +811,13 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         section: 'listening',
         groupId: gid,
         responseKind: 'blanks',
-          prompt: 'Listen and fill in the blanks. The recording plays once.',
-          targetText: f.text,
-          stimulusId: f.audioId,
-          // The clip reads the gapped passage; the parent conversation also
-          // contains material the passage does not ask about.
-          audioClipId: f.id,
-          maxPoints: f.answers.length,
+        prompt: 'Listen and fill in the blanks. The recording plays once.',
+        targetText: f.text,
+        stimulusId: f.audioId,
+        // The clip reads the gapped passage; the parent conversation also
+        // contains material the passage does not ask about.
+        audioClipId: f.id,
+        maxPoints: f.answers.length,
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,
@@ -787,20 +826,27 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
     )
     groups.push(
       group({
-      id: gid,
-      section: 'listening',
-      type: 'fill-in-blanks-listening',
-      order: order++,
-      stimulus: audioStimulus(f.audioId, AUDIO_INDEX.get(f.audioId)?.title),
-      itemIds: [id],
+        id: gid,
+        section: 'listening',
+        type: 'fill-in-blanks-listening',
+        order: order++,
+        stimulus: audioStimulus(f.audioId, AUDIO_INDEX.get(f.audioId)?.title),
+        itemIds: [id],
       }),
     )
   }
 
-  const hcs = pickN(BANK.highlightSummary, counts['highlight-correct-summary'] ?? MOCK_BLUEPRINT['highlight-correct-summary'], makeRng(ctx.seed + 32))
+  const hcs = pickN(
+    BANK.highlightSummary,
+    counts['highlight-correct-summary'] ?? MOCK_BLUEPRINT['highlight-correct-summary'],
+    makeRng(ctx.seed + 32),
+  )
   for (const h of hcs) {
     const rng = variantRng(h.id, ctx.seed)
-    const order2 = shuffle(h.options.map((_, i) => i), rng)
+    const order2 = shuffle(
+      h.options.map((_, i) => i),
+      rng,
+    )
     const id = itemId('highlight-correct-summary', h.id)
     const gid = `g-hcs-${h.id}`
     addItem(
@@ -810,30 +856,35 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         type: 'highlight-correct-summary',
         section: 'listening',
         groupId: gid,
-          responseKind: 'choice',
-          prompt: h.question,
-          options: order2.map((i) => h.options[i] as string),
-          stimulusId: h.audioId,
-          maxPoints: 1,
-          seconds: 0,
-          audioLeadIn: 4,
-          replays: 1,
+        responseKind: 'choice',
+        prompt: h.question,
+        options: order2.map((i) => h.options[i] as string),
+        stimulusId: h.audioId,
+        maxPoints: 1,
+        seconds: 0,
+        audioLeadIn: 4,
+        replays: 1,
       },
       { correctChoice: h.options[h.correct], reference: h.options[h.correct] },
     )
     groups.push(
       group({
-      id: gid,
-      section: 'listening',
-      type: 'highlight-correct-summary',
-      order: order++,
-      stimulus: audioStimulus(h.audioId, AUDIO_INDEX.get(h.audioId)?.title),
-      itemIds: [id],
+        id: gid,
+        section: 'listening',
+        type: 'highlight-correct-summary',
+        order: order++,
+        stimulus: audioStimulus(h.audioId, AUDIO_INDEX.get(h.audioId)?.title),
+        itemIds: [id],
       }),
     )
   }
 
-  const mcqS = pickN(BANK.listeningMcqSingle, counts['listening-multiple-choice-single'] ?? MOCK_BLUEPRINT['listening-multiple-choice-single'], makeRng(ctx.seed + 33))
+  const mcqS = pickN(
+    BANK.listeningMcqSingle,
+    counts['listening-multiple-choice-single'] ??
+      MOCK_BLUEPRINT['listening-multiple-choice-single'],
+    makeRng(ctx.seed + 33),
+  )
   for (const q of mcqS) {
     const rng = variantRng(q.id, ctx.seed)
     const correct = q.correct[0] ?? q.options[0] ?? ''
@@ -850,30 +901,35 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         type: 'listening-multiple-choice-single',
         section: 'listening',
         groupId: gid,
-          responseKind: 'choice',
-          prompt: q.question,
-          options: entries.map((e) => e.t),
-          stimulusId: q.audioId,
-          maxPoints: 1,
-          seconds: 0,
-          audioLeadIn: 4,
-          replays: 1,
-        },
-        { correctChoice: correct, reference: correct },
-      )
-      groups.push(
-        group({
+        responseKind: 'choice',
+        prompt: q.question,
+        options: entries.map((e) => e.t),
+        stimulusId: q.audioId,
+        maxPoints: 1,
+        seconds: 0,
+        audioLeadIn: 4,
+        replays: 1,
+      },
+      { correctChoice: correct, reference: correct },
+    )
+    groups.push(
+      group({
         id: gid,
         section: 'listening',
         type: 'listening-multiple-choice-single',
-      order: order++,
-      stimulus: audioStimulus(q.audioId, AUDIO_INDEX.get(q.audioId)?.title),
-      itemIds: [id],
+        order: order++,
+        stimulus: audioStimulus(q.audioId, AUDIO_INDEX.get(q.audioId)?.title),
+        itemIds: [id],
       }),
     )
   }
 
-  const mcqM = pickN(BANK.listeningMcqMulti, counts['listening-multiple-choice-multiple'] ?? MOCK_BLUEPRINT['listening-multiple-choice-multiple'], makeRng(ctx.seed + 34))
+  const mcqM = pickN(
+    BANK.listeningMcqMulti,
+    counts['listening-multiple-choice-multiple'] ??
+      MOCK_BLUEPRINT['listening-multiple-choice-multiple'],
+    makeRng(ctx.seed + 34),
+  )
   for (const q of mcqM) {
     const rng = variantRng(q.id, ctx.seed)
     const correctSet = new Set(q.correct)
@@ -890,33 +946,40 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         type: 'listening-multiple-choice-multiple',
         section: 'listening',
         groupId: gid,
-          responseKind: 'multi-choice',
-          prompt: q.question,
-          options: entries.map((e) => e.t),
-          stimulusId: q.audioId,
-          // As in Reading: one point per correct option, -1 per wrong one.
-          maxPoints: expectedMaxPoints('listening-multiple-choice-multiple', {
-            correctChoices: entries.filter((e) => e.ok).map((e) => e.t),
-          }),
-          seconds: 0,
-          audioLeadIn: 4,
-          replays: 1,
+        responseKind: 'multi-choice',
+        prompt: q.question,
+        options: entries.map((e) => e.t),
+        stimulusId: q.audioId,
+        // As in Reading: one point per correct option, -1 per wrong one.
+        maxPoints: expectedMaxPoints('listening-multiple-choice-multiple', {
+          correctChoices: entries.filter((e) => e.ok).map((e) => e.t),
+        }),
+        seconds: 0,
+        audioLeadIn: 4,
+        replays: 1,
       },
-      { correctChoices: entries.filter((e) => e.ok).map((e) => e.t), reference: `Select TWO: ${q.correct.join(' and ')}.` },
+      {
+        correctChoices: entries.filter((e) => e.ok).map((e) => e.t),
+        reference: `Select TWO: ${q.correct.join(' and ')}.`,
+      },
     )
     groups.push(
       group({
-      id: gid,
-      section: 'listening',
-      type: 'listening-multiple-choice-multiple',
-      order: order++,
-      stimulus: audioStimulus(q.audioId, AUDIO_INDEX.get(q.audioId)?.title),
-      itemIds: [id],
+        id: gid,
+        section: 'listening',
+        type: 'listening-multiple-choice-multiple',
+        order: order++,
+        stimulus: audioStimulus(q.audioId, AUDIO_INDEX.get(q.audioId)?.title),
+        itemIds: [id],
       }),
     )
   }
 
-  const smw = pickN(BANK.missingWord, counts['select-missing-word'] ?? MOCK_BLUEPRINT['select-missing-word'], makeRng(ctx.seed + 35))
+  const smw = pickN(
+    BANK.missingWord,
+    counts['select-missing-word'] ?? MOCK_BLUEPRINT['select-missing-word'],
+    makeRng(ctx.seed + 35),
+  )
   for (const m of smw) {
     const rng = variantRng(m.id, ctx.seed)
     const script = AUDIO_INDEX.get(m.audioId)
@@ -924,7 +987,10 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
     if (!turn) continue
     const allWords = turn.text.split(/\s+/)
     const tokens = [...allWords.slice(0, m.wordIndex), '___', ...allWords.slice(m.wordIndex + 1)]
-    const optOrder = shuffle(m.options.map((_, i) => i), rng)
+    const optOrder = shuffle(
+      m.options.map((_, i) => i),
+      rng,
+    )
     const id = itemId('select-missing-word', m.id)
     const gid = `g-smw-${m.id}`
     addItem(
@@ -936,39 +1002,43 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         groupId: gid,
         responseKind: 'choice',
         prompt: 'Listen and select the missing word. A beep marks the blank.',
-          tokens,
-          options: optOrder.map((i) => m.options[i] as string),
-          stimulusId: m.audioId,
-          // The conversation recording speaks the word the item blanks out, so
-          // the beeped single-turn clip is the only asset that can be played.
-          audioClipId: m.id,
-          // If that clip is missing, the speech fallback must not read the whole
-          // conversation: it would speak the answer the item is testing. Scope
-          // it to the one turn and beep over the blanked word instead.
-          audioFromTurn: m.turnIndex,
-          audioToTurn: m.turnIndex,
-          audioBeepWord: m.wordIndex,
-          maxPoints: 1,
-          seconds: 0,
-          audioLeadIn: 4,
-          replays: 0,
+        tokens,
+        options: optOrder.map((i) => m.options[i] as string),
+        stimulusId: m.audioId,
+        // The conversation recording speaks the word the item blanks out, so
+        // the beeped single-turn clip is the only asset that can be played.
+        audioClipId: m.id,
+        // If that clip is missing, the speech fallback must not read the whole
+        // conversation: it would speak the answer the item is testing. Scope
+        // it to the one turn and beep over the blanked word instead.
+        audioFromTurn: m.turnIndex,
+        audioToTurn: m.turnIndex,
+        audioBeepWord: m.wordIndex,
+        maxPoints: 1,
+        seconds: 0,
+        audioLeadIn: 4,
+        replays: 0,
       },
       { correctChoice: m.options[m.correct], reference: m.options[m.correct] },
     )
     groups.push(
       group({
-      id: gid,
-      section: 'listening',
-      type: 'select-missing-word',
-      order: order++,
-      /* v8 ignore next -- every missing-word item has a script */
-      stimulus: audioStimulus(m.audioId, script?.title ?? 'Listen and select the missing word'),
-      itemIds: [id],
+        id: gid,
+        section: 'listening',
+        type: 'select-missing-word',
+        order: order++,
+        /* v8 ignore next -- every missing-word item has a script */
+        stimulus: audioStimulus(m.audioId, script?.title ?? 'Listen and select the missing word'),
+        itemIds: [id],
       }),
     )
   }
 
-  const hiw = pickN(BANK.highlightIncorrect, counts['highlight-incorrect-words'] ?? MOCK_BLUEPRINT['highlight-incorrect-words'], makeRng(ctx.seed + 36))
+  const hiw = pickN(
+    BANK.highlightIncorrect,
+    counts['highlight-incorrect-words'] ?? MOCK_BLUEPRINT['highlight-incorrect-words'],
+    makeRng(ctx.seed + 36),
+  )
   for (const h of hiw) {
     const id = itemId('highlight-incorrect-words', h.id)
     const gid = `g-hiw-${h.id}`
@@ -980,17 +1050,18 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         section: 'listening',
         groupId: gid,
         responseKind: 'highlight',
-        prompt: 'The transcript below contains two words that differ from the audio. Highlight the two words that are wrong.',
-          tokens: tokenizeWithPunctuation(h.transcript),
-          stimulusId: h.audioId,
-          // The item tests two substituted words in one sentence. The full
-          // conversation buries that sentence among a minute of others.
-          audioClipId: h.id,
-          // One point per incorrect word the candidate has to find, minus one
-          // for each word highlighted wrongly.
-          maxPoints: expectedMaxPoints('highlight-incorrect-words', {
-            correctHighlighted: h.incorrect,
-          }),
+        prompt:
+          'The transcript below contains two words that differ from the audio. Highlight the two words that are wrong.',
+        tokens: tokenizeWithPunctuation(h.transcript),
+        stimulusId: h.audioId,
+        // The item tests two substituted words in one sentence. The full
+        // conversation buries that sentence among a minute of others.
+        audioClipId: h.id,
+        // One point per incorrect word the candidate has to find, minus one
+        // for each word highlighted wrongly.
+        maxPoints: expectedMaxPoints('highlight-incorrect-words', {
+          correctHighlighted: h.incorrect,
+        }),
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,
@@ -999,17 +1070,21 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
     )
     groups.push(
       group({
-      id: gid,
-      section: 'listening',
-      type: 'highlight-incorrect-words',
-      order: order++,
-      stimulus: audioStimulus(h.audioId, 'Listen and highlight incorrect words'),
-      itemIds: [id],
+        id: gid,
+        section: 'listening',
+        type: 'highlight-incorrect-words',
+        order: order++,
+        stimulus: audioStimulus(h.audioId, 'Listen and highlight incorrect words'),
+        itemIds: [id],
       }),
     )
   }
 
-  const wfd = pickN(BANK.dictation, counts['write-from-dictation'] ?? MOCK_BLUEPRINT['write-from-dictation'], makeRng(ctx.seed + 37))
+  const wfd = pickN(
+    BANK.dictation,
+    counts['write-from-dictation'] ?? MOCK_BLUEPRINT['write-from-dictation'],
+    makeRng(ctx.seed + 37),
+  )
   for (const d of wfd) {
     const id = itemId('write-from-dictation', d.id)
     const gid = `g-wfd-${d.id}`
@@ -1021,28 +1096,33 @@ function buildListening(ctx: Ctx, counts: Partial<Record<QuestionType, number>>)
         section: 'listening',
         groupId: gid,
         responseKind: 'text',
-          prompt: 'Listen and type exactly what you hear. The recording plays once.',
-          stimulusId: d.audioId,
-          // The dictation is a single sentence, so the rendered clip of that
-          // sentence is what plays. The parent conversation is seventy seconds
-          // long and would leave the candidate guessing which sentence to write.
-          audioClipId: d.id,
-          audioUtterance: d.text,
-          maxPoints: expectedMaxPoints('write-from-dictation', { reference: d.text }),
+        prompt: 'Listen and type exactly what you hear. The recording plays once.',
+        stimulusId: d.audioId,
+        // The dictation is a single sentence, so the rendered clip of that
+        // sentence is what plays. The parent conversation is seventy seconds
+        // long and would leave the candidate guessing which sentence to write.
+        audioClipId: d.id,
+        audioUtterance: d.text,
+        maxPoints: expectedMaxPoints('write-from-dictation', { reference: d.text }),
         seconds: 0,
         audioLeadIn: 4,
         replays: 0,
       },
-      { reference: d.text, keyTerms: d.text.split(/\s+/), minWords: wordCount(d.text) - 1, maxWords: wordCount(d.text) + 1 },
+      {
+        reference: d.text,
+        keyTerms: d.text.split(/\s+/),
+        minWords: wordCount(d.text) - 1,
+        maxWords: wordCount(d.text) + 1,
+      },
     )
     groups.push(
       group({
-      id: gid,
-      section: 'listening',
-      type: 'write-from-dictation',
-      order: order++,
-      stimulus: audioStimulus(d.audioId, AUDIO_INDEX.get(d.audioId)?.title),
-      itemIds: [id],
+        id: gid,
+        section: 'listening',
+        type: 'write-from-dictation',
+        order: order++,
+        stimulus: audioStimulus(d.audioId, AUDIO_INDEX.get(d.audioId)?.title),
+        itemIds: [id],
       }),
     )
   }
@@ -1120,9 +1200,15 @@ function blueprintScoredIn(section: SectionId): number {
  * packed fewer questions into the same two hours. `describeMockPreview` applies
  * the same arithmetic, and scripts/bank-check.ts asserts the two agree.
  */
-function sectionSeconds(section: SectionId, groups: ItemGroup[], items: Record<string, Item>): number {
+function sectionSeconds(
+  section: SectionId,
+  groups: ItemGroup[],
+  items: Record<string, Item>,
+): number {
   /* v8 ignore next -- every group item is in the mock */
-  const scored = groups.flatMap((g) => g.itemIds).filter((id) => (items[id]?.maxPoints ?? 0) > 0).length
+  const scored = groups
+    .flatMap((g) => g.itemIds)
+    .filter((id) => (items[id]?.maxPoints ?? 0) > 0).length
   const base = SECTION_META[section].minSeconds
   const reference = blueprintScoredIn(section)
   /* v8 ignore next -- every section has scored items in the blueprint */
@@ -1168,7 +1254,8 @@ export function buildMock(opts: BuildOptions): MockTest {
 
     if (opts.focusTypes) {
       groups = filterGroups(groups, opts.focusTypes, ctx.items)
-      if (section === 'speaking-writing') groups = groups.filter((g) => g.type !== 'respond-to-situation' || g.id !== 'g-intro')
+      if (section === 'speaking-writing')
+        groups = groups.filter((g) => g.type !== 'respond-to-situation' || g.id !== 'g-intro')
     }
 
     // Keep stimulus groups in a stable, sensible order.
@@ -1193,7 +1280,9 @@ export function buildMock(opts: BuildOptions): MockTest {
     seed: opts.seed,
     title: opts.title ?? 'Full Mock Test',
     kind: opts.kind,
-    createdAt: opts.createdAt ?? new Date(Date.UTC(2026, 0, 1) + (Math.abs(opts.seed) % 365) * 86400000).toISOString(),
+    createdAt:
+      opts.createdAt ??
+      new Date(Date.UTC(2026, 0, 1) + (Math.abs(opts.seed) % 365) * 86400000).toISOString(),
     sections,
     items: ctx.items,
     answers: ctx.answers,
@@ -1230,7 +1319,10 @@ function filterGroups(
 ): ItemGroup[] {
   const set = new Set(focus)
   return groups
-    .map((g) => ({ ...g, itemIds: g.itemIds.filter((id) => items[id] && set.has(items[id]!.type)) }))
+    .map((g) => ({
+      ...g,
+      itemIds: g.itemIds.filter((id) => items[id] && set.has(items[id]!.type)),
+    }))
     .filter((g) => g.itemIds.length > 0)
 }
 

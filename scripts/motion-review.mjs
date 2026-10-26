@@ -43,7 +43,9 @@ const BASE = (args.find((a) => !a.startsWith('--')) ?? 'http://localhost:5200').
 const WIDTH = numericFlag('width', 1280)
 const HEIGHT = numericFlag('height', 900)
 const MOBILE = WIDTH < 700
-const OUT_DIR = path.resolve(MOBILE ? 'design-lab/motion-review/mobile' : 'design-lab/motion-review')
+const OUT_DIR = path.resolve(
+  MOBILE ? 'design-lab/motion-review/mobile' : 'design-lab/motion-review',
+)
 
 const CANDIDATES = [
   '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
@@ -103,22 +105,19 @@ const TILT_TRAVEL = Number(
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-motion-'))
 const PORT = 9335
-const chrome = spawnChrome(
-  binary,
-  [
-    '--headless=new',
-    `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    // GPU raster is off in headless; without an explicit frame budget the
-    // frame numbers would measure the software rasteriser rather than the CSS.
-    '--disable-gpu',
-    '--hide-scrollbars',
-    `--window-size=${WIDTH},${HEIGHT}`,
-    'about:blank',
-  ],
-)
+const chrome = spawnChrome(binary, [
+  '--headless=new',
+  `--remote-debugging-port=${PORT}`,
+  `--user-data-dir=${profile}`,
+  '--no-first-run',
+  '--no-default-browser-check',
+  // GPU raster is off in headless; without an explicit frame budget the
+  // frame numbers would measure the software rasteriser rather than the CSS.
+  '--disable-gpu',
+  '--hide-scrollbars',
+  `--window-size=${WIDTH},${HEIGHT}`,
+  'about:blank',
+])
 
 async function waitForDevTools() {
   for (let i = 0; i < 60; i++) {
@@ -169,8 +168,13 @@ await send('Page.enable', {}, sessionId)
 await send('Runtime.enable', {}, sessionId)
 
 async function evaluate(expression, awaitPromise = false) {
-  const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise }, sessionId)
-  if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? 'evaluate failed')
+  const r = await send(
+    'Runtime.evaluate',
+    { expression, returnByValue: true, awaitPromise },
+    sessionId,
+  )
+  if (r.exceptionDetails)
+    throw new Error(r.exceptionDetails.exception?.description ?? 'evaluate failed')
   return r.result.value
 }
 
@@ -180,7 +184,11 @@ const navigate = async (url, waitMs = 1800) => {
 }
 
 async function screenshot(file) {
-  const { data } = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }, sessionId)
+  const { data } = await send(
+    'Page.captureScreenshot',
+    { format: 'png', captureBeyondViewport: false },
+    sessionId,
+  )
   await writeFile(file, Buffer.from(data, 'base64'))
 }
 
@@ -276,7 +284,8 @@ const relLum = (r, g, b) => {
 function glyphContrast(fg, bg, box) {
   const W = box.x1 - box.x0
   const H = box.y1 - box.y0
-  if (W <= 2 || H <= 2) return { min: Infinity, below3: 0, below45: 0, glyphs: 0, fgWorst: null, bgWorst: null }
+  if (W <= 2 || H <= 2)
+    return { min: Infinity, below3: 0, below45: 0, glyphs: 0, fgWorst: null, bgWorst: null }
 
   const dist = new Int32Array(W * H)
   const lum = new Float64Array(W * H)
@@ -287,7 +296,11 @@ function glyphContrast(fg, bg, box) {
       const fr = fg.data[i]
       const fgc = fg.data[i + 1]
       const fb = fg.data[i + 2]
-      dist[y * W + x] = Math.max(Math.abs(fr - bg.data[i]), Math.abs(fgc - bg.data[i + 1]), Math.abs(fb - bg.data[i + 2]))
+      dist[y * W + x] = Math.max(
+        Math.abs(fr - bg.data[i]),
+        Math.abs(fgc - bg.data[i + 1]),
+        Math.abs(fb - bg.data[i + 2]),
+      )
       lum[y * W + x] = relLum(fr, fgc, fb)
       bgLum[y * W + x] = relLum(bg.data[i], bg.data[i + 1], bg.data[i + 2])
     }
@@ -367,7 +380,11 @@ function pixelDelta(a, b, box) {
 }
 
 async function shootPng() {
-  const { data } = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }, sessionId)
+  const { data } = await send(
+    'Page.captureScreenshot',
+    { format: 'png', captureBeyondViewport: false },
+    sessionId,
+  )
   return decodePng(Buffer.from(data, 'base64'))
 }
 
@@ -608,23 +625,40 @@ for (const route of ROUTES) {
 
   line(`  ${route.path}`)
   line(`    entrance window ${snap.heroWindow}ms · hero items ${snap.heroCount}`)
-  line(`    revealed ${scrolled.total - scrolled.stillHidden}/${scrolled.total}` +
-    (revealRatio === 1 ? '' : `  ← ${scrolled.stillHidden} never revealed (${scrolled.hiddenTags.join(', ')})`))
+  line(
+    `    revealed ${scrolled.total - scrolled.stillHidden}/${scrolled.total}` +
+      (revealRatio === 1
+        ? ''
+        : `  ← ${scrolled.stillHidden} never revealed (${scrolled.hiddenTags.join(', ')})`),
+  )
   line(`    tilt stages ${snap.tiltCount} · cards ${snap.cardCount}`)
   line(`    worst reveal lag after entering view ${lag.worstLag}ms`)
-  line(`    frame gaps  p50 ${frames.p50}ms · p95 ${frames.p95}ms · max ${frames.max}ms · long(>32ms) ${frames.long}`)
+  line(
+    `    frame gaps  p50 ${frames.p50}ms · p95 ${frames.p95}ms · max ${frames.max}ms · long(>32ms) ${frames.long}`,
+  )
   if (snap.aurora.length) {
-    line(`    aurora opacity ${snap.aurora[0].opacity} · blur ${snap.aurora[0].blur} · drift dur ${snap.aurora[0].dur}`)
+    line(
+      `    aurora opacity ${snap.aurora[0].opacity} · blur ${snap.aurora[0].blur} · drift dur ${snap.aurora[0].dur}`,
+    )
   }
 
-  if (stuck) findings.push(`    FAIL  ${route.path}: ${scrolled.stillHidden} elements stayed hidden after a full scroll`)
+  if (stuck)
+    findings.push(
+      `    FAIL  ${route.path}: ${scrolled.stillHidden} elements stayed hidden after a full scroll`,
+    )
   if (snap.hiddenOnScreen && snap.hiddenOnScreen > 0) {
-    findings.push(`    NOTE  ${route.path}: ${snap.hiddenOnScreen} armed-but-hidden on screen at rest (${snap.hiddenOnScreenTags.join(', ')})`)
+    findings.push(
+      `    NOTE  ${route.path}: ${snap.hiddenOnScreen} armed-but-hidden on screen at rest (${snap.hiddenOnScreenTags.join(', ')})`,
+    )
   }
-  if (frames.p95 > 24) findings.push(`    NOTE  ${route.path}: p95 frame gap ${frames.p95}ms (above a 24ms budget)`)
-  if (frames.long > 4) findings.push(`    NOTE  ${route.path}: ${frames.long} frames over 32ms while scrolling`)
+  if (frames.p95 > 24)
+    findings.push(`    NOTE  ${route.path}: p95 frame gap ${frames.p95}ms (above a 24ms budget)`)
+  if (frames.long > 4)
+    findings.push(`    NOTE  ${route.path}: ${frames.long} frames over 32ms while scrolling`)
   if (lag.worstLag > 500) {
-    findings.push(`    NOTE  ${route.path}: a card waited ${lag.worstLag}ms after entering view (stagger is index-based)`)
+    findings.push(
+      `    NOTE  ${route.path}: a card waited ${lag.worstLag}ms after entering view (stagger is index-based)`,
+    )
   }
 }
 
@@ -654,18 +688,28 @@ for (const theme of ['light', 'dark']) {
   })()`)
   await sleep(80)
   const withText = await shootPng()
-  await evaluate("document.querySelector('main h1').style.color = 'transparent'; document.querySelectorAll('main h1 *').forEach(e => { e.style.color = 'transparent'; e.style.webkitTextFillColor = 'transparent'; }); 1")
+  await evaluate(
+    "document.querySelector('main h1').style.color = 'transparent'; document.querySelectorAll('main h1 *').forEach(e => { e.style.color = 'transparent'; e.style.webkitTextFillColor = 'transparent'; }); 1",
+  )
   await sleep(80)
   const withoutText = await shootPng()
-  await evaluate("document.querySelector('main h1').style.color = ''; document.querySelectorAll('main h1 *').forEach(e => { e.style.color = ''; e.style.webkitTextFillColor = ''; }); document.getElementById('motion-freeze')?.remove(); 1")
+  await evaluate(
+    "document.querySelector('main h1').style.color = ''; document.querySelectorAll('main h1 *').forEach(e => { e.style.color = ''; e.style.webkitTextFillColor = ''; }); document.getElementById('motion-freeze')?.remove(); 1",
+  )
 
   const c = glyphContrast(withText, withoutText, box)
   const label = c.min === Infinity ? 'n/a' : c.min.toFixed(2) + ':1'
-  line(`\n  hero title over aurora (${theme}): worst core-glyph contrast ${label} ` +
-    `· ${c.below3} px under 3 (large) · ${c.below45} px under 4.5 · ${c.glyphs} core px` +
-    (c.fgWorst ? ` · worst ${c.fgWorst} on ${c.bgWorst}` : ''))
-  if (c.min < 3) findings.push(`    FAIL  hero title contrast ${label} in ${theme} theme (large text needs 3.0)`)
-  else if (c.min < 3.6) findings.push(`    NOTE  hero title contrast ${label} in ${theme} theme is close to the 3.0 floor`)
+  line(
+    `\n  hero title over aurora (${theme}): worst core-glyph contrast ${label} ` +
+      `· ${c.below3} px under 3 (large) · ${c.below45} px under 4.5 · ${c.glyphs} core px` +
+      (c.fgWorst ? ` · worst ${c.fgWorst} on ${c.bgWorst}` : ''),
+  )
+  if (c.min < 3)
+    findings.push(`    FAIL  hero title contrast ${label} in ${theme} theme (large text needs 3.0)`)
+  else if (c.min < 3.6)
+    findings.push(
+      `    NOTE  hero title contrast ${label} in ${theme} theme is close to the 3.0 floor`,
+    )
   await screenshot(path.join(OUT_DIR, `hero-${theme}.png`))
 }
 await evaluate("document.documentElement.classList.remove('dark'); 1")
@@ -698,11 +742,21 @@ for (const theme of ['light', 'dark']) {
   await evaluate("document.querySelector('.hero-aurora').style.visibility = 'hidden'; 1")
   await sleep(80)
   const withoutAurora = await shootPng()
-  await evaluate("document.querySelector('.hero-aurora').style.visibility = ''; document.getElementById('motion-freeze')?.remove(); 1")
+  await evaluate(
+    "document.querySelector('.hero-aurora').style.visibility = ''; document.getElementById('motion-freeze')?.remove(); 1",
+  )
   const d = pixelDelta(withAurora, withoutAurora, box)
-  line(`\n  aurora contribution (${theme}): mean ${d.mean} · p95 ${d.p95} · max ${d.max} levels of 255`)
-  if (d.mean < 3) findings.push(`    NOTE  the aurora is nearly invisible in the ${theme} theme (mean ${d.mean}/255)`)
-  if (d.mean > 16) findings.push(`    NOTE  the aurora is heavy in the ${theme} theme (mean ${d.mean}/255) — competes with the headline`)
+  line(
+    `\n  aurora contribution (${theme}): mean ${d.mean} · p95 ${d.p95} · max ${d.max} levels of 255`,
+  )
+  if (d.mean < 3)
+    findings.push(
+      `    NOTE  the aurora is nearly invisible in the ${theme} theme (mean ${d.mean}/255)`,
+    )
+  if (d.mean > 16)
+    findings.push(
+      `    NOTE  the aurora is heavy in the ${theme} theme (mean ${d.mean}/255) — competes with the headline`,
+    )
 }
 await evaluate("document.documentElement.classList.remove('dark'); 1")
 
@@ -711,7 +765,9 @@ await evaluate("document.documentElement.classList.remove('dark'); 1")
 await navigate(BASE + '/guide', 2200)
 // `scroll-behavior: smooth` makes scrollIntoView animate, so the rect has to be
 // read after the scroll has come to rest, not in the same turn.
-await evaluate(`(() => { document.documentElement.style.scrollBehavior = 'auto'; const el = document.querySelector('.tilt'); if (el) el.scrollIntoView({ block: 'center' }); return 1 })()`)
+await evaluate(
+  `(() => { document.documentElement.style.scrollBehavior = 'auto'; const el = document.querySelector('.tilt'); if (el) el.scrollIntoView({ block: 'center' }); return 1 })()`,
+)
 await sleep(500)
 const tiltBox = await evaluate(`(() => {
   const el = document.querySelector('.tilt')
@@ -730,11 +786,19 @@ if (tiltBox) {
   // what some engines require before they emit a pointermove. The second goes
   // for the corner — lean is proportional to the distance from centre, so a
   // hit near the middle reads ~0deg and would say nothing about intensity.
-  await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: tiltBox.x, y: tiltBox.y }, sessionId)
+  await send(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseMoved', x: tiltBox.x, y: tiltBox.y },
+    sessionId,
+  )
   await sleep(80)
   await send(
     'Input.dispatchMouseEvent',
-    { type: 'mouseMoved', x: tiltBox.right - (tiltBox.w > 260 ? 14 : 6), y: tiltBox.top + (tiltBox.h > 180 ? 14 : 6) },
+    {
+      type: 'mouseMoved',
+      x: tiltBox.right - (tiltBox.w > 260 ? 14 : 6),
+      y: tiltBox.top + (tiltBox.h > 180 ? 14 : 6),
+    },
     sessionId,
   )
   await sleep(220)
@@ -751,15 +815,26 @@ if (tiltBox) {
   const shiftEstimate = Math.round((tiltBox.w / 2) * Math.sin((degrees * Math.PI) / 180))
   await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 4, y: 4 }, sessionId)
   await sleep(300)
-  const rested = await evaluate(`document.querySelector('.tilt').style.getPropertyValue('--tilt-y').trim()`)
+  const rested = await evaluate(
+    `document.querySelector('.tilt').style.getPropertyValue('--tilt-y').trim()`,
+  )
   line(`\n  tilt: pointer hit ${tiltBox.covered ? 'yes' : 'NO'} · stage ${tiltBox.w}x${tiltBox.h}`)
-  line(`    lean x ${lean.x || '(unset)'} · y ${lean.y || '(unset)'} · glare at ${lean.gx || '-'} ${lean.gy || '-'}`)
-  line(`    edge travel ${shiftEstimate}px at ${degrees.toFixed(2)}deg · rest ${rested || '(unset)'}`)
-  if (!lean.y || lean.y === '0deg') findings.push('    FAIL  tilt did not respond to a pointer move')
+  line(
+    `    lean x ${lean.x || '(unset)'} · y ${lean.y || '(unset)'} · glare at ${lean.gx || '-'} ${lean.gy || '-'}`,
+  )
+  line(
+    `    edge travel ${shiftEstimate}px at ${degrees.toFixed(2)}deg · rest ${rested || '(unset)'}`,
+  )
+  if (!lean.y || lean.y === '0deg')
+    findings.push('    FAIL  tilt did not respond to a pointer move')
   if (shiftEstimate < 6) {
-    findings.push(`    NOTE  tilt moves the edge only ${shiftEstimate}px — too slight to read as a lean`)
+    findings.push(
+      `    NOTE  tilt moves the edge only ${shiftEstimate}px — too slight to read as a lean`,
+    )
   } else if (shiftEstimate > 30) {
-    findings.push(`    NOTE  tilt moves the edge ${shiftEstimate}px — far enough to disturb reading`)
+    findings.push(
+      `    NOTE  tilt moves the edge ${shiftEstimate}px — far enough to disturb reading`,
+    )
   }
   if (rested && rested !== '0deg') findings.push(`    NOTE  tilt did not reset (${rested})`)
 }
@@ -795,7 +870,8 @@ if (stages.length) {
 // title gradient travels, and how long the count-up takes to arrive.
 
 await navigate(BASE + '/', 2400)
-const intensity = await evaluate(`(async () => {
+const intensity = await evaluate(
+  `(async () => {
   const raf = () => new Promise((r) => requestAnimationFrame(r))
   const aurora = [...document.querySelectorAll('.hero-aurora span')].map((el) => {
     const s = getComputedStyle(el)
@@ -832,23 +908,37 @@ const intensity = await evaluate(`(async () => {
     ramp = firstChange === null ? null : Math.round(lastChange - firstChange)
   }
   return { aurora, title, ramp, firstText, lastText, hasFigure: !!figure }
-})()`, true)
+})()`,
+  true,
+)
 
 if (intensity.aurora.length) {
   const opacities = [...new Set(intensity.aurora.map((a) => a.opacity))].join('/')
-  line(`\n  aurora: ${intensity.aurora.length} blobs · opacity ${opacities} · blur ${intensity.aurora[0].blur}px ` +
-    `· drift ${intensity.aurora.map((a) => a.dur + 's').join('/')}`)
+  line(
+    `\n  aurora: ${intensity.aurora.length} blobs · opacity ${opacities} · blur ${intensity.aurora[0].blur}px ` +
+      `· drift ${intensity.aurora.map((a) => a.dur + 's').join('/')}`,
+  )
 }
 if (intensity.title) {
-  line(`  hero gradient title: pan ${intensity.title.dur}s · background-size ${intensity.title.size} · clip ${intensity.title.clip}`)
-  if (intensity.title.clip !== 'text') findings.push('    FAIL  the hero gradient title is not clipped to text')
-  if (intensity.title.dur < 5) findings.push(`    NOTE  the title gradient pans in ${intensity.title.dur}s — fast enough to read as a loop`)
+  line(
+    `  hero gradient title: pan ${intensity.title.dur}s · background-size ${intensity.title.size} · clip ${intensity.title.clip}`,
+  )
+  if (intensity.title.clip !== 'text')
+    findings.push('    FAIL  the hero gradient title is not clipped to text')
+  if (intensity.title.dur < 5)
+    findings.push(
+      `    NOTE  the title gradient pans in ${intensity.title.dur}s — fast enough to read as a loop`,
+    )
 }
 if (intensity.hasFigure) {
-  line(`  count-up ramp ${intensity.ramp === null ? 'did not run (already at value)' : intensity.ramp + 'ms'}` +
-    (intensity.firstText ? ` · ${intensity.firstText} → ${intensity.lastText}` : ''))
+  line(
+    `  count-up ramp ${intensity.ramp === null ? 'did not run (already at value)' : intensity.ramp + 'ms'}` +
+      (intensity.firstText ? ` · ${intensity.firstText} → ${intensity.lastText}` : ''),
+  )
   if (intensity.ramp !== null && intensity.ramp > 2200) {
-    findings.push(`    NOTE  count-up takes ${intensity.ramp}ms to arrive — that reads as waiting, not motion`)
+    findings.push(
+      `    NOTE  count-up takes ${intensity.ramp}ms to arrive — that reads as waiting, not motion`,
+    )
   }
 }
 
@@ -857,19 +947,34 @@ if (intensity.hasFigure) {
 await setReducedMotion(true)
 await navigate(BASE + '/', 2200)
 const reduced = await evaluate(REDUCED_PROBE)
-line(`\n  reduced motion: armed=${reduced.armed} · hero invisible=${reduced.heroInvisible} · aurora dur=${reduced.auroraMaxDuration}ms`)
-line(`    route enter -> ${reduced.routeName} ${reduced.routeDuration}ms · elements still moving ${reduced.movingCount}`)
-line(`    button transition ${reduced.buttonTransitionMs}ms on [${reduced.buttonTransitionProperty}]`)
+line(
+  `\n  reduced motion: armed=${reduced.armed} · hero invisible=${reduced.heroInvisible} · aurora dur=${reduced.auroraMaxDuration}ms`,
+)
+line(
+  `    route enter -> ${reduced.routeName} ${reduced.routeDuration}ms · elements still moving ${reduced.movingCount}`,
+)
+line(
+  `    button transition ${reduced.buttonTransitionMs}ms on [${reduced.buttonTransitionProperty}]`,
+)
 if (reduced.armed !== 0) findings.push('    FAIL  reveals still armed under prefers-reduced-motion')
-if (reduced.heroInvisible > 0) findings.push(`    FAIL  ${reduced.heroInvisible} hero items not fully opaque under reduced motion`)
+if (reduced.heroInvisible > 0)
+  findings.push(
+    `    FAIL  ${reduced.heroInvisible} hero items not fully opaque under reduced motion`,
+  )
 if (reduced.movingCount > 0) {
-  findings.push(`    FAIL  ${reduced.movingCount} element(s) still animate a transform under prefers-reduced-motion`)
+  findings.push(
+    `    FAIL  ${reduced.movingCount} element(s) still animate a transform under prefers-reduced-motion`,
+  )
 }
 if (reduced.routeName !== 'fade-in') {
-  findings.push(`    NOTE  the route entrance is ${reduced.routeName} under reduced motion (expected the opacity-only fade-in)`)
+  findings.push(
+    `    NOTE  the route entrance is ${reduced.routeName} under reduced motion (expected the opacity-only fade-in)`,
+  )
 }
 if (/translate|transform|all/.test(reduced.buttonTransitionProperty)) {
-  findings.push(`    FAIL  buttons still transition geometry under reduced motion: ${reduced.buttonTransitionProperty}`)
+  findings.push(
+    `    FAIL  buttons still transition geometry under reduced motion: ${reduced.buttonTransitionProperty}`,
+  )
 }
 await screenshot(path.join(OUT_DIR, 'home-reduced-motion.png'))
 await setReducedMotion(false)

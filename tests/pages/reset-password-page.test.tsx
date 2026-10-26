@@ -58,7 +58,9 @@ describe('ResetPasswordPage', () => {
     const { container } = renderReset()
     const form = container.querySelector('form') as HTMLFormElement
     await fill(form, 'short', 'short')
-    expect(screen.getByRole('alert').textContent).toContain('Password must be at least 8 characters long.')
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Password must be at least 8 characters long.',
+    )
   })
 
   it('rejects two passwords that do not match', async () => {
@@ -85,7 +87,9 @@ describe('ResetPasswordPage', () => {
   })
 
   it('reports a reset the server refused', async () => {
-    installFetchMock([{ url: RESET_URL, body: { ok: false, error: 'Token has expired' }, status: 400 }])
+    installFetchMock([
+      { url: RESET_URL, body: { ok: false, error: 'Token has expired' }, status: 400 },
+    ])
     const { container } = renderReset()
     const form = container.querySelector('form') as HTMLFormElement
     await fill(form, 'password123', 'password123')
@@ -98,7 +102,9 @@ describe('ResetPasswordPage', () => {
     const { container } = renderReset()
     const form = container.querySelector('form') as HTMLFormElement
     await fill(form, 'password123', 'password123')
-    expect(screen.getByRole('alert').textContent).toContain('Could not connect to authentication service')
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Could not connect to authentication service',
+    )
   })
 
   it('reports a refusal the server gave no reason for', async () => {
@@ -106,7 +112,9 @@ describe('ResetPasswordPage', () => {
     const { container } = renderReset()
     const form = container.querySelector('form') as HTMLFormElement
     await fill(form, 'password123', 'password123')
-    expect(screen.getByRole('alert').textContent).toContain('Failed to reset password. Please try again.')
+    expect(screen.getByRole('alert').textContent).toContain(
+      'Failed to reset password. Please try again.',
+    )
   })
 
   it('cancels the redirect when the form is submitted twice', async () => {

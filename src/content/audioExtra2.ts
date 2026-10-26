@@ -95,7 +95,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_2: GroupDiscussionItem[] = [
     id: 'sgd-parking',
     audioId: 'gd-parking',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The panel accepts that the economics of congestion charging are not the difficulty and that revenue could fund alternatives. They split on who bears the cost and on timing. The disabled resident argues the charge falls hardest on people who cannot change when they travel, and would accept it only if the bus came first. The economist rejects the commodity framing, noting roads were always priced badly through fuel duty. The councillor can offer a cap and a permit exemption but will not accept the framing objection. They disagree on whether a price is acceptable without alternatives in place.',
     keyTerms: ['economics', 'revenue', 'exempt', 'change when', 'charge', 'timing'],
@@ -105,7 +105,7 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_2: GroupDiscussionItem[] = [
     id: 'sgd-benchmark',
     audioId: 'gd-benchmark',
     question:
-      'Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group\'s overall stance, the main points each speaker made, and where they disagreed.',
+      "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
       'The three speakers agree that league tables distort attention toward what is measured rather than settling whether they should be published. The secondary head wants them published every year because parents construct a ranking anyway. The primary head objects that a third table adds no fact and that the primary gap is largely between children already. The researcher proposes attaching progress measures rather than attainment, which Ms Adeyemi accepts would need three years, longer than parents will wait. They divide on timing: publish a distorted measure now, or publish nothing.',
     keyTerms: ['publish', 'progress', 'distort', 'attainment', 'three years', 'timing'],

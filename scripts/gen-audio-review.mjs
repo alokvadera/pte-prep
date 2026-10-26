@@ -18,7 +18,9 @@ const AUDIO_DIR = path.join(PUBLIC_DIR, 'audio')
 const OUT_FILE = path.join(PUBLIC_DIR, 'audio-review.html')
 const JS_OUT_FILE = path.join(PUBLIC_DIR, 'audio-review.js')
 
-const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, 'src', 'content', 'audioManifest.json'), 'utf8'))
+const manifest = JSON.parse(
+  fs.readFileSync(path.join(ROOT, 'src', 'content', 'audioManifest.json'), 'utf8'),
+)
 const filesOnDisk = new Set(fs.readdirSync(AUDIO_DIR))
 
 const enriched = []
@@ -79,7 +81,11 @@ for (const item of manifest.items) {
   } else if (AUDIO_INDEX.has(item.id)) {
     const script = AUDIO_INDEX.get(item.id)
     text = script.turns.map((t) => `${t.speaker}: ${t.text}`).join('\n\n')
-    if (item.kind === 'conversation' || item.kind === 'group' || (script.speakers && script.speakers.length > 1)) {
+    if (
+      item.kind === 'conversation' ||
+      item.kind === 'group' ||
+      (script.speakers && script.speakers.length > 1)
+    ) {
       const assigned = mapConversationVoices(script)
       meta = {
         isFishAudio: true,

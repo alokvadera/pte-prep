@@ -64,12 +64,28 @@ if (!binary) {
 // Same route list as browser-check: every prerendered page. /test and /result
 // need a live test in progress and render their shells, so they are excluded.
 const QUESTION_TYPE_SLUGS = [
-  'read-aloud', 'repeat-sentence', 'describe-image', 'retell-lecture', 'answer-short-question',
-  'summarize-group-discussion', 'respond-to-situation', 'summarize-written-text', 'write-essay',
-  'fill-in-blanks-dropdown', 'fill-in-blanks-table', 'multiple-choice-single', 'multiple-choice-multiple',
-  'reorder-paragraphs', 'summarize-spoken-text', 'fill-in-blanks-listening', 'highlight-correct-summary',
-  'listening-multiple-choice-single', 'listening-multiple-choice-multiple', 'select-missing-word',
-  'highlight-incorrect-words', 'write-from-dictation',
+  'read-aloud',
+  'repeat-sentence',
+  'describe-image',
+  'retell-lecture',
+  'answer-short-question',
+  'summarize-group-discussion',
+  'respond-to-situation',
+  'summarize-written-text',
+  'write-essay',
+  'fill-in-blanks-dropdown',
+  'fill-in-blanks-table',
+  'multiple-choice-single',
+  'multiple-choice-multiple',
+  'reorder-paragraphs',
+  'summarize-spoken-text',
+  'fill-in-blanks-listening',
+  'highlight-correct-summary',
+  'listening-multiple-choice-single',
+  'listening-multiple-choice-multiple',
+  'select-missing-word',
+  'highlight-incorrect-words',
+  'write-from-dictation',
 ]
 
 const ROUTES = [
@@ -96,9 +112,16 @@ const ROUTES = [
   { path: '/question-types/describe-image/', shot: 'qt-describe-image' },
   { path: '/question-types/write-essay/', shot: null },
   { path: '/question-types/write-from-dictation/', shot: null },
-  ...QUESTION_TYPE_SLUGS
-    .filter((s) => !['read-aloud', 'reorder-paragraphs', 'describe-image', 'write-essay', 'write-from-dictation'].includes(s))
-    .map((s) => ({ path: `/question-types/${s}/`, shot: null })),
+  ...QUESTION_TYPE_SLUGS.filter(
+    (s) =>
+      ![
+        'read-aloud',
+        'reorder-paragraphs',
+        'describe-image',
+        'write-essay',
+        'write-from-dictation',
+      ].includes(s),
+  ).map((s) => ({ path: `/question-types/${s}/`, shot: null })),
 ]
 
 // The settings record the pre-paint bootstrap reads. Defaults match
@@ -108,8 +131,14 @@ const settingsFor = (theme) =>
   JSON.stringify({
     state: {
       settings: {
-        theme, reducedMotion: true, showWordCount: true, speakPrompts: false,
-        countdownBeeps: true, textScale: 1, defaultMode: 'full', autoOpenReview: true,
+        theme,
+        reducedMotion: true,
+        showWordCount: true,
+        speakPrompts: false,
+        countdownBeeps: true,
+        textScale: 1,
+        defaultMode: 'full',
+        autoOpenReview: true,
       },
       hydrated: true,
     },
@@ -119,20 +148,17 @@ const settingsFor = (theme) =>
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-contrast-'))
 const PORT = 9334
 
-const chrome = spawnChrome(
-  binary,
-  [
-    '--headless=new',
-    `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    '--window-size=1280,900',
-    'about:blank',
-  ],
-)
+const chrome = spawnChrome(binary, [
+  '--headless=new',
+  `--remote-debugging-port=${PORT}`,
+  `--user-data-dir=${profile}`,
+  '--no-first-run',
+  '--no-default-browser-check',
+  '--disable-gpu',
+  '--hide-scrollbars',
+  '--window-size=1280,900',
+  'about:blank',
+])
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms))
@@ -350,7 +376,8 @@ await send('Runtime.enable', {}, sessionId)
 
 async function evaluate(expression) {
   const r = await send('Runtime.evaluate', { expression, returnByValue: true }, sessionId)
-  if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description ?? 'evaluate failed')
+  if (r.exceptionDetails)
+    throw new Error(r.exceptionDetails.exception?.description ?? 'evaluate failed')
   return r.result.value
 }
 
@@ -360,13 +387,24 @@ async function navigate(url, waitMs = 1600) {
 }
 
 async function setViewport(width, height, mobile) {
-  await send('Emulation.setDeviceMetricsOverride', {
-    width, height, deviceScaleFactor: mobile ? 2 : 1, mobile,
-  }, sessionId)
+  await send(
+    'Emulation.setDeviceMetricsOverride',
+    {
+      width,
+      height,
+      deviceScaleFactor: mobile ? 2 : 1,
+      mobile,
+    },
+    sessionId,
+  )
 }
 
 async function screenshot(file) {
-  const { data } = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true }, sessionId)
+  const { data } = await send(
+    'Page.captureScreenshot',
+    { format: 'png', captureBeyondViewport: true },
+    sessionId,
+  )
   await writeFile(file, Buffer.from(data, 'base64'))
 }
 
@@ -425,7 +463,9 @@ for (const theme of THEMES) {
 
     // The bootstrap must actually have painted the theme before this ran. A
     // light run that quietly stayed dark would score the wrong palette.
-    const applied = await evaluate(`document.documentElement.classList.contains('dark') === ${theme === 'dark'}`)
+    const applied = await evaluate(
+      `document.documentElement.classList.contains('dark') === ${theme === 'dark'}`,
+    )
     if (!applied) {
       failures++
       routeSummary.push(`  FAIL ${route.path} — the ${theme} theme was not applied on load`)

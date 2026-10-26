@@ -1,7 +1,14 @@
 import { buildFullMock } from '../../src/domain/assemble'
 import { QUESTION_META } from '../../src/domain/blueprint'
 import { buildReport, scoreItem } from '../../src/domain/scoring'
-import type { AnswerKey, Item, ItemResponse, MockTest, QuestionType, Skill } from '../../src/domain/types'
+import type {
+  AnswerKey,
+  Item,
+  ItemResponse,
+  MockTest,
+  QuestionType,
+  Skill,
+} from '../../src/domain/types'
 
 // ============================================================================
 // Comprehensive User Answer & Result Evaluation Test Suite
@@ -27,7 +34,8 @@ function findScoredItemAndKey(mock: MockTest, type: QuestionType): { item: Item;
 function makeEssayText(keyTerms: string[]): string {
   const sentenceWithTerms = keyTerms.join(' and ') + ' are all fundamental aspects of this topic.'
   return [
-    'In contemporary society, discussions surrounding this issue have become increasingly prominent across educational, social, and governmental institutions. Advocates strongly argue that addressal yields profound long-term social, environmental, and civic advantages. Consequently, policymakers worldwide have begun reconsidering their historical approaches to balance innovation with sustainable development. In particular, ' + sentenceWithTerms,
+    'In contemporary society, discussions surrounding this issue have become increasingly prominent across educational, social, and governmental institutions. Advocates strongly argue that addressal yields profound long-term social, environmental, and civic advantages. Consequently, policymakers worldwide have begun reconsidering their historical approaches to balance innovation with sustainable development. In particular, ' +
+      sentenceWithTerms,
     'Furthermore, significant empirical evidence indicates that focused investment accelerates positive community transformation across multiple demographics. When communities prioritize clear regulation and modernization, civic productivity rises while systemic inefficiencies decrease. In contrast, failing to implement coherent strategies inevitably produces compounding challenges that become significantly harder to resolve over time. In addition, thoughtful analysis demonstrates that structural changes create lasting stability.',
     'However, critics often contend that sudden institutional shifts impose immediate transitional costs on existing administrative frameworks. While this concern is understandable, proactive education, practical guidance, and targeted economic incentives can mitigate short-term friction effectively. Moreover, collaboration between public and private sectors provides the necessary resilience to navigate unexpected structural hurdles throughout the implementation phase.',
     'In conclusion, pursuing proactive measures is indispensable for sustainable progress in the modern era. By combining disciplined policy frameworks with educational innovation, societies can safeguard future prosperity while fostering equitable growth for all citizens.',
@@ -95,7 +103,9 @@ function main() {
   for (const type of allTypes) {
     const meta = QUESTION_META[type]
     const { item, key } = findScoredItemAndKey(mock, type)
-    console.log(`\n▶ [${meta.short}] ${meta.label} (Scoring: ${meta.scoring}, Skills: ${meta.skills.join('+')}, MaxPts: ${item.maxPoints})`)
+    console.log(
+      `\n▶ [${meta.short}] ${meta.label} (Scoring: ${meta.scoring}, Skills: ${meta.skills.join('+')}, MaxPts: ${item.maxPoints})`,
+    )
 
     let correctResp: ItemResponse = {}
     let partialResp: ItemResponse | null = null
@@ -108,7 +118,10 @@ function main() {
         const text = item.targetText ?? key.reference ?? ''
         correctResp = { transcript: text, audio: highQualityAudio }
         const words = text.split(' ')
-        partialResp = { transcript: words.slice(0, Math.floor(words.length * 0.6)).join(' '), audio: partialAudio }
+        partialResp = {
+          transcript: words.slice(0, Math.floor(words.length * 0.6)).join(' '),
+          audio: partialAudio,
+        }
         zeroResp = { transcript: 'unrelated banana apple zebra', audio: highQualityAudio }
         break
       }
@@ -116,7 +129,10 @@ function main() {
         const text = item.targetText ?? item.audioUtterance ?? key.reference ?? ''
         correctResp = { transcript: text, audio: highQualityAudio }
         const words = text.split(' ')
-        partialResp = { transcript: words.slice(0, Math.floor(words.length * 0.5)).join(' '), audio: partialAudio }
+        partialResp = {
+          transcript: words.slice(0, Math.floor(words.length * 0.5)).join(' '),
+          audio: partialAudio,
+        }
         zeroResp = { transcript: 'random completely unrelated words here', audio: highQualityAudio }
         break
       }
@@ -128,7 +144,10 @@ function main() {
         const terms = key.keyTerms ?? []
         correctResp = { transcript: ref, audio: highQualityAudio }
         const partialTerms = terms.slice(0, Math.ceil(terms.length / 2)).join(' ')
-        partialResp = { transcript: `The main discussion describes ${partialTerms} with several relevant points.`, audio: partialAudio }
+        partialResp = {
+          transcript: `The main discussion describes ${partialTerms} with several relevant points.`,
+          audio: partialAudio,
+        }
         zeroResp = { transcript: 'no relevant points mentioned at all', audio: highQualityAudio }
         break
       }
@@ -147,9 +166,13 @@ function main() {
         const terms = key.keyTerms ?? []
         correctResp = { text: ref } // 1 valid sentence containing key terms
         // Partial: 1 valid sentence with subset of key terms
-        partialResp = { text: `Although ${terms.slice(0, 3).join(' and ')} are significant factors, comprehensive analysis remains necessary for understanding the issue.` }
+        partialResp = {
+          text: `Although ${terms.slice(0, 3).join(' and ')} are significant factors, comprehensive analysis remains necessary for understanding the issue.`,
+        }
         // Gated: 2 sentences = Form 0 (gated to 0 points)
-        zeroResp = { text: 'This is the first sentence here. And here is a second sentence that violates the single sentence rule.' }
+        zeroResp = {
+          text: 'This is the first sentence here. And here is a second sentence that violates the single sentence rule.',
+        }
         break
       }
       case 'write-essay': {
@@ -160,9 +183,14 @@ function main() {
           text: `In contemporary society, discussions surrounding ${terms.slice(0, 3).join(' and ')} have become increasingly prominent across educational, social, and governmental institutions.\n\nAdvocates strongly argue that direct addressal yields profound long-term social, environmental, and civic advantages. Consequently, policymakers worldwide have begun reconsidering their historical approaches to balance innovation with sustainable development. In particular, this topic requires urgent attention from educators and local community leaders alike.\n\nFurthermore, significant empirical evidence indicates that focused investment accelerates positive community transformation across multiple demographics. When communities prioritize clear regulation and modernization, civic productivity rises while systemic inefficiencies decrease. In addition, thoughtful analysis demonstrates that structural changes create lasting stability over the coming decades.\n\nIn conclusion, pursuing proactive measures is indispensable for sustainable progress in the modern era. While implementing these reforms involves transitional effort, the benefits remain undeniable.`,
         }
         const partialWords = partialResp.text.trim().split(/\s+/).length
-        assert(partialWords >= 120 && partialWords <= 199, `Write Essay partial response word count (${partialWords}) is in Form 1 band (120-199)`)
+        assert(
+          partialWords >= 120 && partialWords <= 199,
+          `Write Essay partial response word count (${partialWords}) is in Form 1 band (120-199)`,
+        )
         // Gated: 50 words (< 120 words = Form 0 gated to 0 points)
-        zeroResp = { text: 'This topic is very important for modern society. We must consider many different ideas before deciding what to do. Many people agree with this viewpoint, while others disagree. Thank you for reading my essay on this question.' }
+        zeroResp = {
+          text: 'This topic is very important for modern society. We must consider many different ideas before deciding what to do. Many people agree with this viewpoint, while others disagree. Thank you for reading my essay on this question.',
+        }
         break
       }
 
@@ -171,7 +199,9 @@ function main() {
       case 'fill-in-blanks-table': {
         const blanks = key.blanks ?? []
         correctResp = { blanks: blanks.map((b) => b[0] ?? '') }
-        partialResp = { blanks: blanks.map((b, i) => (i % 2 === 0 ? b[0] ?? '' : 'wrong_distractor')) }
+        partialResp = {
+          blanks: blanks.map((b, i) => (i % 2 === 0 ? (b[0] ?? '') : 'wrong_distractor')),
+        }
         zeroResp = { blanks: blanks.map(() => 'erroneous_option') }
         break
       }
@@ -183,7 +213,8 @@ function main() {
       }
       case 'multiple-choice-multiple': {
         const correct = key.correctChoices ?? []
-        const wrongDistractor = (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Distractor'
+        const wrongDistractor =
+          (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Distractor'
         correctResp = { choices: correct }
         partialResp = { choices: [correct[0] ?? ''] }
         // Negative marking: 1 correct + 1 wrong distractor cancels out to 0 (floored at 0)
@@ -194,7 +225,12 @@ function main() {
         const order = key.order ?? []
         correctResp = { order }
         // Partial: preserve the first pair, reverse remainder
-        partialResp = { order: order.length > 2 ? [order[0]!, order[1]!, ...order.slice(2).reverse()] : [...order].reverse() }
+        partialResp = {
+          order:
+            order.length > 2
+              ? [order[0]!, order[1]!, ...order.slice(2).reverse()]
+              : [...order].reverse(),
+        }
         zeroResp = { order: [...order].reverse() }
         break
       }
@@ -207,13 +243,15 @@ function main() {
         const words = ref.split(' ')
         partialResp = { text: words.slice(0, 44).join(' ') + '.' }
         // Gated: < 40 words = Form 0 (gated to 0 points)
-        zeroResp = { text: 'The lecture discussed several historical points. This summary is under twenty words.' }
+        zeroResp = {
+          text: 'The lecture discussed several historical points. This summary is under twenty words.',
+        }
         break
       }
       case 'fill-in-blanks-listening': {
         const blanks = key.blanks ?? []
         correctResp = { blanks: blanks.map((b) => b[0] ?? '') }
-        partialResp = { blanks: blanks.map((b, i) => (i === 0 ? b[0] ?? '' : 'misspelled')) }
+        partialResp = { blanks: blanks.map((b, i) => (i === 0 ? (b[0] ?? '') : 'misspelled')) }
         zeroResp = { blanks: blanks.map(() => 'erroneous') }
         break
       }
@@ -227,7 +265,8 @@ function main() {
       }
       case 'listening-multiple-choice-multiple': {
         const correct = key.correctChoices ?? []
-        const wrongDistractor = (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Option'
+        const wrongDistractor =
+          (item.options ?? []).find((o) => !correct.includes(o)) ?? 'Wrong Option'
         correctResp = { choices: correct }
         partialResp = { choices: [correct[0] ?? ''] }
         // Negative marking: 1 correct + 1 wrong = 0 points
@@ -239,7 +278,8 @@ function main() {
         correctResp = { highlighted: correctHighlights }
         partialResp = { highlighted: [correctHighlights[0]!] }
         // Negative marking: 1 correct + 1 wrong token = 0 points
-        const wrongToken = [0, 1, 2, 3, 4, 5, 6, 7].find((idx) => !correctHighlights.includes(idx)) ?? 99
+        const wrongToken =
+          [0, 1, 2, 3, 4, 5, 6, 7].find((idx) => !correctHighlights.includes(idx)) ?? 99
         zeroResp = { highlighted: [correctHighlights[0]!, wrongToken] }
         break
       }
@@ -315,17 +355,33 @@ function main() {
     const key = mock.answers[item.id]
     if (!key) continue
 
-    if (item.type === 'multiple-choice-single' || item.type === 'listening-multiple-choice-single' || item.type === 'highlight-correct-summary' || item.type === 'select-missing-word') {
+    if (
+      item.type === 'multiple-choice-single' ||
+      item.type === 'listening-multiple-choice-single' ||
+      item.type === 'highlight-correct-summary' ||
+      item.type === 'select-missing-word'
+    ) {
       fullResponses[item.id] = { choice: key.correctChoice }
-    } else if (item.type === 'multiple-choice-multiple' || item.type === 'listening-multiple-choice-multiple') {
+    } else if (
+      item.type === 'multiple-choice-multiple' ||
+      item.type === 'listening-multiple-choice-multiple'
+    ) {
       fullResponses[item.id] = { choices: key.correctChoices }
-    } else if (item.type === 'fill-in-blanks-dropdown' || item.type === 'fill-in-blanks-table' || item.type === 'fill-in-blanks-listening') {
+    } else if (
+      item.type === 'fill-in-blanks-dropdown' ||
+      item.type === 'fill-in-blanks-table' ||
+      item.type === 'fill-in-blanks-listening'
+    ) {
       fullResponses[item.id] = { blanks: key.blanks?.map((b) => b[0] ?? '') }
     } else if (item.type === 'reorder-paragraphs') {
       fullResponses[item.id] = { order: key.order }
     } else if (item.type === 'highlight-incorrect-words') {
       fullResponses[item.id] = { highlighted: key.correctHighlighted }
-    } else if (item.type === 'write-from-dictation' || item.type === 'summarize-written-text' || item.type === 'summarize-spoken-text') {
+    } else if (
+      item.type === 'write-from-dictation' ||
+      item.type === 'summarize-written-text' ||
+      item.type === 'summarize-spoken-text'
+    ) {
       fullResponses[item.id] = { text: key.reference }
     } else if (item.type === 'answer-short-question') {
       fullResponses[item.id] = { text: key.correctChoice ?? '' }
@@ -342,8 +398,14 @@ function main() {
 
   const highReport = buildReport(flatItems, mock.answers, fullResponses, metaById)
 
-  assert(highReport.overall >= 80, `High attempt overall score lands in high band: ${highReport.overall} / 90`)
-  assert(highReport.cefr === 'C1' || highReport.cefr === 'C2', `High attempt CEFR level is advanced: ${highReport.cefr}`)
+  assert(
+    highReport.overall >= 80,
+    `High attempt overall score lands in high band: ${highReport.overall} / 90`,
+  )
+  assert(
+    highReport.cefr === 'C1' || highReport.cefr === 'C2',
+    `High attempt CEFR level is advanced: ${highReport.cefr}`,
+  )
   assert(
     highReport.skills.listening! >= 75 &&
       highReport.skills.reading! >= 75 &&
@@ -351,8 +413,14 @@ function main() {
       highReport.skills.writing! >= 75,
     `All 4 communicative skills scored high: L=${highReport.skills.listening}, R=${highReport.skills.reading}, S=${highReport.skills.speaking}, W=${highReport.skills.writing}`,
   )
-  assert(highReport.details.length === flatItems.length, `Report contains full details array for review: ${highReport.details.length} items`)
-  assert(Object.keys(highReport.breakdown).length === 22, `Report breakdown tracks all 22 question types: ${Object.keys(highReport.breakdown).length}`)
+  assert(
+    highReport.details.length === flatItems.length,
+    `Report contains full details array for review: ${highReport.details.length} items`,
+  )
+  assert(
+    Object.keys(highReport.breakdown).length === 22,
+    `Report breakdown tracks all 22 question types: ${Object.keys(highReport.breakdown).length}`,
+  )
 
   // 2. Mid-scoring attempt (simulating ~60-70% accuracy)
   const midResponses: Record<string, ItemResponse> = {}
@@ -367,7 +435,12 @@ function main() {
       } else if (key?.correctChoices) {
         midResponses[item.id] = { choices: [key.correctChoices[0] ?? ''] }
       } else if (key?.order) {
-        midResponses[item.id] = { order: key.order.length > 2 ? [key.order[0]!, key.order[1]!, ...key.order.slice(2).reverse()] : [...key.order].reverse() }
+        midResponses[item.id] = {
+          order:
+            key.order.length > 2
+              ? [key.order[0]!, key.order[1]!, ...key.order.slice(2).reverse()]
+              : [...key.order].reverse(),
+        }
       } else if (key?.correctHighlighted) {
         midResponses[item.id] = { highlighted: [key.correctHighlighted[0]!] }
       } else if (item.skills.includes('speaking')) {
@@ -386,14 +459,29 @@ function main() {
     }
   })
   const midReport = buildReport(flatItems, mock.answers, midResponses, metaById)
-  assert(midReport.overall >= 45 && midReport.overall <= 75, `Mid attempt overall score in realistic intermediate range: ${midReport.overall}`)
-  assert(midReport.cefr === 'B1' || midReport.cefr === 'B2', `Mid attempt CEFR level is intermediate: ${midReport.cefr}`)
+  assert(
+    midReport.overall >= 45 && midReport.overall <= 75,
+    `Mid attempt overall score in realistic intermediate range: ${midReport.overall}`,
+  )
+  assert(
+    midReport.cefr === 'B1' || midReport.cefr === 'B2',
+    `Mid attempt CEFR level is intermediate: ${midReport.cefr}`,
+  )
 
   // 3. Empty attempt (nothing answered)
   const emptyReport = buildReport(flatItems, mock.answers, {}, metaById)
-  assert(emptyReport.overall === 10, `Empty attempt overall score floors at scale baseline: ${emptyReport.overall}`)
-  assert(emptyReport.cefr === 'A1', `Empty attempt CEFR defaults to scale baseline: ${emptyReport.cefr}`)
-  assert(emptyReport.earnedPoints === 0, `Empty attempt earned points is zero: ${emptyReport.earnedPoints}`)
+  assert(
+    emptyReport.overall === 10,
+    `Empty attempt overall score floors at scale baseline: ${emptyReport.overall}`,
+  )
+  assert(
+    emptyReport.cefr === 'A1',
+    `Empty attempt CEFR defaults to scale baseline: ${emptyReport.cefr}`,
+  )
+  assert(
+    emptyReport.earnedPoints === 0,
+    `Empty attempt earned points is zero: ${emptyReport.earnedPoints}`,
+  )
 
   console.log('\n--------------------------------------------------------------------------------')
   console.log('PART 3: SUMMARY SCORE MATRIX')

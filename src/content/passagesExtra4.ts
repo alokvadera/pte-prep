@@ -33,7 +33,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'The chemical question is harder because the particles are not one substance. Some carry additives such as plasticisers that leach under warm, wet conditions, while others adsorb pesticides from the surrounding soil and release them later. Laboratory doses that show harm are typically far higher than field concentrations, which means the strongest published effects describe what could happen rather than what field sampling finds.',
       'The policy implication is narrower than the headlines suggest. Banning a single product changes the shape of future inputs but does nothing about the stock already in the ground, which turns over on decadal timescales. The measure with the clearest evidence is unglamorous: screen sludge more aggressively before spreading, and treat mulch film as waste to be collected rather than material that can be ploughed in.',
     ],
-    keyTerms: ['microplastics', 'pore structure', 'aggregates', 'plasticisers', 'sludge', 'mulch film'],
+    keyTerms: [
+      'microplastics',
+      'pore structure',
+      'aggregates',
+      'plasticisers',
+      'sludge',
+      'mulch film',
+    ],
     readAloud:
       'The physical effect precedes any chemical one. Plastic fragments change the pore structure of soil, altering how water is held and how quickly it drains.',
     repeatSentences: [
@@ -57,9 +64,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-microplastics-soil',
-      text:
-        'The largest reservoir of plastic particles is agricultural ______ , where sludge and mulch leave fragments that do not decompose. The fragments change the ______ structure of soil, altering drainage. Some particles carry ______ that leach in warm conditions, while laboratory doses showing harm are far higher than field ______ .',
-      bank: ['soil', 'pore', 'plasticisers', 'concentrations', 'ocean', 'granular', 'solvents', 'averages', 'sediment'],
+      text: 'The largest reservoir of plastic particles is agricultural ______ , where sludge and mulch leave fragments that do not decompose. The fragments change the ______ structure of soil, altering drainage. Some particles carry ______ that leach in warm conditions, while laboratory doses showing harm are far higher than field ______ .',
+      bank: [
+        'soil',
+        'pore',
+        'plasticisers',
+        'concentrations',
+        'ocean',
+        'granular',
+        'solvents',
+        'averages',
+        'sediment',
+      ],
       answers: ['soil', 'pore', 'plasticisers', 'concentrations'],
     },
     tableFib: {
@@ -97,7 +113,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'They prevent earthworms from feeding at all',
         'They dissolve rapidly under wet conditions',
       ],
-      correct: ['They alter how water is held and drains', 'They disrupt aggregates that roots depend on'],
+      correct: [
+        'They alter how water is held and drains',
+        'They disrupt aggregates that roots depend on',
+      ],
     },
     asq: [
       {
@@ -156,9 +175,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-urban-birdsong',
-      text:
-        'Urban and rural birds know the same ______ ; what differs is delivery in noise. Low traffic sound ______ the lower portion of most songbirds’ range. Birds that ______ their songs upward are detected more reliably, though higher songs travel less far in ______ .',
-      bank: ['repertoire', 'masks', 'pitch', 'vegetation', 'plumage', 'echoes', 'lower', 'canopy', 'territory'],
+      text: 'Urban and rural birds know the same ______ ; what differs is delivery in noise. Low traffic sound ______ the lower portion of most songbirds’ range. Birds that ______ their songs upward are detected more reliably, though higher songs travel less far in ______ .',
+      bank: [
+        'repertoire',
+        'masks',
+        'pitch',
+        'vegetation',
+        'plumage',
+        'echoes',
+        'lower',
+        'canopy',
+        'territory',
+      ],
       answers: ['repertoire', 'masks', 'pitch', 'vegetation'],
     },
     tableFib: {
@@ -231,7 +259,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'Watermarking and provenance offer a different approach: rather than detecting fakes, they certify real captures at the point of recording. A camera that cryptographically signs each frame produces footage whose history can be checked, and anything without a signature is treated as unverified rather than false. The weakness is adoption, since the scheme only works if the devices people actually use participate.',
       'The realistic outcome is neither reliable detection nor universal watermarking but a change in what counts as evidence. Newsrooms already treat unattributed video as a claim to be corroborated rather than a record to be broadcast, and courts are beginning to do the same. The footage has not become worthless; it has become what testimony always was, which is a statement requiring support.',
     ],
-    keyTerms: ['synthetic video', 'blinking', 'adversary', 'watermarking', 'provenance', 'corroborated'],
+    keyTerms: [
+      'synthetic video',
+      'blinking',
+      'adversary',
+      'watermarking',
+      'provenance',
+      'corroborated',
+    ],
     readAloud:
       'The most reliable cues are now physiological rather than visual: people blink, breathe and shift their gaze in patterns that generative models reproduce poorly.',
     repeatSentences: [
@@ -255,9 +290,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-deepfake-detection',
-      text:
-        'The most reliable cues are now ______ rather than visual, since models reproduce blinking poorly. Every published ______ becomes training data for the next generator. ______ certifies real captures at recording, though the scheme depends on ______ by device makers.',
-      bank: ['physiological', 'detector', 'Watermarking', 'adoption', 'digital', 'sensor', 'Provenance', 'enforcement', 'optical'],
+      text: 'The most reliable cues are now ______ rather than visual, since models reproduce blinking poorly. Every published ______ becomes training data for the next generator. ______ certifies real captures at recording, though the scheme depends on ______ by device makers.',
+      bank: [
+        'physiological',
+        'detector',
+        'Watermarking',
+        'adoption',
+        'digital',
+        'sensor',
+        'Provenance',
+        'enforcement',
+        'optical',
+      ],
       answers: ['physiological', 'detector', 'Watermarking', 'adoption'],
     },
     tableFib: {
@@ -330,7 +374,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'The hopeful finding of the last decade is that not all symbionts are equal. Corals hosting heat-tolerant algal strains bleach later and recover faster, and some colonies switch partners after an event, acquiring the tougher strain from the surrounding water. Assisted switching — seeding reefs with tolerant strains — has shown promise in trials, though it remains unclear whether laboratory tolerance survives the complexity of a real reef.',
       'The limit of that hope is worth stating. A tolerant partnership buys time measured in years against warming measured in decades, and no strain survives the temperatures projected for the end of the century under high-emission pathways. Symbiont switching is a bridge rather than a destination, and a bridge is only useful if the far bank is being built while it is crossed.',
     ],
-    keyTerms: ['symbionts', 'bleaching', 'reactive compounds', 'spawning', 'tolerant strains', 'eviction'],
+    keyTerms: [
+      'symbionts',
+      'bleaching',
+      'reactive compounds',
+      'spawning',
+      'tolerant strains',
+      'eviction',
+    ],
     readAloud:
       'Bleaching is the breakdown of that partnership. Under heat stress the algae begin producing reactive compounds faster than the host can neutralise them, and the host ejects the algae rather than tolerate the damage.',
     repeatSentences: [
@@ -354,9 +405,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-coral-bleaching',
-      text:
-        'A coral is a ______ between host and algae, and bleaching is that partnership breaking down. Under heat the algae produce ______ compounds that the host cannot neutralise. Recovery depends on ______ rather than peak heat, and tolerant ______ bleach later than others.',
-      bank: ['partnership', 'reactive', 'duration', 'strains', 'colony', 'toxic', 'frequency', 'species', 'calcium'],
+      text: 'A coral is a ______ between host and algae, and bleaching is that partnership breaking down. Under heat the algae produce ______ compounds that the host cannot neutralise. Recovery depends on ______ rather than peak heat, and tolerant ______ bleach later than others.',
+      bank: [
+        'partnership',
+        'reactive',
+        'duration',
+        'strains',
+        'colony',
+        'toxic',
+        'frequency',
+        'species',
+        'calcium',
+      ],
       answers: ['partnership', 'reactive', 'duration', 'strains'],
     },
     tableFib: {
@@ -394,7 +454,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'It works only on already dead colonies',
         'It eliminates the need for emission cuts',
       ],
-      correct: ['Tolerance may not survive real reef complexity', 'It buys years against decades of warming'],
+      correct: [
+        'Tolerance may not survive real reef complexity',
+        'It buys years against decades of warming',
+      ],
     },
     asq: [
       {
@@ -429,7 +492,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'Defenders of the model argue that traditional agencies performed no better, and on average the charge is correct: agency care also suffered high turnover and low pay. But the comparison conceals a difference in accountability. An agency that loses a contract can be inspected, fined or replaced; a platform that reclassifies every transaction as a private choice between contractor and client has no contract to lose and therefore nothing to inspect.',
       'The reform that follows is not to ban platforms but to price continuity. Where commission rates fall as a placement persists — where the platform earns less the longer a pairing lasts — the incentive reverses, and staying becomes the profitable choice. Early trials of declining commissions show longer placements without higher prices, which suggests the problem was never cost but whose behaviour the fee rewarded.',
     ],
-    keyTerms: ['contractors', 'continuity', 'commission', 'ratings', 'accountability', 'placements'],
+    keyTerms: [
+      'contractors',
+      'continuity',
+      'commission',
+      'ratings',
+      'accountability',
+      'placements',
+    ],
     readAloud:
       'What the framing omits is that continuity — the same carer visiting the same client — is the single strongest predictor of quality in the sector, and flexibility works directly against it.',
     repeatSentences: [
@@ -448,14 +518,30 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'What the framing omits is that continuity — the same carer visiting the same client — is the single strongest predictor of quality in the sector, and flexibility works directly against it.',
         'The reform that follows is not to ban platforms but to price continuity. Where commission rates fall as a placement persists — where the platform earns less the longer a pairing lasts — the incentive reverses, and staying becomes the profitable choice.',
       ],
-      keyTerms: ['continuity', 'availability', 'accountability', 'commissions', 'staying', 'quality'],
+      keyTerms: [
+        'continuity',
+        'availability',
+        'accountability',
+        'commissions',
+        'staying',
+        'quality',
+      ],
       minWords: 20,
     },
     dropdown: {
       id: 'fibd-gig-economy-care',
-      text:
-        'Platforms classify carers as independent ______ rather than employees, presenting the deal as flexibility. Yet ______ is the strongest predictor of quality, and per-visit pay gives no reason to stay with a ______ client. A platform has no contract to lose and therefore nothing to ______ .',
-      bank: ['contractors', 'continuity', 'difficult', 'inspect', 'nurses', 'seniority', 'wealthy', 'renew', 'schedule'],
+      text: 'Platforms classify carers as independent ______ rather than employees, presenting the deal as flexibility. Yet ______ is the strongest predictor of quality, and per-visit pay gives no reason to stay with a ______ client. A platform has no contract to lose and therefore nothing to ______ .',
+      bank: [
+        'contractors',
+        'continuity',
+        'difficult',
+        'inspect',
+        'nurses',
+        'seniority',
+        'wealthy',
+        'renew',
+        'schedule',
+      ],
       answers: ['contractors', 'continuity', 'difficult', 'inspect'],
     },
     tableFib: {
@@ -493,7 +579,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'Platforms lose money on every visit',
         'Regulators inspect platforms more often',
       ],
-      correct: ['Carers avoid clients with complex needs', 'Ratings reward availability over persistence'],
+      correct: [
+        'Carers avoid clients with complex needs',
+        'Ratings reward availability over persistence',
+      ],
     },
     asq: [
       {
@@ -552,9 +641,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-quantum-error',
-      text:
-        'A quantum bit holds a ______ of states that stray noise collapses toward an ordinary value. Correction spreads one ______ bit across many physical ones, at severe ______ . Below the ______ , adding hardware reduces logical error rather than increasing it.',
-      bank: ['blend', 'logical', 'overhead', 'threshold', 'burst', 'binary', 'surplus', 'ceiling', 'margin'],
+      text: 'A quantum bit holds a ______ of states that stray noise collapses toward an ordinary value. Correction spreads one ______ bit across many physical ones, at severe ______ . Below the ______ , adding hardware reduces logical error rather than increasing it.',
+      bank: [
+        'blend',
+        'logical',
+        'overhead',
+        'threshold',
+        'burst',
+        'binary',
+        'surplus',
+        'ceiling',
+        'margin',
+      ],
       answers: ['blend', 'logical', 'overhead', 'threshold'],
     },
     tableFib: {
@@ -592,7 +690,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'It applies only to classical computers',
         'It eliminates the need for extra qubits',
       ],
-      correct: ['Below it, reliability compounds with scale', 'Above it, correction makes matters worse'],
+      correct: [
+        'Below it, reliability compounds with scale',
+        'Above it, correction makes matters worse',
+      ],
     },
     asq: [
       {
@@ -610,7 +711,11 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       {
         id: 'asq-quantum-3',
         question: 'What do supremacy demonstrations prove?',
-        options: ['Threshold can be approached', 'Useful machines are near', 'Correction is unnecessary'],
+        options: [
+          'Threshold can be approached',
+          'Useful machines are near',
+          'Correction is unnecessary',
+        ],
         correct: 'Threshold can be approached',
       },
     ],
@@ -627,7 +732,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'The asymmetry between comprehension and production follows directly. A migrant who cannot produce a word on demand will typically still recognise it instantly, because recognition requires only that the form be distinguished from alternatives while production requires that it be selected against a competitor. Tests that measure only recognition therefore understate loss, and tests that measure only production overstate it.',
       'The practical implication concerns maintenance rather than rescue. An hour a week of genuine use — conversation rather than review — preserves retrieval far more effectively than an intensive course taken after a decade of silence. A language, the evidence suggests, is less like a file that corrupts in storage than like a path that grass reclaims unless it is walked.',
     ],
-    keyTerms: ['attrition', 'retrieval', 'interference', 'morphology', 'comprehension', 'maintenance'],
+    keyTerms: [
+      'attrition',
+      'retrieval',
+      'interference',
+      'morphology',
+      'comprehension',
+      'maintenance',
+    ],
     readAloud:
       'Forgetting a language is not reversal of learning but a selective erosion, starting with the least frequent words while the earliest grammar resists far longer.',
     repeatSentences: [
@@ -646,14 +758,30 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'The mechanism resembles interference more than decay. The second language does not erase the first; it competes with it at the moment of retrieval, and the competition is won by whichever form has been used more recently.',
         'The practical implication concerns maintenance rather than rescue. An hour a week of genuine use — conversation rather than review — preserves retrieval far more effectively than an intensive course taken after a decade of silence.',
       ],
-      keyTerms: ['vocabulary', 'grammar', 'competition', 'retrieval', 'conversation', 'maintenance'],
+      keyTerms: [
+        'vocabulary',
+        'grammar',
+        'competition',
+        'retrieval',
+        'conversation',
+        'maintenance',
+      ],
       minWords: 20,
     },
     dropdown: {
       id: 'fibd-language-attrition',
-      text:
-        'Vocabulary ______ slows within years of disuse, starting with rare words, while early ______ resists longer. The second language ______ with the first at retrieval, and weekly ______ preserves ability better than late intensive study.',
-      bank: ['retrieval', 'grammar', 'competes', 'conversation', 'pronunciation', 'merges', 'examination', 'translation', 'memory'],
+      text: 'Vocabulary ______ slows within years of disuse, starting with rare words, while early ______ resists longer. The second language ______ with the first at retrieval, and weekly ______ preserves ability better than late intensive study.',
+      bank: [
+        'retrieval',
+        'grammar',
+        'competes',
+        'conversation',
+        'pronunciation',
+        'merges',
+        'examination',
+        'translation',
+        'memory',
+      ],
       answers: ['retrieval', 'grammar', 'competes', 'conversation'],
     },
     tableFib: {
@@ -691,7 +819,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'Grammar disappears before any vocabulary',
         'Review courses outperform all conversation practice',
       ],
-      correct: ['Immersion in the second language accelerates loss', 'Occasional use of the first slows loss'],
+      correct: [
+        'Immersion in the second language accelerates loss',
+        'Occasional use of the first slows loss',
+      ],
     },
     asq: [
       {
@@ -726,7 +857,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'Where vertical farms genuinely outperform is on inputs other than energy. Closed-loop irrigation recirculates the great majority of water, pesticide use falls to near zero because the environment is sealed, and production beside the point of consumption removes refrigeration and transport losses. For a city dependent on imported salad leaves flown in daily, those savings are material rather than marginal.',
       'The sensible conclusion is narrower than either the hype or the dismissal. Vertical farming will not feed cities, because cities are fed on calories and calories are grown on sunlight. It can supply a meaningful share of perishable, high-value produce with far less water and land, and that is a worthwhile outcome as long as it is not mistaken for a new food system.',
     ],
-    keyTerms: ['stacked layers', 'light spectrum', 'energy constraint', 'closed-loop', 'perishable', 'calories'],
+    keyTerms: [
+      'stacked layers',
+      'light spectrum',
+      'energy constraint',
+      'closed-loop',
+      'perishable',
+      'calories',
+    ],
     readAloud:
       'Yields per square metre of floor space can exceed field agriculture by two orders of magnitude, because every variable is controlled.',
     repeatSentences: [
@@ -750,9 +888,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-vertical-farming',
-      text:
-        'Crops grow in ______ layers under artificial light with water recycled in a closed ______ . The binding ______ is energy, since every photon must be paid for. The method suits leafy ______ rather than staple calories grown on sunlight.',
-      bank: ['stacked', 'loop', 'constraint', 'greens', 'sealed', 'cycle', 'limit', 'shoots', 'spectrum'],
+      text: 'Crops grow in ______ layers under artificial light with water recycled in a closed ______ . The binding ______ is energy, since every photon must be paid for. The method suits leafy ______ rather than staple calories grown on sunlight.',
+      bank: [
+        'stacked',
+        'loop',
+        'constraint',
+        'greens',
+        'sealed',
+        'cycle',
+        'limit',
+        'shoots',
+        'spectrum',
+      ],
       answers: ['stacked', 'loop', 'constraint', 'greens'],
     },
     tableFib: {
@@ -790,7 +937,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'They eliminate all energy costs',
         'They need no artificial lighting at all',
       ],
-      correct: ['They recirculate most irrigation water', 'They remove transport and refrigeration losses'],
+      correct: [
+        'They recirculate most irrigation water',
+        'They remove transport and refrigeration losses',
+      ],
     },
     asq: [
       {
@@ -825,7 +975,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'The modern revival has complicated the picture. Commercial products labelled as fermented are frequently pasteurised after fermenting for shelf stability, which kills the live cultures whose benefits are advertised. A product can therefore be accurately described as fermented and contain no living organisms at all, and the health claims on its label may refer to a state the food no longer occupies.',
       'The useful distinction is between fermentation as a process and live cultures as an ingredient. The process delivers safety, keeping quality and improved nutrient availability whether or not the microbes survive; the live cultures are an additional and separate benefit that only unpasteurised products provide. Reading the label for heat treatment after fermenting separates one claim from the other.',
     ],
-    keyTerms: ['lactic acid', 'spoilage', 'mineral absorption', 'pasteurised', 'live cultures', 'keeping quality'],
+    keyTerms: [
+      'lactic acid',
+      'spoilage',
+      'mineral absorption',
+      'pasteurised',
+      'live cultures',
+      'keeping quality',
+    ],
     readAloud:
       'The food becomes safer not because anything is added but because the microbes that arrive first change the environment against their competitors.',
     repeatSentences: [
@@ -849,9 +1006,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-fermented-foods',
-      text:
-        'Microbes convert sugars into acids and alcohol, creating conditions where ______ organisms cannot grow. Fermentation breaks down compounds that inhibit ______ absorption and synthesises B ______ . Pasteurisation after fermenting kills the live ______ advertised on labels.',
-      bank: ['spoilage', 'mineral', 'vitamins', 'cultures', 'harmful', 'protein', 'enzymes', 'strains', 'yeasts'],
+      text: 'Microbes convert sugars into acids and alcohol, creating conditions where ______ organisms cannot grow. Fermentation breaks down compounds that inhibit ______ absorption and synthesises B ______ . Pasteurisation after fermenting kills the live ______ advertised on labels.',
+      bank: [
+        'spoilage',
+        'mineral',
+        'vitamins',
+        'cultures',
+        'harmful',
+        'protein',
+        'enzymes',
+        'strains',
+        'yeasts',
+      ],
       answers: ['spoilage', 'mineral', 'vitamins', 'cultures'],
     },
     tableFib: {
@@ -889,7 +1055,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'All proteins become fully digestible by everyone',
         'Fat content falls to near zero',
       ],
-      correct: ['Minerals become more available for absorption', 'B vitamins are synthesised during the process'],
+      correct: [
+        'Minerals become more available for absorption',
+        'B vitamins are synthesised during the process',
+      ],
     },
     asq: [
       {
@@ -924,7 +1093,14 @@ export const EXTRA_PASSAGES_4: Passage[] = [
       'The objection is that any reduction risks missing the rare bacterial case, and the objection is serious because the cost of a miss falls on one identifiable patient while the cost of overuse is spread invisibly across future patients. Stewardship programmes answer it with safety-netting rather than reassurance: explicit instructions on what deterioration looks like, when to return, and what will happen then, documented in the record rather than spoken at the door.',
       'The broader lesson is that resistance is driven less by ignorance than by structure. Prescribers do not need another guideline telling them which drug matches which microbe; they need consultations long enough to explain a non-prescription, systems that make delayed prescribing the default, and audit that rewards the clinician whose patients return appropriately rather than the one whose patients never return at all.',
     ],
-    keyTerms: ['stewardship', 'decision fatigue', 'delayed prescriptions', 'safety-netting', 'overuse', 'audit'],
+    keyTerms: [
+      'stewardship',
+      'decision fatigue',
+      'delayed prescriptions',
+      'safety-netting',
+      'overuse',
+      'audit',
+    ],
     readAloud:
       'Prescribing rates rise through the working day and peak in the final hour before closing, a pattern that tracks decision fatigue rather than case mix.',
     repeatSentences: [
@@ -948,9 +1124,18 @@ export const EXTRA_PASSAGES_4: Passage[] = [
     },
     dropdown: {
       id: 'fibd-antibiotic-stewardship',
-      text:
-        'Most respiratory infections are ______ , yet prescriptions target them. Rates rise through the day with decision ______ rather than case mix. ______ prescriptions cut consumption sharply, and stewardship relies on documented ______ rather than reassurance.',
-      bank: ['viral', 'fatigue', 'Delayed', 'safety-netting', 'bacterial', 'boredom', 'Repeat', 'referral', 'triage'],
+      text: 'Most respiratory infections are ______ , yet prescriptions target them. Rates rise through the day with decision ______ rather than case mix. ______ prescriptions cut consumption sharply, and stewardship relies on documented ______ rather than reassurance.',
+      bank: [
+        'viral',
+        'fatigue',
+        'Delayed',
+        'safety-netting',
+        'bacterial',
+        'boredom',
+        'Repeat',
+        'referral',
+        'triage',
+      ],
       answers: ['viral', 'fatigue', 'Delayed', 'safety-netting'],
     },
     tableFib: {
@@ -988,7 +1173,10 @@ export const EXTRA_PASSAGES_4: Passage[] = [
         'Banning all respiratory consultations',
         'Charging patients per prescription issued',
       ],
-      correct: ['Posted commitments to avoid unnecessary use', 'Delayed prescriptions collected only if needed'],
+      correct: [
+        'Posted commitments to avoid unnecessary use',
+        'Delayed prescriptions collected only if needed',
+      ],
     },
     asq: [
       {

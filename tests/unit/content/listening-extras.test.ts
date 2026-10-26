@@ -21,9 +21,16 @@ type SplitFn = (this: string, separator: string | RegExp, limit?: number) => str
  * Rebuilds a content module with one named transcript split into one word
  * fewer, which turns a two-word substitution into an insertion.
  */
-async function rebuildWithShortenedTranscript(modulePath: string, transcript: string): Promise<unknown> {
+async function rebuildWithShortenedTranscript(
+  modulePath: string,
+  transcript: string,
+): Promise<unknown> {
   const original = String.prototype.split as unknown as SplitFn
-  String.prototype.split = function (this: string, separator: string | RegExp, limit?: number): string[] {
+  String.prototype.split = function (
+    this: string,
+    separator: string | RegExp,
+    limit?: number,
+  ): string[] {
     const words = original.call(this, separator, limit)
     if (this === transcript) return words.slice(0, -1)
     return words

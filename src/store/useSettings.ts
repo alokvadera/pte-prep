@@ -97,7 +97,6 @@ interface SettingsStore {
   hydrate: () => void
 }
 
-
 const safeJsonStorage = () => createJSONStorage(() => safeStateStorage())
 
 export const useSettings = create<SettingsStore>()(
@@ -124,7 +123,8 @@ export const useSettings = create<SettingsStore>()(
                 completionTokens: prev.completionTokens + (metrics.completionTokens ?? 0),
                 totalTokens: prev.totalTokens + (metrics.totalTokens ?? 0),
                 whisperRequests: prev.whisperRequests + (isWhisper ? 1 : 0),
-                whisperSeconds: Math.round((prev.whisperSeconds + (metrics.whisperSeconds ?? 0)) * 10) / 10,
+                whisperSeconds:
+                  Math.round((prev.whisperSeconds + (metrics.whisperSeconds ?? 0)) * 10) / 10,
                 lastUsedAt: new Date().toISOString(),
                 todayDate: today,
                 requestsToday,

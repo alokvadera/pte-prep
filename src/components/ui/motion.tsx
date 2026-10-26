@@ -42,7 +42,8 @@ const HIDDEN_CLASS: Record<RevealVariant, string> = {
   right: 'data-[armed=true]:data-[shown=false]:-translate-x-4',
   scale: 'data-[armed=true]:data-[shown=false]:scale-95',
   fade: '',
-  'blur-up': 'data-[armed=true]:data-[shown=false]:translate-y-5 data-[armed=true]:data-[shown=false]:blur-[5px]',
+  'blur-up':
+    'data-[armed=true]:data-[shown=false]:translate-y-5 data-[armed=true]:data-[shown=false]:blur-[5px]',
 }
 
 /**
@@ -265,7 +266,8 @@ export function Tilt({
     /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+      return
 
     let raf = 0
     const onMove = (event: PointerEvent) => {
@@ -372,7 +374,8 @@ export function PointerField({
     /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+      return
 
     let raf = 0
     let queued: { x: number; y: number } | null = null
@@ -498,7 +501,8 @@ export function Magnetic({
     /* v8 ignore next -- the ref is attached before any effect runs */
     if (!el) return
     if (prefersReducedMotion()) return
-    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches) return
+    if (typeof window.matchMedia === 'function' && window.matchMedia('(pointer: coarse)').matches)
+      return
 
     let raf = 0
     let queued: { x: number; y: number } | null = null

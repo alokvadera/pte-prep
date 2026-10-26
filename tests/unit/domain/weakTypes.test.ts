@@ -53,7 +53,12 @@ function attempt(finishedAt: string, breakdown: Record<string, TypeStat>): Attem
 }
 
 /** An attempt on one date, one type, one score. */
-function scored(finishedAt: string, type: QuestionType, earned: number, max: number): AttemptRecord {
+function scored(
+  finishedAt: string,
+  type: QuestionType,
+  earned: number,
+  max: number,
+): AttemptRecord {
   return attempt(finishedAt, { [type]: stat(type, earned, max) })
 }
 
@@ -63,7 +68,10 @@ describe('no evidence', () => {
   })
 
   it('reports every type as untested when the attempt has no breakdown', () => {
-    const blank = attempt('2026-01-01T10:00:00.000Z', undefined as unknown as Record<string, TypeStat>)
+    const blank = attempt(
+      '2026-01-01T10:00:00.000Z',
+      undefined as unknown as Record<string, TypeStat>,
+    )
     const rows = weakestTypes([blank], 22)
     expect(rows).toHaveLength(ALL_QUESTION_TYPES.length)
     expect(rows.every((row) => row.untested && row.priority === null)).toBe(true)
@@ -115,7 +123,10 @@ describe('ranking the measured types', () => {
   })
 
   it('reports a type with no points available as untested', () => {
-    const rows = weakestTypes([attempt('2026-01-01T10:00:00.000Z', { 'read-aloud': stat('read-aloud', 0, 0) })], 22)
+    const rows = weakestTypes(
+      [attempt('2026-01-01T10:00:00.000Z', { 'read-aloud': stat('read-aloud', 0, 0) })],
+      22,
+    )
     const row = rows.find((entry) => entry.type === 'read-aloud')
     expect(row?.untested).toBe(true)
     expect(row?.priority).toBeNull()
@@ -214,7 +225,11 @@ describe('what the dashboard asks for', () => {
   })
 
   it('keeps a measured type in the restricted list even when it has no points', () => {
-    const rows = weakestTypes([attempt('2026-01-01T10:00:00.000Z', { 'read-aloud': stat('read-aloud', 0, 0) })], 22, true)
+    const rows = weakestTypes(
+      [attempt('2026-01-01T10:00:00.000Z', { 'read-aloud': stat('read-aloud', 0, 0) })],
+      22,
+      true,
+    )
     expect(rows.map((row) => row.type)).toEqual(['read-aloud'])
   })
 })

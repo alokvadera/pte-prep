@@ -198,7 +198,17 @@ describe('Practice', () => {
 
   it('does not start an empty drill', async () => {
     stubs.buildDrillMock.mockImplementation(() =>
-      makeMockTest({ sections: [{ id: 'speaking-writing', title: 'Speaking & Writing', seconds: 300, groups: [], itemIds: [] }] }),
+      makeMockTest({
+        sections: [
+          {
+            id: 'speaking-writing',
+            title: 'Speaking & Writing',
+            seconds: 300,
+            groups: [],
+            itemIds: [],
+          },
+        ],
+      }),
     )
     const { container } = renderPractice()
 

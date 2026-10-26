@@ -28,12 +28,9 @@ const variantClasses: Record<NonNullable<IconTileProps['variant']>, string> = {
     'border border-ink-900/10 bg-transparent text-ink-900 dark:border-white/10 dark:text-ink-on-dark',
   elevated:
     'border border-ink-900/5 bg-ink-900/5 text-ink-900 shadow-xs dark:border-white/10 dark:bg-white/5 dark:text-ink-on-dark',
-  soft:
-    'bg-brand-500/10 text-brand-600 dark:bg-brand-400/15 dark:text-brand-300',
-  solid:
-    'bg-brand-600 text-white shadow-xs dark:bg-brand-500',
-  frame:
-    'p-1 border border-ink-900/10 bg-ink-900/5 dark:border-white/10 dark:bg-white/5',
+  soft: 'bg-brand-500/10 text-brand-600 dark:bg-brand-400/15 dark:text-brand-300',
+  solid: 'bg-brand-600 text-white shadow-xs dark:bg-brand-500',
+  frame: 'p-1 border border-ink-900/10 bg-ink-900/5 dark:border-white/10 dark:bg-white/5',
 }
 
 export function IconTile({
@@ -51,7 +48,7 @@ export function IconTile({
         radius === 'full' ? 'rounded-full' : 'rounded-lg',
         sizeClasses[size],
         variantClasses[variant],
-        className
+        className,
       )}
       {...props}
     >

@@ -36,7 +36,9 @@ if (!binary) {
   console.log('  Set CHROME_PATH to run them.\n')
   const allowSkip = process.argv.includes('--allow-skip') || process.env.ALLOW_SKIP_BROWSER === '1'
   if ((process.env.CI || process.argv.includes('--strict')) && !allowSkip) {
-    console.error('  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.\n')
+    console.error(
+      '  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.\n',
+    )
     process.exit(1)
   }
   process.exit(0)
@@ -48,8 +50,20 @@ const QUESTION_TYPE_SLUGS = execSync('npx tsx scripts/print-type-slugs.ts', { en
   .filter(Boolean)
 
 const ALL_ROUTES = [
-  '/', '/mock', '/practice', '/format', '/scoring', '/guide', '/about', '/dashboard', '/not-a-page',
-  '/question-types/', '/privacy/', '/login/', '/register/', '/ui-elements/',
+  '/',
+  '/mock',
+  '/practice',
+  '/format',
+  '/scoring',
+  '/guide',
+  '/about',
+  '/dashboard',
+  '/not-a-page',
+  '/question-types/',
+  '/privacy/',
+  '/login/',
+  '/register/',
+  '/ui-elements/',
   ...QUESTION_TYPE_SLUGS.map((s) => `/question-types/${s}/`),
 ]
 // `PTE_ROUTES=/,/mock` narrows the run to a subset, for a quick look at one
@@ -58,26 +72,24 @@ const ROUTE_FILTER = (process.env.PTE_ROUTES ?? '')
   .split(',')
   .map((r) => r.trim())
   .filter(Boolean)
-const ROUTES = ROUTE_FILTER.length > 0 ? ALL_ROUTES.filter((r) => ROUTE_FILTER.includes(r)) : ALL_ROUTES
+const ROUTES =
+  ROUTE_FILTER.length > 0 ? ALL_ROUTES.filter((r) => ROUTE_FILTER.includes(r)) : ALL_ROUTES
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-chrome-'))
 const PORT = 9333
 
-const chrome = spawnChrome(
-  binary,
-  [
-    '--headless=new',
-    `--remote-debugging-port=${PORT}`,
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    '--no-default-browser-check',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    '--window-size=1280,900',
-    '--blink-settings=primaryPointerType=4,primaryHoverType=2,availablePointerTypes=4,availableHoverTypes=2',
-    'about:blank',
-  ],
-)
+const chrome = spawnChrome(binary, [
+  '--headless=new',
+  `--remote-debugging-port=${PORT}`,
+  `--user-data-dir=${profile}`,
+  '--no-first-run',
+  '--no-default-browser-check',
+  '--disable-gpu',
+  '--hide-scrollbars',
+  '--window-size=1280,900',
+  '--blink-settings=primaryPointerType=4,primaryHoverType=2,availablePointerTypes=4,availableHoverTypes=2',
+  'about:blank',
+])
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms))
@@ -217,7 +229,11 @@ for (const route of ROUTES) {
       consoleErrors.push(msg.params.args.map((a) => a.value ?? a.description ?? '').join(' '))
     }
     if (msg.method === 'Runtime.exceptionThrown') {
-      pageErrors.push(msg.params.exceptionDetails?.exception?.description ?? msg.params.exceptionDetails?.text ?? 'unknown')
+      pageErrors.push(
+        msg.params.exceptionDetails?.exception?.description ??
+          msg.params.exceptionDetails?.text ??
+          'unknown',
+      )
     }
     if (msg.method === 'Log.entryAdded' && msg.params.entry.level === 'error') {
       consoleErrors.push(msg.params.entry.text)
@@ -334,7 +350,9 @@ for (const route of ROUTES) {
 
   const data = JSON.parse(result.result.value)
 
-  const hydrationWarning = consoleErrors.find((e) => /hydrat|did not match|Text content does not match/i.test(e))
+  const hydrationWarning = consoleErrors.find((e) =>
+    /hydrat|did not match|Text content does not match/i.test(e),
+  )
   const realErrors = consoleErrors.filter(
     (e) =>
       !/favicon|Download the React DevTools/i.test(e) &&
@@ -343,36 +361,86 @@ for (const route of ROUTES) {
   )
   const label = route === '/' ? '/' : route
 
-  report(data.nodes > 40, `${label.padEnd(14)} rendered (${data.nodes} nodes, ${data.interactive} interactive)`)
+  report(
+    data.nodes > 40,
+    `${label.padEnd(14)} rendered (${data.nodes} nodes, ${data.interactive} interactive)`,
+  )
   report(data.h1.length > 0, `${label.padEnd(14)} has an h1`, data.h1 || 'none')
   report(data.title.length > 10, `${label.padEnd(14)} has a title`, data.title)
   report(data.description.length > 40, `${label.padEnd(14)} has a meta description`)
   report(data.canonical.length > 0, `${label.padEnd(14)} has a canonical`, data.canonical)
-  const expectedNav = route.startsWith('/question-types/') ? 'Test format'
-    : ({ '/mock': 'Mock test', '/practice': 'Practice', '/format': 'Test format', '/dashboard': 'Progress' })[route]
+  const expectedNav = route.startsWith('/question-types/')
+    ? 'Test format'
+    : {
+        '/mock': 'Mock test',
+        '/practice': 'Practice',
+        '/format': 'Test format',
+        '/dashboard': 'Progress',
+      }[route]
   if (expectedNav) {
-    report(data.currentNav.some((n) => n.label === expectedNav), `${label.padEnd(14)} marks its current nav section`, JSON.stringify(data.currentNav))
+    report(
+      data.currentNav.some((n) => n.label === expectedNav),
+      `${label.padEnd(14)} marks its current nav section`,
+      JSON.stringify(data.currentNav),
+    )
   }
-  report(data.overflowX <= 1, `${label.padEnd(14)} does not scroll sideways`, `overflows by ${data.overflowX}px`)
+  report(
+    data.overflowX <= 1,
+    `${label.padEnd(14)} does not scroll sideways`,
+    `overflows by ${data.overflowX}px`,
+  )
   report(!data.bandOvershoot, `${label.padEnd(14)} bands span the shell without overshooting`)
   report(data.bandGroundOk, `${label.padEnd(14)} band grounds resolve`)
-  report(data.callouts <= 3, `${label.padEnd(14)} uses at most three tinted callouts`, `${data.callouts}`)
-  report(data.headingSkips.length === 0, `${label.padEnd(14)} skips no heading level`, data.headingSkips.join(' '))
-  report(data.danglingLabels.length === 0, `${label.padEnd(14)} aria-labelledby all resolve`, data.danglingLabels.join(' '))
-  report(data.danglingAnchors.length === 0, `${label.padEnd(14)} in-page links resolve`, data.danglingAnchors.join(' '))
-report(
-  data.routeEnter === null || (data.routeEnter.name === 'route-enter' && data.routeEnter.ms >= 200 && data.routeEnter.ms <= 400),
-  `${label.padEnd(14)} route transition is the shared one, weighted right`,
-  data.routeEnter ? `${data.routeEnter.name} ${data.routeEnter.ms}ms` : 'no route-enter element',
-)
+  report(
+    data.callouts <= 3,
+    `${label.padEnd(14)} uses at most three tinted callouts`,
+    `${data.callouts}`,
+  )
+  report(
+    data.headingSkips.length === 0,
+    `${label.padEnd(14)} skips no heading level`,
+    data.headingSkips.join(' '),
+  )
+  report(
+    data.danglingLabels.length === 0,
+    `${label.padEnd(14)} aria-labelledby all resolve`,
+    data.danglingLabels.join(' '),
+  )
+  report(
+    data.danglingAnchors.length === 0,
+    `${label.padEnd(14)} in-page links resolve`,
+    data.danglingAnchors.join(' '),
+  )
+  report(
+    data.routeEnter === null ||
+      (data.routeEnter.name === 'route-enter' &&
+        data.routeEnter.ms >= 200 &&
+        data.routeEnter.ms <= 400),
+    `${label.padEnd(14)} route transition is the shared one, weighted right`,
+    data.routeEnter ? `${data.routeEnter.name} ${data.routeEnter.ms}ms` : 'no route-enter element',
+  )
   report(!hydrationWarning, `${label.padEnd(14)} hydrates without mismatch`, hydrationWarning ?? '')
-  report(pageErrors.length === 0, `${label.padEnd(14)} has no uncaught exceptions`, pageErrors.join(' | '))
+  report(
+    pageErrors.length === 0,
+    `${label.padEnd(14)} has no uncaught exceptions`,
+    pageErrors.join(' | '),
+  )
   const cspViolations = consoleErrors.filter((e) => /CSP violation/i.test(e))
-  report(cspViolations.length === 0, `${label.padEnd(14)} has no CSP violations`, cspViolations.join(' | '))
-  report(realErrors.length === 0, `${label.padEnd(14)} has no console errors`, realErrors.join(' | ').slice(0, 160))
+  report(
+    cspViolations.length === 0,
+    `${label.padEnd(14)} has no CSP violations`,
+    cspViolations.join(' | '),
+  )
+  report(
+    realErrors.length === 0,
+    `${label.padEnd(14)} has no console errors`,
+    realErrors.join(' | ').slice(0, 160),
+  )
   const expectedStatus = route.startsWith('/not-') ? 404 : 200
   report(
-    failedRequests.filter((e) => !/ERR_ABORTED|favicon/.test(e) && !(expectedStatus === 404 && /404/.test(e))).length === 0,
+    failedRequests.filter(
+      (e) => !/ERR_ABORTED|favicon/.test(e) && !(expectedStatus === 404 && /404/.test(e)),
+    ).length === 0,
     `${label.padEnd(14)} loads all assets`,
     failedRequests.join(' | ').slice(0, 160),
   )
@@ -429,7 +497,11 @@ report(
     /hydrat|did not match|Text content does not match|React error #418/i.test(e),
   )
   report(!reducedHydration, 'reduced motion hydrates without mismatch', reducedHydration ?? '')
-  report(reducedErrors.length === 0, 'reduced motion throws nothing', reducedErrors.join(' | ').slice(0, 200))
+  report(
+    reducedErrors.length === 0,
+    'reduced motion throws nothing',
+    reducedErrors.join(' | ').slice(0, 200),
+  )
 
   collectors.delete(collectReduced)
   await send('Target.closeTarget', { targetId })
@@ -493,7 +565,11 @@ report(
   const navDeadline2 = Date.now() + 6000
   let navigated = false
   while (Date.now() < navDeadline2) {
-    const probe = await send('Runtime.evaluate', { expression: `location.pathname`, returnByValue: true }, sessionId)
+    const probe = await send(
+      'Runtime.evaluate',
+      { expression: `location.pathname`, returnByValue: true },
+      sessionId,
+    )
     if (probe.result.value === '/format') {
       navigated = true
       break
@@ -515,14 +591,22 @@ report(
   report(navigated, 'client-side routing navigates to /format', data.url)
   report(data.h1.length > 0, 'routed page has an h1', data.h1)
   report(/test format/i.test(data.title), 'routed page title is updated', data.title)
-  const accountReturn = await send('Runtime.evaluate', {
-    expression: `(() => {
+  const accountReturn = await send(
+    'Runtime.evaluate',
+    {
+      expression: `(() => {
       const link = document.querySelector('header.site-header a[aria-label="Create account"], header.site-header a[aria-label="Sign in"]')
       return link ? new URL(link.href).searchParams.get('from') : ''
     })()`,
-    returnByValue: true,
-  }, sessionId)
-  report(accountReturn.result.value === '/format', 'sign in returns to the page you came from', accountReturn.result.value)
+      returnByValue: true,
+    },
+    sessionId,
+  )
+  report(
+    accountReturn.result.value === '/format',
+    'sign in returns to the page you came from',
+    accountReturn.result.value,
+  )
   report(errors.length === 0, 'client-side navigation throws nothing', errors.join(' | '))
 
   collectors.delete(navCollect)
@@ -618,22 +702,40 @@ report(
       head: document.body.textContent?.replace(/\\s+/g, ' ').slice(0, 160),
     })`),
   )
-  report(stillAlive.question !== '', 'the runner is still on a question after navigating', stillAlive.question || stillAlive.head)
+  report(
+    stillAlive.question !== '',
+    'the runner is still on a question after navigating',
+    stillAlive.question || stillAlive.head,
+  )
   report(stillAlive.timer !== '', 'the timer survives navigation', stillAlive.timer)
 
   // Leaving a running session must offer a clear route back without silently
   // discarding it. A full navigation also exercises persisted store hydration.
   await send('Page.navigate', { url: `${BASE}/mock` }, sessionId)
-  const canResume = await waitUntil(sessionId, `!!document.querySelector('aside[aria-label="Active session"] a[href="/test"]')`)
+  const canResume = await waitUntil(
+    sessionId,
+    `!!document.querySelector('aside[aria-label="Active session"] a[href="/test"]')`,
+  )
   report(canResume, 'mock setup offers to resume a running session')
-  const headerResume = await evaluate(`!!document.querySelector('header.site-header a[href="/test"]')`)
+  const headerResume = await evaluate(
+    `!!document.querySelector('header.site-header a[href="/test"]')`,
+  )
   report(headerResume, 'the site header keeps the resume path visible')
   if (canResume) {
-    await evaluate(`document.querySelector('aside[aria-label="Active session"] a[href="/test"]').click()`)
-    const resumed = await waitUntil(sessionId, `location.pathname === '/test' && !!document.querySelector('[role="timer"]')`)
+    await evaluate(
+      `document.querySelector('aside[aria-label="Active session"] a[href="/test"]').click()`,
+    )
+    const resumed = await waitUntil(
+      sessionId,
+      `location.pathname === '/test' && !!document.querySelector('[role="timer"]')`,
+    )
     report(resumed, 'resume returns to the running question and timer')
   }
-  report(flowErrors.length === 0, 'sitting the test throws nothing', flowErrors.join(' | ').slice(0, 200))
+  report(
+    flowErrors.length === 0,
+    'sitting the test throws nothing',
+    flowErrors.join(' | ').slice(0, 200),
+  )
 
   collectors.delete(collectFlow)
   await send('Target.closeTarget', { targetId })
@@ -663,23 +765,35 @@ report(
   await send('Page.navigate', { url: `${BASE}/mock` }, sessionId)
   await waitUntil(sessionId, `document.documentElement.dataset.appReady === 'true'`)
 
-  const options = JSON.parse(await evaluate(`(() => {
+  const options = JSON.parse(
+    await evaluate(`(() => {
     const group = document.querySelector('[role="group"][aria-label="Timing"]')
     if (!group) return JSON.stringify({ found: false, count: 0 })
     const buttons = [...group.querySelectorAll('button')]
     buttons.find((b) => /untimed/i.test(b.textContent))?.click()
     return JSON.stringify({ found: true, count: buttons.length })
-  })()`))
-  report(options.found && options.count === 4, 'the setup screen offers every timing option', JSON.stringify(options))
+  })()`),
+  )
+  report(
+    options.found && options.count === 4,
+    'the setup screen offers every timing option',
+    JSON.stringify(options),
+  )
 
   await sleep(400)
-  const applied = JSON.parse(await evaluate(`JSON.stringify({
+  const applied = JSON.parse(
+    await evaluate(`JSON.stringify({
     summary: document.querySelector('dl')?.textContent ?? '',
     body: document.body.textContent ?? '',
     pressed: document.querySelector('[role="group"][aria-label="Timing"] button[aria-pressed="true"]')?.textContent?.trim() ?? '',
-  })`))
+  })`),
+  )
   report(applied.pressed === 'Untimed', 'the chosen timing is marked as selected', applied.pressed)
-  report(/Untimed/.test(applied.summary), 'choosing a timing updates the session summary', applied.summary.replace(/\\s+/g, ' ').slice(0, 80))
+  report(
+    /Untimed/.test(applied.summary),
+    'choosing a timing updates the session summary',
+    applied.summary.replace(/\\s+/g, ' ').slice(0, 80),
+  )
   report(/No clock/.test(applied.body), 'the chosen timing explains what changes', 'No clock')
 
   await send('Target.closeTarget', { targetId })
@@ -779,11 +893,16 @@ report(
   report(summary.hasTabs, 'the results page offers its breakdown tabs')
   report(summary.hasEstimateNote, 'the results page labels estimates')
   report(!summary.noAttemptsText, 'the report is not an empty state', 'rendered the empty state')
-  const nextStep = JSON.parse(await evaluate(`JSON.stringify({
+  const nextStep = JSON.parse(
+    await evaluate(`JSON.stringify({
     practice: !!document.querySelector('#main-content header a[href^="/practice"]'),
     progress: !!document.querySelector('#main-content header a[href="/dashboard"]'),
-  })`))
-  report(nextStep.practice && nextStep.progress, 'the report offers practice and progress without scrolling')
+  })`),
+  )
+  report(
+    nextStep.practice && nextStep.progress,
+    'the report offers practice and progress without scrolling',
+  )
 
   // Opening the answer review must list every attempted item.
   await evaluate(`(() => {
@@ -801,7 +920,11 @@ report(
   )
   report(review.hasTypes, 'the answer review lists question types', review.text)
 
-  report(resultErrors.length === 0, 'completing a test throws nothing', resultErrors.join(' | ').slice(0, 200))
+  report(
+    resultErrors.length === 0,
+    'completing a test throws nothing',
+    resultErrors.join(' | ').slice(0, 200),
+  )
 
   collectors.delete(collectResult)
   await send('Target.closeTarget', { targetId })
@@ -874,7 +997,11 @@ report(
     'a stored "system" theme is migrated away',
     `theme=${JSON.stringify(migrated?.state?.settings?.theme)} version=${JSON.stringify(migrated?.version)}`,
   )
-  report(migrated?.version === 2, 'the settings store is on version 2', `version=${migrated?.version}`)
+  report(
+    migrated?.version === 2,
+    'the settings store is on version 2',
+    `version=${migrated?.version}`,
+  )
   report(
     migrated?.state?.settings?.reducedMotion === true,
     'migration preserves unrelated settings',
@@ -886,7 +1013,8 @@ report(
     await evaluate('getComputedStyle(document.body).backgroundColor'),
   )
 
-  const toggleLabel = () => evaluate("document.querySelector('button[aria-label*=Theme]').getAttribute('aria-label')")
+  const toggleLabel = () =>
+    evaluate("document.querySelector('button[aria-label*=Theme]').getAttribute('aria-label')")
   report(
     /^Theme: (light|dark)\./.test((await toggleLabel()) ?? ''),
     'the toggle reports a real theme',
@@ -918,7 +1046,8 @@ report(
     return `rgb(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255})`
   }
   report(
-    hexToRgbStr(await evaluate("document.querySelector('meta[name=theme-color]').content")) === DARK_BG,
+    hexToRgbStr(await evaluate("document.querySelector('meta[name=theme-color]').content")) ===
+      DARK_BG,
     'the browser chrome follows the dark theme',
     await evaluate("document.querySelector('meta[name=theme-color]').content"),
   )
@@ -939,7 +1068,8 @@ report(
     await evaluate('getComputedStyle(document.body).backgroundColor'),
   )
   report(
-    hexToRgbStr(await evaluate("document.querySelector('meta[name=theme-color]').content")) === LIGHT_BG,
+    hexToRgbStr(await evaluate("document.querySelector('meta[name=theme-color]').content")) ===
+      LIGHT_BG,
     'the browser chrome follows the light theme',
     await evaluate("document.querySelector('meta[name=theme-color]').content"),
   )
@@ -993,41 +1123,73 @@ report(
     // 1100ms, which produced confident failures about missing canonicals,
     // breadcrumbs and headings on a page that was simply not there yet.
     for (let i = 0; i < 40; i++) {
-      const ready = await evaluate("document.readyState === 'complete' && !!document.querySelector('main h1') && !!document.querySelector('link[rel=canonical]')")
+      const ready = await evaluate(
+        "document.readyState === 'complete' && !!document.querySelector('main h1') && !!document.querySelector('link[rel=canonical]')",
+      )
       if (ready === true) break
       await sleep(150)
     }
     titles.add((await evaluate('document.title')) ?? '')
-    descriptions.add((await evaluate("document.querySelector('meta[name=description]')?.content ?? ''")) ?? '')
-    canonicals.add((await evaluate("document.querySelector('link[rel=canonical]')?.href ?? ''")) ?? '')
+    descriptions.add(
+      (await evaluate("document.querySelector('meta[name=description]')?.content ?? ''")) ?? '',
+    )
+    canonicals.add(
+      (await evaluate("document.querySelector('link[rel=canonical]')?.href ?? ''")) ?? '',
+    )
     if ((await evaluate("document.querySelectorAll('h1').length")) !== 1) noH1++
     if (!(await evaluate("!!document.querySelector('link[rel=canonical]')"))) noCanonical++
     if (!(await evaluate("!!document.querySelector('nav[aria-label=Breadcrumb] ol')"))) noCrumb++
     // Must return a primitive: handing back a DOM node trips CDP's
     // "object reference chain is too long" limit.
-    if (!(await evaluate("!!Array.from(document.querySelectorAll('main h2')).find(h => /questions, answered/i.test(h.textContent))"))) {
+    if (
+      !(await evaluate(
+        "!!Array.from(document.querySelectorAll('main h2')).find(h => /questions, answered/i.test(h.textContent))",
+      ))
+    ) {
       noVisibleFaq++
     }
     const words = Number(
-      (await evaluate("(document.querySelector('main')?.innerText ?? '').trim().split(/\\s+/).length")) ?? 0,
+      (await evaluate(
+        "(document.querySelector('main')?.innerText ?? '').trim().split(/\\s+/).length",
+      )) ?? 0,
     )
     if (words > 0 && words < thinnest) thinnest = words
   }
 
-  report(titles.size === QUESTION_TYPE_SLUGS.length, `all ${QUESTION_TYPE_SLUGS.length} question-type titles are unique`, `${titles.size} unique`)
-  report(descriptions.size === QUESTION_TYPE_SLUGS.length, `all ${QUESTION_TYPE_SLUGS.length} question-type descriptions are unique`, `${descriptions.size} unique`)
-  report(canonicals.size === QUESTION_TYPE_SLUGS.length, `all ${QUESTION_TYPE_SLUGS.length} question-type canonicals are unique`, `${canonicals.size} unique`)
+  report(
+    titles.size === QUESTION_TYPE_SLUGS.length,
+    `all ${QUESTION_TYPE_SLUGS.length} question-type titles are unique`,
+    `${titles.size} unique`,
+  )
+  report(
+    descriptions.size === QUESTION_TYPE_SLUGS.length,
+    `all ${QUESTION_TYPE_SLUGS.length} question-type descriptions are unique`,
+    `${descriptions.size} unique`,
+  )
+  report(
+    canonicals.size === QUESTION_TYPE_SLUGS.length,
+    `all ${QUESTION_TYPE_SLUGS.length} question-type canonicals are unique`,
+    `${canonicals.size} unique`,
+  )
   report(noH1 === 0, 'every question-type page has exactly one h1', `${noH1} bad`)
   report(noCanonical === 0, 'every question-type page has a canonical', `${noCanonical} missing`)
   report(noCrumb === 0, 'every question-type page shows breadcrumbs', `${noCrumb} missing`)
-  report(noVisibleFaq === 0, 'every FAQPage block is also visible on its page', `${noVisibleFaq} hidden`)
+  report(
+    noVisibleFaq === 0,
+    'every FAQPage block is also visible on its page',
+    `${noVisibleFaq} hidden`,
+  )
   report(thinnest >= 250, 'no question-type page is thin', `thinnest=${thinnest} words`)
 
   // The shared labels must not collide once rendered.
   await send('Page.navigate', { url: `${BASE}/question-types/multiple-choice-single/` }, sessionId)
   await sleep(1100)
   const readingTitle = await evaluate('document.title')
-  await send('Page.navigate', { url: `${BASE}/question-types/listening-multiple-choice-single/` }, sessionId)
+  await send(
+    'Page.navigate',
+    { url: `${BASE}/question-types/listening-multiple-choice-single/` },
+    sessionId,
+  )
   await sleep(1100)
   const listeningTitle = await evaluate('document.title')
   report(
@@ -1039,11 +1201,15 @@ report(
   await send('Page.navigate', { url: `${BASE}/question-types/no-such-type/` }, sessionId)
   await sleep(1200)
   report(
-    await evaluate("/not found|no such page|404/i.test(document.querySelector('main')?.innerText ?? '')"),
+    await evaluate(
+      "/not found|no such page|404/i.test(document.querySelector('main')?.innerText ?? '')",
+    ),
     'an unknown question-type slug renders the 404 page',
   )
   report(
-    await evaluate("document.querySelector('meta[name=robots]')?.content?.includes('noindex') ?? false"),
+    await evaluate(
+      "document.querySelector('meta[name=robots]')?.content?.includes('noindex') ?? false",
+    ),
     'an unknown question-type slug is noindex',
   )
 
@@ -1075,13 +1241,25 @@ report(
   await sleep(2500)
 
   const text = await evaluate("document.querySelector('.tagline-text')?.textContent?.trim() ?? ''")
-  report(text.startsWith('Find the'), 'the tagline renders its sentence', `text="${text.slice(0, 30)}"`)
+  report(
+    text.startsWith('Find the'),
+    'the tagline renders its sentence',
+    `text="${text.slice(0, 30)}"`,
+  )
 
-  const highlight = await evaluate("document.querySelector('.tagline-text .hl')?.textContent?.trim() ?? ''")
+  const highlight = await evaluate(
+    "document.querySelector('.tagline-text .hl')?.textContent?.trim() ?? ''",
+  )
   report(highlight === 'one type', 'the tagline highlight wraps "one type"', `hl="${highlight}"`)
 
-  const opacity = await evaluate("getComputedStyle(document.querySelector('.tagline-text .hl')).opacity")
-  report(opacity === '1', 'the tagline ships fully resolved, with no muted words', `opacity=${opacity}`)
+  const opacity = await evaluate(
+    "getComputedStyle(document.querySelector('.tagline-text .hl')).opacity",
+  )
+  report(
+    opacity === '1',
+    'the tagline ships fully resolved, with no muted words',
+    `opacity=${opacity}`,
+  )
 
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })
@@ -1103,7 +1281,11 @@ report(
   await send('Page.enable', {}, sessionId)
 
   const evaluate = async (expression) => {
-    const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+    const r = await send(
+      'Runtime.evaluate',
+      { expression, returnByValue: true, awaitPromise: true },
+      sessionId,
+    )
     return r.exceptionDetails ? '' : r.result.value
   }
   const click = async (re) =>
@@ -1132,7 +1314,9 @@ report(
   report(onResult, 'a timed drill reaches the report', await evaluate('location.pathname'))
 
   if (onResult) {
-    const hasTab = await evaluate("[...document.querySelectorAll('[role=tab]')].some((t) => t.textContent.trim() === 'Pace')")
+    const hasTab = await evaluate(
+      "[...document.querySelectorAll('[role=tab]')].some((t) => t.textContent.trim() === 'Pace')",
+    )
     report(hasTab === true, 'the report offers a Pace tab once time has been recorded')
     if (hasTab) {
       await click('^Pace$')
@@ -1148,7 +1332,7 @@ report(
         'the Pace tab lists a measured row with spent and allowed time',
       )
       report(
-        await evaluate("/Under budget is not automatically good/.test(document.body.innerText)"),
+        await evaluate('/Under budget is not automatically good/.test(document.body.innerText)'),
         'the Pace tab warns that being under budget is not automatically good',
       )
     }
@@ -1174,7 +1358,11 @@ report(
   await send('Page.enable', {}, sessionId)
 
   const evaluate = async (expression) => {
-    const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+    const r = await send(
+      'Runtime.evaluate',
+      { expression, returnByValue: true, awaitPromise: true },
+      sessionId,
+    )
     return r.exceptionDetails ? '' : r.result.value
   }
   const click = async (re) =>
@@ -1200,10 +1388,18 @@ report(
     const path = await evaluate('location.pathname')
     if (path === '/result' || path === '/dashboard') break
   }
-  const scored = await waitUntil(sessionId, `location.pathname === '/result' && !!document.querySelector('#main-content header')`)
+  const scored = await waitUntil(
+    sessionId,
+    `location.pathname === '/result' && !!document.querySelector('#main-content header')`,
+  )
   report(scored, 'the recommended drill produces a result')
   if (scored) await click('View progress|Dashboard|Progress')
-  const onDashboard = scored && await waitUntil(sessionId, `location.pathname === '/dashboard' && !!document.querySelector('#focus-heading')`)
+  const onDashboard =
+    scored &&
+    (await waitUntil(
+      sessionId,
+      `location.pathname === '/dashboard' && !!document.querySelector('#focus-heading')`,
+    ))
   report(onDashboard, 'the result leads into progress')
 
   const card = await evaluate(
@@ -1213,28 +1409,45 @@ report(
     "(() => { const b = [...document.querySelectorAll('a')].find((x) => /Drill weakest type/i.test(x.textContent)); return b ? b.getAttribute('href') : '' })()",
   )
   report(Boolean(card), 'the dashboard recommends a next drill from real attempt history', card)
-  report(card === link, 'the recommendation panel and the weakest-type link agree', `${card} vs ${link}`)
+  report(
+    card === link,
+    'the recommendation panel and the weakest-type link agree',
+    `${card} vs ${link}`,
+  )
   // A fresh profile is needed for the zero state: by now the drill above has
   // written an attempt, which is the whole point of the panel.
   await send('Target.closeTarget', { targetId })
   await send('Target.disposeBrowserContext', { browserContextId })
 
   const { browserContextId: freshId } = await send('Target.createBrowserContext', {})
-  const { targetId: freshTarget } = await send('Target.createTarget', { url: 'about:blank', browserContextId: freshId })
-  const { sessionId: freshSession } = await send('Target.attachToTarget', { targetId: freshTarget, flatten: true })
+  const { targetId: freshTarget } = await send('Target.createTarget', {
+    url: 'about:blank',
+    browserContextId: freshId,
+  })
+  const { sessionId: freshSession } = await send('Target.attachToTarget', {
+    targetId: freshTarget,
+    flatten: true,
+  })
   await send('Runtime.enable', {}, freshSession)
   await send('Page.enable', {}, freshSession)
   await send('Page.navigate', { url: `${BASE}/dashboard` }, freshSession)
   await sleep(2200)
   const zeroState = await send(
     'Runtime.evaluate',
-    { expression: '!/Practise these next/.test(document.body.innerText) && /No attempts yet/.test(document.body.innerText)', returnByValue: true },
+    {
+      expression:
+        '!/Practise these next/.test(document.body.innerText) && /No attempts yet/.test(document.body.innerText)',
+      returnByValue: true,
+    },
     freshSession,
   )
-  report(zeroState.result.value === true, 'the recommendation panel is hidden with no attempts', String(zeroState.result.value))
+  report(
+    zeroState.result.value === true,
+    'the recommendation panel is hidden with no attempts',
+    String(zeroState.result.value),
+  )
   await send('Target.closeTarget', { targetId: freshTarget })
   await send('Target.disposeBrowserContext', { browserContextId: freshId })
-
 }
 
 // ---------------------------------------------------------------------------
@@ -1275,7 +1488,12 @@ report(
     `)
 
     const { total, unbalanced, stray } = JSON.parse(result ?? '{}')
-    report(unbalanced.length === 0, `${route} headings use text-wrap: balance`, `${total - unbalanced.length}/${total}` + (unbalanced.length ? ` — ${unbalanced.join(', ')}` : ''))
+    report(
+      unbalanced.length === 0,
+      `${route} headings use text-wrap: balance`,
+      `${total - unbalanced.length}/${total}` +
+        (unbalanced.length ? ` — ${unbalanced.join(', ')}` : ''),
+    )
     report(stray === 0, `${route} has no stray text-balance attribute`, `${stray} found`)
   }
 
@@ -1310,7 +1528,11 @@ report(
   const steps = await evaluate(
     "[...document.querySelectorAll('main ol > li')].filter(li => /^Step \\d/.test(li.textContent.trim())).length",
   )
-  report(Number(steps) === 3, 'the homepage explains how a mock runs in three steps', `${steps} steps`)
+  report(
+    Number(steps) === 3,
+    'the homepage explains how a mock runs in three steps',
+    `${steps} steps`,
+  )
 
   const order = await evaluate(`
     JSON.stringify([...document.querySelectorAll('main h2')].map(h => h.textContent.trim().slice(0, 24)))
@@ -1365,7 +1587,11 @@ report(
       })()
     `)) ?? '{}',
   )
-  await send('Input.dispatchMouseEvent', { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 }, sessionId)
+  await send(
+    'Input.dispatchMouseEvent',
+    { type: 'mousePressed', x: box.x, y: box.y, button: 'left', clickCount: 1 },
+    sessionId,
+  )
   await sleep(220)
   const pressed = JSON.parse(
     (await evaluate(`
@@ -1396,14 +1622,20 @@ report(
     'the press does not resize the tap target',
     `height ${box.height}->${pressed.height}, top ${box.top}->${pressed.top}`,
   )
-  await send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 }, sessionId)
+  await send(
+    'Input.dispatchMouseEvent',
+    { type: 'mouseReleased', x: box.x, y: box.y, button: 'left', clickCount: 1 },
+    sessionId,
+  )
   await sleep(220)
   // Park the pointer away from the button first. While it remains over the
   // element the hover transform is the correct resting state, so asserting
   // "none" here would be testing the pointer position rather than the press.
   await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 2, y: 2 }, sessionId)
   await sleep(900)
-  const released = await evaluate("getComputedStyle(document.querySelector('main a.btn-primary, a.btn-primary')).translate")
+  const released = await evaluate(
+    "getComputedStyle(document.querySelector('main a.btn-primary, a.btn-primary')).translate",
+  )
   const restY = Number.parseFloat(String(released).split(/\s+/)[1] ?? 'NaN')
   report(
     !Number.isFinite(restY) || Math.abs(restY) < 0.05,
@@ -1415,24 +1647,55 @@ report(
   // Its pointer pull is delegated site-wide, without changing its box or link.
   await send('Page.navigate', { url: `${BASE}/format` }, sessionId)
   await sleep(1000)
-  await waitUntil(sessionId, "document.documentElement.dataset.appReady === 'true' && !!document.querySelector('main a.btn-secondary')")
-  const action = JSON.parse((await evaluate(`(() => {
+  await waitUntil(
+    sessionId,
+    "document.documentElement.dataset.appReady === 'true' && !!document.querySelector('main a.btn-secondary')",
+  )
+  const action = JSON.parse(
+    (await evaluate(`(() => {
     const a = document.querySelector('main a.btn-secondary')
     if (!a) return '{}'
     const r = a.getBoundingClientRect()
     return JSON.stringify({ x: Math.round(r.left + r.width * .7), y: Math.round(r.top + r.height * .65) })
-  })()`)) ?? '{}')
+  })()`)) ?? '{}',
+  )
   if (Number.isFinite(action.x) && Number.isFinite(action.y)) {
-    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: action.x, y: action.y }, sessionId)
+    await send(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x: action.x, y: action.y },
+      sessionId,
+    )
     await sleep(450)
-    const pulled = await evaluate("document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')")
-    report(Math.abs(Number.parseFloat(pulled)) > 0.2, 'functional page actions follow the pointer', `x=${pulled}`)
+    const pulled = await evaluate(
+      "document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')",
+    )
+    report(
+      Math.abs(Number.parseFloat(pulled)) > 0.2,
+      'functional page actions follow the pointer',
+      `x=${pulled}`,
+    )
     await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: 2, y: 2 }, sessionId)
-    const settled = await evaluate("document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')")
-    report(Number.parseFloat(settled) === 0, 'functional actions settle when the pointer leaves', `x=${settled}`)
-    await send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] }, sessionId)
-    await send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: action.x, y: action.y }, sessionId)
-    const still = await evaluate("document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')")
+    const settled = await evaluate(
+      "document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')",
+    )
+    report(
+      Number.parseFloat(settled) === 0,
+      'functional actions settle when the pointer leaves',
+      `x=${settled}`,
+    )
+    await send(
+      'Emulation.setEmulatedMedia',
+      { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] },
+      sessionId,
+    )
+    await send(
+      'Input.dispatchMouseEvent',
+      { type: 'mouseMoved', x: action.x, y: action.y },
+      sessionId,
+    )
+    const still = await evaluate(
+      "document.querySelector('main a.btn-secondary')?.style.getPropertyValue('--control-x')",
+    )
     report(Number.parseFloat(still) === 0, 'reduced motion disables pointer pull', `x=${still}`)
   } else {
     report(false, 'functional page actions are present for hover testing')
@@ -1454,12 +1717,16 @@ for (const width of [390, 768, 1100]) {
   const { targetId } = await send('Target.createTarget', { url: 'about:blank', browserContextId })
   const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true })
   await send('Page.enable', {}, sessionId)
-  await send('Emulation.setDeviceMetricsOverride', {
-    width,
-    height: 900,
-    deviceScaleFactor: 1,
-    mobile: width < 700,
-  }, sessionId)
+  await send(
+    'Emulation.setDeviceMetricsOverride',
+    {
+      width,
+      height: 900,
+      deviceScaleFactor: 1,
+      mobile: width < 700,
+    },
+    sessionId,
+  )
 
   for (const route of ['/', '/about', '/guide', '/format', '/question-types/']) {
     await send('Page.navigate', { url: BASE + route }, sessionId)
@@ -1495,7 +1762,7 @@ for (const width of [390, 768, 1100]) {
     report(
       v.overflow <= 1 && v.bad === 0,
       `${route.padEnd(14)} furniture at ${width}px keeps its geometry`,
-      `overflow ${v.overflow}px · ${v.bad}/${v.bands} bands off-edge · ${(v.offenders ?? []).join(" | ")}`,
+      `overflow ${v.overflow}px · ${v.bad}/${v.bands} bands off-edge · ${(v.offenders ?? []).join(' | ')}`,
     )
   }
 
@@ -1521,12 +1788,16 @@ for (const width of [390, 768, 1100]) {
   await send('Page.enable', {}, sessionId)
 
   for (const width of [1440, 1100, 900, 768, 390]) {
-    await send('Emulation.setDeviceMetricsOverride', {
-      width,
-      height: 900,
-      deviceScaleFactor: 1,
-      mobile: width < 700,
-    }, sessionId)
+    await send(
+      'Emulation.setDeviceMetricsOverride',
+      {
+        width,
+        height: 900,
+        deviceScaleFactor: 1,
+        mobile: width < 700,
+      },
+      sessionId,
+    )
     await send('Page.navigate', { url: `${BASE}/` }, sessionId)
     await sleep(1000)
 
@@ -1606,7 +1877,11 @@ for (const width of [390, 768, 1100]) {
   await send('Page.enable', {}, sessionId)
 
   const evaluate = async (expression) => {
-    const r = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }, sessionId)
+    const r = await send(
+      'Runtime.evaluate',
+      { expression, returnByValue: true, awaitPromise: true },
+      sessionId,
+    )
     return r.exceptionDetails ? null : r.result.value
   }
 
@@ -1633,14 +1908,29 @@ for (const width of [390, 768, 1100]) {
   report(ready && seeded, 'the saved-score fixture is available in local history')
 
   await send('Page.reload', {}, sessionId)
-  const shown = await waitUntil(sessionId, "document.querySelector('h1')?.textContent?.includes('73.5/90')")
-  const details = JSON.parse(String(await evaluate(`JSON.stringify({
+  const shown = await waitUntil(
+    sessionId,
+    "document.querySelector('h1')?.textContent?.includes('73.5/90')",
+  )
+  const details = JSON.parse(
+    String(
+      await evaluate(`JSON.stringify({
     heading: document.querySelector('h1')?.textContent?.trim() ?? '',
     label: document.querySelector('h1 + p')?.textContent?.trim() ?? '',
     reportLink: [...document.querySelectorAll('a')].some(a => a.href.includes('attempt=browser-check-latest')),
-  })`)))
-  report(shown && /73\.5\/90/.test(details.heading), 'the homepage shows the latest saved practice score', details.heading)
-  report(details.label.includes('Practice estimate'), 'the homepage identifies estimated scores as practice estimates', details.label)
+  })`),
+    ),
+  )
+  report(
+    shown && /73\.5\/90/.test(details.heading),
+    'the homepage shows the latest saved practice score',
+    details.heading,
+  )
+  report(
+    details.label.includes('Practice estimate'),
+    'the homepage identifies estimated scores as practice estimates',
+    details.label,
+  )
   report(details.reportLink, 'the homepage links the score to its result report')
 
   await send('Target.closeTarget', { targetId })
@@ -1652,5 +1942,7 @@ ws.close()
 // processes Chrome spawned go with it and none is left running.
 await stopChrome(chrome, profile)
 
-console.log(`\n${failures === 0 ? 'ALL BROWSER CHECKS PASSED' : `${failures} BROWSER CHECK(S) FAILED`}\n`)
+console.log(
+  `\n${failures === 0 ? 'ALL BROWSER CHECKS PASSED' : `${failures} BROWSER CHECK(S) FAILED`}\n`,
+)
 process.exit(failures === 0 ? 0 : 1)

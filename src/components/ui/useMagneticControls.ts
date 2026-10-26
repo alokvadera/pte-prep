@@ -13,7 +13,8 @@ export function useMagneticControls() {
   useEffect(() => {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)')
-    const selector = 'a.btn-primary, button.btn-primary, a.btn-secondary, button.btn-secondary, a.btn-orange, button.btn-orange, a.btn-ghost, button.btn-ghost, button.btn-danger'
+    const selector =
+      'a.btn-primary, button.btn-primary, a.btn-secondary, button.btn-secondary, a.btn-orange, button.btn-orange, a.btn-ghost, button.btn-ghost, button.btn-danger'
     let active: HTMLElement | null = null
     let frame = 0
     let point: { x: number; y: number } | null = null
@@ -36,7 +37,12 @@ export function useMagneticControls() {
       if (pointerType !== 'mouse' || motion.matches || !finePointer.matches) return null
       if (!(target instanceof Element) || target.closest('.test-route')) return null
       const control = target.closest<HTMLElement>(selector)
-      if (!control || control.matches(':disabled, [aria-disabled="true"]') || control.closest('.magnetic, [data-no-magnetic]')) return null
+      if (
+        !control ||
+        control.matches(':disabled, [aria-disabled="true"]') ||
+        control.closest('.magnetic, [data-no-magnetic]')
+      )
+        return null
       return control
     }
 
@@ -62,7 +68,8 @@ export function useMagneticControls() {
     }
 
     const onOut = (event: PointerEvent) => {
-      if (active && !(event.relatedTarget instanceof Node && active.contains(event.relatedTarget))) clear()
+      if (active && !(event.relatedTarget instanceof Node && active.contains(event.relatedTarget)))
+        clear()
     }
 
     document.addEventListener('pointermove', onMove, { passive: true })

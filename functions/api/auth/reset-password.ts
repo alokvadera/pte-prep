@@ -32,10 +32,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   if (!password || password.length < 8 || password.length > 128) {
-    return new Response(JSON.stringify({ error: 'Password must be between 8 and 128 characters.' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    })
+    return new Response(
+      JSON.stringify({ error: 'Password must be between 8 and 128 characters.' }),
+      {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      },
+    )
   }
 
   const db = context.env.DB
@@ -65,7 +68,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   if (claimRes.meta.changes === 0) {
     return new Response(
-      JSON.stringify({ error: 'Invalid or expired password reset link. Please request a new one.' }),
+      JSON.stringify({
+        error: 'Invalid or expired password reset link. Please request a new one.',
+      }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
     )
   }
@@ -78,7 +83,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   if (!resetRecord) {
     return new Response(
-      JSON.stringify({ error: 'Invalid or expired password reset link. Please request a new one.' }),
+      JSON.stringify({
+        error: 'Invalid or expired password reset link. Please request a new one.',
+      }),
       { status: 400, headers: { 'Content-Type': 'application/json' } },
     )
   }
@@ -88,7 +95,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 
   // Invalidate any other outstanding reset links for this account
   await db
-    .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL")
+    .prepare(
+      "UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL",
+    )
     .bind(resetRecord.user_id)
     .run()
     .catch((err) => console.warn('[Auth] Could not invalidate outstanding reset links:', err))

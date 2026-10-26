@@ -65,6 +65,8 @@ export async function stopChrome(chrome, profile) {
     })
   }
   if (profile) {
-    await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(() => {})
+    await rm(profile, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }).catch(
+      () => {},
+    )
   }
 }

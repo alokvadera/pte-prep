@@ -42,7 +42,12 @@ function evictOldestCache() {
 
 const RUBRIC_VERSION = 'v1'
 
-function hashAnswer(itemId: string, text: string, model: string, rubricVersion = RUBRIC_VERSION): string {
+function hashAnswer(
+  itemId: string,
+  text: string,
+  model: string,
+  rubricVersion = RUBRIC_VERSION,
+): string {
   let hash = 5381
   const str = `${itemId}:${rubricVersion}:${model}:${text.trim().toLowerCase()}`
   for (let i = 0; i < str.length; i++) {
@@ -133,7 +138,7 @@ export async function evaluateWithAi(
   const promptText =
     typeof referenceOrKey === 'string'
       ? referenceOrKey
-      : referenceOrKey?.reference ?? ('prompt' in item ? item.prompt ?? '' : '')
+      : (referenceOrKey?.reference ?? ('prompt' in item ? (item.prompt ?? '') : ''))
 
   let systemPrompt: string
 
@@ -209,7 +214,10 @@ Output ONLY a JSON object with this exact format:
         model,
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `PROMPT / TARGET:\n${promptText}\n\nCANDIDATE RESPONSE:\n${text}` },
+          {
+            role: 'user',
+            content: `PROMPT / TARGET:\n${promptText}\n\nCANDIDATE RESPONSE:\n${text}`,
+          },
         ],
         temperature: 0.0,
         response_format: { type: 'json_object' },
@@ -300,7 +308,11 @@ Output ONLY a JSON object with this exact format:
 export async function transcribeWithWhisper(
   audioBlob: Blob,
   apiKey: string,
-): Promise<{ text: string; words?: Array<{ word: string; start: number; end: number }>; duration?: number } | null> {
+): Promise<{
+  text: string
+  words?: Array<{ word: string; start: number; end: number }>
+  duration?: number
+} | null> {
   if (!apiKey || audioBlob.size === 0) return null
 
   try {
@@ -329,7 +341,10 @@ export async function transcribeWithWhisper(
     }
 
     const data = await res.json()
-    const duration = typeof data.duration === 'number' ? data.duration : Math.max(1, Math.round(audioBlob.size / 16000))
+    const duration =
+      typeof data.duration === 'number'
+        ? data.duration
+        : Math.max(1, Math.round(audioBlob.size / 16000))
     try {
       useSettings.getState().recordAiUsage({
         whisperSeconds: duration,

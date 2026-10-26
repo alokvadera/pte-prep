@@ -21,7 +21,11 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
       x: ['1980', '1990', '2000', '2010', '2020', '2024'],
       series: [
         { name: 'Atmospheric CO2 (ppm)', values: [338, 354, 370, 390, 414, 422], color: '#ef4444' },
-        { name: 'Surface Ocean pH (x100)', values: [812, 809, 806, 803, 801, 800], color: '#3b82f6' },
+        {
+          name: 'Surface Ocean pH (x100)',
+          values: [812, 809, 806, 803, 801, 800],
+          color: '#3b82f6',
+        },
       ],
     },
   },
@@ -52,7 +56,13 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     minWords: 25,
     data: {
       unit: '% of total sleep time',
-      categories: ['Child (5–12)', 'Adolescent (13–18)', 'Young Adult (19–35)', 'Adult (36–55)', 'Older Adult (65+)'],
+      categories: [
+        'Child (5–12)',
+        'Adolescent (13–18)',
+        'Young Adult (19–35)',
+        'Adult (36–55)',
+        'Older Adult (65+)',
+      ],
       series: [
         { name: 'Deep Slow-Wave', values: [26, 20, 16, 10, 4], color: '#6366f1' },
         { name: 'REM Sleep', values: [24, 22, 21, 19, 15], color: '#ec4899' },
@@ -65,7 +75,14 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     kind: 'pie',
     caption: 'Share of world population speaking major language families, 2024.',
     prompt: 'Describe the information shown in the pie chart below in 25–40 seconds.',
-    keyTerms: ['language families', 'Indo-European', 'Sino-Tibetan', 'share', 'population', 'proportion'],
+    keyTerms: [
+      'language families',
+      'Indo-European',
+      'Sino-Tibetan',
+      'share',
+      'population',
+      'proportion',
+    ],
     minWords: 25,
     data: {
       slices: [
@@ -84,13 +101,31 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     kind: 'bar',
     caption: 'Annual net groundwater depletion estimated by GRACE gravimetry, 2002–2022.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
-    keyTerms: ['groundwater loss', 'aquifers', 'depletion', 'satellite', 'cubic kilometers', 'annual'],
+    keyTerms: [
+      'groundwater loss',
+      'aquifers',
+      'depletion',
+      'satellite',
+      'cubic kilometers',
+      'annual',
+    ],
     minWords: 25,
     data: {
       unit: 'km³ per year loss',
-      categories: ['Northwest India', 'North China Plain', 'California Central', 'Middle East Basin', 'Ogallala USA', 'Guarani Brazil'],
+      categories: [
+        'Northwest India',
+        'North China Plain',
+        'California Central',
+        'Middle East Basin',
+        'Ogallala USA',
+        'Guarani Brazil',
+      ],
       series: [
-        { name: 'Net annual depletion', values: [17.7, 8.3, 3.1, 13.5, 6.1, 1.2], color: '#0284c7' },
+        {
+          name: 'Net annual depletion',
+          values: [17.7, 8.3, 3.1, 13.5, 6.1, 1.2],
+          color: '#0284c7',
+        },
       ],
     },
   },
@@ -100,14 +135,26 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     kind: 'bar',
     caption: 'Donor authorization rate (%) under voluntary opt-in and default opt-out policies.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
-    keyTerms: ['organ donation', 'registration rate', 'presumed consent', 'opt-in', 'default', 'percentage'],
+    keyTerms: [
+      'organ donation',
+      'registration rate',
+      'presumed consent',
+      'opt-in',
+      'default',
+      'percentage',
+    ],
     minWords: 25,
     data: {
       unit: '% registered donors',
-      categories: ['Germany (Opt-In)', 'UK (Pre-Reform)', 'Netherlands (Opt-In)', 'Spain (Presumed)', 'Austria (Presumed)', 'France (Presumed)'],
-      series: [
-        { name: 'Registration rate', values: [12, 17, 27, 92, 99, 91], color: '#10b981' },
+      categories: [
+        'Germany (Opt-In)',
+        'UK (Pre-Reform)',
+        'Netherlands (Opt-In)',
+        'Spain (Presumed)',
+        'Austria (Presumed)',
+        'France (Presumed)',
       ],
+      series: [{ name: 'Registration rate', values: [12, 17, 27, 92, 99, 91], color: '#10b981' }],
     },
   },
   {
@@ -116,7 +163,14 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     kind: 'bar',
     caption: 'Levelized capital cost comparison across energy storage solutions, 2015 vs 2024.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
-    keyTerms: ['storage cost', 'lithium-ion', 'pumped hydro', 'flow battery', 'capital cost', 'decline'],
+    keyTerms: [
+      'storage cost',
+      'lithium-ion',
+      'pumped hydro',
+      'flow battery',
+      'capital cost',
+      'decline',
+    ],
     minWords: 25,
     data: {
       unit: 'USD per kilowatt-hour',
@@ -133,7 +187,15 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     kind: 'bar',
     caption: 'Critical mineral weight comparison: Electric vehicle vs Conventional vehicle.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
-    keyTerms: ['minerals', 'electric vehicle', 'copper', 'lithium', 'nickel', 'conventional', 'kilograms'],
+    keyTerms: [
+      'minerals',
+      'electric vehicle',
+      'copper',
+      'lithium',
+      'nickel',
+      'conventional',
+      'kilograms',
+    ],
     minWords: 25,
     data: {
       unit: 'kg per vehicle',
@@ -150,14 +212,20 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     kind: 'bar',
     caption: 'Number of distinct chemical classes of antibiotics introduced to clinical practice.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
-    keyTerms: ['antibiotics', 'discovery void', 'classes', 'decades', 'peak', 'decline', 'clinical'],
+    keyTerms: [
+      'antibiotics',
+      'discovery void',
+      'classes',
+      'decades',
+      'peak',
+      'decline',
+      'clinical',
+    ],
     minWords: 25,
     data: {
       unit: 'New antibiotic classes discovered',
       categories: ['1940s', '1950s', '1960s', '1970s', '1980s', '1990s', '2000s', '2010s'],
-      series: [
-        { name: 'Discovered classes', values: [5, 9, 8, 4, 3, 0, 1, 1], color: '#f59e0b' },
-      ],
+      series: [{ name: 'Discovered classes', values: [5, 9, 8, 4, 3, 0, 1, 1], color: '#f59e0b' }],
     },
   },
   {
@@ -166,7 +234,14 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     kind: 'line',
     caption: 'Mean cumulative mass change in meters of water equivalent across mountain ranges.',
     prompt: 'Describe the information shown in the graph below in 25–40 seconds.',
-    keyTerms: ['glacier mass', 'cumulative loss', 'water equivalent', 'Alps', 'Himalayas', 'meters'],
+    keyTerms: [
+      'glacier mass',
+      'cumulative loss',
+      'water equivalent',
+      'Alps',
+      'Himalayas',
+      'meters',
+    ],
     minWords: 25,
     data: {
       unit: 'Meters water equivalent loss',

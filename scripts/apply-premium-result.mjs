@@ -1,13 +1,14 @@
-import fs from 'fs';
+import fs from 'fs'
 
-let tsx = fs.readFileSync('src/pages/ResultPage.tsx', 'utf-8');
+let tsx = fs.readFileSync('src/pages/ResultPage.tsx', 'utf-8')
 
 // Replace the main header area (the Score / CEFR area)
 // The original header looks like:
 // <header className="flex flex-wrap items-start justify-between gap-6"> ... </header>
 // <div className="card mt-6"> ... </div> (Skills)
 
-const headerRegex = /<header className="flex flex-wrap items-start justify-between gap-6">[\s\S]*?<\/header>\s*\{\/\* Skills, on one shared scale so the bars are actually comparable. \*\/\}\s*<div className="card mt-6">/g;
+const headerRegex =
+  /<header className="flex flex-wrap items-start justify-between gap-6">[\s\S]*?<\/header>\s*\{\/\* Skills, on one shared scale so the bars are actually comparable. \*\/\}\s*<div className="card mt-6">/g
 
 const premiumHeader = `<header className="relative overflow-hidden rounded-3xl border border-ink-200 dark:border-white/10 bg-white/50 dark:bg-ink-900/40 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.04)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.2)] mb-8">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-500/5 to-transparent dark:from-brand-500/10" aria-hidden="true" />
@@ -52,8 +53,8 @@ const premiumHeader = `<header className="relative overflow-hidden rounded-3xl b
         </header>
 
         {/* Skills, on one shared scale so the bars are actually comparable. */}
-        <div className="card mt-6">`;
+        <div className="card mt-6">`
 
-tsx = tsx.replace(headerRegex, premiumHeader);
+tsx = tsx.replace(headerRegex, premiumHeader)
 
-fs.writeFileSync('src/pages/ResultPage.tsx', tsx);
+fs.writeFileSync('src/pages/ResultPage.tsx', tsx)

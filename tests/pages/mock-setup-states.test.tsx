@@ -141,13 +141,18 @@ function stubAnimationFrames(stepMs = 1000) {
   }
 }
 
-function installMedia(options: { suspended?: boolean; supported?: boolean; mediaDevices?: boolean } = {}) {
+function installMedia(
+  options: { suspended?: boolean; supported?: boolean; mediaDevices?: boolean } = {},
+) {
   FakeRecorder.supported = options.supported ?? true
-  vi.stubGlobal('AudioContext', class extends FakeAudioContext {
-    constructor() {
-      super(options.suspended ?? false)
-    }
-  })
+  vi.stubGlobal(
+    'AudioContext',
+    class extends FakeAudioContext {
+      constructor() {
+        super(options.suspended ?? false)
+      }
+    },
+  )
   vi.stubGlobal('MediaRecorder', FakeRecorder)
   if (options.mediaDevices === false) {
     Object.defineProperty(navigator, 'mediaDevices', { configurable: true, value: undefined })
@@ -277,7 +282,9 @@ describe('MockSetup', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Untimed' }))
     })
 
-    expect(container.textContent).toContain('No clock. The timer bar is replaced with a question counter.')
+    expect(container.textContent).toContain(
+      'No clock. The timer bar is replaced with a question counter.',
+    )
     await act(async () => {
       fireEvent.click(startMockButton())
     })
@@ -503,7 +510,9 @@ describe('MockSetup microphone check', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Check microphone (3s)' }))
     })
 
-    expect(screen.getByText(/Microphone recording is not supported in this browser/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Microphone recording is not supported in this browser/),
+    ).toBeInTheDocument()
   })
 
   it('says when the microphone permission is refused', async () => {

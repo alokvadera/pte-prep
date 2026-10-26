@@ -65,7 +65,11 @@ export function TimelineItem({ step, className, children, ...props }: TimelineIt
   )
 }
 
-export function TimelineIndicator({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function TimelineIndicator({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   const { step } = useContext(TimelineContext)
   return (
     <div
@@ -99,7 +103,11 @@ export function TimelineSeparator({ className, ...props }: React.HTMLAttributes<
   )
 }
 
-export function TimelineHeader({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function TimelineHeader({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn('flex flex-col gap-0.5', className)} {...props}>
       {children}
@@ -107,25 +115,46 @@ export function TimelineHeader({ className, children, ...props }: React.HTMLAttr
   )
 }
 
-export function TimelineDate({ className, children, ...props }: React.HTMLAttributes<HTMLTimeElement>) {
+export function TimelineDate({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLTimeElement>) {
   return (
-    <time className={cn('font-mono text-xs text-ink-500 dark:text-ink-on-dark-muted', className)} {...props}>
+    <time
+      className={cn('font-mono text-xs text-ink-500 dark:text-ink-on-dark-muted', className)}
+      {...props}
+    >
       {children}
     </time>
   )
 }
 
-export function TimelineTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+export function TimelineTitle({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h4 className={cn('font-display text-sm font-bold text-ink-900 dark:text-ink-50', className)} {...props}>
+    <h4
+      className={cn('font-display text-sm font-bold text-ink-900 dark:text-ink-50', className)}
+      {...props}
+    >
       {children}
     </h4>
   )
 }
 
-export function TimelineContent({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function TimelineContent({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn('text-xs leading-relaxed text-ink-600 dark:text-ink-300', className)} {...props}>
+    <div
+      className={cn('text-xs leading-relaxed text-ink-600 dark:text-ink-300', className)}
+      {...props}
+    >
       {children}
     </div>
   )

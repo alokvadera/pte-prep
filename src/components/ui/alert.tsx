@@ -13,11 +13,15 @@ export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const ALERT_VARIANTS: Record<NonNullable<AlertProps['variant']>, string> = {
-  default: 'border-ink-200 bg-white text-ink-900 dark:border-white/10 dark:bg-ink-850 dark:text-ink-100',
+  default:
+    'border-ink-200 bg-white text-ink-900 dark:border-white/10 dark:bg-ink-850 dark:text-ink-100',
   info: 'border-brand-500/30 bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:border-brand-400/25 dark:text-brand-300',
-  success: 'border-mint-500/30 bg-mint-50 text-mint-700 dark:bg-mint-500/10 dark:border-mint-400/25 dark:text-mint-300',
-  warning: 'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:border-amber-400/25 dark:text-amber-300',
-  destructive: 'border-rose-500/30 bg-rose-500/10 text-rose-700 dark:bg-rose-500/10 dark:border-rose-400/25 dark:text-rose-300',
+  success:
+    'border-mint-500/30 bg-mint-50 text-mint-700 dark:bg-mint-500/10 dark:border-mint-400/25 dark:text-mint-300',
+  warning:
+    'border-amber-500/30 bg-amber-500/10 text-amber-700 dark:bg-amber-400/10 dark:border-amber-400/25 dark:text-amber-300',
+  destructive:
+    'border-rose-500/30 bg-rose-500/10 text-rose-700 dark:bg-rose-500/10 dark:border-rose-400/25 dark:text-rose-300',
 }
 
 export function Alert({ variant = 'default', className, children, ...props }: AlertProps) {
@@ -36,15 +40,26 @@ export function Alert({ variant = 'default', className, children, ...props }: Al
   )
 }
 
-export function AlertTitle({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+export function AlertTitle({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h4 className={cn('mb-1 font-display text-sm font-bold leading-none tracking-tight', className)} {...props}>
+    <h4
+      className={cn('mb-1 font-display text-sm font-bold leading-none tracking-tight', className)}
+      {...props}
+    >
       {children}
     </h4>
   )
 }
 
-export function AlertDescription({ className, children, ...props }: React.HTMLAttributes<HTMLParagraphElement>) {
+export function AlertDescription({
+  className,
+  children,
+  ...props
+}: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <div className={cn('text-xs leading-relaxed opacity-90', className)} {...props}>
       {children}

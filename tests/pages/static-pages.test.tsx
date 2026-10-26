@@ -87,23 +87,25 @@ describe('QuestionTypes', () => {
   it('links to each type page', () => {
     renderRoute(<QuestionTypes />, '/question-types/')
     const slug = typeSlug(ALL_QUESTION_TYPES[0]!)
-    expect(screen.getByRole('link', { name: new RegExp(slug.replace(/-/g, ' '), 'i') })).toBeInTheDocument()
+    expect(
+      screen.getByRole('link', { name: new RegExp(slug.replace(/-/g, ' '), 'i') }),
+    ).toBeInTheDocument()
   })
 })
 
 describe('QuestionTypePage', () => {
   it('renders the type it was given', () => {
     const type = ALL_QUESTION_TYPES[0]!
-    const { container } = renderRoute(
-      <QuestionTypePage />,
-      `/question-types/${typeSlug(type)}/`,
-      { route: `/question-types/${typeSlug(type)}/` },
-    )
+    const { container } = renderRoute(<QuestionTypePage />, `/question-types/${typeSlug(type)}/`, {
+      route: `/question-types/${typeSlug(type)}/`,
+    })
     expect(container.textContent).toBeTruthy()
   })
 
   it('shows the not-found page for an unknown slug', () => {
-    renderRoute(<QuestionTypePage />, '/question-types/:slug/', { route: '/question-types/not-a-type/' })
+    renderRoute(<QuestionTypePage />, '/question-types/:slug/', {
+      route: '/question-types/not-a-type/',
+    })
     expect(screen.getByText('404')).toBeInTheDocument()
   })
 })
@@ -171,7 +173,9 @@ describe('Guide', () => {
   })
 
   it('survives a clipboard that refuses', async () => {
-    const writeText = vi.spyOn(navigator.clipboard, 'writeText').mockRejectedValue(new Error('denied'))
+    const writeText = vi
+      .spyOn(navigator.clipboard, 'writeText')
+      .mockRejectedValue(new Error('denied'))
     const { container } = renderRoute(<Guide />, '/guide')
     const copyButton = container.querySelector('button') as HTMLButtonElement
 

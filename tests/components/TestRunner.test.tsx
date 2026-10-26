@@ -83,27 +83,25 @@ function makeRunnerMock(overrides: Partial<MockTest> = {}): MockTest {
 }
 
 /** Puts the store into a running mock and renders the runner. */
-function renderRunner(
-  {
-    mock = makeRunnerMock(),
-    status = 'running',
-    sectionIndex = 0,
-    itemIndex = 0,
-    responses = {},
-    mode = 'exam',
-    sectionEndsAt = Date.now() + 600_000,
-    timeExpired = false,
-  }: {
-    mock?: MockTest | null
-    status?: 'briefing' | 'running' | 'break' | 'finished'
-    sectionIndex?: number
-    itemIndex?: number
-    responses?: Record<string, { choice?: string; flagged?: boolean }>
-    mode?: 'exam' | 'practice' | 'review'
-    sectionEndsAt?: number | null
-    timeExpired?: boolean
-  } = {},
-) {
+function renderRunner({
+  mock = makeRunnerMock(),
+  status = 'running',
+  sectionIndex = 0,
+  itemIndex = 0,
+  responses = {},
+  mode = 'exam',
+  sectionEndsAt = Date.now() + 600_000,
+  timeExpired = false,
+}: {
+  mock?: MockTest | null
+  status?: 'briefing' | 'running' | 'break' | 'finished'
+  sectionIndex?: number
+  itemIndex?: number
+  responses?: Record<string, { choice?: string; flagged?: boolean }>
+  mode?: 'exam' | 'practice' | 'review'
+  sectionEndsAt?: number | null
+  timeExpired?: boolean
+} = {}) {
   useTest.setState({
     mock,
     status,
@@ -334,7 +332,9 @@ describe('TestRunner', () => {
 
     // A blank viewport reads as a broken page, so the runner says what
     // happened and offers a way out.
-    expect(screen.getByRole('heading', { name: 'This question could not be loaded' })).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: 'This question could not be loaded' }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Back to the mock setup' })).toBeInTheDocument()
   })
 
@@ -362,7 +362,9 @@ describe('TestRunner', () => {
 
       fireEvent.click(screen.getAllByRole('button', { name: 'All questions' })[0]!)
 
-      expect(screen.getByRole('button', { name: 'Question 1, answered, flagged' })).toBeInTheDocument()
+      expect(
+        screen.getByRole('button', { name: 'Question 1, answered, flagged' }),
+      ).toBeInTheDocument()
     })
 
     it('jumps to a question', () => {
@@ -526,7 +528,11 @@ function untitledSection(overrides: Partial<Omit<TestSection, 'title'>> = {}): T
 
 /** A stimulus block with only the fields a test cares about. */
 function stimulusOf(overrides: Partial<TestSection['groups'][number]['stimulus']> = {}) {
-  return { passageTitle: 'A short passage', passageParagraphs: ['The first paragraph.'], ...overrides }
+  return {
+    passageTitle: 'A short passage',
+    passageParagraphs: ['The first paragraph.'],
+    ...overrides,
+  }
 }
 
 describe('the section briefing', () => {
@@ -552,13 +558,53 @@ describe('the section briefing', () => {
 
 describe('the item types the runner can be showing', () => {
   const KINDS: Item[] = [
-    makeItem({ id: 'item-kind', type: 'multiple-choice-single', responseKind: 'choice', prompt: 'A single choice.', options: ['Alpha'] }),
-    makeItem({ id: 'item-kind', type: 'multiple-choice-multiple', responseKind: 'multi-choice', prompt: 'Several choices.', options: ['Alpha'] }),
-    makeItem({ id: 'item-kind', type: 'fill-in-blanks-listening', responseKind: 'blanks', prompt: 'Some blanks.', targetText: 'It starts at ______.' }),
-    makeItem({ id: 'item-kind', type: 'reorder-paragraphs', responseKind: 'order', prompt: 'Put them in order.', blocks: [{ id: 'b1', text: 'First.' }] }),
-    makeItem({ id: 'item-kind', type: 'highlight-incorrect-words', responseKind: 'highlight', prompt: 'Mark the wrong words.', tokens: ['It', 'is'] }),
-    makeItem({ id: 'item-kind', type: 'write-from-dictation', responseKind: 'text', prompt: 'Type it out.' }),
-    makeItem({ id: 'item-kind', type: 'read-aloud', responseKind: 'audio', prompt: 'Read it out.' }),
+    makeItem({
+      id: 'item-kind',
+      type: 'multiple-choice-single',
+      responseKind: 'choice',
+      prompt: 'A single choice.',
+      options: ['Alpha'],
+    }),
+    makeItem({
+      id: 'item-kind',
+      type: 'multiple-choice-multiple',
+      responseKind: 'multi-choice',
+      prompt: 'Several choices.',
+      options: ['Alpha'],
+    }),
+    makeItem({
+      id: 'item-kind',
+      type: 'fill-in-blanks-listening',
+      responseKind: 'blanks',
+      prompt: 'Some blanks.',
+      targetText: 'It starts at ______.',
+    }),
+    makeItem({
+      id: 'item-kind',
+      type: 'reorder-paragraphs',
+      responseKind: 'order',
+      prompt: 'Put them in order.',
+      blocks: [{ id: 'b1', text: 'First.' }],
+    }),
+    makeItem({
+      id: 'item-kind',
+      type: 'highlight-incorrect-words',
+      responseKind: 'highlight',
+      prompt: 'Mark the wrong words.',
+      tokens: ['It', 'is'],
+    }),
+    makeItem({
+      id: 'item-kind',
+      type: 'write-from-dictation',
+      responseKind: 'text',
+      prompt: 'Type it out.',
+    }),
+    makeItem({
+      id: 'item-kind',
+      type: 'read-aloud',
+      responseKind: 'audio',
+      prompt: 'Read it out.',
+    }),
   ]
 
   it.each(KINDS.map((item) => [item.responseKind, item] as const))(
@@ -739,14 +785,22 @@ describe('the stimulus the runner shows above the question', () => {
   }
 
   it('shows a passage without a title', () => {
-    renderRunner({ mock: mockWithStimulus(stimulusOf({ passageTitle: undefined })), sectionIndex: 1, itemIndex: 0 })
+    renderRunner({
+      mock: mockWithStimulus(stimulusOf({ passageTitle: undefined })),
+      sectionIndex: 1,
+      itemIndex: 0,
+    })
 
     expect(screen.getByText('The first paragraph.')).toBeInTheDocument()
     expect(screen.queryByText('A short passage')).not.toBeInTheDocument()
   })
 
   it('shows a passage without a note', () => {
-    renderRunner({ mock: mockWithStimulus(stimulusOf({ note: undefined })), sectionIndex: 1, itemIndex: 0 })
+    renderRunner({
+      mock: mockWithStimulus(stimulusOf({ note: undefined })),
+      sectionIndex: 1,
+      itemIndex: 0,
+    })
 
     expect(screen.getByText('The first paragraph.')).toBeInTheDocument()
     expect(screen.queryByText('A note about the passage.')).not.toBeInTheDocument()
@@ -780,7 +834,11 @@ describe('the stimulus the runner shows above the question', () => {
   })
 
   it('shows a note that has no passage with it', () => {
-    renderRunner({ mock: mockWithStimulus({ note: 'A note on its own.' }), sectionIndex: 1, itemIndex: 0 })
+    renderRunner({
+      mock: mockWithStimulus({ note: 'A note on its own.' }),
+      sectionIndex: 1,
+      itemIndex: 0,
+    })
 
     expect(screen.getByText('A note on its own.')).toBeInTheDocument()
   })

@@ -49,10 +49,10 @@ export function BackToTop({ className }: { className?: string }) {
         'fixed bottom-5 left-5 z-[80] flex size-11 items-center justify-center p-0 rounded-full border border-ink-200 bg-white/95 text-ink-700 shadow-md backdrop-blur-md transition-all duration-300 hover:-translate-y-0.5 hover:border-ink-300 hover:text-brand-700 hover:shadow-lg active:translate-y-0 active:shadow-sm dark:border-white/15 dark:bg-ink-850/95 dark:text-ink-100 dark:hover:border-white/25 dark:hover:text-brand-300',
         shown
           ? 'translate-y-0 scale-100 opacity-100'
-          // `invisible` matters as much as the fade: an opacity-0 button
-          // is still in the tab order, so a keyboard user would land on a
-          // control they cannot see.
-          : 'pointer-events-none invisible translate-y-4 scale-90 opacity-0',
+          : // `invisible` matters as much as the fade: an opacity-0 button
+            // is still in the tab order, so a keyboard user would land on a
+            // control they cannot see.
+            'pointer-events-none invisible translate-y-4 scale-90 opacity-0',
         className,
       )}
     >

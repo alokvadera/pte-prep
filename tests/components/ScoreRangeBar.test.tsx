@@ -87,18 +87,27 @@ describe('ScoreRangeBar', () => {
   it('clamps a score to the 10–90 scale', () => {
     render(<ScoreRangeBar score={95} band="C2" />)
 
-    expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Score 90 out of 90, CEFR band C2')
+    expect(screen.getByRole('img')).toHaveAttribute(
+      'aria-label',
+      'Score 90 out of 90, CEFR band C2',
+    )
 
     cleanup()
     render(<ScoreRangeBar score={2} band="A1" />)
 
-    expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Score 10 out of 90, CEFR band A1')
+    expect(screen.getByRole('img')).toHaveAttribute(
+      'aria-label',
+      'Score 10 out of 90, CEFR band A1',
+    )
   })
 
   it('copes with a band it does not know', () => {
     render(<ScoreRangeBar score={61} band="Z9" />)
 
-    expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Score 61 out of 90, CEFR band Z9')
+    expect(screen.getByRole('img')).toHaveAttribute(
+      'aria-label',
+      'Score 61 out of 90, CEFR band Z9',
+    )
     expect(screen.queryByText(/of 90,/)).not.toBeInTheDocument()
   })
 
@@ -111,7 +120,9 @@ describe('ScoreRangeBar', () => {
   })
 
   it('accepts a custom label and a smaller size', () => {
-    const { container } = render(<ScoreRangeBar score={50} band="B1" size="sm" label="Overall score" />)
+    const { container } = render(
+      <ScoreRangeBar score={50} band="B1" size="sm" label="Overall score" />,
+    )
 
     expect(screen.getByRole('img')).toHaveAttribute('aria-label', 'Overall score')
     expect(container.querySelector('.h-1\\.5')).toBeInTheDocument()

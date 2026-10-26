@@ -78,7 +78,11 @@ export function Popover({
           aria-label={label}
           className={cn(
             'card-solid absolute z-50 w-64 p-4 animate-pop-in',
-            align === 'start' ? 'left-0 top-full mt-2' : align === 'center' ? 'left-1/2 top-full mt-2 -translate-x-1/2' : 'right-0 top-full mt-2',
+            align === 'start'
+              ? 'left-0 top-full mt-2'
+              : align === 'center'
+                ? 'left-1/2 top-full mt-2 -translate-x-1/2'
+                : 'right-0 top-full mt-2',
           )}
         >
           {children}

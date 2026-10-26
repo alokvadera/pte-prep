@@ -32,7 +32,9 @@ describe('ProgressDots before hydration', () => {
 
   it('still names the sections', () => {
     const { container } = render(<ProgressDots sections={sections} />)
-    expect(container.querySelector('nav')?.getAttribute('aria-label')).toBe('Page section navigation')
+    expect(container.querySelector('nav')?.getAttribute('aria-label')).toBe(
+      'Page section navigation',
+    )
     expect(container.querySelectorAll('button')).toHaveLength(2)
   })
 

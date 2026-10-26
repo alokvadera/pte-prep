@@ -80,7 +80,8 @@ function syncHead(pathname: string): void {
   for (const el of Array.from(head.querySelectorAll(`[${MANAGED}]`))) {
     const isScript = el.tagName === 'SCRIPT'
     /* v8 ignore next -- a managed tag always names itself */
-    const identity = el.getAttribute('name') ?? el.getAttribute('property') ?? el.getAttribute('rel') ?? ''
+    const identity =
+      el.getAttribute('name') ?? el.getAttribute('property') ?? el.getAttribute('rel') ?? ''
     /* v8 ignore next -- a managed script is never left behind in the head */
     const key = isScript
       ? `script:${el.getAttribute('type') ?? 'ld+json'}`
@@ -88,7 +89,10 @@ function syncHead(pathname: string): void {
     /* v8 ignore next -- every page declares the same set of head tags */
     if (!wanted.has(key)) el.remove()
   }
-  for (const el of Array.from(head.querySelectorAll(`script[type="application/ld+json"], [${JSONLD}]`))) el.remove()
+  for (const el of Array.from(
+    head.querySelectorAll(`script[type="application/ld+json"], [${JSONLD}]`),
+  ))
+    el.remove()
 
   for (const tag of tags) {
     if (tag.tag === 'script') {

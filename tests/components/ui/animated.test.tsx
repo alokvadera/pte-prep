@@ -72,7 +72,11 @@ vi.mock('motion/react', async () => {
     AnimatePresence: ({ children }: { children?: React.ReactNode }) => children,
     useInView: () => motionState.inView,
     useMotionValue: (initial: number) => makeValue(initial),
-    useSpring: (value: { get: () => number; set: (n: number) => void; on: (t: string, cb: (n: number) => void) => () => void }) => ({
+    useSpring: (value: {
+      get: () => number
+      set: (n: number) => void
+      on: (t: string, cb: (n: number) => void) => () => void
+    }) => ({
       get: () => value.get(),
       set: (next: number) => value.set(next),
       on: (_type: string, callback: (latest: number) => void) => value.on('change', callback),
@@ -129,7 +133,9 @@ describe('ColourfulText', () => {
 describe('ColourfulTextDemo', () => {
   it('renders the colourful word inside its heading', () => {
     const { container } = render(<ColourfulTextDemo />)
-    expect(container.querySelector('h1')).toHaveTextContent('The best components you will ever find')
+    expect(container.querySelector('h1')).toHaveTextContent(
+      'The best components you will ever find',
+    )
   })
 
   it('renders the background image', () => {

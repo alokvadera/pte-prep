@@ -19,7 +19,10 @@ afterEach(() => {
 
 interface Overrides extends Partial<React.ComponentProps<typeof TestHeader>> {}
 
-function headerElement(props: Overrides, handlers: { onExit: () => void; onExpire: () => void; onExtend: (s: number) => void }) {
+function headerElement(
+  props: Overrides,
+  handlers: { onExit: () => void; onExpire: () => void; onExtend: (s: number) => void },
+) {
   return (
     <TestHeader
       totalSeconds={600}
@@ -134,7 +137,10 @@ describe('TestHeader', () => {
   })
 
   it('expires the section when the clock runs out', () => {
-    const { onExpire } = renderHeader({ sectionEndsAt: Date.now() - 5_000, secondsRemaining: undefined })
+    const { onExpire } = renderHeader({
+      sectionEndsAt: Date.now() - 5_000,
+      secondsRemaining: undefined,
+    })
 
     expect(onExpire).toHaveBeenCalled()
     expect(screen.getByRole('timer')).toHaveTextContent('00:00')

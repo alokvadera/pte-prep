@@ -75,13 +75,17 @@ describe('HOME_FAQ', () => {
 
 describe('ABOUT_FAQ', () => {
   it('states the relationship with Pearson', () => {
-    const affiliation = ABOUT_FAQ.find((e) => e.question === 'Is this site affiliated with Pearson?')!
+    const affiliation = ABOUT_FAQ.find(
+      (e) => e.question === 'Is this site affiliated with Pearson?',
+    )!
     expect(affiliation.answer).toContain('No.')
     expect(affiliation.answer).toContain('independent practice tool')
   })
 
   it('explains where the material comes from', () => {
-    const material = ABOUT_FAQ.find((e) => e.question === 'Where does the practice material come from?')!
+    const material = ABOUT_FAQ.find(
+      (e) => e.question === 'Where does the practice material come from?',
+    )!
     expect(material.answer).toContain('written specifically for it')
     expect(material.answer).toContain('copyright')
   })

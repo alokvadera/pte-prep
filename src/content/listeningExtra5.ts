@@ -37,18 +37,43 @@ export const EXTRA_CONVERSATIONS_5: AudioScript[] = [
       { id: 'b', name: 'Officer', role: 'Transport office', voiceHint: 'mid' },
     ],
     turns: [
-      { speaker: 'a', text: 'Hello, I have lost my student bus pass somewhere between the campus and the station. Can I get a replacement?' },
-      { speaker: 'b', text: 'You can, and because it is a photo pass the old one will be cancelled the moment I issue the new one. Nobody else can use it.' },
+      {
+        speaker: 'a',
+        text: 'Hello, I have lost my student bus pass somewhere between the campus and the station. Can I get a replacement?',
+      },
+      {
+        speaker: 'b',
+        text: 'You can, and because it is a photo pass the old one will be cancelled the moment I issue the new one. Nobody else can use it.',
+      },
       { speaker: 'a', text: 'That is reassuring. How long does a replacement take?' },
-      { speaker: 'b', text: 'If you apply online before noon, the digital pass is active the same evening. The plastic card follows by post within five working days.' },
+      {
+        speaker: 'b',
+        text: 'If you apply online before noon, the digital pass is active the same evening. The plastic card follows by post within five working days.',
+      },
       { speaker: 'a', text: 'Is there a fee for losing it?' },
-      { speaker: 'b', text: 'The first replacement in an academic year costs twelve pounds. A second one costs twenty-five, which is meant to encourage people to look a little harder.' },
+      {
+        speaker: 'b',
+        text: 'The first replacement in an academic year costs twelve pounds. A second one costs twenty-five, which is meant to encourage people to look a little harder.',
+      },
       { speaker: 'a', text: 'How do I travel this afternoon in the meantime?' },
-      { speaker: 'b', text: 'Show the driver your confirmation email with your student number visible. That covers you for forty-eight hours from the time of issue, but not beyond.' },
+      {
+        speaker: 'b',
+        text: 'Show the driver your confirmation email with your student number visible. That covers you for forty-eight hours from the time of issue, but not beyond.',
+      },
       { speaker: 'a', text: 'And the zone on the pass — does it still cover the hospital route?' },
-      { speaker: 'b', text: 'The replacement keeps whatever zones the original had, so the hospital extension stays. If you want to add the airport zone, that is a separate upgrade of thirty pounds.' },
+      {
+        speaker: 'b',
+        text: 'The replacement keeps whatever zones the original had, so the hospital extension stays. If you want to add the airport zone, that is a separate upgrade of thirty pounds.',
+      },
     ],
-    keyTerms: ['photo pass', 'cancelled', 'before noon', 'twelve pounds', 'forty-eight hours', 'hospital extension'],
+    keyTerms: [
+      'photo pass',
+      'cancelled',
+      'before noon',
+      'twelve pounds',
+      'forty-eight hours',
+      'hospital extension',
+    ],
   },
   {
     id: 'con-flatmate-notice',
@@ -61,18 +86,49 @@ export const EXTRA_CONVERSATIONS_5: AudioScript[] = [
       { id: 'b', name: 'Mara', role: 'Flatmate staying', voiceHint: 'high' },
     ],
     turns: [
-      { speaker: 'a', text: 'I have been offered a placement in another city starting in June, so I need to leave the flat about two months early.' },
-      { speaker: 'b', text: 'That is sudden. Our agreement says either of us can leave with six weeks of written notice, so June just about works if you write this week.' },
-      { speaker: 'a', text: 'I will email the landlord tonight. What happens about finding someone for my room?' },
-      { speaker: 'b', text: 'The agreement makes you responsible for the rent until a replacement signs, even after the notice period ends. So the sooner we advertise, the less you pay.' },
+      {
+        speaker: 'a',
+        text: 'I have been offered a placement in another city starting in June, so I need to leave the flat about two months early.',
+      },
+      {
+        speaker: 'b',
+        text: 'That is sudden. Our agreement says either of us can leave with six weeks of written notice, so June just about works if you write this week.',
+      },
+      {
+        speaker: 'a',
+        text: 'I will email the landlord tonight. What happens about finding someone for my room?',
+      },
+      {
+        speaker: 'b',
+        text: 'The agreement makes you responsible for the rent until a replacement signs, even after the notice period ends. So the sooner we advertise, the less you pay.',
+      },
       { speaker: 'a', text: 'Fair enough. Should we offer the room at the same rent?' },
-      { speaker: 'b', text: 'List it ten pounds lower for the first month to get viewings quickly. One empty month costs far more than a small discount.' },
+      {
+        speaker: 'b',
+        text: 'List it ten pounds lower for the first month to get viewings quickly. One empty month costs far more than a small discount.',
+      },
       { speaker: 'a', text: 'What about the deposit? Mine is four hundred pounds.' },
-      { speaker: 'b', text: 'The landlord returns it within two weeks of the new tenant signing, minus any cleaning charge. Photograph everything on the day you leave.' },
-      { speaker: 'a', text: 'One more thing — the broadband contract is in my name until September.' },
-      { speaker: 'b', text: 'Transfer it to me before you go, because an early cancellation fee of ninety pounds applies otherwise. The provider does transfers by phone in about twenty minutes.' },
+      {
+        speaker: 'b',
+        text: 'The landlord returns it within two weeks of the new tenant signing, minus any cleaning charge. Photograph everything on the day you leave.',
+      },
+      {
+        speaker: 'a',
+        text: 'One more thing — the broadband contract is in my name until September.',
+      },
+      {
+        speaker: 'b',
+        text: 'Transfer it to me before you go, because an early cancellation fee of ninety pounds applies otherwise. The provider does transfers by phone in about twenty minutes.',
+      },
     ],
-    keyTerms: ['six weeks', 'written notice', 'replacement signs', 'ten pounds lower', 'two weeks', 'ninety pounds'],
+    keyTerms: [
+      'six weeks',
+      'written notice',
+      'replacement signs',
+      'ten pounds lower',
+      'two weeks',
+      'ninety pounds',
+    ],
   },
   {
     id: 'con-printer-credits',
@@ -85,16 +141,34 @@ export const EXTRA_CONVERSATIONS_5: AudioScript[] = [
       { id: 'b', name: 'Technician', role: 'Helpdesk', voiceHint: 'low' },
     ],
     turns: [
-      { speaker: 'a', text: 'My dissertation is due on Friday and my printing account shows a zero balance. How do I add credit quickly?' },
-      { speaker: 'b', text: 'Top up through the student portal, not the machines, because portal payments clear instantly while machine payments take up to an hour to appear.' },
+      {
+        speaker: 'a',
+        text: 'My dissertation is due on Friday and my printing account shows a zero balance. How do I add credit quickly?',
+      },
+      {
+        speaker: 'b',
+        text: 'Top up through the student portal, not the machines, because portal payments clear instantly while machine payments take up to an hour to appear.',
+      },
       { speaker: 'a', text: 'How much should I add for roughly eighty pages?' },
-      { speaker: 'b', text: 'Black and white costs six pence a side, so eighty single-sided pages need four pounds eighty. Colour is four times that, so check your settings first.' },
+      {
+        speaker: 'b',
+        text: 'Black and white costs six pence a side, so eighty single-sided pages need four pounds eighty. Colour is four times that, so check your settings first.',
+      },
       { speaker: 'a', text: 'Can I print double-sided to halve it?' },
-      { speaker: 'b', text: 'You can, and the library printers default to double-sided anyway. Just confirm the preview, because the dissertation office rejects single-sided copies.' },
+      {
+        speaker: 'b',
+        text: 'You can, and the library printers default to double-sided anyway. Just confirm the preview, because the dissertation office rejects single-sided copies.',
+      },
       { speaker: 'a', text: 'Where do I collect it? The main library queue is always long.' },
-      { speaker: 'b', text: 'Send the job to the science library instead. It has the same machines with half the queue, and jobs wait for twelve hours before they expire.' },
+      {
+        speaker: 'b',
+        text: 'Send the job to the science library instead. It has the same machines with half the queue, and jobs wait for twelve hours before they expire.',
+      },
       { speaker: 'a', text: 'What if the printer jams halfway through?' },
-      { speaker: 'b', text: 'Do not reprint the whole file. Note the machine number and report it, because jammed pages are refunded automatically once the report is logged.' },
+      {
+        speaker: 'b',
+        text: 'Do not reprint the whole file. Note the machine number and report it, because jammed pages are refunded automatically once the report is logged.',
+      },
     ],
     keyTerms: ['portal', 'instantly', 'six pence', 'double-sided', 'twelve hours', 'refunded'],
   },
@@ -109,18 +183,43 @@ export const EXTRA_CONVERSATIONS_5: AudioScript[] = [
       { id: 'b', name: 'Administrator', role: 'Department office', voiceHint: 'mid' },
     ],
     turns: [
-      { speaker: 'a', text: 'I enrolled in the statistics module but after two weeks the pace is beyond me. Can I switch to the research methods one?' },
-      { speaker: 'b', text: 'You can, because switches are allowed until the end of week three. After Friday the enrolment locks and no changes are possible.' },
+      {
+        speaker: 'a',
+        text: 'I enrolled in the statistics module but after two weeks the pace is beyond me. Can I switch to the research methods one?',
+      },
+      {
+        speaker: 'b',
+        text: 'You can, because switches are allowed until the end of week three. After Friday the enrolment locks and no changes are possible.',
+      },
       { speaker: 'a', text: 'Will I have missed too much of the new module?' },
-      { speaker: 'b', text: 'Research methods repeats its first two weeks as a catch-up block in week four, precisely for students who transfer late. You will not be behind.' },
+      {
+        speaker: 'b',
+        text: 'Research methods repeats its first two weeks as a catch-up block in week four, precisely for students who transfer late. You will not be behind.',
+      },
       { speaker: 'a', text: 'Does the switch affect my timetable?' },
-      { speaker: 'b', text: 'Statistics meets on Monday mornings while research methods meets on Thursday afternoons, so you gain Monday and lose Thursday. Check for clashes with your part-time work.' },
+      {
+        speaker: 'b',
+        text: 'Statistics meets on Monday mornings while research methods meets on Thursday afternoons, so you gain Monday and lose Thursday. Check for clashes with your part-time work.',
+      },
       { speaker: 'a', text: 'What about the coursework I already submitted?' },
-      { speaker: 'b', text: 'Week two work does not count toward the final grade in either module — it is formative only. Nothing transfers, but equally nothing is lost.' },
+      {
+        speaker: 'b',
+        text: 'Week two work does not count toward the final grade in either module — it is formative only. Nothing transfers, but equally nothing is lost.',
+      },
       { speaker: 'a', text: 'Do I need my tutor to approve it?' },
-      { speaker: 'b', text: 'Your personal tutor must countersign the form, which you can do by email. Bring the signed form here and I will process the swap the same day.' },
+      {
+        speaker: 'b',
+        text: 'Your personal tutor must countersign the form, which you can do by email. Bring the signed form here and I will process the swap the same day.',
+      },
     ],
-    keyTerms: ['week three', 'locks', 'catch-up block', 'Thursday afternoons', 'formative', 'countersign'],
+    keyTerms: [
+      'week three',
+      'locks',
+      'catch-up block',
+      'Thursday afternoons',
+      'formative',
+      'countersign',
+    ],
   },
 ]
 
@@ -129,49 +228,43 @@ export const EXTRA_LISTENING_FIB_5: ListeningFibItem[] = [
     id: 'lfib-bus-1',
     audioId: 'con-bus-pass',
     startTurn: 1,
-    text:
-      'Because it is a photo ______ the old one will be cancelled the moment the new one is issued. If you apply online before ______ , the digital pass is active the same evening. The first replacement in an academic year costs twelve ______ .',
-    answers: [[ 'pass'], ['noon'], ['pounds']],
+    text: 'Because it is a photo ______ the old one will be cancelled the moment the new one is issued. If you apply online before ______ , the digital pass is active the same evening. The first replacement in an academic year costs twelve ______ .',
+    answers: [['pass'], ['noon'], ['pounds']],
   },
   {
     id: 'lfib-flatmate-1',
     audioId: 'con-flatmate-notice',
     startTurn: 1,
-    text:
-      'The agreement allows leaving with six ______ of written notice. You remain responsible for the ______ until a replacement signs, even after the notice period ends. The landlord returns the deposit within two ______ of the new tenant signing.',
-    answers: [[ 'weeks'], ['rent'], ['weeks']],
+    text: 'The agreement allows leaving with six ______ of written notice. You remain responsible for the ______ until a replacement signs, even after the notice period ends. The landlord returns the deposit within two ______ of the new tenant signing.',
+    answers: [['weeks'], ['rent'], ['weeks']],
   },
   {
     id: 'lfib-printer-1',
     audioId: 'con-printer-credits',
     startTurn: 1,
-    text:
-      'Top up through the student ______ , not the machines, because portal payments clear instantly. Black and white costs six ______ a side, so check your settings before printing in colour. Jobs wait for twelve ______ before they expire.',
-    answers: [[ 'portal'], ['pence'], ['hours']],
+    text: 'Top up through the student ______ , not the machines, because portal payments clear instantly. Black and white costs six ______ a side, so check your settings before printing in colour. Jobs wait for twelve ______ before they expire.',
+    answers: [['portal'], ['pence'], ['hours']],
   },
   {
     id: 'lfib-module-1',
     audioId: 'con-module-change',
     startTurn: 1,
-    text:
-      'Switches are allowed until the end of week ______ . After Friday the enrolment locks and no changes are possible. Week two work does not count toward the final ______ in either module. Your personal tutor must ______ the form.',
-    answers: [[ 'three'], ['grade'], ['countersign']],
+    text: 'Switches are allowed until the end of week ______ . After Friday the enrolment locks and no changes are possible. Week two work does not count toward the final ______ in either module. Your personal tutor must ______ the form.',
+    answers: [['three'], ['grade'], ['countersign']],
   },
   {
     id: 'lfib-bus-2',
     audioId: 'con-bus-pass',
     startTurn: 7,
-    text:
-      'Show the driver your confirmation ______ with your student number visible. That covers you for forty-eight ______ from the time of issue. The replacement keeps whatever ______ the original had.',
-    answers: [[ 'email'], ['hours'], ['zones']],
+    text: 'Show the driver your confirmation ______ with your student number visible. That covers you for forty-eight ______ from the time of issue. The replacement keeps whatever ______ the original had.',
+    answers: [['email'], ['hours'], ['zones']],
   },
   {
     id: 'lfib-printer-2',
     audioId: 'con-printer-credits',
     startTurn: 7,
-    text:
-      'Send the job to the science ______ instead, because it has half the queue. Note the machine ______ and report it, because jammed pages are refunded automatically once the ______ is logged.',
-    answers: [[ 'library'], ['number'], ['report']],
+    text: 'Send the job to the science ______ instead, because it has half the queue. Note the machine ______ and report it, because jammed pages are refunded automatically once the ______ is logged.',
+    answers: [['library'], ['number'], ['report']],
   },
 ]
 
@@ -395,27 +488,99 @@ export const EXTRA_HIGHLIGHT_INCORRECT_5: HighlightIncorrectItem[] = [
 ]
 
 export const EXTRA_DICTATION_5: DictationItem[] = [
-  { id: 'wfd-bus-1', audioId: 'con-bus-pass', turnIndex: 6, text: 'How do I travel this afternoon in the meantime?' },
-  { id: 'wfd-bus-2', audioId: 'con-bus-pass', turnIndex: 3, text: 'The plastic card follows by post within five working days.' },
-  { id: 'wfd-flatmate-1', audioId: 'con-flatmate-notice', turnIndex: 3, text: 'So the sooner we advertise, the less you pay.' },
-  { id: 'wfd-printer-1', audioId: 'con-printer-credits', turnIndex: 2, text: 'How much should I add for roughly eighty pages?' },
-  { id: 'wfd-module-1', audioId: 'con-module-change', turnIndex: 1, text: 'After Friday the enrolment locks and no changes are possible.' },
-  { id: 'wfd-module-2', audioId: 'con-module-change', turnIndex: 2, text: 'Will I have missed too much of the new module?' },
+  {
+    id: 'wfd-bus-1',
+    audioId: 'con-bus-pass',
+    turnIndex: 6,
+    text: 'How do I travel this afternoon in the meantime?',
+  },
+  {
+    id: 'wfd-bus-2',
+    audioId: 'con-bus-pass',
+    turnIndex: 3,
+    text: 'The plastic card follows by post within five working days.',
+  },
+  {
+    id: 'wfd-flatmate-1',
+    audioId: 'con-flatmate-notice',
+    turnIndex: 3,
+    text: 'So the sooner we advertise, the less you pay.',
+  },
+  {
+    id: 'wfd-printer-1',
+    audioId: 'con-printer-credits',
+    turnIndex: 2,
+    text: 'How much should I add for roughly eighty pages?',
+  },
+  {
+    id: 'wfd-module-1',
+    audioId: 'con-module-change',
+    turnIndex: 1,
+    text: 'After Friday the enrolment locks and no changes are possible.',
+  },
+  {
+    id: 'wfd-module-2',
+    audioId: 'con-module-change',
+    turnIndex: 2,
+    text: 'Will I have missed too much of the new module?',
+  },
 ]
 
 export const EXTRA_MISSING_WORD_5: MissingWordItem[] = [
   // The index pointed at "the"; the keyed word "pass" is four words later.
-  { id: 'smw-bus-1', audioId: 'con-bus-pass', turnIndex: 3, wordIndex: 8, options: ['pass', 'passes', 'passing', 'past'], correct: 0 },
+  {
+    id: 'smw-bus-1',
+    audioId: 'con-bus-pass',
+    turnIndex: 3,
+    wordIndex: 8,
+    options: ['pass', 'passes', 'passing', 'past'],
+    correct: 0,
+  },
   // The rendered clip beeps the plural spoken in that turn, so the key has to
   // be the plural too.
-  { id: 'smw-bus-2', audioId: 'con-bus-pass', turnIndex: 9, wordIndex: 4, options: ['zone', 'zones', 'zoned', 'zebra'], correct: 1 },
+  {
+    id: 'smw-bus-2',
+    audioId: 'con-bus-pass',
+    turnIndex: 9,
+    wordIndex: 4,
+    options: ['zone', 'zones', 'zoned', 'zebra'],
+    correct: 1,
+  },
   // The turn opens with "List", so the sentence's first word is the blank.
-  { id: 'smw-flatmate-1', audioId: 'con-flatmate-notice', turnIndex: 5, wordIndex: 0, options: ['list', 'lists', 'listed', 'listener'], correct: 0 },
+  {
+    id: 'smw-flatmate-1',
+    audioId: 'con-flatmate-notice',
+    turnIndex: 5,
+    wordIndex: 0,
+    options: ['list', 'lists', 'listed', 'listener'],
+    correct: 0,
+  },
   // The keyed word is spoken in turn 3, not turn 5.
-  { id: 'smw-printer-1', audioId: 'con-printer-credits', turnIndex: 3, wordIndex: 7, options: ['side', 'sides', 'sided', 'signal'], correct: 0 },
-  { id: 'smw-module-1', audioId: 'con-module-change', turnIndex: 3, wordIndex: 10, options: ['block', 'blocks', 'blocked', 'blank'], correct: 0 },
+  {
+    id: 'smw-printer-1',
+    audioId: 'con-printer-credits',
+    turnIndex: 3,
+    wordIndex: 7,
+    options: ['side', 'sides', 'sided', 'signal'],
+    correct: 0,
+  },
+  {
+    id: 'smw-module-1',
+    audioId: 'con-module-change',
+    turnIndex: 3,
+    wordIndex: 10,
+    options: ['block', 'blocks', 'blocked', 'blank'],
+    correct: 0,
+  },
   // The turn says "meets", so the key is the third person form rather than the root.
-  { id: 'smw-module-2', audioId: 'con-module-change', turnIndex: 5, wordIndex: 1, options: ['meet', 'meets', 'meeting', 'meter'], correct: 1 },
+  {
+    id: 'smw-module-2',
+    audioId: 'con-module-change',
+    turnIndex: 5,
+    wordIndex: 1,
+    options: ['meet', 'meets', 'meeting', 'meter'],
+    correct: 1,
+  },
 ]
 
 export const EXTRA_SITUATIONS_5: SituationItem[] = [

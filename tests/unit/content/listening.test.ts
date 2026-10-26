@@ -18,7 +18,10 @@ import type { HighlightIncorrectItem } from '../../../src/content/schema'
 function derivedIndices(item: HighlightIncorrectItem): number[] {
   const shown = item.transcript.split(/\s+/)
   const actual = item.correctTranscript.split(/\s+/)
-  return shown.reduce<number[]>((acc, word, index) => (word === actual[index] ? acc : [...acc, index]), [])
+  return shown.reduce<number[]>(
+    (acc, word, index) => (word === actual[index] ? acc : [...acc, index]),
+    [],
+  )
 }
 
 describe('highlight incorrect words items', () => {
@@ -39,7 +42,8 @@ describe('highlight incorrect words items', () => {
   it('keeps the two transcripts the same length in every item', () => {
     expect(
       HIGHLIGHT_INCORRECT.every(
-        (item) => item.transcript.split(/\s+/).length === item.correctTranscript.split(/\s+/).length,
+        (item) =>
+          item.transcript.split(/\s+/).length === item.correctTranscript.split(/\s+/).length,
       ),
     ).toBe(true)
   })
@@ -53,7 +57,9 @@ describe('highlight incorrect words items', () => {
   })
 
   it('gives every item a unique id', () => {
-    expect(new Set(HIGHLIGHT_INCORRECT.map((item) => item.id)).size).toBe(HIGHLIGHT_INCORRECT.length)
+    expect(new Set(HIGHLIGHT_INCORRECT.map((item) => item.id)).size).toBe(
+      HIGHLIGHT_INCORRECT.length,
+    )
   })
 })
 
@@ -102,9 +108,15 @@ type SplitFn = (this: string, separator: string | RegExp, limit?: number) => str
  * Rebuild the listening module with `patch` applied to the way a transcript
  * is split into words.
  */
-async function rebuildWithSplit(patch: (text: string, words: string[]) => string[]): Promise<unknown> {
+async function rebuildWithSplit(
+  patch: (text: string, words: string[]) => string[],
+): Promise<unknown> {
   const original = String.prototype.split as unknown as SplitFn
-  String.prototype.split = function (this: string, separator: string | RegExp, limit?: number): string[] {
+  String.prototype.split = function (
+    this: string,
+    separator: string | RegExp,
+    limit?: number,
+  ): string[] {
     const words = original.call(this, separator, limit)
     return patch(this, words)
   } as unknown as typeof String.prototype.split
@@ -119,12 +131,16 @@ async function rebuildWithSplit(patch: (text: string, words: string[]) => string
 
 describe('a transcript pair that is not a substitution', () => {
   it('refuses to build an item that inserts a word', async () => {
-    const built = rebuildWithSplit((text, words) => (text === HIW1_SHOWN ? words.slice(0, -1) : words))
+    const built = rebuildWithSplit((text, words) =>
+      text === HIW1_SHOWN ? words.slice(0, -1) : words,
+    )
     await expect(built).rejects.toThrow(/hiw-1: transcript must substitute words, not insert them/)
   })
 
   it('names the two lengths in the refusal', async () => {
-    const built = rebuildWithSplit((text, words) => (text === HIW1_SHOWN ? words.slice(0, -1) : words))
+    const built = rebuildWithSplit((text, words) =>
+      text === HIW1_SHOWN ? words.slice(0, -1) : words,
+    )
     await expect(built).rejects.toThrow(/\(23 vs 24\)/)
   })
 })

@@ -2,7 +2,14 @@ import { ALL_QUESTION_TYPES, QUESTION_META, SECTION_META } from '../domain/bluep
 import { ABOUT_FAQ, HOME_FAQ } from '../content/faq'
 import { typeSlug } from '../content/questionTypeDetail'
 import { SITE, type PageMeta } from './site'
-import { breadcrumbLd, faqLd, howToLd, itemListLd, organizationLd, webApplicationLd } from './structured'
+import {
+  breadcrumbLd,
+  faqLd,
+  howToLd,
+  itemListLd,
+  organizationLd,
+  webApplicationLd,
+} from './structured'
 import { QUESTION_TYPE_META } from './questionTypeMeta'
 
 // ---------------------------------------------------------------------------
@@ -19,8 +26,7 @@ import { QUESTION_TYPE_META } from './questionTypeMeta'
 const FORMAT_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'How long is the PTE Academic test?',
-    answer:
-      `The PTE Academic is a single computer-based test divided into three timed parts. The current section ranges are Speaking and Writing ${SECTION_META['speaking-writing'].weightNote}, Reading ${SECTION_META.reading.weightNote}, and Listening ${SECTION_META.listening.weightNote}. The minimum and maximum ranges do not add up to a fixed total.`,
+    answer: `The PTE Academic is a single computer-based test divided into three timed parts. The current section ranges are Speaking and Writing ${SECTION_META['speaking-writing'].weightNote}, Reading ${SECTION_META.reading.weightNote}, and Listening ${SECTION_META.listening.weightNote}. The minimum and maximum ranges do not add up to a fixed total.`,
   },
   {
     question: 'How many questions are in the PTE Academic?',
@@ -131,11 +137,26 @@ export const PAGE_META: Record<string, PageMeta> = {
         description:
           'Five steps to sit a realistic PTE Academic practice test and get a scored report with per-item feedback.',
         steps: [
-          { name: 'Start a full mock', text: 'Open the mock test page and choose a full-length test of all three sections.' },
-          { name: 'Set up audio', text: 'Allow playback so the listening recordings can be heard, and optionally allow microphone access for speaking items.' },
-          { name: 'Sit Part 1', text: 'Complete Speaking and Writing: read aloud, repeat sentence, describe image, re-tell lecture, answer short question, group discussion, respond to a situation, summarize written text and write essay.' },
-          { name: 'Sit Parts 2 and 3', text: 'Complete the Reading section against a single passage, then the Listening section across eight item types.' },
-          { name: 'Read the report', text: 'Review the overall score, the four skill scores, the CEFR band and a note explaining where every lost point came from.' },
+          {
+            name: 'Start a full mock',
+            text: 'Open the mock test page and choose a full-length test of all three sections.',
+          },
+          {
+            name: 'Set up audio',
+            text: 'Allow playback so the listening recordings can be heard, and optionally allow microphone access for speaking items.',
+          },
+          {
+            name: 'Sit Part 1',
+            text: 'Complete Speaking and Writing: read aloud, repeat sentence, describe image, re-tell lecture, answer short question, group discussion, respond to a situation, summarize written text and write essay.',
+          },
+          {
+            name: 'Sit Parts 2 and 3',
+            text: 'Complete the Reading section against a single passage, then the Listening section across eight item types.',
+          },
+          {
+            name: 'Read the report',
+            text: 'Review the overall score, the four skill scores, the CEFR band and a note explaining where every lost point came from.',
+          },
         ],
       }),
       faqLd(HOME_FAQ),
@@ -161,11 +182,26 @@ export const PAGE_META: Record<string, PageMeta> = {
         description:
           'Set up a realistic timed PTE Academic practice test and get a scored report with per-item feedback.',
         steps: [
-          { name: 'Choose a length', text: 'Pick a full, half or quick test, and exam or practice mode.' },
-          { name: 'Allow audio', text: 'Allow playback so the listening recordings can be heard. A microphone improves speaking estimates.' },
-          { name: 'Sit the sections in order', text: 'Speaking and Writing, then Reading, then Listening, each against its own timer.' },
-          { name: 'Answer every item', text: 'You can flag items and return to them before the section timer ends.' },
-          { name: 'Read the report', text: 'Get an overall score, four skill scores, a CEFR band and a per-item breakdown.' },
+          {
+            name: 'Choose a length',
+            text: 'Pick a full, half or quick test, and exam or practice mode.',
+          },
+          {
+            name: 'Allow audio',
+            text: 'Allow playback so the listening recordings can be heard. A microphone improves speaking estimates.',
+          },
+          {
+            name: 'Sit the sections in order',
+            text: 'Speaking and Writing, then Reading, then Listening, each against its own timer.',
+          },
+          {
+            name: 'Answer every item',
+            text: 'You can flag items and return to them before the section timer ends.',
+          },
+          {
+            name: 'Read the report',
+            text: 'Get an overall score, four skill scores, a CEFR band and a per-item breakdown.',
+          },
         ],
       }),
       breadcrumbLd([
@@ -180,9 +216,19 @@ export const PAGE_META: Record<string, PageMeta> = {
     description:
       'Practice individual PTE Academic skills and question types. Choose a skill, pick the exact types you struggle with, and get instant per-item feedback.',
     path: '/practice/',
-    keywords: ['PTE speaking practice', 'PTE writing practice', 'PTE reading practice', 'PTE listening practice'],
+    keywords: [
+      'PTE speaking practice',
+      'PTE writing practice',
+      'PTE reading practice',
+      'PTE listening practice',
+    ],
     structuredData: [
-      itemListLd(ALL_QUESTION_TYPES.map((t) => ({ name: QUESTION_META[t].label, path: `/question-types/${typeSlug(t)}/` }))),
+      itemListLd(
+        ALL_QUESTION_TYPES.map((t) => ({
+          name: QUESTION_META[t].label,
+          path: `/question-types/${typeSlug(t)}/`,
+        })),
+      ),
       breadcrumbLd([
         { name: 'Home', path: '/' },
         { name: 'Practice', path: '/practice/' },
@@ -206,18 +252,22 @@ export const PAGE_META: Record<string, PageMeta> = {
     structuredData: [
       webApplicationLd({
         name: 'PTE Academic Test Format Guide and Mock Tests',
-        description: 'The current PTE Academic test format with a free practice test for every section.',
+        description:
+          'The current PTE Academic test format with a free practice test for every section.',
         path: '/format/',
       }),
       howToLd({
         name: 'What to expect in the PTE Academic test',
-        description: 'A walkthrough of the three timed sections and the order in which question types appear.',
+        description:
+          'A walkthrough of the three timed sections and the order in which question types appear.',
         steps: (['speaking-writing', 'reading', 'listening'] as const).map((key) => ({
           name: SECTION_META[key].longTitle,
           text: `${SECTION_META[key].weightNote}. ${SECTION_META[key].blurb}`,
         })),
       }),
-      itemListLd(ALL_QUESTION_TYPES.map((t) => ({ name: QUESTION_META[t].label, path: `/format#${t}` }))),
+      itemListLd(
+        ALL_QUESTION_TYPES.map((t) => ({ name: QUESTION_META[t].label, path: `/format#${t}` })),
+      ),
       faqLd(FORMAT_FAQ),
       breadcrumbLd([
         { name: 'Home', path: '/' },
@@ -245,10 +295,22 @@ export const PAGE_META: Record<string, PageMeta> = {
         description:
           'Interpret an official PTE 10-90 score, compare with IELTS concordance bands, and match it to a CEFR level and university requirements.',
         steps: [
-          { name: 'Read the 10-90 score', text: 'Pearson reports a scaled score from 10 to 90 based on the Global Scale of English. Higher is better and the scale has no fixed pass mark.' },
-          { name: 'Compare with IELTS bands', text: 'Use Pearson’s published concordance: 47–54 is IELTS 6.0, 55–62 is IELTS 6.5, 63–70 is IELTS 7.0, and 71–78 is IELTS 7.5.' },
-          { name: 'Match it to a CEFR level', text: 'Scores from 43 to 58 correspond to B1, 59 to 75 to B2, 76 to 84 to C1, and 85 to 90 to C2.' },
-          { name: 'Check university requirements', text: 'Most UK undergraduate courses ask for 50 to 58 (IELTS 6.0–6.5). Taught postgraduate programmes commonly require 59 to 65 (IELTS 6.5–7.0) or 66 to 75 (IELTS 7.0–7.5).' },
+          {
+            name: 'Read the 10-90 score',
+            text: 'Pearson reports a scaled score from 10 to 90 based on the Global Scale of English. Higher is better and the scale has no fixed pass mark.',
+          },
+          {
+            name: 'Compare with IELTS bands',
+            text: 'Use Pearson’s published concordance: 47–54 is IELTS 6.0, 55–62 is IELTS 6.5, 63–70 is IELTS 7.0, and 71–78 is IELTS 7.5.',
+          },
+          {
+            name: 'Match it to a CEFR level',
+            text: 'Scores from 43 to 58 correspond to B1, 59 to 75 to B2, 76 to 84 to C1, and 85 to 90 to C2.',
+          },
+          {
+            name: 'Check university requirements',
+            text: 'Most UK undergraduate courses ask for 50 to 58 (IELTS 6.0–6.5). Taught postgraduate programmes commonly require 59 to 65 (IELTS 6.5–7.0) or 66 to 75 (IELTS 7.0–7.5).',
+          },
         ],
       }),
       faqLd(SCORING_FAQ),
@@ -278,14 +340,31 @@ export const PAGE_META: Record<string, PageMeta> = {
         description:
           'A practical sequence of improvements that move a PTE score the most for the least study time.',
         steps: [
-          { name: 'Fix the objective items', text: 'Fill in the Blanks and Re-order Paragraphs have deterministic answers with partial credit, so improvement here is immediate and measurable.' },
-          { name: 'Practice Repeat Sentence daily', text: 'Ten items a day trains listening accuracy, speaking fluency and pronunciation at the same time.' },
-          { name: 'Learn a fixed structure for the essay', text: 'Four paragraphs with explicit linking words protect the development and coherence traits under time pressure.' },
-          { name: 'Use a skeleton for Re-tell Lecture and Summarize Group Discussion', text: 'Note three or four keywords during playback and re-tell from the skeleton rather than trying to remember sentences.' },
-          { name: 'Sit full mocks under real time pressure', text: 'At least every third attempt should be in exam mode, because timing is part of what the test measures.' },
+          {
+            name: 'Fix the objective items',
+            text: 'Fill in the Blanks and Re-order Paragraphs have deterministic answers with partial credit, so improvement here is immediate and measurable.',
+          },
+          {
+            name: 'Practice Repeat Sentence daily',
+            text: 'Ten items a day trains listening accuracy, speaking fluency and pronunciation at the same time.',
+          },
+          {
+            name: 'Learn a fixed structure for the essay',
+            text: 'Four paragraphs with explicit linking words protect the development and coherence traits under time pressure.',
+          },
+          {
+            name: 'Use a skeleton for Re-tell Lecture and Summarize Group Discussion',
+            text: 'Note three or four keywords during playback and re-tell from the skeleton rather than trying to remember sentences.',
+          },
+          {
+            name: 'Sit full mocks under real time pressure',
+            text: 'At least every third attempt should be in exam mode, because timing is part of what the test measures.',
+          },
         ],
       }),
-      itemListLd(ALL_QUESTION_TYPES.map((t) => ({ name: QUESTION_META[t].label, path: `/guide#${t}` }))),
+      itemListLd(
+        ALL_QUESTION_TYPES.map((t) => ({ name: QUESTION_META[t].label, path: `/guide#${t}` })),
+      ),
       faqLd(GUIDE_FAQ),
       breadcrumbLd([
         { name: 'Home', path: '/' },
@@ -358,7 +437,8 @@ export const PAGE_META: Record<string, PageMeta> = {
   // there is no flicker between the static document and the hydrated one.
   '/result': {
     title: 'Your mock score — PTE Prep',
-    description: 'Your PTE Academic mock score, with per-item feedback, CEFR band and progress history.',
+    description:
+      'Your PTE Academic mock score, with per-item feedback, CEFR band and progress history.',
     path: '/result/',
     noindex: true,
   },

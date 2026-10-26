@@ -424,7 +424,9 @@ describe('AudioPlayer', () => {
       'true',
     )
     expect(screen.getAllByText(/Ms Aldana:/).length).toBeGreaterThan(0)
-    expect(screen.getByText(/marginal cost of serving an additional subscriber/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/marginal cost of serving an additional subscriber/),
+    ).toBeInTheDocument()
   })
 
   it('hides the transcript again', () => {
@@ -617,9 +619,7 @@ describe('AudioPlayer', () => {
     stubPlayFailing()
     stallVoices()
     const cancel = vi.spyOn(window.speechSynthesis, 'cancel')
-    const { unmount } = render(
-      <AudioPlayer audioId={AUDIO_ID} fromTurn={0} beepWord={4} />,
-    )
+    const { unmount } = render(<AudioPlayer audioId={AUDIO_ID} fromTurn={0} beepWord={4} />)
 
     fireEvent.click(screen.getByRole('button', { name: /^Play/ }))
     act(() => {

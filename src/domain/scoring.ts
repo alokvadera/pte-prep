@@ -135,10 +135,14 @@ function oralFluency(
 
   const score = clamp(band / 5, 0, 1)
   const notes: string[] = []
-  if (wpm < 115) notes.push(`Speaking pace was about ${wpm} wpm — the guide expects a smooth, even rhythm.`)
+  if (wpm < 115)
+    notes.push(`Speaking pace was about ${wpm} wpm — the guide expects a smooth, even rhythm.`)
   if (wpm > 195) notes.push(`Speaking pace was about ${wpm} wpm — rushed delivery costs fluency.`)
   /* v8 ignore next -- a burden above one means more than one pause */
-  if (burden > 1) notes.push(`${pauses} long pause${pauses > 1 ? 's' : ''} inside the response; band 3 allows hesitations but no long pauses.`)
+  if (burden > 1)
+    notes.push(
+      `${pauses} long pause${pauses > 1 ? 's' : ''} inside the response; band 3 allows hesitations but no long pauses.`,
+    )
   return { score, note: notes.join(' ') }
 }
 
@@ -158,7 +162,10 @@ function pronunciation(
   // A take with no transcript still has pitch and energy to measure. Only a
   // take with no speech in it at all is unmeasured.
   if (!a || !a.reliable || (wordsSpoken === 0 && (a.wordsPerMinute ?? 0) <= 0 && !speechDetected)) {
-    return { score: 0.5, note: 'Pronunciation was not measured — record the answer to score this trait.' }
+    return {
+      score: 0.5,
+      note: 'Pronunciation was not measured — record the answer to score this trait.',
+    }
   }
   const variation = clamp(a.energyVariance / 0.5, 0, 1)
   const pitch = a.meanPitchHz
@@ -166,7 +173,8 @@ function pronunciation(
   const pitchFit = pitch === null ? 0.55 : clamp(1 - Math.abs(pitch - 180) / 150, 0.25, 1)
   const intelligibility = clamp(1 - Math.max(0, 0.7 - a.speechRatio) * 0.8, 0.3, 1)
   const score = clamp(variation * 0.45 + pitchFit * 0.3 + intelligibility * 0.25, 0, 1)
-  if (score < 0.4) return { score, note: 'Delivery was flat, with little variation in volume or pitch.' }
+  if (score < 0.4)
+    return { score, note: 'Delivery was flat, with little variation in volume or pitch.' }
   return { score, note: '' }
 }
 
@@ -229,7 +237,10 @@ function formZeroTrigger(text: string): string | null {
     return 'the response has no sentence-ending punctuation'
   }
 
-  const lines = text.split('\n').map((l) => l.trim()).filter((l) => l.length > 0)
+  const lines = text
+    .split('\n')
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0)
   const bullets = lines.filter((l) => /^[-*•]/.test(l)).length
   if (lines.length >= 3 && bullets >= Math.max(3, Math.ceil(lines.length * 0.6))) {
     return 'the response is a list of bullets'
@@ -243,7 +254,10 @@ function formZeroTrigger(text: string): string | null {
   return null
 }
 
-export function formBand(type: Item['type'], text: string): { score: number; max: number; note: string } {
+export function formBand(
+  type: Item['type'],
+  text: string,
+): { score: number; max: number; note: string } {
   const wc = wordCount(text)
   const hasEndPunctuation = endsWithSentencePunctuation(text)
   const sentenceCount = splitSentences(text).length
@@ -263,7 +277,8 @@ export function formBand(type: Item['type'], text: string): { score: number; max
   }
 
   if (type === 'write-essay') {
-    if (formZero) return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
+    if (formZero)
+      return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
     if (wc >= 200 && wc <= 300) return { score: 1, max: 1, note: '' }
     if ((wc >= 120 && wc <= 199) || (wc >= 301 && wc <= 380)) {
       return { score: 0.5, max: 1, note: `Form 1: ${wc} words — the top band is 200 to 300.` }
@@ -276,7 +291,8 @@ export function formBand(type: Item['type'], text: string): { score: number; max
   }
 
   if (type === 'summarize-spoken-text') {
-    if (formZero) return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
+    if (formZero)
+      return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
     if (wc >= 50 && wc <= 70) return { score: 1, max: 1, note: '' }
     if ((wc >= 40 && wc <= 49) || (wc >= 71 && wc <= 100)) {
       return { score: 0.5, max: 1, note: `Form 1: ${wc} words — the top band is 50 to 70.` }
@@ -289,11 +305,15 @@ export function formBand(type: Item['type'], text: string): { score: number; max
   }
 
   // Any remaining written type keeps the generic band, Form 0 still dominant.
-  if (formZero) return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
+  if (formZero)
+    return { score: 0, max: 1, note: `Form 0: ${formZero} — form 0 scores the item at zero.` }
   return { score: 0.5, max: 1, note: '' }
 }
 
-function writingQuality(text: string, keyTerms: string[]): { grammar: number; vocabulary: number; spelling: number; note: string } {
+function writingQuality(
+  text: string,
+  keyTerms: string[],
+): { grammar: number; vocabulary: number; spelling: number; note: string } {
   const wc = wordCount(text)
   if (wc === 0) return { grammar: 0, vocabulary: 0, spelling: 0, note: '' }
 
@@ -308,11 +328,15 @@ function writingQuality(text: string, keyTerms: string[]): { grammar: number; vo
 
   const notes: string[] = []
   if (nearMiss > 2) notes.push(`${nearMiss} probable spelling errors in key vocabulary.`)
-  if (rep > 0.2) notes.push('The same words recur often, which reads as limited grammatical control.')
+  if (rep > 0.2)
+    notes.push('The same words recur often, which reads as limited grammatical control.')
   return { grammar, vocabulary, spelling, note: notes.join(' ') }
 }
 
-function developmentScore(text: string, isEssay: boolean): { development: number; range: number; note: string } {
+function developmentScore(
+  text: string,
+  isEssay: boolean,
+): { development: number; range: number; note: string } {
   const wc = wordCount(text)
   if (wc === 0) return { development: 0, range: 0, note: '' }
   const sents = splitSentences(text)
@@ -331,11 +355,18 @@ function developmentScore(text: string, isEssay: boolean): { development: number
     else if (connectives >= 2) d += 1
     if (sents.length >= 10) d += 1
     if (variety > 0.3) d += 1
-    if (paragraphs < 3) notes.push('The guide expects an introduction, body paragraphs and a conclusion; band 6 is unlikely below three paragraphs.')
-    if (connectives < 2) notes.push('Very few linking words — the ideas read as a list rather than an argument.')
+    if (paragraphs < 3)
+      notes.push(
+        'The guide expects an introduction, body paragraphs and a conclusion; band 6 is unlikely below three paragraphs.',
+      )
+    if (connectives < 2)
+      notes.push('Very few linking words — the ideas read as a list rather than an argument.')
 
     // General Linguistic Range 0–6.
-    const r = clamp((asl - 8) / 20, 0, 1) * 2 + clamp((variety - 0.15) / 0.45, 0, 1) * 2 + clamp(connectives / 4, 0, 1) * 2
+    const r =
+      clamp((asl - 8) / 20, 0, 1) * 2 +
+      clamp((variety - 0.15) / 0.45, 0, 1) * 2 +
+      clamp(connectives / 4, 0, 1) * 2
     return { development: clamp(d / 6, 0, 1), range: clamp(r / 6, 0, 1), note: notes.join(' ') }
   }
 
@@ -345,12 +376,16 @@ function developmentScore(text: string, isEssay: boolean): { development: number
 }
 
 /** Content for a target-text item: the published error-count basis, estimated. */
-function contentAgainstTarget(spoken: string, reference: string): { content: number; note: string } {
+function contentAgainstTarget(
+  spoken: string,
+  reference: string,
+): { content: number; note: string } {
   if (!spoken) return { content: 0, note: '' }
   const ref = contentWords(reference)
   if (ref.length === 0) return { content: 0, note: '' }
   const got = contentWords(spoken)
-  if (got.length === 0) return { content: 0, note: 'No content words from the prompt were produced.' }
+  if (got.length === 0)
+    return { content: 0, note: 'No content words from the prompt were produced.' }
 
   // Replacements, omissions and insertions are errors; extra leading and
   // trailing material is explicitly ignored.
@@ -367,12 +402,18 @@ function contentAgainstTarget(spoken: string, reference: string): { content: num
   // Order matters too, so blend in the in-sequence match above.
   return {
     content: clamp(hitRate, 0, 1),
-    note: hitRate >= 0.999 ? '' : `About ${Math.round(hitRate * 100)}% of the prompt's words were reproduced in the correct sequence.`,
+    note:
+      hitRate >= 0.999
+        ? ''
+        : `About ${Math.round(hitRate * 100)}% of the prompt's words were reproduced in the correct sequence.`,
   }
 }
 
 /** Content for a summary-style item: key-term coverage, length-aware. */
-function contentAgainstTerms(spoken: string, keyTerms: string[]): { content: number; note: string } {
+function contentAgainstTerms(
+  spoken: string,
+  keyTerms: string[],
+): { content: number; note: string } {
   if (!spoken) return { content: 0, note: '' }
   const coverage = keyTermCoverage(spoken, keyTerms)
   const match = softF1(spoken, keyTerms)
@@ -381,10 +422,14 @@ function contentAgainstTerms(spoken: string, keyTerms: string[]): { content: num
   // This note is only shown when Content itself is zero. A low-but-non-zero
   // coverage still earns `match * 0.4`, so the item does NOT score zero here
   // and the feedback must not claim that it does.
-  if (content <= 0) notes.push('Nothing from the source made it into the response, so Content scores 0 and the item scores zero however well it was delivered.')
+  if (content <= 0)
+    notes.push(
+      'Nothing from the source made it into the response, so Content scores 0 and the item scores zero however well it was delivered.',
+    )
   else if (coverage < 0.25) notes.push('Very few of the main points from the source were captured.')
   else if (coverage < 0.5) notes.push('Only some of the main points were captured.')
-  else if (coverage < 0.8) notes.push('Most main points were captured, with some important detail missing.')
+  else if (coverage < 0.8)
+    notes.push('Most main points were captured, with some important detail missing.')
   return { content, note: notes.join(' ') }
 }
 
@@ -415,11 +460,7 @@ export const CONTENT_MAX: Partial<Record<Item['type'], number>> = {
   'repeat-sentence': 3,
 }
 
-function scoreSpoken(
-  item: Item,
-  response: ItemResponse,
-  key: AnswerKey,
-): ConstructedScore {
+function scoreSpoken(item: Item, response: ItemResponse, key: AnswerKey): ConstructedScore {
   const notes: string[] = []
   const transcript = (response.transcript ?? '').trim()
   const typed = (response.text ?? '').trim()
@@ -636,7 +677,12 @@ function scoreAnswerShortQuestion(response: ItemResponse, key: AnswerKey): Const
   const given = typed || spoken
   if (!given) return { ratio: 0, notes: ['No answer was given.'] }
 
-  const normalize = (v: string) => v.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim()
+  const normalize = (v: string) =>
+    v
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
   const accepted = (key.blanks ?? []).map((b) => b[0] ?? '').filter(Boolean)
   const candidates = accepted.length > 0 ? accepted : [key.correctChoice ?? '']
   const normGiven = normalize(given)
@@ -669,7 +715,13 @@ function scoreBlanks(response: ItemResponse, key: AnswerKey): ConstructedScore {
   const answers = key.blanks ?? []
   if (answers.length === 0) return { ratio: 0, notes: ['Not scored.'] }
 
-  const normalize = (v: string) => v.trim().toLowerCase().replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim()
+  const normalize = (v: string) =>
+    v
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9 ]/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
   let hits = 0
   const missed: number[] = []
   answers.forEach((accepted, i) => {
@@ -731,13 +783,18 @@ function scoreWordByWord(response: ItemResponse, key: AnswerKey): ConstructedSco
 
   const notes: string[] = []
   if (wrongWords.length > 0) {
-    notes.push(`${hits} of ${expected.length} words correct. ${wrongWords.slice(0, 5).join(', ')}${wrongWords.length > 5 ? '…' : ''}`)
+    notes.push(
+      `${hits} of ${expected.length} words correct. ${wrongWords.slice(0, 5).join(', ')}${wrongWords.length > 5 ? '…' : ''}`,
+    )
   }
   return { ratio: hits / expected.length, notes }
 }
 
 /** Multiple Choice Multiple Answers and Highlight Incorrect Words. */
-function scoreNegated(correctSet: Set<number | string>, given: Array<number | string>): ConstructedScore {
+function scoreNegated(
+  correctSet: Set<number | string>,
+  given: Array<number | string>,
+): ConstructedScore {
   const uniqueGiven = new Set(given)
   let correct = 0
   let incorrect = 0
@@ -830,15 +887,39 @@ export function expectedMaxPoints(type: Item['type'], key: AnswerKey): number {
   }
 }
 
-export function scoreItem(item: Item, key: AnswerKey, response: ItemResponse | undefined): ItemScoreDetail {
+export function scoreItem(
+  item: Item,
+  key: AnswerKey,
+  response: ItemResponse | undefined,
+): ItemScoreDetail {
   const meta = QUESTION_META[item.type]
   const r = response ?? {}
-  const base = { itemId: item.id, type: item.type, label: meta.label, skills: item.skills, maxPoints: item.maxPoints }
+  const base = {
+    itemId: item.id,
+    type: item.type,
+    label: meta.label,
+    skills: item.skills,
+    maxPoints: item.maxPoints,
+  }
 
-  const finish = (ratio: number, notes: string[], detail?: Partial<ItemScoreDetail>): ItemScoreDetail => {
+  const finish = (
+    ratio: number,
+    notes: string[],
+    detail?: Partial<ItemScoreDetail>,
+  ): ItemScoreDetail => {
     const points = Math.max(0, Math.min(item.maxPoints, ratio * item.maxPoints))
-    const status: ItemScoreDetail['status'] = ratio === 0 ? 'incorrect' : ratio >= 0.999 ? 'correct' : 'partial'
-    return { ...base, points, ratio, status, notes, reference: key.reference, tokens: item.tokens, ...detail }
+    const status: ItemScoreDetail['status'] =
+      ratio === 0 ? 'incorrect' : ratio >= 0.999 ? 'correct' : 'partial'
+    return {
+      ...base,
+      points,
+      ratio,
+      status,
+      notes,
+      reference: key.reference,
+      tokens: item.tokens,
+      ...detail,
+    }
   }
 
   // A short answer is scored by the binary case below, and a binary type is
@@ -884,7 +965,10 @@ export function scoreItem(item: Item, key: AnswerKey, response: ItemResponse | u
         return finish(s.ratio, s.notes)
       }
       const correct = new Set((key.correctChoices ?? []).map((c) => c.toLowerCase()))
-      const s = scoreNegated(correct, (r.choices ?? []).map((c) => c.toLowerCase()))
+      const s = scoreNegated(
+        correct,
+        (r.choices ?? []).map((c) => c.toLowerCase()),
+      )
       return finish(s.ratio, s.notes)
     }
 
@@ -1134,9 +1218,7 @@ export function nextBand(band: string): { min: number; band: string } | null {
 }
 
 /** The full band table, for the score guide page and the range bar. */
-export const CEFR_BANDS: ReadonlyArray<{ min: number; band: string; label: string }> = [
-  ...BANDS,
-]
+export const CEFR_BANDS: ReadonlyArray<{ min: number; band: string; label: string }> = [...BANDS]
 
 /** Official PTE Academic ↔ IELTS concordance, Pearson July 2025. */
 export const IELTS_CONCORDANCE: ReadonlyArray<{ band: string; min: number; max: number }> = [
@@ -1162,10 +1244,26 @@ function bandIndex(band: string): number {
 }
 
 export const ADMISSION_TARGETS = [
-  { label: 'Many UK universities', range: '50–60', note: 'Most undergraduate UK courses ask for 50–60, with some demanding 59–63.' },
-  { label: 'Postgraduate / taught', range: '60–70', note: 'Common minimum for taught postgraduate and professional programmes.' },
-  { label: 'Teacher registration', range: '63+', note: 'Required by several teaching councils before registration.' },
-  { label: 'Competitive courses', range: '70+', note: 'Medicine, dentistry and law frequently set higher thresholds.' },
+  {
+    label: 'Many UK universities',
+    range: '50–60',
+    note: 'Most undergraduate UK courses ask for 50–60, with some demanding 59–63.',
+  },
+  {
+    label: 'Postgraduate / taught',
+    range: '60–70',
+    note: 'Common minimum for taught postgraduate and professional programmes.',
+  },
+  {
+    label: 'Teacher registration',
+    range: '63+',
+    note: 'Required by several teaching councils before registration.',
+  },
+  {
+    label: 'Competitive courses',
+    range: '70+',
+    note: 'Medicine, dentistry and law frequently set higher thresholds.',
+  },
 ]
 
 export { NEGATIVE_MARKING_TYPES }

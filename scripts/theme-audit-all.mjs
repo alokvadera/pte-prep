@@ -75,7 +75,9 @@ if (!bin) {
   console.log('\n  Theme audit — no Chrome binary found, skipping.\n')
   const allowSkip = process.argv.includes('--allow-skip') || process.env.ALLOW_SKIP_BROWSER === '1'
   if ((process.env.CI || process.argv.includes('--strict')) && !allowSkip) {
-    console.error('  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.\n')
+    console.error(
+      '  Failing because Chrome is required in CI or when --strict is passed. Use --allow-skip to bypass.\n',
+    )
     process.exit(1)
   }
   process.exit(0)
@@ -83,18 +85,15 @@ if (!bin) {
 
 const profile = await mkdtemp(path.join(tmpdir(), 'pte-theme-audit-'))
 const port = 9800 + Math.floor(Math.random() * 150)
-const chrome = spawnChrome(
-  bin,
-  [
-    '--headless=new',
-    '--disable-gpu',
-    '--hide-scrollbars',
-    `--remote-debugging-port=${port}`,
-    `--user-data-dir=${profile}`,
-    '--no-first-run',
-    'about:blank',
-  ],
-)
+const chrome = spawnChrome(bin, [
+  '--headless=new',
+  '--disable-gpu',
+  '--hide-scrollbars',
+  `--remote-debugging-port=${port}`,
+  `--user-data-dir=${profile}`,
+  '--no-first-run',
+  'about:blank',
+])
 
 async function firstPageTarget() {
   for (let i = 0; i < 60; i++) {
@@ -280,15 +279,21 @@ for (const theme of ['light', 'dark']) {
     if (bad.length > 0) {
       totalFailures += bad.length
       issuesByRoute.push({ theme, route, bad })
-      console.log(`  [FAIL] ${theme.padEnd(5)} ${route.padEnd(42)} ${bad.length} contrast issues (of ${rows.length} styles)`)
+      console.log(
+        `  [FAIL] ${theme.padEnd(5)} ${route.padEnd(42)} ${bad.length} contrast issues (of ${rows.length} styles)`,
+      )
       for (const item of bad.slice(0, 5)) {
-        console.log(`         -> ${item.ratio}:1 (need ${item.need}) <${item.tag}> "${item.text}" (${item.fg} on ${item.bg}) [${item.cls}]`)
+        console.log(
+          `         -> ${item.ratio}:1 (need ${item.need}) <${item.tag}> "${item.text}" (${item.fg} on ${item.bg}) [${item.cls}]`,
+        )
       }
       if (bad.length > 5) {
         console.log(`         ... and ${bad.length - 5} more`)
       }
     } else {
-      console.log(`  [PASS] ${theme.padEnd(5)} ${route.padEnd(42)} ${String(rows.length).padStart(3)} styles legible`)
+      console.log(
+        `  [PASS] ${theme.padEnd(5)} ${route.padEnd(42)} ${String(rows.length).padStart(3)} styles legible`,
+      )
     }
   }
 }

@@ -49,7 +49,8 @@ describe('speech synthesis without a DOM', () => {
   })
 
   it('does not throw when playing a tone', async () => {
-    const { playTone, playCountdownBeep, playSuccessTone, playErrorTone } = await import('../../src/lib/speech')
+    const { playTone, playCountdownBeep, playSuccessTone, playErrorTone } =
+      await import('../../src/lib/speech')
     expect(() => playTone()).not.toThrow()
     expect(() => playCountdownBeep(3)).not.toThrow()
     expect(() => playSuccessTone()).not.toThrow()
@@ -153,7 +154,11 @@ describe('the component gallery without a DOM', () => {
     const { default: UiElements } = await import('../../src/pages/UiElements')
 
     const html = renderToStaticMarkup(
-      React.createElement(StaticRouter, { location: '/ui-elements' }, React.createElement(UiElements)),
+      React.createElement(
+        StaticRouter,
+        { location: '/ui-elements' },
+        React.createElement(UiElements),
+      ),
     )
 
     // The streak and the heatmap are drawn from browser state, so the server
