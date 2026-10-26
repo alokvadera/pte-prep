@@ -1269,9 +1269,9 @@ describe('POST /api/auth/forgot-password', () => {
     expect(fetch).toHaveBeenCalledTimes(0)
   })
 
-  it('returns 503 when the email cannot be delivered', async () => {
+  it('answers generically when the email cannot be delivered, so the response cannot confirm the account', async () => {
     stubBrevo(false)
-    vi.spyOn(console, 'error').mockImplementation(() => undefined)
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
     const mock = createD1Mock()
     await seedUser(mock, { email: 'user@pte.test', password: 'password123' })
     const ctx = makeContext({
@@ -1281,10 +1281,11 @@ describe('POST /api/auth/forgot-password', () => {
 
     const res = await forgotPost(ctx)
 
-    expect(res.status).toBe(503)
-    expect(await readJson(res)).toEqual({
-      error: 'Email delivery failed. Please try again later.',
-    })
+    // A 503 here would only ever be reachable for a registered address, which
+    // is exactly the enumeration signal the generic response exists to hide.
+    expect(res.status).toBe(200)
+    expect(await readJson(res)).toEqual(GENERIC)
+    expect(warn).toHaveBeenCalledWith('Failed to send reset email via Brevo:', expect.anything())
   })
 
   it('builds the reset link from SITE_ORIGIN when it is set', async () => {
@@ -1517,6 +1518,31 @@ describe('POST /api/auth/reset-password', () => {
     expect(body.user).toEqual({ id: row.id, email: 'user@pte.test', targetScore: 65 })
     expect(mock.users.get(row.id)?.password_hash).not.toBe(oldHash)
     expect(mock.sessions.size).toBe(1)
+  })
+
+  it('invalidates the account\'s other outstanding reset links', async () => {
+    const mock = createD1Mock()
+    const { row } = await seedUser(mock, { email: 'user@pte.test', password: 'password123' })
+    await seedResetToken(mock, row.id)
+    const otherHash = await sha256Hex('another-outstanding-reset-token')
+    mock.resets.set(otherHash, {
+      id: 'rst_other',
+      user_id: row.id,
+      token_hash: otherHash,
+      expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+      created_at: new Date().toISOString(),
+      used_at: null,
+    })
+    const ctx = makeContext({
+      request: jsonRequest(RESET_URL, { token: RAW_TOKEN, password: 'newpassword123' }),
+      env: makeEnv({ DB: mock.db }),
+    })
+
+    const res = await resetPost(ctx)
+
+    expect(res.status).toBe(200)
+    // A second link issued before the reset must not survive it.
+    expect(mock.resets.get(otherHash)?.used_at).not.toBeNull()
   })
 
   it('answers 200 without a token when the user row has gone', async () => {

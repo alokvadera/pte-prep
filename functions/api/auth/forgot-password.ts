@@ -73,6 +73,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     },
   )
 
+  // Expired links are unusable, and every reset adds a row to this table. The
+  // cleanup is best-effort: a failure must not break the request.
+  await db
+    .prepare("DELETE FROM password_resets WHERE datetime(expires_at) <= datetime('now')")
+    .run()
+    .catch((err) => console.warn('[Auth] Reset token cleanup failed:', err))
+
   // Look up user
   const user = await db
     .prepare('SELECT id, email FROM users WHERE email = ?')
@@ -164,11 +171,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   })
 
   if (!sendRes.ok) {
+    // Answer exactly as if the mail had gone out. Only a registered address
+    // reaches this branch, so a 503 here would confirm that the account exists
+    // — the one thing the generic response above is built to hide. The failure
+    // is logged for the operator instead.
     console.warn('Failed to send reset email via Brevo:', sendRes.error)
-    return new Response(
-      JSON.stringify({ error: 'Email delivery failed. Please try again later.' }),
-      { status: 503, headers: { 'Content-Type': 'application/json' } },
-    )
+    await padDuration(start, 350)
+    return genericSuccess
   }
 
   return genericSuccess

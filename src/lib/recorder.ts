@@ -390,6 +390,11 @@ export class VoiceRecorder {
       pauseCount: this.pauses,
       meanPitchHz: meanPitch,
       energyVariance: Math.round(energyVariance * 100) / 100,
+      // Measured from the level meter, so this is true even when no transcript
+      // was produced (Safari, Firefox, or a failed transcription). The scorer
+      // needs it precisely then: `wordsPerMinute` is derived from the
+      // transcript and is 0 in that case, which would read as silence.
+      speechDetected: this.speechFrames > 0,
       reliable,
     }
 

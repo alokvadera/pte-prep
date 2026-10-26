@@ -168,8 +168,8 @@ describe('full report', () => {
     expect(['B2', 'C1', 'C2']).toContain(perfect.cefr)
   })
 
-  it('tracks the legacy overall60 alongside the 10-90 score', () => {
-    expect(perfect.overall60).toBe(perfect.overall + 50)
+  it('reports the 10-90 overall and no made-up 60-point scale', () => {
+    expect('overall60' in perfect).toBe(false)
   })
 
   it('reports all four skills', () => {
@@ -195,6 +195,19 @@ describe('full report', () => {
 
   it('covers every type in the breakdown', () => {
     expect(Object.keys(perfect.breakdown)).toHaveLength(Object.keys(typeCounts).length)
+  })
+
+  it('excludes unscored warm-up items from type breakdown counts', () => {
+    const fullMockWithWarmup = mock
+    const allItems = Object.values(fullMockWithWarmup.items)
+    const warmupItem = allItems.find((i) => i.warmup || i.maxPoints === 0)
+    expect(warmupItem).toBeDefined()
+    if (warmupItem) {
+      const typeStat = perfect.breakdown[warmupItem.type]
+      // Scored items of that type should not include the warmup item
+      const scoredCount = allItems.filter((i) => i.type === warmupItem.type && i.maxPoints > 0).length
+      expect(typeStat?.total).toBe(scoredCount)
+    }
   })
 
   it('makes the breakdown totals match the available points', () => {

@@ -70,7 +70,6 @@ function anAttempt(overrides: Partial<AttemptRecord> = {}): AttemptRecord {
   return makeAttempt({
     id: 'attempt-1',
     overallScore: 63,
-    overallScore60: 113,
     cefr: 'C1',
     availablePoints: 40,
     earnedPoints: 26,

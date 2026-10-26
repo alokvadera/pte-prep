@@ -88,7 +88,6 @@ export function makeAttempt(overrides: Partial<AttemptRecord> = {}): AttemptReco
     skillScores: { listening: 60, reading: 60, speaking: 60, writing: 60 } as Partial<Record<Skill, number>>,
     overallIsEstimate: true,
     overallScore: 60,
-    overallScore60: 60,
     cefr: 'B2',
     completedItemIds: [],
     breakdown: {},

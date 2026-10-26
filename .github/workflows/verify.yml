@@ -38,7 +38,7 @@ jobs:
       - name: Verify
         # Typecheck, lint, the legacy suites, the coverage gate, contrast and
         # the SEO audit. The coverage thresholds in vitest.config.ts fail the
-        # run if any file drops below 100%.
+        # run if any metric drops below 99%.
         run: npm run verify
 
       - name: Browser checks

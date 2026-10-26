@@ -46,7 +46,6 @@ function attempt(finishedAt: string, breakdown: Record<string, TypeStat>): Attem
     skillScores: {},
     overallIsEstimate: true,
     overallScore: 50,
-    overallScore60: 100,
     cefr: 'B1',
     completedItemIds: [],
     breakdown,

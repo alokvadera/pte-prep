@@ -550,6 +550,57 @@ describe('spoken items', () => {
     expect(detail.notes.some((note) => /speech recognition/.test(note))).toBe(true)
   })
 
+  it('reads the microphone signal, not the pace, when there is no transcript', () => {
+    // The recorder derives wordsPerMinute from the transcript, so a real take
+    // from a browser without speech recognition arrives with pace 0 and only
+    // the acoustic fields set. That used to fall through the gate as silence.
+    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, {
+      audio: audio({ wordsPerMinute: 0, speechDetected: true }),
+    })
+    expect(detail.ratio).toBeGreaterThan(0)
+    expect(detail.ratio).toBeLessThanOrEqual(0.45)
+    expect(detail.gated).toBeUndefined()
+    expect(detail.notes.some((note) => /did not transcribe/.test(note))).toBe(true)
+  })
+
+  it('does not claim silence when the microphone heard speech but no transcript', () => {
+    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, {
+      audio: audio({ wordsPerMinute: 0, speechDetected: true }),
+    })
+    expect(detail.notes).toContain(
+      'Pace could not be measured because this browser did not transcribe the recording.',
+    )
+    expect(detail.notes).not.toContain('Nothing was spoken.')
+  })
+
+  it('caps delivery-only credit below the item maximum', () => {
+    const strong = scoreItem(readAloud, { reference: LONG_TEXT }, {
+      audio: audio({ wordsPerMinute: 0, speechDetected: true }),
+    })
+    expect(strong.ratio).toBe(0.45)
+
+    // Weak delivery stays under the cap rather than being lifted to it.
+    const weak = scoreItem(readAloud, { reference: LONG_TEXT }, {
+      audio: audio({
+        wordsPerMinute: 0,
+        speechDetected: true,
+        energyVariance: 0.02,
+        meanPitchHz: 400,
+        speechRatio: 0.3,
+      }),
+    })
+    expect(weak.ratio).toBeGreaterThan(0)
+    expect(weak.ratio).toBeLessThan(0.45)
+  })
+
+  it('does not credit an unreliable recording that produced no transcript', () => {
+    const detail = scoreItem(readAloud, { reference: LONG_TEXT }, {
+      audio: audio({ wordsPerMinute: 0, speechDetected: true, reliable: false }),
+    })
+    expect(detail.ratio).toBe(0)
+    expect(detail.gated).toBe(true)
+  })
+
   it('scores a re-tell lecture against its key terms', () => {
     const retell = makeItem('retell-lecture', { responseKind: 'audio' })
     const detail = scoreItem(retell, { reference: LONG_TEXT, keyTerms: ['committee', 'measurements', 'instrument'] }, {

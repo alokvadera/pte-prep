@@ -1,26 +1,7 @@
 import type { Env } from '../../types'
 import { extractBearerToken, requireSecret, verifySessionToken } from '../../lib/auth'
 import { checkRateLimit, rateLimitExceededResponse } from '../../lib/rateLimit'
-
-interface RawAttemptRow {
-  id: string
-  user_id: string
-  mock_id: string
-  mock_title: string
-  mode: string
-  started_at: string
-  finished_at: string
-  duration_ms: number
-  overall_score: number
-  overall_score_60: number
-  cefr: string
-  earned_points: number
-  available_points: number
-  skill_scores: string
-  breakdown: string
-  responses?: string | null
-  synced_at: string
-}
+import { mapRawAttemptRow, type RawAttemptRow } from '../../lib/attempts'
 
 const ATTEMPT_ID_RE = /^[A-Za-z0-9_-]{8,64}$/
 
@@ -86,7 +67,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   const results = await db
     .prepare(
       `SELECT id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,
-              overall_score, overall_score_60, cefr, earned_points, available_points,
+              overall_score, cefr, earned_points, available_points,
               skill_scores, breakdown, responses, synced_at
        FROM attempts
        WHERE user_id = ?
@@ -96,77 +77,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
     .bind(session.userId)
     .all<RawAttemptRow>()
 
-  const attempts = (results.results ?? []).map((row) => {
-    let skillScores = {}
-    let breakdown = {}
-    let responses: Record<string, unknown> = {}
-    let seed = 0
-    let mockKind: string | undefined
-    let details: unknown[] | undefined
-    let sectionIds = ['speaking-writing', 'reading', 'listening']
-    let untimed: boolean | undefined
-    let timeScale: number | undefined
-
-    try {
-      skillScores = JSON.parse(row.skill_scores)
-      breakdown = JSON.parse(row.breakdown)
-      if (row.responses) {
-        const parsed = JSON.parse(row.responses)
-        if (parsed && typeof parsed === 'object') {
-          if ('responses' in parsed) {
-            responses = parsed.responses ?? {}
-            seed = Number(parsed.seed ?? 0)
-            mockKind = parsed.mockKind ?? undefined
-            details = parsed.details ?? undefined
-            untimed = parsed.untimed ? true : undefined
-            timeScale = typeof parsed.timeScale === 'number' ? parsed.timeScale : undefined
-            if (Array.isArray(parsed.sectionIds)) sectionIds = parsed.sectionIds
-          } else {
-            responses = parsed
-          }
-        }
-      }
-    } catch {
-      /* ignore corrupted json */
-    }
-
-    // Not stored as a column: derive it the way the client does, so pulled
-    // copies do not clobber the correct local flag with a blanket true.
-    const hasEstimated = Array.isArray(details)
-      ? details.some((d) => {
-          const item = d as { maxPoints?: unknown; traits?: unknown }
-          return typeof item.maxPoints === 'number' && item.maxPoints > 0 && item.traits !== undefined
-        })
-      : true
-
-    return {
-      id: row.id,
-      userId: row.user_id,
-      mockId: row.mock_id,
-      mockTitle: row.mock_title,
-      mockKind,
-      details,
-      ...(untimed ? { untimed: true } : {}),
-      ...(timeScale ? { timeScale } : {}),
-      mode: row.mode,
-      startedAt: row.started_at,
-      finishedAt: row.finished_at,
-      durationMs: row.duration_ms,
-      overallScore: row.overall_score,
-      overallScore60: row.overall_score_60,
-      cefr: row.cefr,
-      earnedPoints: row.earned_points,
-      availablePoints: row.available_points,
-      skillScores,
-      breakdown,
-      syncedAt: row.synced_at,
-      seed,
-      sectionIds,
-      overallIsEstimate: hasEstimated,
-      completedItemIds: Object.keys(responses),
-      responses,
-    }
-  })
+  const attempts = (results.results ?? []).map(mapRawAttemptRow)
 
   return new Response(JSON.stringify({ attempts }), {
     status: 200,
@@ -292,9 +203,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  const num = (v: unknown, fallback: number): number => {
+  const num = (v: unknown, fallback: number, min = -Infinity, max = Infinity): number => {
     const n = typeof v === 'number' ? v : Number(v ?? fallback)
-    return Number.isFinite(n) ? n : fallback
+    if (!Number.isFinite(n)) return fallback
+    return Math.min(max, Math.max(min, n))
   }
   const str = (v: unknown, fallback: string, max = 120): string =>
     typeof v === 'string' && v.length > 0 ? v.slice(0, max) : fallback
@@ -318,13 +230,30 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   try {
+    const countRow = await db
+      .prepare('SELECT count(*) as count FROM attempts WHERE user_id = ?')
+      .bind(session.userId)
+      .first<{ count: number }>()
+    if (countRow && countRow.count >= 2000) {
+      const exists = await db
+        .prepare('SELECT id FROM attempts WHERE id = ? AND user_id = ?')
+        .bind(id, session.userId)
+        .first()
+      if (!exists) {
+        return new Response(JSON.stringify({ error: 'Attempt limit reached for this account (max 2,000).' }), {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        })
+      }
+    }
+
     const res = await db
       .prepare(
         `INSERT INTO attempts (
           id, user_id, mock_id, mock_title, mode, started_at, finished_at, duration_ms,
-          overall_score, overall_score_60, cefr, earned_points, available_points,
+          overall_score, cefr, earned_points, available_points,
           skill_scores, breakdown, responses, synced_at
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
         ON CONFLICT(id) DO UPDATE SET
           skill_scores = excluded.skill_scores,
           breakdown = excluded.breakdown,
@@ -340,12 +269,11 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
         str(attempt.mode, 'full', 24),
         str(attempt.startedAt, new Date().toISOString(), 32),
         str(attempt.finishedAt, new Date().toISOString(), 32),
-        num(attempt.durationMs, 0),
-        num(attempt.overallScore, 10),
-        num(attempt.overallScore60, 60),
+        num(attempt.durationMs, 0, 0, 86_400_000),
+        num(attempt.overallScore, 10, 10, 90),
         str(attempt.cefr, 'A1', 8),
-        num(attempt.earnedPoints, 0),
-        num(attempt.availablePoints, 0),
+        num(attempt.earnedPoints, 0, 0, 5000),
+        num(attempt.availablePoints, 0, 0, 5000),
         skillScores,
         breakdown,
         responses,

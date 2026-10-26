@@ -26,6 +26,13 @@ describe('getClientIp', () => {
     expect(getClientIp(request)).toBe('203.0.113.5')
   })
 
+  it('falls back to x-forwarded-for when cf-connecting-ip is missing', () => {
+    const request = new Request('https://site.test/api/auth/login', {
+      headers: { 'x-forwarded-for': '198.51.100.22, 10.0.0.1' },
+    })
+    expect(getClientIp(request)).toBe('198.51.100.22')
+  })
+
   it('falls back to unknown when the header is missing', () => {
     expect(getClientIp(new Request('https://site.test/api/auth/login'))).toBe('unknown')
   })

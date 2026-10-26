@@ -91,7 +91,6 @@ describe('AchievementBadges', () => {
       skillScores: {},
       overallIsEstimate: true,
       overallScore,
-      overallScore60: 60,
       cefr: 'B2',
       completedItemIds: [],
       breakdown: {},

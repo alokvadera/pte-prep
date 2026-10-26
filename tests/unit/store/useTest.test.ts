@@ -543,7 +543,6 @@ describe('useTest', () => {
       expect(attempt!.earnedPoints).toBe(1)
       expect(attempt!.skillScores).toEqual({ reading: 90, speaking: 10 })
       expect(attempt!.overallScore).toBe(39)
-      expect(attempt!.overallScore60).toBe(89)
       expect(attempt!.cefr).toBe('A2')
       expect(attempt!.overallIsEstimate).toBe(true)
       expect(attempt!.timeScale).toBe(1)

@@ -86,6 +86,13 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   // Revoke all existing sessions for this user before issuing a fresh session
   await revokeAllUserSessions(db, resetRecord.user_id)
 
+  // Invalidate any other outstanding reset links for this account
+  await db
+    .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL")
+    .bind(resetRecord.user_id)
+    .run()
+    .catch(() => {})
+
   // Hash new password
   const iterations = resolvePbkdf2Iterations(context.env)
   const { hash, salt } = await hashPassword(password, iterations)

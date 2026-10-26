@@ -212,7 +212,8 @@ export async function hashPassword(
   iterations = DEFAULT_PBKDF2_ITERATIONS,
 ): Promise<{ hash: string; salt: string }> {
   const saltBytes = crypto.getRandomValues(new Uint8Array(16))
-  const salt = base64UrlEncode(saltBytes)
+  const rawSalt = base64UrlEncode(saltBytes)
+  const salt = `${iterations}$${rawSalt}`
 
   const enc = new TextEncoder()
   const keyMaterial = await crypto.subtle.importKey(
@@ -264,7 +265,17 @@ export async function verifyPassword(
   iterations = DEFAULT_PBKDF2_ITERATIONS,
 ): Promise<boolean> {
   try {
-    const saltBytes = base64UrlDecode(salt)
+    let rawSalt = salt
+    let actualIterations = iterations
+    if (salt.includes('$')) {
+      const idx = salt.indexOf('$')
+      const parsed = Number.parseInt(salt.slice(0, idx), 10)
+      if (Number.isFinite(parsed) && parsed > 0) {
+        actualIterations = parsed
+      }
+      rawSalt = salt.slice(idx + 1)
+    }
+    const saltBytes = base64UrlDecode(rawSalt)
     const enc = new TextEncoder()
     const keyMaterial = await crypto.subtle.importKey(
       'raw',
@@ -278,7 +289,7 @@ export async function verifyPassword(
       {
         name: 'PBKDF2',
         salt: saltBytes,
-        iterations,
+        iterations: actualIterations,
         hash: 'SHA-256',
       },
       keyMaterial,

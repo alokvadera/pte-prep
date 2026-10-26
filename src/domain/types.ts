@@ -51,6 +51,15 @@ export interface AudioAnalysis {
   meanPitchHz: number | null
   /** Coefficient of variation of frame energy — rough intelligibility proxy. */
   energyVariance: number
+  /**
+   * True when the microphone meter heard speech in the take.
+   *
+   * This is measured acoustically and does not depend on a transcript, which
+   * `wordsPerMinute` does. It is what lets a recording made in a browser with
+   * no speech recognition be scored on delivery instead of being read as
+   * silence. Absent on attempts recorded before the field existed.
+   */
+  speechDetected?: boolean
   /** True when device metering produced usable data. */
   reliable: boolean
 }
@@ -295,11 +304,6 @@ export interface AttemptRecord {
   forwardOnly?: boolean
   /** Overall estimate, 10–90. */
   overallScore: number
-  /**
-   * Deprecated legacy field: retained for backward compatibility with existing
-   * stored IndexedDB attempts and Cloudflare D1 schema.
-   */
-  overallScore60: number
   cefr: string
   /** Completed item ids. */
   completedItemIds: string[]

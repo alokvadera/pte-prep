@@ -186,6 +186,13 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     // Revoke all existing sessions so that any stolen tokens lose access
     await revokeAllUserSessions(db, session.userId)
 
+    // Invalidate any outstanding reset links for this account
+    await db
+      .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL")
+      .bind(session.userId)
+      .run()
+      .catch(() => {})
+
     const secret = requireSecret(context.env)
     const expiresIn = resolveSessionExpiry(context.env)
     const newToken = await createSessionToken(

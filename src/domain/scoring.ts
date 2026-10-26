@@ -96,10 +96,21 @@ function oralFluency(
   pauses: number,
   speechRatio: number,
   wordsSpoken: number,
+  speechDetected = false,
 ): { score: number; note: string } {
-  if (wordsSpoken === 0 && wpm <= 0) return { score: 0, note: 'Nothing was spoken.' }
+  if (wordsSpoken === 0 && wpm <= 0 && !speechDetected) {
+    return { score: 0, note: 'Nothing was spoken.' }
+  }
   if (wpm <= 0) {
-    return { score: 0.5, note: 'Oral fluency was not measured — record the answer to score this trait.' }
+    // Speech was heard but not transcribed, so the pace cannot be counted. The
+    // neutral 0.5 is the same placeholder an unmeasured trait gets elsewhere;
+    // the note has to say that, rather than claiming silence.
+    return {
+      score: 0.5,
+      note: speechDetected
+        ? 'Pace could not be measured because this browser did not transcribe the recording.'
+        : 'Oral fluency was not measured — record the answer to score this trait.',
+    }
   }
 
   // The published descriptors count hesitations *within the response*: band 4
@@ -139,8 +150,14 @@ function oralFluency(
  * proxy for intonation and stress, and mean pitch separates a stressed syllable
  * from a reduced one.
  */
-function pronunciation(a: ItemResponse['audio'], wordsSpoken: number): { score: number; note: string } {
-  if (!a || !a.reliable || (wordsSpoken === 0 && (a.wordsPerMinute ?? 0) <= 0)) {
+function pronunciation(
+  a: ItemResponse['audio'],
+  wordsSpoken: number,
+  speechDetected = false,
+): { score: number; note: string } {
+  // A take with no transcript still has pitch and energy to measure. Only a
+  // take with no speech in it at all is unmeasured.
+  if (!a || !a.reliable || (wordsSpoken === 0 && (a.wordsPerMinute ?? 0) <= 0 && !speechDetected)) {
     return { score: 0.5, note: 'Pronunciation was not measured — record the answer to score this trait.' }
   }
   const variation = clamp(a.energyVariance / 0.5, 0, 1)
@@ -375,6 +392,16 @@ function contentAgainstTerms(spoken: string, keyTerms: string[]): { content: num
 // Composite scoring
 // ---------------------------------------------------------------------------
 
+/**
+ * The most an untranscribed recording can earn.
+ *
+ * When content cannot be checked, only delivery was measured. Paying the full
+ * item for that would make "speak confidently about anything" the best
+ * strategy on browsers without speech recognition, so the delivery-only path
+ * is capped just under half the item.
+ */
+const DELIVERY_ONLY_MAX_RATIO = 0.45
+
 /** Published Content maximum per type. */
 export const CONTENT_MAX: Partial<Record<Item['type'], number>> = {
   'read-aloud': 3,
@@ -423,10 +450,14 @@ function scoreSpoken(
   const wpm = analysis?.wordsPerMinute ?? 0
   const speechRatio = analysis?.speechRatio ?? 0
   const pauses = analysis?.pauseCount ?? 0
+  // A transcript is not the only evidence that the candidate spoke. Older
+  // attempts carry no `speechDetected`, so fall back to the pace, which only
+  // exists when a transcript does.
+  const speechDetected = analysis?.speechDetected ?? wpm > 0
 
-  const of = oralFluency(wpm, pauses, speechRatio, spokenWords)
+  const of = oralFluency(wpm, pauses, speechRatio, spokenWords, speechDetected)
   if (of.note) notes.push(of.note)
-  const pr = pronunciation(analysis, spokenWords)
+  const pr = pronunciation(analysis, spokenWords, speechDetected)
   if (pr.note) notes.push(pr.note)
 
   const traits: TraitScores = {
@@ -441,11 +472,24 @@ function scoreSpoken(
   // The published gate: Content 0 means no points at all for the item,
   // EXCEPT when speech was recorded but the browser lacked Web Speech (no transcript).
   if (contentResult.content <= 0) {
-    if (!spoken && analysis && wpm > 0) {
+    // `wpm > 0` used to stand in for "the candidate spoke", but the recorder
+    // derives wpm from the transcript, so it was always 0 when there was no
+    // transcript — the fallback below could never run in a real browser. The
+    // microphone's own speech detection is the signal that does exist.
+    if (!spoken && speechDetected && analysis?.reliable) {
       // Degrade gracefully when Web Speech is unavailable (Safari / Firefox).
-      // Delivery traits (oral fluency + pronunciation) score the acoustic response.
-      const deliveryRatio = clamp((of.score * 0.28 + pr.score * 0.17) / 0.45, 0, 1)
-      notes.push("Content words could not be checked for this browser's speech recognition.")
+      // Delivery traits (oral fluency + pronunciation) score the acoustic
+      // response, capped: content was never checked, so delivery alone must
+      // not be able to earn the item. A fluent non-answer would otherwise
+      // reach full marks on any browser without recognition.
+      const deliveryRatio = Math.min(
+        DELIVERY_ONLY_MAX_RATIO,
+        clamp((of.score * 0.28 + pr.score * 0.17) / 0.45, 0, 1),
+      )
+      notes.push(
+        "Content words could not be checked because this browser's speech recognition did not transcribe the recording. " +
+          `Delivery was scored on its own and capped at ${Math.round(DELIVERY_ONLY_MAX_RATIO * 100)}% of the item.`,
+      )
       return {
         ratio: deliveryRatio,
         notes,
@@ -948,8 +992,6 @@ export function scoreBand(fraction: number, score: number): ScoreBand {
 
 export interface ScoreReport {
   overall: number
-  /** Deprecated legacy field: retained for backward compatibility with database schema. */
-  overall60: number
   cefr: string
   skills: Partial<Record<Skill, number>>
   availablePoints: number
@@ -1017,6 +1059,7 @@ export function buildReport(
 
   const breakdown: Record<string, TypeStat> = {}
   for (const item of items) {
+    if (item.maxPoints === 0 || item.warmup) continue
     const detail = details.find((d) => d.itemId === item.id)
     if (!detail) continue
     const stat = breakdown[item.type] ?? {
@@ -1043,7 +1086,6 @@ export function buildReport(
 
   return {
     overall,
-    overall60: overall + 50,
     cefr: toCefr(overall),
     skills,
     availablePoints: round2(totalAvailable),

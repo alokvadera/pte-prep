@@ -279,7 +279,6 @@ describe('GET /api/attempts', () => {
       mode: 'full',
       durationMs: 3_600_000,
       overallScore: 68,
-      overallScore60: 50,
       cefr: 'B2',
       earnedPoints: 45,
       availablePoints: 60,
@@ -649,7 +648,6 @@ describe('POST /api/attempts', () => {
           finishedAt: '2024-02-01T11:00:00.000Z',
           durationMs: 3_600_000,
           overallScore: 71,
-          overallScore60: 52,
           cefr: 'B2',
           earnedPoints: 47,
           availablePoints: 60,
@@ -680,7 +678,6 @@ describe('POST /api/attempts', () => {
     expect(row?.mock_title).toBe('Mock Test 9')
     expect(row?.mode).toBe('listening')
     expect(row?.overall_score).toBe(71)
-    expect(row?.overall_score_60).toBe(52)
     expect(row?.cefr).toBe('B2')
     expect(JSON.parse(row?.skill_scores ?? '{}')).toEqual({ reading: 30 })
     expect(JSON.parse(row?.breakdown ?? '{}')).toEqual({ listening: 20 })
@@ -691,6 +688,78 @@ describe('POST /api/attempts', () => {
     expect(stored.sectionIds).toEqual(['reading'])
     expect(stored.untimed).toBe(true)
     expect(stored.timeScale).toBe(1.5)
+  })
+
+  it('clamps stored numbers to the PTE range', async () => {
+    const { mock, token } = await signedIn()
+    const ctx = makeContext({
+      request: jsonRequest(
+        ATTEMPTS_URL,
+        {
+          id: 'attempt_clamp1',
+          overallScore: 999,
+          durationMs: -100,
+          earnedPoints: 9_999,
+          availablePoints: 20_000,
+        },
+        'POST',
+        bearer(token),
+      ),
+      env: makeEnv({ DB: mock.db }),
+    })
+
+    const res = await listPost(ctx)
+
+    expect(res.status).toBe(200)
+    const row = mock.attempts.get('attempt_clamp1')
+    // Nothing a client sends can write a score the product never produces, so
+    // a tampered or buggy payload cannot poison the progress history.
+    expect(row?.overall_score).toBe(90)
+    expect(row?.duration_ms).toBe(0)
+    expect(row?.earned_points).toBe(5000)
+    expect(row?.available_points).toBe(5000)
+  })
+
+  it('refuses a new attempt once the account reaches its row limit', async () => {
+    const { mock, token, userId } = await signedIn()
+    for (let i = 0; i < 2000; i++) {
+      seedAttempt(mock, makeAttemptRow({ id: `seed_attempt_${i}`, user_id: userId }))
+    }
+    const ctx = makeContext({
+      request: jsonRequest(ATTEMPTS_URL, { id: 'attempt_over_cap' }, 'POST', bearer(token)),
+      env: makeEnv({ DB: mock.db }),
+    })
+
+    const res = await listPost(ctx)
+
+    expect(res.status).toBe(400)
+    expect(await readJson(res)).toEqual({ error: 'Attempt limit reached for this account (max 2,000).' })
+    expect(mock.attempts.has('attempt_over_cap')).toBe(false)
+  })
+
+  it('still updates an attempt that already exists when the account is at its limit', async () => {
+    const { mock, token, userId } = await signedIn()
+    for (let i = 0; i < 1999; i++) {
+      seedAttempt(mock, makeAttemptRow({ id: `seed_attempt_${i}`, user_id: userId }))
+    }
+    seedAttempt(
+      mock,
+      makeAttemptRow({ id: 'attempt_existing_user', user_id: userId, skill_scores: '{"reading": 10}' }),
+    )
+    const ctx = makeContext({
+      request: jsonRequest(
+        ATTEMPTS_URL,
+        { id: 'attempt_existing_user', overallScore: 74, skillScores: { reading: 55 } },
+        'POST',
+        bearer(token),
+      ),
+      env: makeEnv({ DB: mock.db }),
+    })
+
+    const res = await listPost(ctx)
+
+    expect(res.status).toBe(200)
+    expect(mock.attempts.get('attempt_existing_user')?.overall_score).toBe(74)
   })
 
   it('fills in the defaults for an empty attempt', async () => {
@@ -715,7 +784,6 @@ describe('POST /api/attempts', () => {
     expect(row?.cefr).toBe('A1')
     expect(row?.duration_ms).toBe(0)
     expect(row?.overall_score).toBe(10)
-    expect(row?.overall_score_60).toBe(60)
     expect(row?.earned_points).toBe(0)
     expect(row?.available_points).toBe(0)
   })
@@ -1152,7 +1220,6 @@ describe('GET /api/attempts/:id', () => {
       mode: 'full',
       durationMs: 3_600_000,
       overallScore: 68,
-      overallScore60: 50,
       cefr: 'B2',
       earnedPoints: 45,
       availablePoints: 60,

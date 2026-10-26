@@ -351,8 +351,24 @@ describe('hashPassword and verifyPassword', () => {
     const { hash, salt } = await hashPassword('correct horse battery staple', 1000)
 
     expect(hash).toMatch(/^[A-Za-z0-9_-]+$/)
-    expect(salt).toMatch(/^[A-Za-z0-9_-]+$/)
+    expect(salt).toMatch(/^[0-9]+\$[A-Za-z0-9_-]+$/)
     expect(await verifyPassword('correct horse battery staple', hash, salt, 1000)).toBe(true)
+  })
+
+  it('verifies a legacy salt that does not contain embedded iterations', async () => {
+    // Before self-describing salts, salt was purely base64url without '$'
+    const legacySalt = '6yV17wuGQ4mpYEsFDXukPg'
+    // Derive a hash with 1000 iterations against the raw legacy salt
+    const enc = new TextEncoder()
+    const saltBytes = new Uint8Array([235, 37, 117, 239, 11, 134, 67, 137, 169, 96, 75, 5, 13, 123, 164, 62])
+    const keyMaterial = await crypto.subtle.importKey('raw', enc.encode('mypassword'), { name: 'PBKDF2' }, false, ['deriveBits'])
+    const derived = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: saltBytes, iterations: 1000, hash: 'SHA-256' }, keyMaterial, 256)
+    let binary = ''
+    for (const b of new Uint8Array(derived)) binary += String.fromCharCode(b)
+    const legacyHash = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+    expect(await verifyPassword('mypassword', legacyHash, legacySalt, 1000)).toBe(true)
+    expect(await verifyPassword('wrongpassword', legacyHash, legacySalt, 1000)).toBe(false)
   })
 
   it('rejects the wrong password', async () => {

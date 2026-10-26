@@ -257,7 +257,6 @@ export const useTest = create<TestStore>()(
           ...(mock.untimed ? { untimed: true } : {}),
           ...(mock.forwardOnly ? { forwardOnly: true } : {}),
           overallScore: report.overall,
-          overallScore60: report.overall60,
           cefr: report.cefr,
           completedItemIds: items.filter((i) => hasResponse(responses[i.id])).map((i) => i.id),
           breakdown: report.breakdown,

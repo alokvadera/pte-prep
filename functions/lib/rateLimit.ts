@@ -18,7 +18,14 @@ async function ensureTable(db: D1Database): Promise<void> {
 }
 
 export function getClientIp(request: Request): string {
-  return request.headers.get('cf-connecting-ip')?.trim() || 'unknown'
+  const cf = request.headers.get('cf-connecting-ip')?.trim()
+  if (cf) return cf
+  const xff = request.headers.get('x-forwarded-for')
+  if (xff) {
+    const first = xff.split(',')[0]?.trim()
+    if (first) return first
+  }
+  return 'unknown'
 }
 
 export async function checkRateLimit(

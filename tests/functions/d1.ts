@@ -29,7 +29,6 @@ export interface AttemptRow {
   finished_at: string
   duration_ms: number
   overall_score: number
-  overall_score_60: number
   cefr: string
   earned_points: number
   available_points: number
@@ -192,13 +191,12 @@ export function createD1Mock(options: D1MockOptions = {}): D1Mock {
         finished_at: String(args[6]),
         duration_ms: Number(args[7]),
         overall_score: Number(args[8]),
-        overall_score_60: Number(args[9]),
-        cefr: String(args[10]),
-        earned_points: Number(args[11]),
-        available_points: Number(args[12]),
-        skill_scores: String(args[13]),
-        breakdown: String(args[14]),
-        responses: String(args[15]),
+        cefr: String(args[9]),
+        earned_points: Number(args[10]),
+        available_points: Number(args[11]),
+        skill_scores: String(args[12]),
+        breakdown: String(args[13]),
+        responses: String(args[14]),
         synced_at: nowIso(),
       })
       return ok(1)
@@ -232,6 +230,18 @@ export function createD1Mock(options: D1MockOptions = {}): D1Mock {
       return ok(1)
     }
 
+    if (sql.includes('UPDATE password_resets SET used_at = datetime') && sql.includes('user_id = ?')) {
+      // Invalidate every outstanding link for one account.
+      let changes = 0
+      for (const row of resets.values()) {
+        if (row.user_id === args[0] && !row.used_at) {
+          row.used_at = nowIso()
+          changes++
+        }
+      }
+      return ok(changes)
+    }
+
     if (sql.includes('UPDATE password_resets SET used_at = datetime')) {
       const row = resets.get(String(args[0]))
       if (row && !row.used_at && new Date(row.expires_at).getTime() > Date.now()) {
@@ -239,6 +249,17 @@ export function createD1Mock(options: D1MockOptions = {}): D1Mock {
         return ok(1)
       }
       return ok(0)
+    }
+
+    if (sql.includes('DELETE FROM password_resets') && sql.includes('expires_at')) {
+      let changes = 0
+      for (const [tokenHash, row] of [...resets]) {
+        if (new Date(row.expires_at).getTime() <= Date.now()) {
+          resets.delete(tokenHash)
+          changes++
+        }
+      }
+      return ok(changes)
     }
 
     if (sql.includes('DELETE FROM rate_limits WHERE reset_at < ?')) {
@@ -318,6 +339,15 @@ export function createD1Mock(options: D1MockOptions = {}): D1Mock {
         }
       }
       return null
+    }
+
+    if (sql.includes('count(*)') && sql.includes('FROM attempts')) {
+      // `SELECT count(*) as count FROM attempts WHERE user_id = ?`
+      let count = 0
+      for (const row of attempts.values()) {
+        if (row.user_id === args[0]) count++
+      }
+      return { count }
     }
 
     if (sql.includes('FROM attempts') && sql.includes('id = ?')) {

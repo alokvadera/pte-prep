@@ -226,7 +226,6 @@ export function makeAttemptRow(overrides: Partial<AttemptRow> = {}): AttemptRow 
     finished_at: '2024-01-01T01:00:00.000Z',
     duration_ms: 3_600_000,
     overall_score: 68,
-    overall_score_60: 50,
     cefr: 'B2',
     earned_points: 45,
     available_points: 60,

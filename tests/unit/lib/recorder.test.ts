@@ -943,6 +943,7 @@ describe('VoiceRecorder.stop', () => {
       pauseCount: 0,
       meanPitchHz: null,
       energyVariance: 0,
+      speechDetected: false,
       reliable: false,
     })
     expect(onStateChange).not.toHaveBeenCalled()
