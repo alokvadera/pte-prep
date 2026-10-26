@@ -681,8 +681,14 @@ async function main() {
     'pages.dev subdomains allowed',
   )
   assert(
-    resolveAllowedOrigin('http://localhost:5173') === 'http://localhost:5173',
+    resolveAllowedOrigin('http://localhost:5173', undefined, 'http://localhost:8788/') ===
+      'http://localhost:5173',
     'localhost is allowed for dev',
+  )
+  assert(
+    resolveAllowedOrigin('http://localhost:5173', undefined, 'https://pte-prep.pages.dev/') ===
+      null,
+    'localhost origin is rejected when the API is deployed',
   )
   assert(
     resolveAllowedOrigin('https://evil.com') === null,

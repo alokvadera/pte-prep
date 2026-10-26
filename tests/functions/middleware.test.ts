@@ -68,9 +68,25 @@ describe('resolveAllowedOrigin', () => {
     )
   })
 
-  it('allows the local development origins', () => {
-    expect(resolveAllowedOrigin('http://localhost:5173')).toBe('http://localhost:5173')
-    expect(resolveAllowedOrigin('http://localhost')).toBe('http://localhost')
+  it('allows the local development origins when the request itself is local', () => {
+    expect(resolveAllowedOrigin('http://localhost:5173', undefined, 'http://localhost:8788/')).toBe(
+      'http://localhost:5173',
+    )
+    expect(resolveAllowedOrigin('http://localhost', undefined, 'http://127.0.0.1:8788/')).toBe(
+      'http://localhost',
+    )
+  })
+
+  it('rejects a localhost origin when the API is not being served locally', () => {
+    // Deployed: a page from the visitor's own machine must not be able to
+    // read API responses cross-origin.
+    expect(
+      resolveAllowedOrigin('http://localhost:5173', undefined, 'https://site.test/'),
+    ).toBeNull()
+    // No request URL at all defaults to deny.
+    expect(resolveAllowedOrigin('http://localhost:5173')).toBeNull()
+    // An unparseable request URL is not provably local either.
+    expect(resolveAllowedOrigin('http://localhost:5173', undefined, 'not a url')).toBeNull()
   })
 
   it('rejects a look-alike origin that only shares a prefix', () => {

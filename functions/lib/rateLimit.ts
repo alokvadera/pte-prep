@@ -3,15 +3,18 @@ export interface RateLimitResult {
   retryAfter: number
 }
 
+/**
+ * The address a rate limit is counted against.
+ *
+ * Only `cf-connecting-ip` is trusted: Cloudflare writes it at the edge, so a
+ * caller cannot forge it. `x-forwarded-for` is deliberately ignored — on any
+ * host that does not rewrite the chain it is caller-controlled, and honouring
+ * it would hand an attacker a fresh bucket with every request by rotating the
+ * first entry. A deployment outside Cloudflare should resolve the client
+ * address at its own proxy and set this header there.
+ */
 export function getClientIp(request: Request): string {
-  const cf = request.headers.get('cf-connecting-ip')?.trim()
-  if (cf) return cf
-  const xff = request.headers.get('x-forwarded-for')
-  if (xff) {
-    const first = xff.split(',')[0]?.trim()
-    if (first) return first
-  }
-  return 'unknown'
+  return request.headers.get('cf-connecting-ip')?.trim() || 'unknown'
 }
 
 export async function checkRateLimit(
