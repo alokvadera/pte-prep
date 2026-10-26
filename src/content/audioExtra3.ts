@@ -37,18 +37,18 @@ export const EXTRA_LECTURES_3: AudioScript[] = [
       },
       {
         speaker: 's1',
-        text: 'The epidemiology is consistent across industries. Long-term night workers show higher rates of metabolic syndrome, cardiovascular events and certain cancers, and the risk rises with years of exposure rather than with age alone. Critically, the pattern persists after controlling for smoking, diet and socioeconomic status, which rules out the simplest confounding explanations.',
+        text: 'Studies have reported associations between night work and some metabolic, cardiovascular and cancer outcomes, but findings vary by outcome and study. Exposure measurement and other factors, including smoking, diet and socioeconomic conditions, complicate interpretation. These patterns warrant attention, but they do not show that night work alone caused each outcome.',
       },
       {
         speaker: 's1',
-        text: 'What mitigates the harm is also fairly clear. Forward-rotating rosters, which move morning to afternoon to night rather than backwards, allow the clock to adjust in its preferred direction. Bright light during the shift and darkness afterwards anchor the rhythm, and keeping the same sleep schedule on days off matters more than the total hours slept.',
+        text: 'Workplace responses are still being studied. Roster design, light exposure and protected opportunities for sleep may affect how workers adapt, but findings depend on the schedule and person. Forward rotation is sometimes recommended as easier to tolerate, though it is not a universal solution. Adequate sleep and recovery time remain important, including on days off.',
       },
       {
         speaker: 's1',
-        text: 'So the conclusion is not that night work should end, which would close every hospital at sunset. It is that rosters are a health intervention with measurable effects, and they should be designed the way drug doses are designed: with attention to timing, direction and recovery. Thank you.',
+        text: 'Night work remains necessary in many sectors, so the practical question is how to reduce its burdens. Employers can consider roster timing, light exposure and protected sleep opportunities, then evaluate results for their workforce. These measures should account for individual differences and the need for recovery. Thank you.',
       },
     ],
-    keyTerms: ['circadian', 'insulin', 'metabolic syndrome', 'forward-rotating', 'anchor'],
+    keyTerms: ['circadian', 'insulin', 'metabolic', 'glucose', 'roster design', 'recovery'],
   },
   {
     id: 'lec-bees',
@@ -60,22 +60,29 @@ export const EXTRA_LECTURES_3: AudioScript[] = [
     turns: [
       {
         speaker: 's1',
-        text: 'Pollinator decline is usually blamed on a single cause, and the blamed cause depends on who is speaking. Pesticide manufacturers point to habitat loss, conservation groups point to pesticides, and beekeepers point to disease. The monitoring data suggest all three are correct and none is sufficient on its own.',
+        text: 'Pollinator decline is often attributed to a single cause, but the proposed explanation can depend on who is speaking. Pesticide manufacturers point to habitat loss, conservation groups point to pesticides, and beekeepers point to disease. Research identifies several pressures that may contribute, although their importance varies across species and places, and no single factor explains every case.',
       },
       {
         speaker: 's1',
-        text: 'The interaction matters more than any single pressure. A bee exposed to a sub-lethal pesticide dose does not die, but its navigation degrades, so it brings back less food. A colony short of diverse forage rears fewer workers, so the loss of one forager matters more. A pathogen arriving in that weakened colony spreads faster than it would in a strong one. Each stressor multiplies the others rather than adding to them.',
+        text: 'Interactions among pressures may matter, although their effects vary by species and setting. Some experiments have found that pesticide exposure can affect navigation or foraging, while limited forage can affect colony health. Pathogens may add further pressure. In some cases these effects can compound, but researchers continue to study when stressors interact and how large those effects are.',
       },
       {
         speaker: 's1',
-        text: 'This is why single-factor bans disappoint. Removing one neonicotinoid from one crop shifts exposure to a substitute applied elsewhere, while the forage gap that made the colony vulnerable remains exactly as it was. The trials that show genuine recovery all combine reduced exposure with restored habitat: flower strips beside the treated field, not instead of treating it.',
+        text: 'This is one reason a single intervention may not address every cause of decline. Changing pesticide use will not by itself restore lost nesting or forage habitat, and habitat measures do not resolve every disease or exposure risk. Some studies examine combined approaches, such as reducing pesticide risk while improving forage, but outcomes depend on local conditions.',
       },
       {
         speaker: 's1',
-        text: 'The practical upshot for growers is that pollination should be budgeted like irrigation: as an input to be secured rather than a service assumed to be free. Fields with managed margins consistently out-yield comparable fields without them, and the margin costs less than a single season of hired hives. Thank you.',
+        text: 'For growers, the practical lesson is to treat pollination as an ecosystem service that depends on local habitat and management. Field margins can support pollinators, but effects on yield and costs vary by crop, landscape and season. Comparing outcomes across farms can help identify which measures are worthwhile. Thank you.',
       },
     ],
-    keyTerms: ['sub-lethal', 'forage', 'neonicotinoid', 'flower strips', 'multiplies'],
+    keyTerms: [
+      'pesticide exposure',
+      'navigation',
+      'forage',
+      'pathogens',
+      'combined approaches',
+      'local conditions',
+    ],
   },
   {
     id: 'lec-recycling-myth',
@@ -87,22 +94,22 @@ export const EXTRA_LECTURES_3: AudioScript[] = [
     turns: [
       {
         speaker: 's1',
-        text: 'Cities celebrate rising recycling rates, and the celebration is understandable, because the rate is the number the public sees. But the rate measures what enters the recycling bin, not what becomes a new product, and the gap between the two has been widening for a decade.',
+        text: 'Cities often report recycling rates because they provide a simple public measure. But a collection rate does not always show how much material is ultimately processed into new products; that depends on local sorting, contamination, markets and material type. The difference between collection and final recovery can be difficult to measure.',
       },
       {
         speaker: 's1',
-        text: 'The gap has three sources. First, lightweight packaging counts fully toward the rate while being the least recyclable material collected. Second, contamination — one food-soiled item in a bale — can condemn the entire bale to landfill or incineration. Third, export markets for sorted material have narrowed, so bales that once shipped abroad now wait for domestic buyers that do not exist.',
+        text: 'Several factors can contribute to losses after collection. Some lightweight packaging is difficult to recycle in available local systems. Contamination can lower the value of a batch or lead a facility to reject part or all of it, depending on its equipment and contracts. Changes in export markets have also affected where some sorted materials are processed.',
       },
       {
         speaker: 's1',
-        text: 'None of this means recycling is pointless. Aluminium, glass and clean cardboard recycle efficiently and at a clear profit, and those streams subsidise the rest of the system. What it means is that a single blended rate conceals which materials justify collection and which are collected for appearance. A council that published three rates — profitable, break-even and loss-making — would make better decisions than one celebrating a single rising number.',
+        text: 'None of this means recycling is pointless. Recovery rates and economics differ across materials and local systems; aluminium, glass and paper products each have distinct processing requirements and markets. A single blended rate can hide these differences. Councils may make better decisions by reporting collection, processing and end-market outcomes by material rather than relying on one headline figure.',
       },
       {
         speaker: 's1',
         text: 'The reform writes itself. Charge producers by the recyclability of what they sell, publish material-specific outcomes rather than one headline figure, and stop counting collection as recovery. Until then, every record recycling rate should be read with the question it avoids: recycled into what. Thank you.',
       },
     ],
-    keyTerms: ['contamination', 'bale', 'export markets', 'break-even', 'recyclability'],
+    keyTerms: ['contamination', 'material type', 'local markets', 'end-market', 'recyclability'],
   },
   {
     id: 'lec-drought',
@@ -114,22 +121,28 @@ export const EXTRA_LECTURES_3: AudioScript[] = [
     turns: [
       {
         speaker: 's1',
-        text: 'Drought is usually described as a natural event, and rainfall failure is natural enough, but who goes short is decided by rules written long before the dry year. Water rights in most systems are historical: the earliest claimants take their full share first, and later users — typically cities — absorb the entire shortfall.',
+        text: 'Drought is usually described as a natural event, and rainfall failure is natural enough, but allocation rules also shape who faces shortages. In some systems, water rights reflect historical claims and priority rules. The effects differ by jurisdiction; cities, farms, ecosystems and other users may all face restrictions during a drought.',
       },
       {
         speaker: 's1',
-        text: 'Markets were introduced to soften this rigidity by letting holders sell what they do not use. In principle a farmer growing a low-value crop can sell a season of water to a city and both sides gain. In practice the trades that occur are the easy ones between neighbours, while the large transfers that would matter most are blocked by conveyance limits, legal objections and the fear that selling once means losing the right forever.',
+        text: 'Water trading has been introduced in some places to let rights holders transfer allocations they do not use. In principle, a farmer may sell water to another user, but whether both sides benefit depends on local prices, rules and impacts on other users. Trading can also be limited by infrastructure, legal objections, transaction costs and concerns about future rights.',
       },
       {
         speaker: 's1',
-        text: 'The evidence from the driest basins is that the binding constraint is rarely price. It is trust in measurement: nobody trades what cannot be metered, and unmetered groundwater beside a metered river makes every trade disputable. Basins that metered extraction first and traded second saw active markets; basins that did it the other way round saw litigation instead.',
+        text: 'In some basins, measurement and verification can constrain water trading alongside price. When withdrawals are difficult to measure, users may dispute whether a transfer is reliable or sustainable. The role of meters, infrastructure, transaction costs and legal rules varies between basins, so the design and results of water markets need to be assessed locally.',
       },
       {
         speaker: 's1',
-        text: 'So the priority in a drying climate is unglamorous. Measure every abstraction, publish the accounts, and only then build the market on top. A drought plan that begins with prices and ends with meters has the sequence backwards, and the driest years are when backwards plans fail first. Thank you.',
+        text: 'For water managers, reliable information about withdrawals can help evaluate allocation and trading policies. Monitoring, transparent records and clear rules may support a market where one is appropriate, but they are not the only considerations. Environmental needs, infrastructure and the rights of affected communities also matter. Thank you.',
       },
     ],
-    keyTerms: ['water rights', 'conveyance', 'metered', 'abstraction', 'litigation'],
+    keyTerms: [
+      'water rights',
+      'infrastructure',
+      'measurement',
+      'allocation',
+      'environmental needs',
+    ],
   },
 ]
 
@@ -260,13 +273,13 @@ export const EXTRA_RETELL_ITEMS_3: RetellItem[] = [
     skeleton: [
       'tiredness is real but not the mechanism',
       'organs anticipate timing of food and activity',
-      'risk rises with years of exposure',
-      'forward rotation and light anchor the rhythm',
-      'rosters are a health intervention',
+      'health studies report associations but findings vary',
+      'roster, light and sleep responses depend on context',
+      'adequate sleep and recovery remain important',
     ],
     reference:
       'Night work harms health not primarily through tiredness but through circadian disruption, because organs anticipate when food and activity arrive and a meal at three in the morning meets a pancreas unprepared for glucose. Long-term night workers show higher metabolic and cardiovascular risk rising with years of exposure even after controlling for lifestyle. Forward-rotating rosters, bright light on shift with darkness after, and stable sleep schedules mitigate the harm, so rosters should be designed like drug doses with attention to timing and recovery.',
-    keyTerms: ['circadian', 'glucose', 'exposure', 'forward-rotating', 'anchor', 'rosters'],
+    keyTerms: ['circadian', 'glucose', 'metabolic', 'cardiovascular', 'roster design', 'recovery'],
     minWords: 30,
   },
   {
@@ -274,14 +287,21 @@ export const EXTRA_RETELL_ITEMS_3: RetellItem[] = [
     audioId: 'lec-bees',
     skeleton: [
       'single-cause blame depends on the speaker',
-      'stressors multiply rather than add',
-      'single-factor bans disappoint',
-      'recovery needs exposure cut plus habitat',
-      'budget pollination like irrigation',
+      'multiple pressures may interact, with effects varying by context',
+      'single interventions may not address every cause',
+      'combined measures can be studied, with local outcomes varying',
+      'pollination depends on local habitat and management',
     ],
     reference:
-      'Pollinator decline has no single cause: pesticides, habitat loss and disease each contribute, and they multiply rather than add, since a sub-lethal dose impairs navigation, poor forage makes each forager loss matter more, and pathogens spread faster in weakened colonies. Single-factor bans disappoint because exposure shifts to substitutes while the forage gap remains. Trials showing recovery combine reduced exposure with flower strips beside treated fields, so growers should budget pollination as a secured input like irrigation.',
-    keyTerms: ['sub-lethal', 'forage', 'multiply', 'bans', 'flower strips', 'budget'],
+      'The lecture describes pollinator pressures including pesticides, habitat loss and disease, whose effects can vary and sometimes interact. Some experiments find that pesticide exposure affects navigation or foraging, while limited forage and pathogens may add further pressure. A single intervention may not address all causes, so combined measures such as reducing pesticide risk and improving forage are studied. Effects on pollination and crop yields depend on local conditions.',
+    keyTerms: [
+      'pesticide exposure',
+      'navigation',
+      'forage',
+      'pathogens',
+      'combined measures',
+      'local conditions',
+    ],
     minWords: 30,
   },
   {
@@ -289,29 +309,42 @@ export const EXTRA_RETELL_ITEMS_3: RetellItem[] = [
     audioId: 'lec-recycling-myth',
     skeleton: [
       'rate measures bin entry, not new products',
-      'three sources of the gap',
-      'profitable streams subsidise the rest',
-      'publish three rates, not one',
-      'charge by recyclability',
+      'sorting, contamination, markets and material type affect outcomes',
+      'recovery and economics vary by material and local system',
+      'report collection, processing and end-market results by material',
+      'consider producer charges linked to recyclability',
     ],
     reference:
-      'Celebrated recycling rates measure what enters the bin rather than what becomes a new product, and the gap comes from lightweight packaging counting fully, contamination condemning whole bales, and narrowed export markets with no domestic buyers. Aluminium, glass and clean cardboard recycle profitably and subsidise the rest, so a single blended rate conceals which materials justify collection. Councils should publish profitable, break-even and loss-making rates separately and charge producers by recyclability.',
-    keyTerms: ['bin', 'contamination', 'bales', 'subsidise', 'blended', 'recyclability'],
+      'The speaker explains that collection rates do not necessarily show how much material becomes new products. Sorting, contamination, local markets and material type can affect outcomes. Since recovery and economics vary across materials and systems, one blended rate may hide useful differences. Councils could report collection, processing and end-market outcomes by material and consider producer charges linked to recyclability.',
+    keyTerms: [
+      'collection rates',
+      'contamination',
+      'local markets',
+      'material type',
+      'end-market',
+      'recyclability',
+    ],
     minWords: 30,
   },
   {
     id: 'rtl-drought',
     audioId: 'lec-drought',
     skeleton: [
-      'shortage is decided by historical rules',
-      'markets trade the easy volumes only',
-      'binding constraint is trust in measurement',
-      'meter first, trade second',
-      'prices before meters is backwards',
+      'allocation rules as well as rainfall shape shortages',
+      'historical rights and effects differ by jurisdiction',
+      'infrastructure, legal rules, costs and measurement affect trading',
+      'market design requires local assessment',
     ],
     reference:
-      'Who goes short in a drought is decided by historical water rights where early claimants take their full share and cities absorb the shortfall. Markets let holders sell unused water, but only easy trades between neighbours occur while large transfers are blocked by conveyance limits and fear of losing rights. The binding constraint is trust in measurement: basins that metered extraction before trading saw active markets while others saw litigation. Measure every abstraction and publish accounts before building the market.',
-    keyTerms: ['historical', 'shortfall', 'conveyance', 'metered', 'litigation', 'sequence'],
+      'Allocation rules as well as rainfall shape who faces shortages in a drought. Some systems use historical water rights and priority rules, but effects differ by jurisdiction and users. Water trading may help move unused allocations, yet infrastructure, legal rules, transaction costs and measurement can all affect whether trades occur. Market design and results therefore need local assessment.',
+    keyTerms: [
+      'historical',
+      'shortages',
+      'infrastructure',
+      'legal rules',
+      'measurement',
+      'jurisdiction',
+    ],
     minWords: 30,
   },
   {
@@ -353,8 +386,15 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_3: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
-      'The speaker argues night work harms health through circadian disruption rather than tiredness, since organs anticipate food timing and glucose at 3am meets an unprepared pancreas. Long-term night workers face higher metabolic and cardiovascular risk with exposure years. Forward rotation, bright light on shift with darkness after, and stable sleep schedules reduce harm, so rosters should be designed like drug doses.',
-    keyTerms: ['circadian', 'glucose', 'exposure', 'forward-rotating', 'light', 'rosters'],
+      'The lecture describes circadian disruption as one concern associated with night work. Studies have reported links with some metabolic, cardiovascular and cancer outcomes, but findings vary and are complicated by exposure measurement and other factors. Roster design, light exposure and protected sleep may affect adaptation, though responses depend on the person and schedule. Adequate sleep and recovery time remain important.',
+    keyTerms: [
+      'circadian',
+      'night work',
+      'metabolic',
+      'cardiovascular',
+      'roster design',
+      'recovery',
+    ],
     minWords: 30,
   },
   {
@@ -363,8 +403,15 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_3: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
-      'The speaker says pollinator decline has no single cause and stressors multiply: sub-lethal pesticides impair navigation, poor forage magnifies each loss, and pathogens spread faster in weak colonies. Single-factor bans disappoint as exposure shifts elsewhere. Recovery in trials combines lower exposure with flower strips beside treated fields, so growers should budget pollination as a secured input like irrigation.',
-    keyTerms: ['multiply', 'navigation', 'forage', 'bans', 'flower strips', 'budget'],
+      'The lecture describes pollinator pressures including pesticides, habitat loss and disease, whose effects can vary and sometimes interact. Some experiments find that pesticide exposure affects navigation or foraging, while limited forage and pathogens may add further pressure. A single intervention may not address all causes, so combined measures such as reducing pesticide risk and improving forage are studied. Effects on pollination and crop yields depend on local conditions.',
+    keyTerms: [
+      'pesticide exposure',
+      'navigation',
+      'forage',
+      'pathogens',
+      'combined measures',
+      'local conditions',
+    ],
     minWords: 30,
   },
   {
@@ -373,8 +420,15 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_3: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
-      'The speaker argues recycling rates measure bin entry rather than new products, with the gap from lightweight packaging, contamination condemning whole bales, and lost export markets. Aluminium, glass and clean cardboard profitably subsidise the rest. Councils should publish three material-specific rates and charge producers by recyclability instead of celebrating one blended figure.',
-    keyTerms: ['bin', 'contamination', 'bales', 'subsidise', 'blended', 'recyclability'],
+      'The speaker explains that collection rates do not necessarily show how much material becomes new products. Sorting, contamination, local markets and material type can affect outcomes. Since recovery and economics vary across materials and systems, one blended rate may hide useful differences. Councils could report collection, processing and end-market outcomes by material and consider producer charges linked to recyclability.',
+    keyTerms: [
+      'collection rates',
+      'contamination',
+      'local markets',
+      'material type',
+      'end-market',
+      'recyclability',
+    ],
     minWords: 30,
   },
   {
@@ -383,8 +437,15 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_3: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
-      'The speaker says drought shortage is decided by historical water rights with cities absorbing shortfalls, and markets trade only easy neighbour volumes while large transfers stall on conveyance and rights fears. The binding constraint is metered trust: metered basins trade while unmetered ones litigate. Priorities should be measuring abstraction, publishing accounts, then building markets.',
-    keyTerms: ['historical', 'shortfall', 'conveyance', 'metered', 'litigate', 'sequence'],
+      'The speaker explains that allocation rules, as well as rainfall, shape who faces drought shortages. Historical water rights and priority rules operate in some systems, while effects differ by jurisdiction. Trading unused allocations may help, but infrastructure, legal rules, costs and measurement affect whether trades occur. Water market design should therefore be assessed locally.',
+    keyTerms: [
+      'historical',
+      'shortages',
+      'infrastructure',
+      'legal rules',
+      'measurement',
+      'jurisdiction',
+    ],
     minWords: 30,
   },
   {
@@ -393,8 +454,8 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_3: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details. You have ten seconds during the recording to prepare your answer.',
     reference:
-      'The speaker argues deep networks generalise because natural data are highly redundant, so imperfect fitting must prefer the simplest consistent explanation, and because overparameterised models land in flat basins with many equivalent solutions. Deliberately reducing dataset redundancy should therefore shrink the gap between training and test accuracy, as experiments confirm.',
-    keyTerms: ['redundant', 'simplest', 'basin', 'flat', 'accuracy', 'parameters'],
+      'The speaker presents data redundancy and the shape of the loss landscape as two ideas for studying why overparameterised neural networks generalise. Repeated patterns may help models learn features that recur in new examples, while many parameter settings can achieve similar training loss. Whether flat regions explain generalisation remains debated, and researchers would need controlled experiments to test how changing data redundancy affects the training and test accuracy gap.',
+    keyTerms: ['redundant', 'loss landscape', 'flat', 'generalisation', 'accuracy', 'parameters'],
     minWords: 30,
   },
   {

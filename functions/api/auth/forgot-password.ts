@@ -12,17 +12,24 @@ async function padDuration(startMs: number, targetMs = 350): Promise<void> {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const start = Date.now()
-  let body: { email?: string }
+  let parsed: unknown
   try {
-    body = (await context.request.json()) as { email?: string }
+    parsed = await context.request.json()
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const body = parsed as { email?: unknown }
 
-  const rawEmail = (body.email ?? '').trim().toLowerCase()
+  const rawEmail = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   if (!rawEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {
     return new Response(JSON.stringify({ error: 'Please enter a valid email address' }), {
       status: 400,
@@ -127,8 +134,18 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .run()
 
   // Build reset link
-  const origin = context.env.SITE_ORIGIN || new URL(context.request.url).origin
-  const resetLink = `${origin}/reset-password?token=${encodeURIComponent(rawToken)}`
+  const requestUrl = new URL(context.request.url)
+  const origin = context.env.SITE_ORIGIN || requestUrl.origin
+  // Keep reset links inside a configured sub-path deployment. The Pages
+  // function sees the mounted request path even when BASE_PATH is only a
+  // build-time variable and is not present in the runtime environment.
+  const apiPath = '/api/auth/forgot-password'
+  const basePath = requestUrl.pathname.endsWith(apiPath)
+    ? requestUrl.pathname.slice(0, -apiPath.length).replace(/\/+$/, '')
+    : ''
+  const resetUrl = new URL(`${basePath}/reset-password`, origin)
+  resetUrl.searchParams.set('token', rawToken)
+  const resetLink = resetUrl.toString()
 
   const escHtml = (s: string): string => {
     return s

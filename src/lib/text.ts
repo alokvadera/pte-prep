@@ -192,7 +192,10 @@ export function isContentWord(word: string): boolean {
 
 /** Distinct content words from a list of raw terms, punctuation stripped. */
 export function contentTermSet(terms: readonly string[]): Set<string> {
-  return new Set(terms.filter(isContentWord).map(normalizeWord))
+  // Key terms are sometimes phrases (for example, `supply chains`). Compare
+  // their constituent words with the candidate's tokens rather than treating
+  // the whole phrase as one impossible-to-match token.
+  return new Set(terms.flatMap(contentWords))
 }
 
 /**
@@ -358,7 +361,7 @@ export function repetitionRatio(text: string): number {
 /** Crude spelling-error proxy: tokens that look like misspellings of a known key term. */
 export function nearMissCount(candidate: string, referenceTerms: readonly string[]): number {
   const cand = contentWords(candidate)
-  const refs = referenceTerms.map(normalizeWord)
+  const refs = referenceTerms.flatMap(contentWords)
   let nearMiss = 0
   for (const w of cand) {
     if (refs.includes(w)) continue

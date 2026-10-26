@@ -5,8 +5,9 @@ import type { AudioAnalysis } from '../domain/types'
 //
 // Recording is used for two things: waveform feedback while the candidate
 // speaks, and a lightweight acoustic analysis that feeds the fluency portion of
-// the speaking estimate. Raw audio is never stored — nothing leaves the device
-// and nothing is persisted between attempts.
+// the speaking estimate. Raw audio is discarded after analysis unless the
+// candidate enables Groq transcription, in which case the blob is sent for
+// transcription when the recording stops. It is not persisted by this app.
 // ---------------------------------------------------------------------------
 
 export type RecorderState = 'idle' | 'requesting' | 'recording' | 'denied' | 'unsupported' | 'error'
@@ -122,6 +123,8 @@ export class VoiceRecorder {
   private lastInterim = ''
   private events: RecorderEvents
   private stopping = false
+  /** Invalidates a pending getUserMedia request when stop/dispose wins the race. */
+  private generation = 0
   private mediaRecorder: MediaRecorder | null = null
   private audioChunks: Blob[] = []
 
@@ -141,6 +144,7 @@ export class VoiceRecorder {
 
   async start(): Promise<boolean> {
     if (this.state === 'recording') return true
+    if (this.state === 'requesting') return false
     if (!isRecordingSupported()) {
       this.setState('unsupported')
       this.events.onError?.('This browser does not expose microphone access.')
@@ -148,6 +152,7 @@ export class VoiceRecorder {
     }
 
     this.setState('requesting')
+    const generation = ++this.generation
     this.energySamples = []
     this.peakLevel = 1e-5
     this.silentFrames = 0
@@ -160,11 +165,13 @@ export class VoiceRecorder {
     this.lastInterim = ''
     this.stopping = false
 
+    let stream: MediaStream
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({
+      stream = await navigator.mediaDevices.getUserMedia({
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
       })
     } catch (err) {
+      if (generation !== this.generation) return false
       const name = err instanceof DOMException ? err.name : 'Error'
       this.setState(name === 'NotAllowedError' || name === 'SecurityError' ? 'denied' : 'error')
       this.events.onError?.(
@@ -175,30 +182,42 @@ export class VoiceRecorder {
       return false
     }
 
-    if (this.stopping || this.state !== 'requesting') {
-      this.stream.getTracks().forEach((t) => t.stop())
-      this.stream = null
+    if (generation !== this.generation || this.stopping) {
+      stream?.getTracks().forEach((t) => t.stop())
       return false
     }
+    this.stream = stream
 
+    let context: AudioContext | null = null
     try {
       const Ctor =
         window.AudioContext ??
         (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext
       if (Ctor) {
-        this.ctx = new Ctor()
-        if (this.ctx.state === 'suspended') await this.ctx.resume().catch(() => undefined)
-        const source = this.ctx.createMediaStreamSource(this.stream)
-        this.analyser = this.ctx.createAnalyser()
-        this.analyser.fftSize = 1024
-        this.analyser.smoothingTimeConstant = 0.4
-        source.connect(this.analyser)
+        context = new Ctor()
+        this.ctx = context
+        if (context.state === 'suspended') await context.resume().catch(() => undefined)
+        if (generation !== this.generation || this.stopping || this.stream !== stream) {
+          stream.getTracks().forEach((track) => track.stop())
+          await context.close().catch(() => undefined)
+          return false
+        }
+        const source = context.createMediaStreamSource(stream)
+        const analyser = context.createAnalyser()
+        analyser.fftSize = 1024
+        analyser.smoothingTimeConstant = 0.4
+        source.connect(analyser)
+        this.analyser = analyser
       }
     } catch {
-      this.stream.getTracks().forEach((t) => t.stop())
-      this.stream = null
-      this.setState('error')
-      this.events.onError?.('Failed to initialize audio analyzer.')
+      stream.getTracks().forEach((track) => track.stop())
+      if (this.stream === stream) this.stream = null
+      if (generation === this.generation) {
+        this.setState('error')
+        this.events.onError?.('Failed to initialize audio analyzer.')
+      }
+      await context?.close().catch(() => undefined)
+      if (this.ctx === context) this.ctx = null
       return false
     }
 
@@ -290,7 +309,9 @@ export class VoiceRecorder {
     }
     const rms = Math.sqrt(sumSquares / buffer.length)
 
-    // Keep the sample buffer bounded: ten minutes at 60 ms is plenty.
+    // Keep the sample buffer bounded. Frames arrive once per animation frame
+    // (~16 ms), so 10 000 samples spans about 2.8 minutes — far beyond the
+    // longest item in the bank, which is 40 seconds.
     if (this.energySamples.length >= 10_000) this.energySamples.shift()
     this.energySamples.push(rms)
 
@@ -325,6 +346,7 @@ export class VoiceRecorder {
 
   async stop(): Promise<{ analysis: AudioAnalysis; transcript: string; audioBlob?: Blob | null }> {
     this.stopping = true
+    this.generation += 1
     if (this.raf) cancelAnimationFrame(this.raf)
     this.raf = 0
 
@@ -415,6 +437,8 @@ export class VoiceRecorder {
   }
 
   dispose(): void {
+    this.stopping = true
+    this.generation += 1
     if (this.raf) cancelAnimationFrame(this.raf)
     this.raf = 0
     if (this.mediaRecorder && this.mediaRecorder.state !== 'inactive') {

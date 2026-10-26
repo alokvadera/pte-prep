@@ -138,7 +138,7 @@ function buildSpeakingWriting(
           groupId: gid,
           responseKind: 'audio',
           prompt:
-            'Look at the text below. You will have 30–40 seconds to prepare before the recording starts.',
+            'Look at the text below. You will have 30–40 seconds to prepare before your response starts.',
           targetText: extract.text,
           maxPoints: 1,
           seconds: 45,
@@ -1158,7 +1158,7 @@ const CHART_LABELS: Record<string, string> = {
   bar: 'grouped bar chart',
   line: 'line graph',
   pie: 'pie chart',
-  scatter: 'grouped bar chart',
+  scatter: 'scatter plot',
   process: 'process flow diagram',
   diagram: 'diagram',
   'table-chart': 'data table',
@@ -1377,7 +1377,7 @@ export function buildDrillMock(seed: number, types: QuestionType[], perType = 3)
   // The filtered items are no longer part of the session, so the maps and the
   // totals have to be rebuilt from what survived. Leaving them behind made a
   // two-item drill report every point in the bank (170 rather than 6) and
-  // persisted a full 84-item mock in localStorage for it.
+  // persisted the full mock in localStorage for it.
   const kept = new Set(populated.flatMap((s) => s.itemIds))
   const items: Record<string, Item> = {}
   for (const [id, item] of Object.entries(mock.items)) if (kept.has(id)) items[id] = item

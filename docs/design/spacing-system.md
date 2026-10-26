@@ -13,11 +13,11 @@ a rule and the code disagree, the code is wrong.
 ## The four ideas
 
 1. **The rule does the work.** Hairline borders, soft tints, and offset shadows create
-   separation. Cards lift on hover, bands alternate tint, and the mark color is
-   reserved for lost points, focus rings, and links — never warmth and never decoration.
-2. **Red means a mark was made.** The mark ramp is purple (`mark-500`) and it has
-   exactly one job: the focus ring, eyebrows, links, hover states, and a lost point.
-   It is never warmth and never decoration.
+   separation. Cards lift on hover, bands alternate tint, and accent colors carry
+   semantic roles rather than decoration.
+2. **Purple means a mark was made.** The mark ramp is purple (`mark-500`) and it has
+   a defined job: focus rings, eyebrows, links, and hover states. Lost points use the
+   rose ramp. Purple is never used as warmth or as decoration.
 3. **The display serif is for quantities.** Baloo 2 is the display face — rounded, heavy,
    a little playful. It carries every heading and large figure. Nunito is the interface
    voice for body copy, labels, and controls. IBM Plex Mono is for machine identifiers.
@@ -40,7 +40,7 @@ cream/paper) and a BRIGHT step for fills and decoration (>= 3:1 where audited).
 | Secondary text | `ink-500` | #6b6398 | — | the quiet half of a sentence |
 | Primary text | `ink-900` | #10111e | #0a0b14 | ink |
 | Action | `brand-500` | #5b54a8 | — | indigo fills, section icons |
-| **The mark** | `mark-500` / `mark-600` | #8b5cf6 / #6d3fe0 | #b19afc / #6d3fe0 | focus ring, eyebrows, links, hover, lost points |
+| **The mark** | `mark-500` / `mark-600` | #8b5cf6 / #6d3fe0 | #b19afc / #6d3fe0 | focus rings, eyebrows, links, hover |
 | Held / correct | `mint-500` / `mint-700` | #3cc85e / #124a32 | — | confirmed correct, positive |
 | Caution | `amber-500` | #8f6110 | — | partial, warnings |
 | Lost point | `rose-500` / `rose-brand` | #ff7eb6 / #de4a8e | — | incorrect answers, losses |
@@ -58,7 +58,7 @@ in `scripts/contrast-render.mjs` catches this.
 The four candy accents are **role-based, not decorative**:
 
 - **mint-500** — primary CTA buttons, correct answers, confirmed states
-- **mark-500 (purple)** — focus rings, links, hover states, section eyebrows, lost points
+- **mark-500 (purple)** — focus rings, links, hover states, section eyebrows
 - **amber-500** — partial credit, warnings, caution states
 - **rose-500** — incorrect answers, errors, deletions
 
@@ -208,14 +208,13 @@ hover feel — used sparingly (one per page).
 | `figure` | a measured value in the display serif |
 | `bg-ruled` | the ruled ground behind the hero — rules, not a colour wash |
 
-## The one graphic
+## Score graphics
 
 **`src/components/ui/ScoreScale.tsx`** draws the PTE 10 to 90 scale: a ruled axis with
 landmarks at 10, 30, 50, 65, 79, and 90, a value drawn in ink and a marker in the mark
-color (purple). It is a data graphic and carries a text alternative. It is the only
-place a non-ink color appears on its own, which is the point.
+color (purple). It is a data graphic and carries a text alternative.
 
-**`src/components/ui/ScoreRangeBar.tsx`** renders the same scale as a linear range bar
+**`src/components/charts/ScoreRangeBar.tsx`** renders the same scale as a linear range bar
 with band boundaries drawn on the track, a sensitivity rail, and an `sr-only` textual
 description of in-band position. Avoids the donut-chart anti-pattern.
 
@@ -258,12 +257,7 @@ for carrying four competing gradient devices at once.
 
 ## Verification
 
-- `node scripts/contrast.mjs` — 75 documented token pairs at WCAG 1.4.3 / 1.4.11.
+- `node scripts/contrast.mjs` — 78 documented token pairs at WCAG 1.4.3 / 1.4.11.
 - `node scripts/contrast-render.mjs` — walks the rendered DOM, composites translucent surfaces, fails any text node under its threshold.
-- `node scripts/smoke.ts` — 146 assertions from the Pearson Score Guide.
+- `node scripts/smoke.ts` — engine checks, including published rules from the Pearson Score Guide.
 - `node scripts/browser-check.mjs` — hydration, metadata, and a full mock in headless Chrome.
-
-STRIDE RULE — NEVER BREAK THIS
-Do not create report.md, any kind of report, summary, analysis file,
-or extra documentation. This applies every time this file is used.
-Generate no reports unless explicitly asked.

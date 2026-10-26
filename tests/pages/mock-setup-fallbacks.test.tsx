@@ -94,9 +94,9 @@ describe('MockSetup against a partial blueprint', () => {
   it('trims the reading types back to the passages the bank holds', () => {
     const { container } = renderSetup()
 
-    // The blueprint asks for 17 reading items across the four types it knows
-    // and the bank holds six passages, so the request is trimmed to twelve:
-    // 84 items become 78.
-    expect(container.textContent).toContain('78 items')
+    // The partial blueprint requests 15 reading items across four types. With
+    // a six-passage fallback cap, the page trims exactly three and does not add
+    // the missing Re-order Paragraphs type: 75 items become 69.
+    expect(container.textContent).toContain('69 items')
   })
 })

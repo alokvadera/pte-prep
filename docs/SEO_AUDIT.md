@@ -21,8 +21,9 @@ statically prerendered with self-describing metadata, so crawlability and
 indexation were sound from the start; the problems were in snippet presentation
 and web-font payload.
 
-Measured on the built output: **31 pages, 30 indexable, 30 sitemap URLs, 0
-findings** on both audits.
+Measured on the current built output: **38 rendered documents, 31 indexable, 31
+sitemap URLs, 0 static-audit findings**. The 38 documents include the three
+noindex app shells and the 404 page in addition to the 35 prerendered routes.
 
 ### What was fixed
 
@@ -66,8 +67,8 @@ All within the "good" thresholds (LCP < 2.5 s, CLS < 0.1). Font payload was
 ## Verified good (no action needed)
 
 - **Crawlability** — `robots.txt` references the sitemap; no blanket disallow.
-- **Sitemap** — 30 absolute https URLs, all canonical, all indexable; the one
-  `noindex` page (`/dashboard`) is correctly excluded.
+- **Sitemap** — 31 absolute https URLs, all canonical and indexable; the
+  `noindex` app pages are correctly excluded.
 - **Canonicals** — every indexable page self-references, agrees with `og:url`,
   appears in the sitemap, and uses the same trailing-slash form.
 - **No cannibalization** — 22 unique titles, descriptions and canonicals across

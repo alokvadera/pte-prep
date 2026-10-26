@@ -46,7 +46,7 @@ export class ErrorBoundary extends Component<Props, State> {
       /* storage unavailable */
     }
 
-    const proceed = () => window.location.assign('/')
+    const proceed = () => window.location.assign(import.meta.env.BASE_URL)
 
     try {
       if (typeof window !== 'undefined' && 'indexedDB' in window) {

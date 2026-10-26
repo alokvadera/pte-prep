@@ -154,20 +154,19 @@ class Canvas {
   }
 }
 
-// The palette mirrors src/index.css, so the marks and the site are one system:
-// graphite ink on paper, with one vermilion that only ever means "a mark".
-const INK = [16, 21, 24] // --color-ink-900
-const INK_DEEP = [10, 14, 16] // --color-ink-950
-const PAPER = [255, 255, 255] // --color-ink-50
-const WASH = [244, 246, 247] // --color-ink-100
-const RULE = [223, 227, 230] // --color-ink-200
-const MARK = [212, 42, 30] // --color-mark-500
+// Keep generated brand assets aligned with the tokens in src/index.css.
+const INK = [16, 17, 30] // --color-ink-900
+const INK_DEEP = [10, 11, 20] // --color-ink-950
+const PAPER = [255, 248, 236] // --color-ink-50
+const WASH = [241, 236, 255] // --color-ink-100
+const RULE = [224, 218, 244] // --color-ink-200
+const MARK = [139, 92, 246] // --color-mark-500
 const WHITE = [255, 255, 255]
 
 // --- icon ------------------------------------------------------------------
 
 /**
- * A white plate on ink, carrying the monogram and one red corner mark. No
+ * A white plate on ink, carrying the monogram and one purple corner mark. No
  * gradient and no glow: the system separated surfaces with a hairline, and an
  * icon is the one place there is no room for a hairline, so the separation is
  * the plate against the ground.
@@ -185,7 +184,7 @@ function appIcon(size, { maskable = false } = {}) {
   c.roundRect(size * inset, size * inset, box, box, radius, WHITE, 1)
   c.monogram(size / 2, size / 2 - box * 0.03, box * 0.58, INK)
 
-  // The mark: a red square in the corner of the plate.
+  // The mark: a purple square in the corner of the plate.
   const markSize = box * 0.18
   c.roundRect(
     size * inset + box - markSize - box * 0.08,

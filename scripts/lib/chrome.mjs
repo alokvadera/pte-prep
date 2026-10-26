@@ -58,10 +58,14 @@ export async function stopChrome(chrome, profile) {
     // profile cannot be removed while it is still writing to it, and a fixed
     // pause is either too short (the profile is left behind) or too long.
     await new Promise((resolve) => {
-      const done = () => resolve()
+      let timeout
+      const done = () => {
+        if (timeout) clearTimeout(timeout)
+        resolve()
+      }
       chrome.once('exit', done)
       // A browser that ignores the signal must not hang the script.
-      setTimeout(done, 5000)
+      timeout = setTimeout(done, 5000)
     })
   }
   if (profile) {

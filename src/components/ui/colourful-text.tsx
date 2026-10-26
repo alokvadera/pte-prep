@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { motion } from 'motion/react'
-import { prefersReducedMotion } from '../../lib/motion'
+import { usePrefersReducedMotion, prefersReducedMotion } from '../../lib/motion'
 
 /* The palette is a module constant, not a value the component derives:
    reading it from inside the effect would make it a dependency, and a
@@ -22,6 +22,7 @@ const COLORS = [
 export default function ColourfulText({ text }: { text: string }) {
   const [currentColors, setCurrentColors] = React.useState(COLORS)
   const [count, setCount] = React.useState(0)
+  const reduceMotion = usePrefersReducedMotion()
 
   React.useEffect(() => {
     // A word that reshuffles, bounces and blurs every five seconds is
@@ -43,16 +44,24 @@ export default function ColourfulText({ text }: { text: string }) {
   return Array.from(text).map((char, index) => (
     <motion.span
       key={`${char}-${count}-${index}`}
-      initial={{
-        y: 0,
-      }}
-      animate={{
-        color: currentColors[index % currentColors.length],
-        y: [0, -2.5, 0],
-        scale: [1, 1.01, 1],
-        filter: ['blur(0px)', 'blur(2.5px)', 'blur(0px)'],
-        opacity: [1, 0.85, 1],
-      }}
+      initial={reduceMotion ? false : { y: 0 }}
+      animate={
+        reduceMotion
+          ? {
+              color: currentColors[index % currentColors.length],
+              y: 0,
+              scale: 1,
+              filter: 'blur(0px)',
+              opacity: 1,
+            }
+          : {
+              color: currentColors[index % currentColors.length],
+              y: [0, -2.5, 0],
+              scale: [1, 1.01, 1],
+              filter: ['blur(0px)', 'blur(2.5px)', 'blur(0px)'],
+              opacity: [1, 0.85, 1],
+            }
+      }
       transition={{
         duration: 0.45,
         delay: index * 0.04,

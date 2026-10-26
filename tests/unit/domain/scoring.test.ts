@@ -23,9 +23,10 @@ import type { AnswerKey, Item, ItemResponse } from '../../../src/domain/types'
 /* ---------------------------------------------------------------------------
    The scoring model.
 
-   Everything Pearson publishes is implemented exactly, and the two things it
-   does not publish — the trait weighting and the score conversion — are
-   estimated. This file covers the published rules exhaustively: the scoring
+   Published item rules are implemented where the score guide specifies them.
+   Read Aloud's error-to-point conversion, constructed-response trait weights,
+   and the item-to-scale conversion remain estimates. This file covers the
+   published rules: the scoring
    mode of every type, the two gates that zero an item, the Form bands, the
    negative marking, and the scale conversions the report is built on.
    --------------------------------------------------------------------------- */
@@ -636,22 +637,24 @@ describe('spoken items', () => {
     expect(detail.ratio).toBe(0)
   })
 
-  it('says nothing was reproduced when the prompt has no content words', () => {
+  it('counts short function words in Read Aloud content', () => {
     const detail = scoreItem(
       readAloud,
-      { reference: 'the of and' },
-      { transcript: LONG_TEXT, audio: audio() },
+      { reference: 'the committee' },
+      { transcript: 'The committee', audio: audio() },
     )
-    expect(detail.ratio).toBe(0)
+    expect(detail.ratio).toBeGreaterThan(0.8)
   })
 
-  it('says no content words were produced when the answer has none', () => {
+  it('says no prompt words were repeated when there is no target match', () => {
     const detail = scoreItem(
       readAloud,
       { reference: 'environment policy' },
       { transcript: 'the of and', audio: audio() },
     )
-    expect(detail.notes).toContain('No content words from the prompt were produced.')
+    expect(detail.notes).toContain(
+      'Estimated Read Aloud content after 3 word errors; Pearson does not publish the error-to-point conversion.',
+    )
   })
 
   it('gates an item whose content scored zero', () => {

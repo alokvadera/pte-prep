@@ -12,7 +12,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-ocean-ph',
     title: 'Atmospheric CO2 vs Surface Ocean pH, 1980–2024',
     kind: 'line',
-    caption: 'Atmospheric carbon dioxide concentrations (ppm) and seawater pH over four decades.',
+    caption:
+      'Illustrative practice data, not an observational dataset: atmospheric carbon dioxide (ppm) and seawater pH over four decades.',
     prompt: 'Describe the information shown in the graph below in 25–40 seconds.',
     keyTerms: ['carbon dioxide', 'ocean pH', 'acidity', 'inverse relationship', 'ppm', 'decades'],
     minWords: 25,
@@ -33,7 +34,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-bronze-trade',
     title: 'Eastern Mediterranean Bronze Age Metal Trade (Tons)',
     kind: 'bar',
-    caption: 'Estimated annual trade volume of copper and tin ingots, 1400–1100 BCE.',
+    caption:
+      'Illustrative practice data, not archaeological trade estimates: example copper and tin volumes from 1400–1100 BCE.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
     keyTerms: ['copper', 'tin', 'trade volume', 'bronze age', 'decline', 'collapse', 'tons'],
     minWords: 25,
@@ -50,7 +52,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-sleep-cycles',
     title: 'Sleep Stage Distribution Across Age Groups',
     kind: 'bar',
-    caption: 'Percentage of total nocturnal sleep spent in REM and Deep Slow-Wave sleep.',
+    caption:
+      'Illustrative practice data, not clinical measurements: example sleep-stage percentages across age groups.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
     keyTerms: ['sleep stages', 'slow-wave', 'REM sleep', 'age groups', 'decline', 'percentage'],
     minWords: 25,
@@ -73,7 +76,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-language-families',
     title: 'Global Spoken Languages by Family',
     kind: 'pie',
-    caption: 'Share of world population speaking major language families, 2024.',
+    caption:
+      'Illustrative practice data, not a population estimate: example shares assigned to major language families.',
     prompt: 'Describe the information shown in the pie chart below in 25–40 seconds.',
     keyTerms: [
       'language families',
@@ -99,7 +103,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-groundwater-gravity',
     title: 'Satellite Groundwater Loss Across Major Aquifers (km³/yr)',
     kind: 'bar',
-    caption: 'Annual net groundwater depletion estimated by GRACE gravimetry, 2002–2022.',
+    caption:
+      'Illustrative practice data, not GRACE estimates: example annual groundwater-loss values for major aquifers.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
     keyTerms: [
       'groundwater loss',
@@ -131,9 +136,10 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
   },
   {
     id: 'chart-default-optin',
-    title: 'Organ Donor Registration Rates: Opt-In vs Presumed Consent',
+    title: 'Illustrative Organ Donor Registration under Different Defaults',
     kind: 'bar',
-    caption: 'Donor authorization rate (%) under voluntary opt-in and default opt-out policies.',
+    caption:
+      'Illustrative practice data, not country-level registration rates. Real outcomes depend on policy, public trust and registration procedures.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
     keyTerms: [
       'organ donation',
@@ -147,12 +153,12 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     data: {
       unit: '% registered donors',
       categories: [
-        'Germany (Opt-In)',
-        'UK (Pre-Reform)',
-        'Netherlands (Opt-In)',
-        'Spain (Presumed)',
-        'Austria (Presumed)',
-        'France (Presumed)',
+        'Opt-in example A',
+        'Opt-in example B',
+        'Opt-in example C',
+        'Presumed-consent example A',
+        'Presumed-consent example B',
+        'Presumed-consent example C',
       ],
       series: [{ name: 'Registration rate', values: [12, 17, 27, 92, 99, 91], color: '#10b981' }],
     },
@@ -161,7 +167,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-grid-storage',
     title: 'Capital Cost of Grid Energy Storage Technologies ($/kWh)',
     kind: 'bar',
-    caption: 'Levelized capital cost comparison across energy storage solutions, 2015 vs 2024.',
+    caption:
+      'Illustrative practice data, not a market-price series: example capital costs for energy-storage technologies in 2015 and 2024.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
     keyTerms: [
       'storage cost',
@@ -185,7 +192,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-ev-materials',
     title: 'Mineral Requirements per Vehicle (kg)',
     kind: 'bar',
-    caption: 'Critical mineral weight comparison: Electric vehicle vs Conventional vehicle.',
+    caption:
+      'Illustrative practice data, not a vehicle bill of materials: example mineral weights for electric and conventional cars.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
     keyTerms: [
       'minerals',
@@ -210,7 +218,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-antibiotic-classes',
     title: 'Discovery of Novel Antibiotic Classes by Decade',
     kind: 'bar',
-    caption: 'Number of distinct chemical classes of antibiotics introduced to clinical practice.',
+    caption:
+      'Illustrative practice data, not a historical drug-discovery count: example numbers of antibiotic classes by decade.',
     prompt: 'Describe the information shown in the chart below in 25–40 seconds.',
     keyTerms: [
       'antibiotics',
@@ -232,7 +241,8 @@ export const EXTRA_CHARTS_5: ChartSpec[] = [
     id: 'chart-glacier-mass',
     title: 'Cumulative Glacier Mass Balance, 1970–2020',
     kind: 'line',
-    caption: 'Mean cumulative mass change in meters of water equivalent across mountain ranges.',
+    caption:
+      'Illustrative practice data, not a glaciological measurement series: example cumulative mass changes across mountain ranges.',
     prompt: 'Describe the information shown in the graph below in 25–40 seconds.',
     keyTerms: [
       'glacier mass',

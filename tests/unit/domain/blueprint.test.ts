@@ -151,27 +151,30 @@ describe('section metadata', () => {
 })
 
 describe('mock blueprint', () => {
-  it('uses the midpoint of every published range', () => {
+  it('keeps every default count inside its published range', () => {
     for (const type of ALL_QUESTION_TYPES) {
       const { min, max } = QUESTION_META[type].count
-      expect(MOCK_BLUEPRINT[type]).toBe(Math.round((min + max) / 2))
+      expect(MOCK_BLUEPRINT[type]).toBeGreaterThanOrEqual(min)
+      expect(MOCK_BLUEPRINT[type]).toBeLessThanOrEqual(max)
     }
   })
 
-  it('produces the 84-item mock the assembler documents', () => {
+  it('produces a 75-item mock within the published overall range', () => {
     const total = ALL_QUESTION_TYPES.reduce((sum, type) => sum + MOCK_BLUEPRINT[type], 0)
-    expect(total).toBe(84)
+    expect(total).toBe(75)
+    expect(total).toBeGreaterThanOrEqual(65)
+    expect(total).toBeLessThanOrEqual(75)
   })
 
-  it('counts 42 items in Speaking & Writing, 20 in Reading and 22 in Listening', () => {
+  it('counts 39 items in Speaking & Writing, 18 in Reading and 18 in Listening', () => {
     const bySection = (section: SectionId) =>
       ALL_QUESTION_TYPES.filter((type) => QUESTION_META[type].section === section).reduce(
         (sum, type) => sum + MOCK_BLUEPRINT[type],
         0,
       )
-    expect(bySection('speaking-writing')).toBe(42)
-    expect(bySection('reading')).toBe(20)
-    expect(bySection('listening')).toBe(22)
+    expect(bySection('speaking-writing')).toBe(39)
+    expect(bySection('reading')).toBe(18)
+    expect(bySection('listening')).toBe(18)
   })
 })
 
@@ -215,7 +218,7 @@ describe('mock preview', () => {
   })
 
   it('counts every item of a full mock', () => {
-    expect(full.scoredCount).toBe(84)
+    expect(full.scoredCount).toBe(75)
   })
 
   it('gives a full mock the official 130 minutes', () => {
@@ -252,7 +255,7 @@ describe('mock preview', () => {
   it('restricts a section preview to that section', () => {
     const reading = describeMockPreview(MOCK_BLUEPRINT, { singleSection: 'reading' })
     expect(reading.sectionIds).toEqual(['reading'])
-    expect(reading.scoredCount).toBe(20)
+    expect(reading.scoredCount).toBe(18)
     expect(reading.totalSeconds).toBe(23 * 60)
     expect(reading.includedTypes).toEqual([
       'fill-in-blanks-dropdown',
@@ -266,13 +269,13 @@ describe('mock preview', () => {
   it('keeps the introduction for a Speaking & Writing preview', () => {
     const speaking = describeMockPreview(MOCK_BLUEPRINT, { singleSection: 'speaking-writing' })
     expect(speaking.includedTypes).toContain('respond-to-situation')
-    expect(speaking.scoredCount).toBe(42)
+    expect(speaking.scoredCount).toBe(39)
   })
 
   it('drops the introduction from a Listening preview', () => {
     const listening = describeMockPreview(MOCK_BLUEPRINT, { singleSection: 'listening' })
     expect(listening.includedTypes).not.toContain('respond-to-situation')
-    expect(listening.scoredCount).toBe(22)
+    expect(listening.scoredCount).toBe(18)
   })
 
   it('treats a type that is not counted as absent', () => {
@@ -294,7 +297,7 @@ describe('mock preview', () => {
 
   it('gives a drill a usable floor rather than a fraction of a second', () => {
     const preview = describeMockPreview({ 'read-aloud': 1 }, { singleSection: 'speaking-writing' })
-    // One Read Aloud out of 42 blueprint items in the section is far below the
+    // One Read Aloud out of 39 blueprint items in the section is far below the
     // 180-second floor the assembler applies.
     expect(preview.totalSeconds).toBe(180)
   })

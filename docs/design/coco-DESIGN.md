@@ -4,12 +4,12 @@
 
 - URL: https://www.cocoalemana.com/
 - Capture date: 2026-09-30
-- Evidence: Firecrawl branding and images scrape, page markdown, and full page screenshot in `./.firecrawl/`.
+- Evidence: Firecrawl branding and images scrape, page markdown, and full page screenshot in `../../design-lab/coco/.firecrawl/`.
 - The source screenshot is for visual reference only. This prototype uses no Coco Alemana branding, copy, or images.
 
 ## Reference screenshot
 
-![Firecrawl capture of Coco Alemana](./.firecrawl/coco-screenshot.png)
+![Firecrawl capture of Coco Alemana](../../design-lab/coco/.firecrawl/coco-screenshot.png)
 
 ## Design summary
 

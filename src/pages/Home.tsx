@@ -218,8 +218,8 @@ export default function Home() {
             <Reveal delay={140} variant="blur-up">
               <p className="page-intro mt-6 max-w-[60ch] text-[18.5px] leading-[1.65]">
                 Sit full mock tests with real timers, practice all 22 question types, and get a
-                score report on the 10 to 90 scale with CEFR band. Built for test takers who want
-                proof of readiness, not more sample PDFs.
+                score report on the 10 to 90 scale with CEFR band. Built for test takers who want a
+                clearer picture of what to practise next, not more sample PDFs.
               </p>
             </Reveal>
 
@@ -376,8 +376,9 @@ export default function Home() {
               <span className="pill-purple">Test day timing</span>
               <h2 className="section-title">A mock that runs like test day</h2>
               <p className="page-intro">
-                Three sections in order, one running clock, no pauses. A 65 here reads like a 65
-                there, because the scale and the timing match.
+                Three sections in order, each with its own clock and no pauses while it runs. The
+                timing follows the test format; scores are practice estimates, not official Pearson
+                results.
               </p>
             </div>
           </Reveal>

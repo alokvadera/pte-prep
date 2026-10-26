@@ -536,7 +536,7 @@ describe('clearAllAttemptsEverywhere', () => {
     expect(await db.readKv<string[]>(tombstoneKey(USER.id), [])).toEqual([])
   })
 
-  it('falls back to the local ids when the cloud listing fails', async () => {
+  it('keeps local history intact when the cloud listing fails', async () => {
     await db.saveAttempt(makeAttempt({ id: 'l1', ownerId: 'usr_1', userId: 'usr_1' }))
     installFetchMock([
       { url: IDS_URL, status: 500 },
@@ -545,7 +545,8 @@ describe('clearAllAttemptsEverywhere', () => {
     signIn()
 
     expect(await clearAllAttemptsEverywhere()).toBe(false)
-    expect(await db.readKv<string[]>(tombstoneKey(USER.id), [])).toEqual(['l1'])
+    expect(await db.getAttempt('l1')).toBeDefined()
+    expect(await db.readKv<string[]>(tombstoneKey(USER.id), [])).toEqual([])
   })
 })
 

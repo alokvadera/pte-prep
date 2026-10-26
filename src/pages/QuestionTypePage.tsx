@@ -122,9 +122,8 @@ export default function QuestionTypePage() {
 
           {meta.skills.length > 1 ? (
             <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-sm leading-relaxed">
-              This is an integrated item: it counts towards {meta.skills.length} different skill
-              scores at once, which is why its weighting in a full test is higher than a
-              single-skill item.
+              This is an integrated item: the published blueprint assigns it to {meta.skills.length}{' '}
+              skill scores. The exact contribution to each scaled score is not published.
             </p>
           ) : null}
         </section>

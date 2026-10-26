@@ -2,32 +2,32 @@
 
 ## Overview
 
-The question bank (~10,000 LOC, 552 KB) is lazy-loaded to reduce the initial bundle size and improve website load performance.
-
-**Result: 49% reduction in main bundle size (1.15 MB → 588 KB)**
+The question bank is lazy-loaded so mock setup and practice pages can render without downloading question text. The initial app entry and the deferred bank chunk are both substantial; current sizes are recorded below so an old bundle-size comparison is not mistaken for a current measurement.
 
 ## Architecture
 
 ### Bundle Structure
 
+Snapshot from the current `dist/assets` build on 26 October 2026. Sizes are KiB; gzip values are measured locally and exclude HTTP headers.
+
 | Chunk | Size | Gzip | When Loaded |
 |-------|------|------|-------------|
-| `index.js` (main) | 588 KB | 173 KB | Immediately on page load |
-| `chartData.js` (bank) | 552 KB | 148 KB | On session start |
-| `assemble.js` | 18 KB | 5 KB | On session start |
-| `TestPage.js` | 64 KB | 18 KB | On /test route |
-| `ResultPage.js` | 28 KB | 8 KB | On /result route |
+| app entry | 842 KiB | 251 KiB | Immediately on page load |
+| question bank (`chartData`) | 625 KiB | 170 KiB | On session start / first bank use |
+| assembler | 19 KiB | 5 KiB | On session start |
+| test route | 73 KiB | 20 KiB | On /test route |
+| result route | 33 KiB | 10 KiB | On /result route |
 
 ### Data Flow
 
 ```
 Page Load
-  ├─ Main bundle (588 KB) - app code, pages, UI
+  ├─ Main bundle (842 KiB) - app code, pages, UI
   └─ No question bank
 
 User clicks "Start session" / "Start this practice"
-  ├─ Load assemble.js (18 KB)
-  ├─ Load chartData.js (552 KB) - question bank
+  ├─ Load assemble.js (19 KiB)
+  ├─ Load chartData.js (625 KiB) - question bank
   ├─ Build mock with selected seed/counts
   └─ Navigate to /test
 ```
@@ -99,7 +99,7 @@ Added 33 assertions to verify the manifest and preview logic stay in sync with t
 3. **MOCK_TYPE_ORDER matches a built mock** - across all length scales
 4. **describeMockPreview matches real assembler** - scored count, time, types across all lengths, timings, sections
 
-**Total:** 3,477 checks, all passing
+**Recorded total:** 3,477 checks in an earlier verification run
 
 ## Key Design Decisions
 
@@ -113,7 +113,7 @@ The assembler (1,200 lines) has ~100 references to bank data. Converting it to a
 - Simple implementation (just `await import()`)
 
 **Trade-offs:**
-- Assembler and bank load together (18 KB + 552 KB)
+- Assembler and bank load together (19 KiB + 625 KiB)
 - Cannot split bank further without more work
 
 ### 2. Preview Computation Without Bank
@@ -133,16 +133,18 @@ MockSetup shows a session summary (sections, scored items, time, types). This is
 
 ### 3. Same Seed/Counts for Preview and Actual
 
-The previewed summary and the started mock use the same `seed` and `counts`, so they always match. The user sees "84 items, 2:10:00" and starts a session with exactly that.
+The previewed summary and the started mock use the same `seed` and `counts`, so they always match. The user sees "75 items, 2:10:00" and starts a session with exactly that.
 
-## Verification
+## Recorded verification
 
-All tests pass:
+The table below records an earlier full verification run; it is not a report on the current worktree. Re-run the listed commands when validating a new change.
+
+The earlier run reported:
 
 | Test | Result |
 |------|--------|
 | typecheck | ✅ Clean |
-| build | ✅ 34 routes prerendered |
+| build | ✅ 35 routes prerendered |
 | smoke | ✅ 130 assertions |
 | bank-check | ✅ 3,477 checks |
 | boundary | ✅ 20 tests |
@@ -153,43 +155,30 @@ All tests pass:
 
 ```bash
 1. Manifest counts match bank: ✓
-2. Bank capacity matches: ✓ (1025 vs 1025)
-3. Preview matches mock: ✓ (scored: 84 vs 84, time: 7800 vs 7800)
+2. Bank capacity matches: ✓ (1200 vs 1200)
+3. Preview matches mock: ✓ (scored: 75 vs 75, time: 7800 vs 7800)
 4. Type order matches: ✓
 5. Section IDs match: ✓ (speaking-writing, reading, listening)
-6. Section preview matches: ✓ (20 vs 20)
+6. Section preview matches: ✓ (18 vs 18)
 
 All checks passed: ✓
 ```
 
 ## SEO Preserved
 
-- **34 routes prerendered** - static HTML for all indexable pages
-- **Prerendered HTML shows correct preview** - "84 items, 2:10:00" in session summary
+- **35 routes prerendered** - static HTML for indexable pages and noindex app pages
+- **Prerendered HTML shows correct preview** - "75 items, 2:10:00" in session summary
 - **Static HTML unchanged** - same content, now without the bank in initial bundle
 
 ## Performance Impact
 
-### Before
-1. Download main bundle (1.15 MB)
-2. Parse and execute all code including bank
-3. Render page
-4. Time to interactive: slower (large bundle)
-
-### After
-1. Download main bundle (588 KB) - **49% smaller**
-2. Parse and execute app code (no bank)
-3. Render page
-4. Time to interactive: **faster**
-5. On "Start session": download bank (552 KB) + assembler (18 KB)
-6. Build mock and start test
+The current entry defers the question bank until a flow imports the assembler or another bank-dependent module. The current build snapshot above is the baseline for future comparisons; the older 49% reduction figure no longer describes this build.
 
 ### Metrics
 
-- **Main bundle:** 1.15 MB → 588 KB (**49% reduction**)
-- **Gzip size:** 340 KB → 173 KB (**49% reduction**)
-- **Time to interactive:** Improved (smaller bundle to parse)
-- **Bank loading:** Deferred to session start
+- **App entry:** 842 KiB (251 KiB gzip)
+- **Question bank:** 625 KiB (170 KiB gzip), deferred from mock setup and practice landing views
+- **Assembler:** 19 KiB (5 KiB gzip)
 
 ## Files Changed
 
@@ -229,13 +218,11 @@ These are minor optimizations with minimal benefit (bank is already lazy-loaded)
    - **Complexity:** High (restructure content files)
 
 **Why not implemented:**
-- Bank is already in a lazy chunk (552 KB)
+- Bank is already in a lazy chunk (625 KiB in the current build snapshot)
 - Test needs bank anyway (to build mock)
 - AudioPlayer/ChartRenderer are used in TestPage (lazy route)
 - Minimal benefit, more complexity
 
 ## Conclusion
 
-The question bank lazy-loading is **complete and production-ready**. The main goal (reduce initial bundle size) is achieved with a **49% reduction**. The bank loads only when needed, improving initial load performance while preserving functionality and SEO.
-
-All tests pass. The code is clean, well-documented, and includes drift detection to prevent future regressions.
+The question bank remains separate from the initial mock setup and practice route imports. The current bundle sizes above replace the earlier 49% comparison; future performance claims should be based on a new build snapshot. The bank-check script remains the drift guard for manifest and preview consistency.

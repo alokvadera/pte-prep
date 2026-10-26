@@ -848,6 +848,15 @@ let filteredIndices = [];
 const audio = new Audio();
 audio.preload = 'metadata';
 
+// The explorer renders authored bank content into HTML strings. Escape every
+// content value before interpolation so a markup typo cannot become executable
+// markup when this review page is generated.
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[char]);
+}
+
 const grid = document.getElementById('clips-grid');
 const searchInput = document.getElementById('search-input');
 const clearSearchBtn = document.getElementById('clear-search-btn');
@@ -917,7 +926,7 @@ function render() {
       speakerPillsHtml = '<div style="display:flex; flex-wrap:wrap; gap:6px; margin: 8px 0;">' +
         clip.meta.speakers.map(s =>
           '<span style="font-size:11px; padding:3px 8px; border-radius:12px; background:rgba(99,102,241,0.15); border:1px solid rgba(99,102,241,0.3); color:#c7d2fe;">' +
-            '🗣️ <strong>' + s.name + '</strong> (' + s.role + '): <strong>' + s.voice + '</strong> (' + s.gender + ', ' + s.accent + ')' +
+            '🗣️ <strong>' + escapeHtml(s.name) + '</strong> (' + escapeHtml(s.role) + '): <strong>' + escapeHtml(s.voice) + '</strong> (' + escapeHtml(s.gender) + ', ' + escapeHtml(s.accent) + ')' +
           '</span>'
         ).join('') +
       '</div>';
@@ -932,16 +941,16 @@ function render() {
       const optionsHtml = (clip.meta.options || []).map((opt, i) => {
         const isCorrect = i === clip.meta.correct;
         return '<div class="option-cell ' + (isCorrect ? 'is-correct' : '') + '">' +
-          (isCorrect ? '✓ ' : '') + opt +
+          (isCorrect ? '✓ ' : '') + escapeHtml(opt) +
         '</div>';
       }).join('');
 
       bodyHtml = '<div class="transcript-box">' +
-        before + ' <span class="beep-badge">🔊 [1 kHz BEEP: "' + excised + '"]</span> ' + after +
+        escapeHtml(before) + ' <span class="beep-badge">🔊 [1 kHz BEEP: "' + escapeHtml(excised) + '"]</span> ' + escapeHtml(after) +
       '</div>' +
       '<div class="options-grid">' + optionsHtml + '</div>';
     } else if (clip.text) {
-      bodyHtml = '<div class="transcript-box">' + clip.text + '</div>';
+      bodyHtml = '<div class="transcript-box">' + escapeHtml(clip.text) + '</div>';
     }
 
     const sliderVal = isCurrent && audio.duration ? (audio.currentTime / audio.duration) * 100 : 0;
@@ -951,12 +960,12 @@ function render() {
       '<div class="card-header">' +
         '<div>' +
           '<div class="card-id-row">' +
-            '<span class="card-id">' + clip.id + '</span>' +
-            (isFish ? '<span class="tag tag-fish">🐟 Fish Audio TTS</span>' : '<span class="tag">' + clip.kind + '</span>') +
+            '<span class="card-id">' + escapeHtml(clip.id) + '</span>' +
+            (isFish ? '<span class="tag tag-fish">🐟 Fish Audio TTS</span>' : '<span class="tag">' + escapeHtml(clip.kind) + '</span>') +
           '</div>' +
-          '<div class="card-title">' + (clip.title || clip.id) + '</div>' +
+          '<div class="card-title">' + escapeHtml(clip.title || clip.id) + '</div>' +
         '</div>' +
-        '<a href="' + clip.file + '" target="_blank" class="raw-link" title="Open raw audio file in new tab">↗ Raw .m4a</a>' +
+        '<a href="' + escapeHtml(clip.file) + '" target="_blank" rel="noopener noreferrer" class="raw-link" title="Open raw audio file in new tab">↗ Raw .m4a</a>' +
       '</div>' +
 
       '<div class="card-meta">' +
@@ -964,7 +973,7 @@ function render() {
         '<span>•</span>' +
         '<span>💾 ' + Math.round(clip.byteSize / 1024) + ' KB</span>' +
         '<span>•</span>' +
-        '<span>🏷️ ' + (clip.topic || 'General') + '</span>' +
+        '<span>🏷️ ' + escapeHtml(clip.topic || 'General') + '</span>' +
       '</div>' +
 
       speakerPillsHtml +

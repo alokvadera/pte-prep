@@ -57,38 +57,45 @@ export const EXTRA_LECTURES_5: AudioScript[] = [
   },
   {
     id: 'lec-silk-road',
-    title: 'Why the Silk Road Faded',
+    title: 'How Silk Road Trade Routes Changed',
     kind: 'lecture',
     topic: 'History',
-    scene: 'A historian lecturing on the end of overland trade.',
+    scene: 'A historian lecturing on changing Eurasian trade routes.',
     speakers: [{ id: 's1', name: 'Professor Larkin', role: 'Historian', voiceHint: 'low' }],
     turns: [
       {
         speaker: 's1',
-        text: 'The Silk Road is usually taught as a single highway, and as a road that was closed by war. Both pictures are wrong. It was a network of caravan routes, and it faded not because anyone shut it, but because a cheaper substitute appeared.',
+        text: 'The Silk Roads were not one highway that simply closed. They were connected land and sea routes linking many regions, and merchants often travelled only part of the distance, passing goods through intermediaries. Their importance changed over time as political conditions and transport options changed.',
       },
       {
         speaker: 's1',
-        text: 'The economics of the overland route were brutal. A camel caravan covered perhaps two hundred kilometres a month, and every intermediary along the way took a share. Bulky goods could not survive the cost, so only commodities of extreme value relative to their weight, silk, spices, gems and silver, ever travelled the full distance.',
+        text: 'Long-distance overland freight was costly, so compact goods with high value relative to their weight were especially suited to it. Pack camels could cover roughly twenty-five kilometres a day in favourable conditions, though terrain, water and season affected the pace. Most merchants did not carry goods from one end of Eurasia to the other.',
       },
       {
         speaker: 's1',
-        text: 'The turning point came at the end of the fifteenth century, when Portuguese navigators rounded the Cape and opened the sea route to Asia. Maritime shipping did what no political settlement could do: it cut the cost of moving a unit of cargo by an order of magnitude, and it did so at a volume the caravans could never match.',
+        text: 'When Portuguese navigators reached the Indian Ocean by sailing around the Cape of Good Hope in the late fifteenth century, they entered maritime networks that were already active. The new route gave European merchants a more direct way to seek Asian goods, but it did not replace every overland or regional route, and its effects differed across places and commodities.',
       },
       {
         speaker: 's1',
-        text: 'The evidence survives in the price records. Pepper in European markets fell steadily through the sixteenth century as shiploads replaced camel loads, and the overland share of the spice trade collapsed within two generations. The pattern is written on the map of cities: the caravan towns of Central Asia stagnated while Lisbon, and later Amsterdam, grew wealthy on the same goods.',
+        text: 'The growth of Portuguese and later European shipping altered parts of the spice trade and challenged existing commercial intermediaries. That did not make all overland routes obsolete: states and merchants across Central Asia continued to use and adapt them. The history is better understood as a shift in routes, power and trade shares than as a single collapse.',
       },
       {
         speaker: 's1',
-        text: 'Notice what this means. The route was not destroyed; it was outcompeted. Political fragmentation and the loss of the empires that had protected the caravans had already weakened it, but the fatal blow was relative price. Trade routes do not die of closure. They die when a substitute makes their fixed costs unpayable.',
+        text: 'Political change, security, demand and transport costs all influenced which routes merchants used. Sea transport could carry some goods in ways that competed with long overland journeys, while land routes remained valuable for other connections. No single cause explains the changing fortunes of every town or route.',
       },
       {
         speaker: 's1',
-        text: 'The wider lesson is that infrastructure is only as durable as the economics beneath it. When the ocean carried the same goods for less, the Silk Road became a memory rather than a corridor, and the history of the following centuries was written on the water instead of on the steppe. Thank you.',
+        text: 'The wider lesson is that trade networks are flexible. They respond to political conditions, demand and the costs of moving particular goods. The Cape route changed some connections between Europe and Asia, while the wider Silk Roads continued as a mix of land and maritime routes. Thank you.',
       },
     ],
-    keyTerms: ['caravan', 'overland', 'maritime', 'substitute', 'pepper', 'fixed costs'],
+    keyTerms: [
+      'Silk Roads',
+      'intermediaries',
+      'overland freight',
+      'Cape of Good Hope',
+      'spice trade',
+      'route changes',
+    ],
   },
   {
     id: 'lec-precedent',
@@ -116,7 +123,7 @@ export const EXTRA_LECTURES_5: AudioScript[] = [
       },
       {
         speaker: 's1',
-        text: 'The clearest illustration is the modern law of negligence. In 1932 the House of Lords held that a manufacturer owed a duty of care to the ultimate consumer of its product, a departure from the older precedent that liability required a contract. The new rule was contested, yet within a generation it had become the foundation on which an entire branch of liability was built.',
+        text: 'A landmark illustration is Donoghue v Stevenson in 1932. The House of Lords recognized that a manufacturer could owe a duty of care to an ultimate consumer despite the absence of a contract between them. The decision drew on earlier principles and helped shape modern negligence law; it was not a simple rejection of a single rule that liability always required a contract.',
       },
       {
         speaker: 's1',
@@ -161,15 +168,22 @@ export const EXTRA_RETELL_ITEMS_5: RetellItem[] = [
     id: 'rtl-silk-road',
     audioId: 'lec-silk-road',
     skeleton: [
-      'a network of routes, not a single road',
-      'overland transport costs were brutal',
-      'Cape sea route cut cost by an order of magnitude',
-      'pepper prices fell through the sixteenth century',
-      'not closed by war but outcompeted on relative price',
+      'connected land and sea routes, merchants often travelled in stages',
+      'overland freight favoured compact, high-value goods',
+      'Cape route gave Europeans a more direct path to Indian Ocean trade',
+      'some spice trade patterns shifted; existing networks continued',
+      'several political and economic causes changed route use',
     ],
     reference:
-      'The Silk Road was a network of caravan routes, not a single road, and it faded because sea trade outcompeted it rather than because war closed it. Overland transport was ruinously expensive, so only high-value goods travelled far, until maritime routes around the Cape cut the cost per unit dramatically. Pepper prices fell through the sixteenth century, caravan towns stagnated, and the overland routes died of relative price, not closure.',
-    keyTerms: ['caravan', 'overland', 'maritime', 'pepper', 'outcompeted', 'relative price'],
+      'The Silk Roads connected regions through land and sea routes, with merchants often passing goods through intermediaries. Costly overland freight favoured compact, high-value goods. The Portuguese Cape route gave European merchants a more direct connection to Indian Ocean trade, shifting some commercial patterns, but it did not end the wider networks. Political conditions, demand and transport costs all influenced which routes were used.',
+    keyTerms: [
+      'Silk Roads',
+      'intermediaries',
+      'overland freight',
+      'Cape route',
+      'Indian Ocean trade',
+      'commercial patterns',
+    ],
     minWords: 40,
   },
   {

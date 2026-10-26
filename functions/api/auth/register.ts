@@ -16,19 +16,22 @@ interface ExtendedUserRecord extends UserRecord {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  let body: { email?: string; password?: string; targetScore?: number }
+  let parsed: unknown
   try {
-    body = (await context.request.json()) as {
-      email?: string
-      password?: string
-      targetScore?: number
-    }
+    parsed = await context.request.json()
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const body = parsed as { email?: unknown; password?: unknown; targetScore?: unknown }
 
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   const password = typeof body.password === 'string' ? body.password : ''

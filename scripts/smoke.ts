@@ -193,7 +193,7 @@ console.log('\n== Drill integrity ==')
   )
 
   // Filtering groups used to leave the rest of the assembled mock behind, so a
-  // two-item drill reported every point in the bank and persisted all 84 items.
+  // two-item drill reported every point in the bank and persisted the full mock.
   const drill = buildDrillMock(7, ['reorder-paragraphs'], 2)
   const drillIds = drill.sections.flatMap((s) => s.itemIds)
   check(

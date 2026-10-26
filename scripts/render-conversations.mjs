@@ -280,7 +280,9 @@ export async function synthesizeDialogue(script) {
   rmSync(tmpMp3, { force: true })
 
   const durationSec = getAudioDuration(targetM4a)
-  const byteSize = mp3Buf.length
+  // The browser serves the converted M4A, so the manifest has to report the
+  // size of that file rather than the larger Fish Audio MP3 source.
+  const byteSize = readFileSync(targetM4a).length
 
   // Update manifest
   const manifestPath = join(ROOT, 'src', 'content', 'audioManifest.json')

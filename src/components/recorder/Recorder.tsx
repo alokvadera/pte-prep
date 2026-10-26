@@ -110,10 +110,10 @@ export function Recorder({
     }
 
     const browserTranscript = result?.transcript?.trim() ?? ''
-    const key = settings.groqApiKey?.trim()
+    const key = settings.aiScoringEnabled ? settings.groqApiKey?.trim() : ''
 
     // STT STRATEGY:
-    // 1. If user has entered their Groq API Key, Whisper Turbo is FIRST PREFERENCE!
+    // 1. Whisper runs only while the AI Examiner is enabled and a Groq key is set.
     if (key && result?.audioBlob && result.audioBlob.size > 0) {
       if (mountedRef.current) setTranscribing(true)
       try {
@@ -144,7 +144,7 @@ export function Recorder({
       setSttSource(browserTranscript ? 'browser' : null)
     }
     onRecorded(baseAnalysis, browserTranscript)
-  }, [onRecorded, settings.groqApiKey])
+  }, [onRecorded, settings.aiScoringEnabled, settings.groqApiKey])
 
   useEffect(() => {
     finishRef.current = finish
@@ -356,7 +356,7 @@ export function Recorder({
               <p className="text-ink-500 dark:text-ink-on-dark-muted line-clamp-2 italic">
                 “{transcript}”
               </p>
-              {settings.groqApiKey ? (
+              {settings.aiScoringEnabled && settings.groqApiKey ? (
                 <span className="text-[10px] font-semibold text-mint-700 dark:text-mint-400 shrink-0 ml-2">
                   Whisper on stop
                 </span>
@@ -364,11 +364,12 @@ export function Recorder({
             </div>
           ) : sttSupported ? (
             <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
-              Listening for speech… {settings.groqApiKey ? '(Whisper Turbo active)' : ''}
+              Listening for speech…{' '}
+              {settings.aiScoringEnabled && settings.groqApiKey ? '(Whisper Turbo on stop)' : ''}
             </p>
           ) : (
             <p className="text-ink-500 dark:text-ink-on-dark-muted mt-3 text-xs">
-              {settings.groqApiKey
+              {settings.aiScoringEnabled && settings.groqApiKey
                 ? 'Recording audio. Whisper Turbo will transcribe on stop.'
                 : 'This browser cannot transcribe speech, so the estimate will rely on length and fluency signals only.'}
             </p>

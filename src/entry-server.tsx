@@ -49,7 +49,13 @@ export async function render(
   url: string,
   { known = true }: { known?: boolean } = {},
 ): Promise<RenderResult> {
-  const meta = known ? getPageMeta(url) : notFoundMeta(url)
+  const base = import.meta.env.BASE_URL
+  const prefix = base === '/' ? '' : base.endsWith('/') ? base.slice(0, -1) : base
+  const route =
+    prefix && (url === prefix || url.startsWith(`${prefix}/`))
+      ? url.slice(prefix.length) || '/'
+      : url
+  const meta = known ? getPageMeta(route) : notFoundMeta(route)
   const tags = pageHeadTags(meta)
 
   // No extra Suspense boundary here: `App` already has one, and a second

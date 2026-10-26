@@ -8,83 +8,66 @@ import { ConfettiBurst } from './confetti'
 /* ---------------------------------------------------------------------------
    HeroScoreCard.
 
-   The crown-jewel element of the landing page:
-   - Preserves the exact visual silhouette, colors, layout, fonts, and dimensions
-     of the PTE official simulation card.
-   - Adds delightful craft and life:
-     * Interactive mascot whose pupils track the user's cursor across the screen,
-       with natural blinks, winks, squash-and-stretch bounces, and speech bubbles.
-     * 3D gyroscopic tilt physics with multi-layer parallax depth and specular
-       glass sheen glare following the pointer.
-     * Interactive CEFR target switcher: clicking the bottom-right badge
-       cycles through real PTE target bands (B2 76, C1 83, C2 88, 65+ 66),
-       dynamically redrawing the SVG arc dial and sliding the skill bars.
-     * Equalizer / waveform micro-interactions on skill row hover.
-     * Interactive test simulation re-run on score click.
-     * 100% accessible, WCAG AA contrast compliant, and reduced-motion safe.
+   Landing-page sample score card. The figures and replay controls are decorative
+   examples, not a test result or an official Pearson simulation.
 --------------------------------------------------------------------------- */
 
 interface ScoreProfile {
-  cefr: string
+  label: string
   cefrColor: string
   cefrShadow: string
   overall: number
   speaking: number
   writing: number
   readingListening: number
-  badgeTone: string
 }
 
 const SCORE_PRESETS: ScoreProfile[] = [
   {
-    cefr: 'C1 · CEFR band',
+    label: 'Sample profile 76',
     cefrColor: '#FF7EB6',
     cefrShadow: '#E85B9B',
     overall: 76,
     speaking: 71,
     writing: 79,
     readingListening: 77,
-    badgeTone: 'Competent threshold for visas & standard uni entry',
   },
   {
-    cefr: 'C1 · Proficient 79+',
+    label: 'Sample profile 83',
     cefrColor: '#8B5CF6',
     cefrShadow: '#6D28D9',
     overall: 83,
     speaking: 85,
     writing: 82,
     readingListening: 81,
-    badgeTone: 'Superior 20 immigration points unlocked',
   },
   {
-    cefr: 'C2 · Superior 85+',
+    label: 'Sample profile 88',
     cefrColor: '#2EB88A',
     cefrShadow: '#1D7A5B',
     overall: 88,
     speaking: 90,
     writing: 87,
     readingListening: 88,
-    badgeTone: 'Elite mastery across all 22 official question types',
   },
   {
-    cefr: '65+ · Visa Ready',
+    label: 'Sample profile 66',
     cefrColor: '#F59E0B',
     cefrShadow: '#D97706',
     overall: 66,
     speaking: 68,
     writing: 65,
     readingListening: 66,
-    badgeTone: 'Meets Skilled Migration English requirements',
   },
 ]
 
 const MASCOT_THOUGHTS = [
-  'Target: 79+ 🚀',
-  'Fluency: 100% ⚡',
+  'Keep practising 🚀',
+  'One step at a time ⚡',
   'Looking sharp! ✨',
-  'Ready for test day! 🎯',
-  'Click the badge to test! 👇',
-  'All 22 types locked in! 🏆',
+  'You have got this! 🎯',
+  'Try another sample 👇',
+  'Keep up the good work! 🏆',
 ]
 
 /* The pop is played on a context the card owns. Chrome caps how many audio
@@ -114,7 +97,7 @@ function playTactilePop(ctx: AudioContext | null) {
 export function HeroScoreCard({ className }: { className?: string }) {
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Preset index (starts at 0 -> B2 76, identical to screenshot)
+  // Preset index for the illustrative sample scores.
   const [presetIndex, setPresetIndex] = useState(0)
   const [confettiFire, setConfettiFire] = useState(false)
 
@@ -131,7 +114,7 @@ export function HeroScoreCard({ className }: { className?: string }) {
   // Hovered skill row for interactive equalizer affordance
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null)
 
-  // Live simulation trigger
+  // Decorative score replay state
   const [isSimulating, setIsSimulating] = useState(false)
 
   // Reduced motion preference. The hook is given a server snapshot, so the
@@ -192,7 +175,7 @@ export function HeroScoreCard({ className }: { className?: string }) {
     schedule('thought', () => setShowThought(false), 2400)
   }, [schedule, getAudioContext])
 
-  // Cycle CEFR target profile
+  // Cycle illustrative sample profile
   const handleCyclePreset = useCallback(() => {
     playTactilePop(getAudioContext())
     setPresetIndex((prev) => (prev + 1) % SCORE_PRESETS.length)
@@ -204,7 +187,7 @@ export function HeroScoreCard({ className }: { className?: string }) {
     schedule('bounce', () => setMascotBounce(false), 450)
   }, [schedule, getAudioContext])
 
-  // Trigger quick simulation replay
+  // Replay the decorative score animation
   const handleSimulate = useCallback(() => {
     playTactilePop(getAudioContext())
     setIsSimulating(true)
@@ -389,20 +372,20 @@ export function HeroScoreCard({ className }: { className?: string }) {
               <button
                 type="button"
                 onClick={handleSimulate}
-                title="Click to run interactive test simulation"
+                title="Replay the sample score animation"
                 className="text-left text-ink-500 dark:text-ink-on-dark-muted text-xs font-bold uppercase tracking-wider hover:text-brand-600 dark:hover:text-brand-300 transition-colors cursor-pointer group flex items-center gap-1.5"
               >
-                <span>Official Simulation · Mock 03</span>
+                <span>Sample score · Practice view</span>
                 <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity text-mint-700 font-mono">
-                  [Simulate]
+                  [Replay]
                 </span>
               </button>
             </div>
             <RenderType
               text={[
-                'Full 2-hour paper · Instant AI report',
-                'Real countdown clocks · 22 item types',
-                'Pearson 10–90 scale · CEFR B2/C1 aligned',
+                'Illustrative score breakdown',
+                'Speaking, writing, reading & listening',
+                'Pearson 10–90 score scale',
               ]}
               speed={38}
               holdDuration={2600}
@@ -417,7 +400,7 @@ export function HeroScoreCard({ className }: { className?: string }) {
           onClick={handleSimulate}
           role="button"
           tabIndex={0}
-          title="Click to replay score simulation"
+          title="Replay sample score animation"
           onKeyDown={(e) => {
             if (e.key !== 'Enter' && e.key !== ' ') return
             // Space scrolls the page out from under the card.
@@ -601,8 +584,8 @@ export function HeroScoreCard({ className }: { className?: string }) {
         <button
           type="button"
           onClick={handleCyclePreset}
-          title="Click to cycle target CEFR score profile"
-          aria-label={`Active target: ${current.cefr}. Click to switch CEFR score target`}
+          title="Click to cycle illustrative sample profiles"
+          aria-label={`${current.label}. Click to switch sample profile`}
           className={cn(
             'text-ink-900 absolute -bottom-3.5 -right-2 z-20 rounded-full px-4 py-2 text-[13.5px] font-extrabold select-none cursor-pointer outline-none focus-visible:ring-4 focus-visible:ring-brand-400 -rotate-2 active:translate-y-1 active:shadow-none transition-all duration-200 hover:scale-105 group',
           )}
@@ -614,7 +597,7 @@ export function HeroScoreCard({ className }: { className?: string }) {
           }}
         >
           <span className="flex items-center gap-1.5">
-            <span>{current.cefr}</span>
+            <span>{current.label}</span>
             <span
               className="text-[11px] opacity-70 group-hover:opacity-100 transition-opacity font-mono"
               aria-hidden="true"

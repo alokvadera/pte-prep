@@ -105,7 +105,39 @@ async function resolveFile(urlPath) {
   return null
 }
 
+function parseByteRange(header, size) {
+  const match = /^bytes=(\d*)-(\d*)$/i.exec(header.trim())
+  if (!match || size <= 0 || (!match[1] && !match[2])) return null
+
+  const first = match[1]
+  const last = match[2]
+  if (!first) {
+    const suffixLength = Number(last)
+    if (!Number.isSafeInteger(suffixLength) || suffixLength <= 0) return null
+    return { start: Math.max(0, size - suffixLength), end: size - 1 }
+  }
+
+  const start = Number(first)
+  const requestedEnd = last ? Number(last) : size - 1
+  if (
+    !Number.isSafeInteger(start) ||
+    !Number.isSafeInteger(requestedEnd) ||
+    start >= size ||
+    requestedEnd < start
+  ) {
+    return null
+  }
+  return { start, end: Math.min(requestedEnd, size - 1) }
+}
+
 const server = createServer(async (req, res) => {
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    res.writeHead(405, { allow: 'GET, HEAD', 'content-type': 'text/plain' })
+    res.end('Method Not Allowed')
+    return
+  }
+  const headOnly = req.method === 'HEAD'
+
   let file
   try {
     file = await resolveFile(req.url ?? '/')
@@ -130,12 +162,16 @@ const server = createServer(async (req, res) => {
     const notFound = path.join(ROOT, '404.html')
     if (existsSync(notFound)) {
       const body = await readFile(notFound)
-      res.writeHead(404, { 'content-type': TYPES['.html'] })
-      res.end(body)
+      res.writeHead(404, {
+        'content-type': TYPES['.html'],
+        'content-length': body.length,
+        'x-content-type-options': 'nosniff',
+      })
+      res.end(headOnly ? undefined : body)
       return
     }
     res.writeHead(404, { 'content-type': 'text/plain' })
-    res.end('Not found')
+    res.end(headOnly ? undefined : 'Not found')
     return
   }
 
@@ -165,20 +201,19 @@ const server = createServer(async (req, res) => {
     fileSize > 0 &&
     (ext === '.m4a' || ext === '.mp3' || ext === '.wav' || ext === '.mp4')
   ) {
-    const parts = range.replace(/bytes=/, '').split('-')
-    const start = parseInt(parts[0], 10)
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1
-
-    if (isNaN(start) || start >= fileSize || end >= fileSize || start > end) {
+    const parsed = parseByteRange(range, fileSize)
+    if (!parsed) {
       res.writeHead(416, { 'content-range': `bytes */${fileSize}` })
       res.end()
       return
     }
+    const { start, end } = parsed
 
     headers['content-range'] = `bytes ${start}-${end}/${fileSize}`
     headers['content-length'] = end - start + 1
     res.writeHead(206, headers)
-    createReadStream(file, { start, end }).pipe(res)
+    if (headOnly) res.end()
+    else createReadStream(file, { start, end }).pipe(res)
     return
   }
 
@@ -186,7 +221,8 @@ const server = createServer(async (req, res) => {
     headers['content-length'] = fileSize
   }
   res.writeHead(200, headers)
-  createReadStream(file).pipe(res)
+  if (headOnly) res.end()
+  else createReadStream(file).pipe(res)
 })
 
 server.on('error', (err) => {

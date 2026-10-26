@@ -11,15 +11,22 @@ import {
 import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../lib/rateLimit'
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  let body: { token?: string; password?: string }
+  let parsed: unknown
   try {
-    body = (await context.request.json()) as { token?: string; password?: string }
+    parsed = await context.request.json()
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const body = parsed as { token?: unknown; password?: unknown }
 
   const token = typeof body.token === 'string' ? body.token.trim() : ''
   const password = typeof body.password === 'string' ? body.password : ''
@@ -48,6 +55,10 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       headers: { 'Content-Type': 'application/json' },
     })
   }
+
+  // Fail before consuming the one-time reset link or changing the password
+  // when session signing is misconfigured.
+  const secret = requireSecret(context.env)
 
   // Rate limit: 10 attempts per 10 minutes per IP
   const clientIp = getClientIp(context.request)
@@ -130,7 +141,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   const expiresIn = resolveSessionExpiry(context.env)
   const sessionToken = await createSessionToken(
     { userId: user.id, email: user.email },
-    requireSecret(context.env),
+    secret,
     expiresIn,
     db,
   )

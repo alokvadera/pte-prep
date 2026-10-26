@@ -301,7 +301,7 @@ export default function UiElements() {
             <DemoShell title="Reveal + CountUp">
               <Reveal variant="up">
                 <p className="font-display text-4xl font-extrabold text-ink-900 dark:text-ink-50">
-                  <CountUp value={1025} duration={1200} />
+                  <CountUp value={1200} duration={1200} />
                 </p>
                 <p className="text-sm text-ink-500 dark:text-ink-on-dark">
                   practice items, counted up on entry
@@ -455,7 +455,7 @@ export default function UiElements() {
                 <span className="inline-flex items-center gap-2 rounded-full border border-ink-200 bg-ink-50 px-4 py-2 dark:border-white/10 dark:bg-ink-850">
                   <span className="size-2 rounded-full bg-mint-500 animate-pulse" />
                   <AnimatedShinyText className="text-sm font-bold text-ink-900 dark:text-ink-50">
-                    ✨ Pearson PTE Official Scoring Rubrics
+                    ✨ PTE practice scoring guide
                   </AnimatedShinyText>
                 </span>
               </div>

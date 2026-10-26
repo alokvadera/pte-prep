@@ -195,7 +195,13 @@ ROUTES.push(
 /** Absolute URLs are only emitted when the origin is known at build time. */
 function abs(p) {
   const norm = p.startsWith('/') ? p : `/${p}`
-  return ORIGIN ? `${ORIGIN}${norm}` : norm
+  const prefix = BASE === '/' ? '' : BASE.slice(0, -1)
+  return ORIGIN ? `${ORIGIN}${prefix}${norm}` : `${prefix}${norm}`
+}
+
+function routePath(p) {
+  const prefix = BASE === '/' ? '' : BASE.slice(0, -1)
+  return `${prefix}${p}`
 }
 
 function escapeXml(value) {
@@ -275,7 +281,7 @@ async function main() {
 
   for (const route of ROUTES) {
     try {
-      const page = await render(route.path)
+      const page = await render(routePath(route.path))
       const html = buildPage(template, {
         html: page.html,
         head: page.head,
@@ -327,7 +333,7 @@ async function main() {
 
   // --- robots.txt --------------------------------------------------------
   const sitemapLine = ORIGIN
-    ? `Sitemap: ${ORIGIN}/sitemap.xml`
+    ? `Sitemap: ${abs('/sitemap.xml')}`
     : '# Set SITE_ORIGIN at build time to emit an absolute Sitemap line.'
   await writeFile(
     path.join(DIST, 'robots.txt'),
@@ -346,7 +352,7 @@ ${sitemapLine}
   // --- 404 ---------------------------------------------------------------
   // Hosters that serve a custom 404 still need real content, not an empty shell.
   try {
-    const notFound = await render('/this-page-does-not-exist', { known: false })
+    const notFound = await render(routePath('/this-page-does-not-exist'), { known: false })
     const html = buildPage(template, {
       html: notFound.html,
       head: notFound.head,

@@ -122,7 +122,7 @@ export const EXTRA_RETELL_ITEMS: RetellItem[] = [
       'seeds lose viability over time',
       'regeneration cycles cause drift',
       'maintain a population where it is grown',
-      'prediction: landrace banks track climate change faster than vaults',
+      'community seed banks hold landraces in the fields where they are grown',
     ],
     reference:
       'A seed bank is not a vault but a standing obligation, because seeds lose viability and must periodically be grown and returned to storage. Regeneration also causes drift, since the plants surviving each cycle are the ones best suited to that cycle, so maintaining a crop means maintaining a population where it is actually cultivated. The consequence is that community seed banks holding landraces under climate pressure are more valuable than large central vaults.',

@@ -230,8 +230,8 @@ describe('evaluateWithAi', () => {
       { url: CHAT_URL, method: 'POST', body: completion(traitsJson({ content: 3 })) },
     ])
     const item = { id: 'cache-model', type: 'write-essay' } as const
-    await evaluateWithAi(item, 'reference', 'one answer', 'gsk_live', 'llama-3.1-8b-instant')
-    await evaluateWithAi(item, 'reference', 'one answer', 'gsk_live', 'llama-3.3-70b-versatile')
+    await evaluateWithAi(item, 'reference', 'one answer', 'gsk_live', 'openai/gpt-oss-20b')
+    await evaluateWithAi(item, 'reference', 'one answer', 'gsk_live', 'openai/gpt-oss-120b')
     expect(mock.calls).toHaveLength(2)
   })
 
@@ -246,7 +246,7 @@ describe('evaluateWithAi', () => {
       'gsk_live',
     )
     const body = requestBody(mock.calls[0])
-    expect(body.model).toBe('llama-3.3-70b-versatile')
+    expect(body.model).toBe('openai/gpt-oss-120b')
     expect(body.messages[0]?.content).toContain('Write Essay')
     expect(body.messages[0]?.content).toContain('"development": <number 0-2>')
     expect(body.messages[0]?.content).not.toContain('Oral Fluency')

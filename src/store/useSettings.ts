@@ -164,15 +164,45 @@ export const useSettings = create<SettingsStore>()(
         const state = persisted as Partial<SettingsStore> | undefined
         const theme = state?.settings?.theme
         const validTheme = theme === 'light' || theme === 'dark' ? theme : DEFAULTS.theme
+        const storedScale = state?.settings?.textScale
+        const textScale =
+          typeof storedScale === 'number' && Number.isFinite(storedScale)
+            ? Math.min(1.35, Math.max(0.85, storedScale))
+            : DEFAULTS.textScale
         return {
           ...state,
           settings: {
             ...DEFAULTS,
             ...state?.settings,
             theme: validTheme,
+            textScale,
             aiUsage: { ...DEFAULT_AI_USAGE, ...state?.settings?.aiUsage },
           },
         } as SettingsStore
+      },
+      // The versioned migration does not run when stored data already carries
+      // the current version. Validate render-sensitive values in the merge too:
+      // a malformed scale must not set an enormous or NaN root font size.
+      merge: (persisted, current) => {
+        const state = persisted as Partial<SettingsStore> | undefined
+        const settings = state?.settings
+        const storedScale = settings?.textScale
+        const textScale =
+          typeof storedScale === 'number' && Number.isFinite(storedScale)
+            ? Math.min(1.35, Math.max(0.85, storedScale))
+            : DEFAULTS.textScale
+        const theme = settings?.theme
+        return {
+          ...current,
+          ...state,
+          settings: {
+            ...DEFAULTS,
+            ...settings,
+            theme: theme === 'light' || theme === 'dark' ? theme : DEFAULTS.theme,
+            textScale,
+            aiUsage: { ...DEFAULT_AI_USAGE, ...settings?.aiUsage },
+          },
+        }
       },
       onRehydrateStorage: () => (state) => state?.hydrate(),
     },

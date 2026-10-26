@@ -940,14 +940,14 @@ function TraitBreakdownView({ detail }: { detail: ItemScoreDetail }) {
       </ul>
       <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-xs">
         Pearson scores these traits with a model it does not publish, so these bands are estimates.
-        The published 0–{maxOf(detail)} scale for each trait is what the bands are read against.
+        {detail.contentMax
+          ? ` The published 0–${detail.contentMax} Content scale is shown where available.`
+          : detail.type === 'read-aloud'
+            ? ' The Read Aloud error-to-point conversion is unpublished, so its content bar is an estimate rather than a published point scale.'
+            : ''}
       </p>
     </div>
   )
-}
-
-function maxOf(detail: ItemScoreDetail): number {
-  return detail.contentMax ?? detail.formMax ?? 5
 }
 
 function clamp01(v: number): number {
@@ -1194,7 +1194,7 @@ function AiExaminerReview({
             onClick={() => handleEvaluate()}
             className="text-xs font-semibold"
           >
-            {evaluating ? 'Grading against Pearson rubrics...' : '⚡ Grade with AI Examiner'}
+            {evaluating ? 'Generating practice feedback...' : '⚡ Get AI practice feedback'}
           </Button>
         )}
       </div>

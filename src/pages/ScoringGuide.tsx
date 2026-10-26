@@ -32,7 +32,7 @@ const FAQ = [
   {
     question: 'How is the overall PTE score calculated?',
     answer:
-      'Every item is scored and the result is combined across the four communicative skills — Speaking, Writing, Reading and Listening — into a scaled score from 10 to 90 in 1-point increments. Reading and Listening are scored exactly. Speaking and Writing are scored on content, form, oral fluency, pronunciation and range.',
+      'Pearson combines item scores into an overall score and four communicative skill scores on a 10–90 scale. Some objective item rules are published, while constructed responses use task-specific traits and automated scoring. Pearson’s scaling model is proprietary, so this site’s 10–90 results are practice estimates.',
   },
   {
     question: 'How long is a PTE score valid?',
@@ -125,8 +125,9 @@ export default function ScoringGuide() {
         <p className="text-ink-600 dark:text-ink-200 mt-3 leading-relaxed">
           These are Pearson's published bands from the official Score Guide and concordance
           research: 85–90 is C2, 76–84 is C1, 59–75 is B2, 43–58 is B1, 30–42 is A2, and 10–29 is A1
-          or below. Pearson publishes bands for the <em>overall</em> score only — there are no
-          public per-skill bands.
+          or below. Pearson publishes CEFR bands for the <em>overall</em> score only. Its July 2025
+          concordance study also reports IELTS equivalences for each PTE skill, but does not publish
+          per-skill CEFR bands.
         </p>
         <div className="card-solid mt-5 overflow-x-auto p-0 border-ink-200 dark:border-white/10">
           <table className="table-data min-w-lg">
@@ -227,7 +228,7 @@ export default function ScoringGuide() {
         <ol className="mt-6 space-y-4">
           {[
             {
-              title: 'Every published rule is implemented exactly',
+              title: 'Published item rules guide the practice scorer',
               body: 'All-or-nothing items, one point per blank, one point per word spelled correctly, and the one-point deduction on the three types that use negative marking. Re-order Paragraphs is scored per correctly ordered adjacent pair, so a run of three boxes earns two points and the item maximum is one less than the number of boxes. The CEFR bands are Pearson\u2019s.',
             },
             {
@@ -235,8 +236,8 @@ export default function ScoringGuide() {
               body: 'Pearson scores constructed responses with a proprietary model that cannot be reproduced, so this site reads the published trait scales and estimates the same four constructs from signals a browser can measure: content coverage, form, structure and range, plus measured pace, pause frequency, pitch and energy variation for speaking.',
             },
             {
-              title: 'The zero rules are respected',
-              body: 'The score guide states that when Content or Form scores zero, no points are awarded for the item at all. So an off-topic essay, an essay under 120 words (or written in all capitals, without punctuation, or as bullets), a summary that is not a single sentence, and a response with no content from the source all score zero however fluently they were delivered. That gate is implemented, not approximated.',
+              title: 'Published zero gates shape the estimates',
+              body: 'Pearson states that Content or Form zeroes the item. The practice scorer applies those gates when it can assess the response. On a browser that records speech but cannot transcribe it, the scorer cannot assess Content, so it reports a capped delivery-only estimate and explains that limitation in the item feedback.',
             },
             {
               title: 'Eight types feed two skills at once',
@@ -299,40 +300,40 @@ export default function ScoringGuide() {
           </div>
         </Reveal>
 
-        {/* The closing group — what to do next, the high-yield tools, and the
+        {/* The closing group — what to do next, the practice tools, and the
             FAQ — sits in its own band so the page ends on a different ground
             from the analysis above it. */}
         <SectionBand className="mt-12 sm:mt-14">
-          <SectionHeading eyebrow="Next steps" title="How to improve your score fastest" />
+          <SectionHeading eyebrow="Next steps" title="Ways to structure your practice" />
           <TickList
             className="mt-5"
             tone="mint"
             items={[
-              'Use the accuracy-by-question-type breakdown on your results page. Most candidates lose more points on Fill in the Blanks and Re-order Paragraphs than on the speaking tasks they worry about.',
-              'Fix Re-order Paragraphs first. It awards 1 point per correctly ordered adjacent pair, so learning pronoun chains and time markers recovers steady Reading marks.',
-              'Practice Repeat Sentence daily. It is the largest single block of items in Part 1 and improves listening, speaking and pronunciation at the same time.',
-              'Write the essay under time pressure. Structure alone protects the coherence score, and it is the part candidates most often lose by planning too long.',
-              'Re-sit a full mock every four to seven days. The format is the thing being trained, not just the language.',
+              'Use the accuracy-by-question-type breakdown on your results page to choose what to practise next.',
+              'Re-order Paragraphs awards one point per correctly ordered adjacent pair, so you can earn partial credit without getting the full sequence right.',
+              'Repeat Sentence contributes to Listening and Speaking. Listen for meaningful groups of words, then repeat the sentence after the recording ends.',
+              'Practise writing essays within the time limit. Answer the prompt directly, organise your ideas clearly, and check the published word-count bands.',
+              'Use full mocks when you want to practise pacing across all three sections; focused drills are useful for working on a single task type.',
             ]}
           />
 
           <Reveal className="mt-8">
             <Tilt glare={false}>
-              <Callout label="High-yield tools" className="p-6">
+              <Callout label="Practice tools" className="p-6">
                 <h3 className="text-ink-900 dark:text-white text-base font-bold">
-                  Essential High-Yield Preparation Tools
+                  Tools for focused practice
                 </h3>
                 <p className="text-ink-600 dark:text-ink-on-dark mt-2 text-sm leading-relaxed">
-                  Maximize your preparation efficiency by focusing on the 6 critical question types
-                  that generate 70% of your total score, and adopt proven structures for subjective
-                  tasks.
+                  Use the question-type guide and practice priorities to plan a session. Flexible
+                  response outlines can help organise your ideas, but no task mix or template
+                  guarantees a particular score.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-3">
                   <ButtonLink to="/format#weightage" variant="primary" size="sm">
-                    View Score Weightage Matrix
+                    View Scoring Rules &amp; Practice Priorities
                   </ButtonLink>
                   <ButtonLink to="/guide#templates" variant="secondary" size="sm">
-                    2025/2026 Strategy Templates
+                    Flexible response outlines
                   </ButtonLink>
                   <ButtonLink to="/guide#collocations" variant="secondary" size="sm">
                     Academic Collocations List

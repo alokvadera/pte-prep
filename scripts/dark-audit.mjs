@@ -21,8 +21,7 @@
 // earlier Instrument Serif face needed no longer apply and are gone.
 //
 // Usage: node scripts/dark-audit.mjs [baseUrl] [route ...]
-// Skips cleanly when no Chrome binary is present, so it is safe in `verify:full`
-// on a machine without one.
+// Requires Chrome unless `--allow-skip` is passed.
 // ---------------------------------------------------------------------------
 
 import { stopChrome, spawnChrome } from './lib/chrome.mjs'
@@ -202,6 +201,10 @@ async function settle() {
       JSON.stringify({ state: { settings: { theme: 'dark', reducedMotion: false } }, version: 0 }),
     )})`,
   )
+  // The settings store reads localStorage once during hydration. Reload after
+  // seeding it so the application applies dark mode before routes are measured.
+  await send('Page.reload')
+  await new Promise((r) => setTimeout(r, 1200))
 }
 
 await send('Page.enable')

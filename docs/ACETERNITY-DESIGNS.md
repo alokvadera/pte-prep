@@ -20,7 +20,7 @@ npx shadcn@latest add https://ui.aceternity.com/registry/<name>.json
 
 Dependencies are already in `package.json`: `motion` (the registry imports
 `motion/react`, not framer-motion), `lucide-react`, `clsx`, `tailwind-merge`,
-and `cn` from `@/lib/utils`. One component needs an extra package:
+and `cn` from `@/lib/cn`. One component needs an extra package:
 `multi-step-loader` requires `@tabler/icons-react`.
 
 Respect `prefers-reduced-motion`: every component here animates, so gate the

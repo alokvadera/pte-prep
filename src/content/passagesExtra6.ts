@@ -20,41 +20,40 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     topic: 'Cultural economics',
     level: 'C1',
     paragraphs: [
-      'A museum is a business that is not allowed to behave like one. The collections it holds are worth enormous sums, yet most institutions are legally constrained from selling works to cover operating costs, a restriction known in the profession as the deaccessioning ban. The economics are strange in a specific way, because the marginal cost of one more visitor is close to zero while the fixed cost of keeping the building open is not, which makes pricing a signalling problem rather than a budgeting problem.',
-      'The standard solution is to price admission at zero and to fund the gap through philanthropy and government subsidy. Studies of museums that abolished charges find a large rise in attendance and a smaller rise in dwell time, with the new visitors disproportionately from groups that previously did not attend at all.',
-      'The strongest objection is that free admission is a subsidy captured by the well-off, since the visitors who benefit most are often those with the leisure and education to use cultural goods. This is partly true, but the evidence cuts against the conclusion people draw from it: the income gradient in museum attendance is steep before free entry and flatter after it, and the flattening is driven by first-time visitors rather than by frequent visitors attending more often.',
-      'The falsifiable claim is that price is not the binding constraint on cultural participation but the ancillary costs are: travel, time and the expectation of not belonging. This predicts that a museum which cuts admission to zero while leaving opening hours, location and programming unchanged will see attendance rise but composition change slowly.',
+      'Museums hold collections that may have substantial cultural or market value, but many face legal, trust or professional constraints on selling collection objects. The term deaccessioning describes removing an object from a collection, often by sale, and the rules vary between institutions and jurisdictions. The marginal cost of one more visitor may be low compared with the fixed cost of keeping a building open, so admission price is also a choice about access, revenue and the kind of experience a museum signals.',
+      'One approach is to charge no admission and fund operating costs through philanthropy or government support. Evaluations of museums that removed admission charges have reported increases in attendance, although the size and composition of the change vary. Some studies find that free entry can bring in people who previously did not attend, while other barriers such as travel, time and familiarity continue to matter.',
+      'A common objection is that free admission can subsidize visitors who already have the leisure and education to use cultural institutions. The distribution of who pays for a subsidy and who uses it are separate questions, and the answer depends on the funding model and visitor population. Evaluations have reported different effects on first-time visits and repeat attendance, so the results should not be generalized to every museum.',
+      'A testable claim is that price is only one constraint on cultural participation; travel, time and familiarity may also matter. This predicts that a museum which removes admission charges while leaving its hours, location and programming unchanged may see attendance rise while its visitor mix changes more slowly.',
     ],
     keyTerms: [
-      'deaccessioning ban',
+      'deaccessioning rules',
       'marginal cost',
       'philanthropy',
-      'congestion',
       'attendance',
       'composition',
     ],
     readAloud:
-      'A museum is a business that is not allowed to behave like one. The collections it holds are worth enormous sums, yet most institutions are legally constrained from selling works to cover operating costs.',
+      'Many museums face legal, trust or professional constraints on selling collection objects, and the rules vary between institutions and jurisdictions.',
     repeatSentences: [
-      'A museum is a business that is not allowed to behave like one, because its collection cannot be sold.',
-      'The marginal cost of one more visitor is close to zero, while the fixed cost of the building is not.',
-      'Free entry changes who comes, with new visitors drawn disproportionately from groups that previously did not attend.',
-      'The income gradient in museum attendance is steep before free entry and flatter after it.',
-      'A subsidy can be regressive in who pays and progressive in who arrives.',
+      'Deaccessioning rules vary between museums and jurisdictions.',
+      'The marginal cost of an additional visitor may be low compared with the fixed cost of a museum building.',
+      'Evaluations of free admission report varied effects on attendance and visitor mix.',
+      'Travel, time and familiarity can remain barriers when admission is free.',
+      'The effects of an admission policy depend on its funding model and visitor population.',
     ],
     swt: {
       id: 'swt-museum-economics',
       summary:
-        'The passage argues that museums price admission near zero because their collections cannot be sold and their marginal cost per visitor is negligible, that free entry flattens the income gradient in attendance by drawing first-time visitors rather than by attracting frequent ones, and that ancillary costs such as travel and time now bind harder than price.',
+        'The passage explains that museums face different constraints on selling collection objects and that admission prices balance access and revenue. Evaluations of free admission have reported increases in attendance, but the size and composition of the change vary. Travel, time and familiarity may remain barriers, so the effect depends on the museum and its visitors.',
       excerptLabel: 'Who free entry brings',
       excerpt: [
-        'The strongest objection is that free admission is a subsidy captured by the well-off, since the visitors who benefit most are often those with the leisure and education to use cultural goods. This is partly true, but the evidence cuts against the conclusion people draw from it: the income gradient in museum attendance is steep before free entry and flatter after it, and the flattening is driven by first-time visitors rather than by frequent visitors attending more often. A subsidy can be regressive in who pays and progressive in who arrives, and the two are separable questions.',
-        'The falsifiable claim is that price is not the binding constraint on cultural participation but the ancillary costs are: travel, time and the expectation of not belonging. This predicts that a museum which cuts admission to zero while leaving opening hours, location and programming unchanged will see attendance rise but composition change slowly, and that a museum which adds evening programmes aimed at non-visitors will change composition faster than one which cuts price again. Both predictions have been tested, in London and in Melbourne, with the composition effect winning.',
+        'A common objection is that free admission can subsidize visitors who already have the leisure and education to use cultural institutions. The distribution of who pays for a subsidy and who uses it are separate questions, and the answer depends on the funding model and visitor population. Evaluations have reported different effects on first-time visits and repeat attendance, so the results should not be generalized to every museum.',
+        'The passage proposes that travel, time and familiarity may remain barriers even when admission is free. It predicts that removing ticket charges can increase attendance while changing its composition more slowly, and that addressing practical barriers could affect who visits. These are testable claims rather than universal findings.',
       ],
       keyTerms: [
         'free entry',
-        'income gradient',
-        'first-time visitors',
+        'access',
+        'visitor mix',
         'attendance',
         'ancillary costs',
         'composition',
@@ -63,23 +62,23 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     },
     dropdown: {
       id: 'fibd-museum-economics',
-      text: 'A museum is a business not allowed to behave like one, because rules on ______ stop it selling its collection. The marginal cost of an extra visitor is close to ______, so pricing is a signalling problem. The common solution is to charge nothing and fund the gap through philanthropy, which clears the legitimacy problem and changes who ______ . The binding constraint on participation is now not price but ______ costs such as travel and time.',
+      text: 'Many museums face legal, trust or professional ______ on selling collection objects, and these rules vary. Deaccessioning describes removing an object from a ______. One admission policy is to charge nothing and fund operating costs through philanthropy or government ______. Even then, barriers such as travel, time and ______ can continue to matter.',
       bank: [
-        'deaccessioning',
-        'zero',
-        'comes',
-        'ancillary',
+        'constraints',
+        'collection',
+        'support',
+        'familiarity',
         'auction',
         'fixed',
         'arrives',
         'hidden',
       ],
-      answers: ['deaccessioning', 'zero', 'comes', 'ancillary'],
+      answers: ['constraints', 'collection', 'support', 'familiarity'],
     },
     tableFib: {
       id: 'fibt-museum-economics',
       context: [
-        'A policy review compared four city museums before and after changes to admission pricing and programming. The table records the pricing model, the change in annual attendance, the shift in the share of first-time visitors, and the main funding source for operating costs.',
+        'Illustrative teaching data (not findings from a published policy review) compare four city museums before and after example changes to admission pricing and programming. The table records the pricing model, annual attendance change, shift in first-time visitor share, and main operating-fund source.',
       ],
       headers: ['Museum', 'Pricing model', 'Attendance change', 'First-time share', 'Main funding'],
       rows: [
@@ -93,53 +92,59 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     mcqSingle: {
       id: 'mcqs-museum-economics',
       question:
-        'According to the passage, why is museum pricing described as a signalling problem?',
+        'According to the passage, why is admission price more than a way to cover per-visitor costs?',
       options: [
-        'Because the marginal cost of an extra visitor is near zero',
+        'Because it is also a choice about access, revenue and the experience a museum signals',
         'Because ticket prices must cover the full cost of the collection',
         'Because government subsidy sets a fixed ceiling on admission prices',
         'Because visitors judge the quality of exhibitions from gift shop prices',
       ],
-      correct: ['Because the marginal cost of an extra visitor is near zero'],
+      correct: [
+        'Because it is also a choice about access, revenue and the experience a museum signals',
+      ],
     },
     mcqMultiple: {
       id: 'mcqm-museum-economics',
-      question: 'Which two claims does the passage make about free admission?',
+      question: 'Which two points does the passage make about free admission?',
       options: [
-        'It produces a large rise in attendance',
+        'Evaluations have reported increased attendance, though the size of the change varies',
         'It is always funded entirely by government subsidy',
-        'It flattens the income gradient in museum attendance',
+        'Travel, time and familiarity may remain barriers',
         'It guarantees that new visitors will return frequently',
         'It reduces the fixed cost of keeping the building open',
       ],
       correct: [
-        'It produces a large rise in attendance',
-        'It flattens the income gradient in museum attendance',
+        'Evaluations have reported increased attendance, though the size of the change varies',
+        'Travel, time and familiarity may remain barriers',
       ],
     },
     asq: [
       {
         id: 'asq-museum-1',
-        question:
-          'What restriction prevents most museums from selling works from their collections?',
-        options: ['The deaccessioning ban', 'The admission price', 'The opening hours'],
-        correct: 'The deaccessioning ban',
+        question: 'What term describes removing an object from a museum collection, often by sale?',
+        options: ['Deaccessioning', 'Admission pricing', 'Timed ticketing'],
+        correct: 'Deaccessioning',
       },
       {
         id: 'asq-museum-2',
-        question: 'What happens to attendance when museums abolish admission charges?',
-        options: ['It rises substantially', 'It falls slightly', 'It stays unchanged'],
-        correct: 'It rises substantially',
+        question: 'What have some evaluations reported after museums removed admission charges?',
+        options: [
+          'Attendance increased, with the size of the change varying',
+          'Attendance always doubled',
+          'Attendance stayed unchanged in every case',
+        ],
+        correct: 'Attendance increased, with the size of the change varying',
       },
       {
         id: 'asq-museum-3',
-        question: 'What does the passage identify as the binding constraint on participation now?',
+        question:
+          'Which barriers may continue to affect participation even when admission is free?',
         options: [
-          'Ancillary costs such as travel and time',
+          'Travel, time and familiarity',
           'The price of admission',
           'The size of the collection',
         ],
-        correct: 'Ancillary costs such as travel and time',
+        correct: 'Travel, time and familiarity',
       },
     ],
   },
@@ -150,10 +155,10 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     topic: 'Business and commerce',
     level: 'B2',
     paragraphs: [
-      'The subscription model is usually described as a pricing fashion, but its mechanism is financial rather than aesthetic. A company that sells a product once receives a lump sum and must sell again, whereas a company that sells access receives a stream, and a stream can be valued, borrowed against and forecast.',
-      'The economics rest on two quantities: acquisition cost and churn. Churn is the rate at which subscribers leave, and it compounds, so a company with high churn must spend on acquisition continuously just to stand still. The model therefore rewards whatever reduces churn — habit, integration into daily routine, or the accumulation of stored value such as playlists, files or purchase history — and whatever raises switching costs also raises the value of the subscriber.',
-      'The strongest objection is that subscriptions exploit inertia, charging customers who forgot to cancel, and there is evidence for it: cancellation flows are deliberately made difficult. The durable version of the model sells something that genuinely becomes more useful over time, and the test is whether usage rises with tenure rather than whether cancellation is hard to find.',
-      'The falsifiable claim is that subscription businesses converge on a characteristic shape: high acquisition cost, falling churn with tenure, and revenue that grows more slowly than user numbers once the market saturates. Both have been observed: streaming services now bundle, and the fastest-growing subscription categories are those where stored value accumulates fastest.',
+      'The subscription model replaces a one-off payment with recurring revenue. This can make income more predictable, although the result depends on how long customers stay, how often they pay and how much it costs to serve them. Predictable revenue may inform business forecasts and valuations, but it does not guarantee access to financing or business success.',
+      'Two useful measures are acquisition cost and churn. Churn is the rate at which subscribers leave; when churn is high, a company must keep finding new customers to maintain its subscriber base. Habit, integration into a daily routine and accumulated value such as playlists, files or purchase history can encourage customers to stay, though their effects vary by service and customer.',
+      'A strong objection is that some subscriptions rely on inertia, including customers who forget to cancel. Some services have also been criticized for making cancellation difficult. A more durable model offers value that customers continue to use. One way to examine this is to compare usage and retention over time, while accounting for differences between products and customers.',
+      'A testable hypothesis is that businesses with high acquisition costs and low churn can develop different revenue patterns from businesses with cheaper acquisition or higher churn. As markets mature, firms may adjust the balance between acquiring and retaining customers, or bundle products to encourage continued use. These patterns should be examined across sectors rather than assumed to describe every subscription business.',
     ],
     keyTerms: [
       'subscription model',
@@ -164,22 +169,22 @@ export const EXTRA_PASSAGES_6: Passage[] = [
       'retention',
     ],
     readAloud:
-      'The subscription model is usually described as a pricing fashion, but its mechanism is financial rather than aesthetic. A company that sells a product once receives a lump sum',
+      'The subscription model replaces a one-off payment with recurring revenue. This can make income more predictable, although the result depends on how long customers stay, how often they pay and how much it costs to serve them.',
     repeatSentences: [
-      'The subscription model converts a single sale into a revenue stream that can be valued and forecast.',
-      'Acquiring a subscriber is expensive because advertising and discounts are paid before any revenue arrives.',
+      'Recurring revenue can be more predictable, although results depend on retention and service costs.',
+      'Acquisition cost and churn both affect a subscription business.',
       'Churn is the rate at which subscribers leave, and it compounds over time.',
-      'Whatever reduces churn also raises the value of the subscriber to the company.',
-      'A mature subscription firm will spend more of its revenue on retention than on acquisition.',
+      'Habit and accumulated value can encourage customers to continue a subscription.',
+      'Firms may adjust the balance between acquiring and retaining customers as markets mature.',
     ],
     swt: {
       id: 'swt-subscription-commerce',
       summary:
-        'The passage explains that the subscription model replaces one-off sales with recurring revenue that can be forecast and valued, that its economics turn on acquisition cost and churn, and that the durable version depends on stored value that raises usage with tenure rather than on cancellation friction, which regulation steadily erodes.',
+        'The passage explains that subscriptions replace one-off payments with recurring revenue, whose predictability depends on customer retention and service costs. Acquisition cost and churn shape the economics, while habit and accumulated value can encourage continued use. Some services face criticism for cancellation friction. The passage proposes examining retention and usage over time, while treating patterns across sectors as hypotheses rather than universal rules.',
       excerptLabel: 'Retention rather than inertia',
       excerpt: [
-        'The strongest objection is that subscriptions exploit inertia, charging customers who forgot to cancel, and there is evidence for it: cancellation flows are deliberately made difficult, and some services report that a material share of revenue comes from inactive members. This is real but it is not the whole mechanism, because churn-reduction that relies on forgetfulness decays as regulation and comparison tools spread. The durable version of the model sells something that genuinely becomes more useful over time, and the test is whether usage rises with tenure rather than whether cancellation is hard to find.',
-        'The falsifiable claim is that subscription businesses converge on a characteristic shape: high acquisition cost, falling churn with tenure, and revenue that grows more slowly than user numbers once the market saturates. This predicts that a mature subscription firm will spend an increasing share of revenue on retention rather than acquisition, and that industries with low switching costs will abandon the model or add bundles to recreate them. Both have been observed: streaming services now bundle, and the fastest-growing subscription categories are those where stored value accumulates fastest.',
+        'Some subscription services have been criticized for relying on customer inertia, including cancellation flows that are difficult to use. A more durable model offers value that customers continue to use. Usage and retention can be examined over time, while accounting for differences between products and customers.',
+        'The passage proposes testing whether acquisition costs, churn and customer use change as subscription markets mature. Firms may alter the balance between acquiring and retaining customers, or bundle products to encourage continued use. These patterns should be examined across sectors rather than assumed to describe every subscription business.',
       ],
       keyTerms: [
         'churn',
@@ -193,14 +198,23 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     },
     dropdown: {
       id: 'fibd-subscription-commerce',
-      text: 'A subscription replaces a one-off sale with a revenue ______, which can be valued and forecast. The economics depend on acquisition cost and on ______, the rate at which subscribers leave. The model rewards whatever reduces churn, including stored value such as playlists and purchase ______. The durable version sells something that becomes more useful with ______, rather than relying on customers who forgot to ______.',
-      bank: ['stream', 'churn', 'history', 'tenure', 'cancel', 'growth', 'records', 'renew'],
-      answers: ['stream', 'churn', 'history', 'tenure', 'cancel'],
+      text: 'A subscription replaces a one-off sale with recurring revenue, which may make income more ______. The economics depend on acquisition cost and ______. Habits and accumulated value can ______ customers to stay, such as playlists and purchase ______. Firms may adjust the balance between acquisition and retention as markets ______.',
+      bank: [
+        'predictable',
+        'churn',
+        'encourage',
+        'history',
+        'mature',
+        'growth',
+        'records',
+        'renew',
+      ],
+      answers: ['predictable', 'churn', 'encourage', 'history', 'mature'],
     },
     tableFib: {
       id: 'fibt-subscription-commerce',
       context: [
-        'An analyst tracked four subscription businesses over three years, recording how they spent revenue and what happened to their subscriber base. The table shows the share of revenue spent on acquiring new subscribers, the annual churn rate, the change in average usage per subscriber with tenure, and the main strategy each firm pursues.',
+        'Illustrative teaching data (not observations from real businesses) compare four subscription services. The table shows example acquisition spending, annual churn, usage change with tenure, and strategy.',
       ],
       headers: ['Business', 'Acquisition spend', 'Annual churn', 'Usage with tenure', 'Strategy'],
       rows: [
@@ -213,18 +227,18 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     },
     mcqSingle: {
       id: 'mcqs-subscription-commerce',
-      question: 'Why does the passage say recurring revenue is worth more than one-off revenue?',
+      question: 'What can recurring revenue do, according to the passage?',
       options: [
-        'Because it can be valued, borrowed against and forecast',
+        'It can make income more predictable, depending on retention and service costs',
         'Because it removes the need to advertise to anyone at all',
         'Because customers prefer paying small amounts over time',
         'Because it guarantees that subscribers never leave',
       ],
-      correct: ['Because it can be valued, borrowed against and forecast'],
+      correct: ['It can make income more predictable, depending on retention and service costs'],
     },
     mcqMultiple: {
       id: 'mcqm-subscription-commerce',
-      question: 'Which two does the passage give as factors that reduce churn?',
+      question: 'Which two factors can encourage subscribers to stay?',
       options: [
         'Habit and integration into daily routine',
         'Larger discounts offered to new subscribers',
@@ -274,9 +288,9 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     level: 'C1',
     paragraphs: [
       'Precedent is often explained as a rule about obedience, but its function is economic. A court that decides cases without reference to past decisions produces law that is unpredictable, and unpredictability is a cost borne by everyone who plans around the law: contractors, testators, drivers. The doctrine of stare decisis binds a court to follow earlier decisions of higher courts in the same jurisdiction, and the value produced is not consistency for its own sake but the ability of ordinary people to anticipate legal consequences before acting.',
-      'A precedent binds only its ratio, the part of the reasoning that was necessary to the decision, and courts constantly distinguish earlier cases on their facts rather than overrule them. Overruling is rare because it admits error openly, while distinguishing achieves change quietly. This is why common law evolves at a pace that looks like stability from year to year and like transformation across a generation: the doctrine conserves legal change rather than preventing it.',
+      'In many common-law systems, a precedent’s binding force is associated with its ratio decidendi: the legal reasoning necessary to the decision. Later courts may distinguish a case when material facts differ, or overrule a precedent where the jurisdiction’s rules allow it. The balance between these methods varies by court and legal system. This can make the law appear stable over short periods while still changing over longer ones.',
       'The strongest objection is that precedent preserves injustice, because a decision once made stands until a court is willing to revisit it, and the parties who need the law to change are rarely the parties who can litigate it. The difference is that precedent makes the reasoning inspectable, and what can be inspected can be argued against.',
-      "The falsifiable claim is that precedent's benefit is measurably higher where the law is dense and the stakes are repeatable, and lower where cases are novel. This predicts that commercial jurisdictions with strong precedent will show lower legal costs per transaction than jurisdictions without one, and that novel areas such as digital privacy will develop doctrine more slowly than property or contract.",
+      'A testable claim is that precedent may be more useful where rules are dense and disputes recur than in areas with novel questions. This predicts that legal systems or fields that rely more heavily on precedent could show different costs or rates of doctrinal change. Those effects would need to be measured while accounting for differences in procedure, courts and the kinds of disputes involved.',
     ],
     keyTerms: [
       'precedent',
@@ -287,35 +301,35 @@ export const EXTRA_PASSAGES_6: Passage[] = [
       'jurisdiction',
     ],
     readAloud:
-      'Precedent is often explained as a rule about obedience, but its function is economic. A court that decides cases without reference to past decisions produces law',
+      'Precedent can help people anticipate legal consequences. In many common-law systems, a decision’s binding force is associated with its necessary legal reasoning, while later courts may distinguish it or overrule it under applicable rules.',
     repeatSentences: [
-      'Precedent binds a court to follow earlier decisions of higher courts in the same jurisdiction.',
+      'In many common-law systems, higher-court decisions can bind lower courts in the same jurisdiction.',
       'The value of precedent is the ability to anticipate legal consequences before acting.',
-      'A court distinguishes an earlier case on its facts rather than overruling it openly.',
-      'Common law evolves slowly year to year yet transforms across a generation.',
+      'Courts may distinguish earlier cases when material facts differ.',
+      'Legal doctrine can appear stable over short periods while changing over longer ones.',
       'Precedent makes the reasoning of judges inspectable, and what can be inspected can be argued against.',
     ],
     swt: {
       id: 'swt-precedent-law',
       summary:
-        "The passage argues that precedent's function is to make legal consequences predictable rather than to enforce obedience, that common law changes through distinguishing rather than overruling, and that precedent's advantage over judge-made law without binding authority is that its reasoning is inspectable and therefore open to argument, even though it can also preserve injustice.",
+        'The passage explains that precedent can help people anticipate legal consequences. In many common-law systems, a decision’s binding force is associated with its necessary legal reasoning, while later courts may distinguish it or overrule it under applicable rules. These methods vary by jurisdiction. Precedent can preserve injustice, but its reasoning can also be inspected and challenged.',
       excerptLabel: 'Change through distinguishing',
       excerpt: [
-        'The mechanism is looser than the textbook suggests. A precedent binds only its ratio, the part of the reasoning that was necessary to the decision, and courts constantly distinguish earlier cases on their facts rather than overrule them. Overruling is rare because it admits error openly, while distinguishing achieves change quietly. This is why common law evolves at a pace that looks like stability from year to year and like transformation across a generation: the doctrine conserves legal change rather than preventing it.',
-        'The strongest objection is that precedent preserves injustice, because a decision once made stands until a court is willing to revisit it, and the parties who need the law to change are rarely the parties who can litigate it. The objection is fair as far as it goes, but the comparison point matters: a system free of precedent is not free of past influence, because judges would still decide by analogy while denying that they do so. The difference is that precedent makes the reasoning inspectable, and what can be inspected can be argued against.',
+        'In many common-law systems, a precedent’s binding force is associated with its ratio decidendi: the legal reasoning necessary to the decision. Later courts may distinguish a case when material facts differ, or overrule a precedent where the jurisdiction’s rules allow it. The balance between these methods varies by court and legal system. This can make the law appear stable over short periods while still changing over longer ones.',
+        'Precedent can preserve injustice, because a decision may remain in place until a court or legislature changes the law. At the same time, recording the reasoning makes it possible for lawyers and judges to examine and challenge it. The passage treats this as a trade-off, not a guarantee that precedent produces fair outcomes.',
       ],
       keyTerms: ['precedent', 'distinguishing', 'overruling', 'ratio', 'inspectable', 'analogy'],
       minWords: 20,
     },
     dropdown: {
       id: 'fibd-precedent-law',
-      text: 'Precedent binds a court to follow earlier decisions of higher courts in the same ______. Its value is not consistency alone but the ability to anticipate legal ______ before acting. A court can change the law quietly by ______ an earlier case on its facts, rather than by ______ it openly. This means common law conserves legal change rather than ______ it.',
+      text: 'In many common-law systems, higher-court decisions can bind lower courts in the same ______. Precedent can help people anticipate legal ______ before acting. A court may ______ an earlier case when material facts differ, or ______ it under the rules of its jurisdiction. These methods can contribute to legal change over ______.',
       bank: [
         'jurisdiction',
         'consequences',
-        'distinguishing',
-        'overruling',
-        'preventing',
+        'distinguish',
+        'overrule',
+        'time',
         'country',
         'rights',
         'citing',
@@ -323,12 +337,12 @@ export const EXTRA_PASSAGES_6: Passage[] = [
         'encouraging',
         'precedent',
       ],
-      answers: ['jurisdiction', 'consequences', 'distinguishing', 'overruling', 'preventing'],
+      answers: ['jurisdiction', 'consequences', 'distinguish', 'overrule', 'time'],
     },
     tableFib: {
       id: 'fibt-precedent-law',
       context: [
-        'A comparative study described how four courts treated an earlier decision on contract formation. The table records how the earlier decision was treated, the level of the court that heard the later case, the stated effect on future cases, and the doctrine the court relied on.',
+        'Illustrative teaching data (not findings from a comparative court study) show four hypothetical ways courts might treat an earlier contract decision, including court level, effect on future cases, and doctrine used.',
       ],
       headers: [
         'Court',
@@ -341,9 +355,9 @@ export const EXTRA_PASSAGES_6: Passage[] = [
         ['A', 'Followed', 'Supreme', 'Binding', 'Stare decisis'],
         ['B', 'Distinguished on facts', 'Appellate', 'Persuasive', null],
         ['C', null, 'Supreme', 'Binding', 'Stare decisis'],
-        ['D', 'Overruled', null, 'No longer binding', 'Open revision'],
+        ['D', 'Overruled', 'Supreme', 'No longer binding', 'Open revision'],
       ],
-      answers: ['Distinguishing', 'Followed', 'Appellate'],
+      answers: ['Distinguishing', 'Followed'],
     },
     mcqSingle: {
       id: 'mcqs-precedent-law',
@@ -359,17 +373,17 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-precedent-law',
-      question: 'Which two does the passage say about how common law changes?',
+      question: 'Which two statements about legal change does the passage support?',
       options: [
-        'It changes mainly through distinguishing cases on their facts',
+        'Courts may distinguish cases when material facts differ',
         'It changes mainly through frequent overruling of old decisions',
         'It looks stable year to year yet transforms over a generation',
-        'It depends on judges admitting error openly in every decision',
+        'The balance between distinguishing and overruling varies by court and legal system',
         'It prevents all legal change until Parliament intervenes',
       ],
       correct: [
-        'It changes mainly through distinguishing cases on their facts',
-        'It looks stable year to year yet transforms over a generation',
+        'Courts may distinguish cases when material facts differ',
+        'The balance between distinguishing and overruling varies by court and legal system',
       ],
     },
     asq: [
@@ -385,13 +399,14 @@ export const EXTRA_PASSAGES_6: Passage[] = [
       },
       {
         id: 'asq-precedent-2',
-        question: 'Why is overruling rare compared with distinguishing?',
+        question:
+          'What can a later court do when a precedent’s material facts differ from the current case?',
         options: [
-          'Because it admits error openly',
-          'Because it is forbidden by statute',
-          'Because it costs more to litigate',
+          'Distinguish the earlier case',
+          'Ignore every earlier decision in its jurisdiction',
+          'Automatically overrule the higher court',
         ],
-        correct: 'Because it admits error openly',
+        correct: 'Distinguish the earlier case',
       },
       {
         id: 'asq-precedent-3',
@@ -409,9 +424,9 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     level: 'C1',
     paragraphs: [
       'Taste feels like the most private thing a person has, which is exactly why sociologists study it. The mechanism is practice rather than instruction, and sociologists call the resulting set of dispositions habitus. Children absorb what counts as natural in their household — how to dress, what to eat, which music is serious — and later experience these absorbed preferences as personal judgement rather than as inheritance.',
-      'The social function is distinction. Preferences sort people into groups, and the sorting is valuable because it is hard to fake: acquiring the accent of a class takes years of exposure, so signalling through taste is reliable in a way that advertising is not.',
-      'The strongest objection is that taste is simply what markets sell, and that the sociology of taste mistakes the supplier for the consumer. But the objection cannot explain the direction of the cycle, because the market follows the distinction it is accused of creating: a style priced for the imitators loses the signal value that made it desirable, and the dominant class moves on.',
-      'The falsifiable claim is that taste correlates with class origin more strongly than with income, because the mechanism is exposure in childhood rather than purchasing power in adulthood. This predicts that two households with equal income but different class origins will differ measurably in cultural consumption, and that upwardly mobile adults will change their visible consumption faster than their deep preferences.',
+      'One sociological account describes taste as distinction: preferences can mark group membership and social position. Familiarity with particular styles often develops through exposure, although people can adopt new preferences and the signals associated with taste vary across settings.',
+      'A competing account emphasizes the role of markets, which produce and promote styles as well as respond to consumer demand. These explanations can interact: industries may target styles to particular groups, while consumers use, adapt or reject them. The idea that a style loses status when it becomes widely imitated is a proposed pattern, not a rule that applies to every cultural good.',
+      'A testable hypothesis is that, in some settings, class background may be associated with cultural preferences even among people with similar incomes, because exposure begins in childhood. This predicts that households with similar incomes but different class origins could differ in cultural consumption, and that some upwardly mobile adults may change visible consumption faster than less visible preferences.',
     ],
     keyTerms: [
       'habitus',
@@ -422,22 +437,22 @@ export const EXTRA_PASSAGES_6: Passage[] = [
       'inheritance',
     ],
     readAloud:
-      'Taste feels like the most private thing a person has, which is exactly why sociologists study it. The claim is not that preferences are fake but that they are positioned',
+      'Sociologists study how social context can shape taste. One concept they use is habitus: a set of dispositions acquired through experience that can make some preferences feel natural rather than learned.',
     repeatSentences: [
-      'Taste is learned in the home before it is ever chosen by the person who holds it.',
-      'Preferences track social class because they are absorbed through practice rather than taught directly.',
-      'The social function of taste is distinction, because preferences sort people into groups.',
-      'The tastes of a dominant class are imitated from below and abandoned from above.',
-      'Taste correlates with class origin more strongly than with income in adulthood.',
+      'Habitus describes dispositions acquired through experience that can make preferences feel natural.',
+      'Exposure in childhood may shape some cultural preferences alongside other influences.',
+      'One sociological account describes taste as a way preferences can mark group membership.',
+      'Markets can promote cultural styles while also responding to consumer demand.',
+      'Class background may relate to cultural preferences even among people with similar incomes.',
     ],
     swt: {
       id: 'swt-sociology-of-taste',
       summary:
-        'The passage argues that taste is socially positioned rather than private, that habitus acquired in childhood makes preferences function as reliable signals of class, and that the cycle of imitation and abandonment shows distinction predating any market, so taste correlates with class origin more strongly than with income.',
+        'The passage describes how social experience may shape taste through habitus, while markets also create and promote cultural styles. It presents distinction as one account of how preferences can signal group membership, and proposes a testable hypothesis that class background may relate to cultural consumption even among people with similar incomes. These claims are presented as patterns to investigate, not universal rules.',
       excerptLabel: 'The cycle of distinction',
       excerpt: [
-        'The social function is distinction. Preferences sort people into groups, and the sorting is valuable because it is hard to fake: acquiring the accent of a class takes years of exposure, so signalling through taste is reliable in a way that advertising is not. This explains the pattern that the tastes of a dominant class are imitated from below and then abandoned from above, a cycle that repeats across decades and across cultural goods, from clothing to cuisine to the names given to children.',
-        'The strongest objection is that taste is simply what markets sell, and that the sociology of taste mistakes the supplier for the consumer. There is truth in it: industries do manufacture styles and do target them at classes. But the objection cannot explain the direction of the cycle, because the market follows the distinction it is accused of creating — a style priced for the imitators loses the signal value that made it desirable, and the dominant class moves on. Consumption is patterned by production, yet the pattern of distinction is older than any industry.',
+        'One sociological account describes taste as distinction: preferences can mark group membership and social position. Familiarity with particular styles often develops through exposure, although people can adopt new preferences and the signals associated with taste vary across settings.',
+        'Markets also produce and promote styles while responding to consumer demand. The proposed relationship between class distinction and markets can therefore run in more than one direction. The idea that a style loses status when it becomes widely imitated is a pattern to investigate, not a rule that applies to every cultural good.',
       ],
       keyTerms: [
         'distinction',
@@ -451,26 +466,26 @@ export const EXTRA_PASSAGES_6: Passage[] = [
     },
     dropdown: {
       id: 'fibd-sociology-of-taste',
-      text: 'Taste is not chosen directly but learned in the home, through ______ rather than instruction. Preferences sort people into groups, and this function is called ______. A style priced for imitators loses the ______ value that made it desirable, so the dominant class moves on. Taste therefore correlates with class ______ more strongly than with income, because the mechanism is childhood ______ rather than purchasing power.',
+      text: 'The passage says taste can be shaped through ______ in childhood. One sociological account describes how preferences may signal group ______ and social position. Markets both produce styles and respond to consumer ______. The passage proposes that class background may relate to cultural consumption even among households with similar ______. This is presented as a testable ______, not a universal rule.',
       bank: [
         'practice',
-        'distinction',
-        'signal',
-        'origin',
-        'exposure',
+        'membership',
+        'demand',
+        'incomes',
+        'hypothesis',
         'tradition',
         'beauty',
         'market',
         'status',
         'education',
-        'wealth',
+        'fact',
       ],
-      answers: ['practice', 'distinction', 'signal', 'origin', 'exposure'],
+      answers: ['practice', 'membership', 'demand', 'incomes', 'hypothesis'],
     },
     tableFib: {
       id: 'fibt-sociology-of-taste',
       context: [
-        "A sociological survey asked four households about their cultural consumption and recorded class origin, current income, and the share of consumed cultural goods associated with the respondents' childhood class. The table also records whether taste changed after the household moved up the social scale.",
+        'Illustrative teaching data (not findings from a sociological survey) compare four hypothetical households by class origin, income, childhood-class cultural consumption, and possible changes in taste after upward mobility.',
       ],
       headers: [
         'Household',
@@ -485,26 +500,26 @@ export const EXTRA_PASSAGES_6: Passage[] = [
         ['C', 'Working class', null, '58%', 'Slow'],
         ['D', null, 'Middle', '52%', 'Fast'],
       ],
-      answers: ['Minimal', 'Middle', 'Professional'],
+      answers: ['Fast', 'Middle', 'Professional'],
     },
     mcqSingle: {
       id: 'mcqs-sociology-of-taste',
-      question: 'According to the passage, why is taste a reliable signal of class?',
+      question: 'How does one sociological account describe the social role of taste?',
       options: [
-        'Because acquiring it takes years of exposure that are hard to fake',
+        'Preferences can mark group membership and social position',
         'Because markets manufacture styles for every social class with equal skill',
         'Because people consciously choose preferences in order to impress others',
         'Because taste is fixed at birth and never changes afterwards',
       ],
-      correct: ['Because acquiring it takes years of exposure that are hard to fake'],
+      correct: ['Preferences can mark group membership and social position'],
     },
     mcqMultiple: {
       id: 'mcqm-sociology-of-taste',
-      question: 'Which two predictions does the passage derive from its claim about taste?',
+      question: 'Which two hypotheses does the passage propose investigating about taste?',
       options: [
-        'Equal-income households of different class origins will differ in consumption',
+        'Equal-income households of different class origins could differ in consumption',
         'Markets will eventually eliminate all class differences in taste',
-        'Upwardly mobile adults change visible consumption faster than deep preferences',
+        'Some upwardly mobile adults may change visible consumption faster than less visible preferences',
         'Children will always reject the tastes of their own household',
         'Income is the strongest predictor of cultural consumption',
       ],
@@ -522,7 +537,7 @@ export const EXTRA_PASSAGES_6: Passage[] = [
       },
       {
         id: 'asq-taste-2',
-        question: 'What is the social function of taste according to the passage?',
+        question: 'How can taste function socially in one account described by the passage?',
         options: [
           'Distinction, the sorting of people into groups',
           'Profit for cultural industries',
@@ -532,9 +547,14 @@ export const EXTRA_PASSAGES_6: Passage[] = [
       },
       {
         id: 'asq-taste-3',
-        question: 'What does taste correlate with more strongly than income?',
-        options: ['Class origin', 'Market supply', 'Personal wealth'],
-        correct: 'Class origin',
+        question: 'What relationship does the passage propose investigating?',
+        options: [
+          'Whether class background relates to cultural preferences among people with similar incomes',
+          'Whether income never affects cultural consumption',
+          'Whether markets have no influence on style',
+        ],
+        correct:
+          'Whether class background relates to cultural preferences among people with similar incomes',
       },
     ],
   },

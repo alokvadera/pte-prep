@@ -101,9 +101,10 @@ data and reload), and keeps a way back home. Per B9 it is specific rather than a
 "Oops!", and it never uses `window.alert()` — there is no `alert()` call anywhere
 in the codebase.
 
-Verified by `scripts/error-boundary-check.tsx` (8 assertions, wired into
-`npm run verify`), because React's legacy server renderer rethrows instead of
-catching, so the fallback cannot be exercised through `renderToString`.
+Covered by `tests/components/ErrorBoundary.test.tsx`, which runs as part of the
+Vitest coverage command included in `npm run verify`. The component tests
+exercise the fallback in a client-like environment because React's legacy
+server renderer rethrows instead of catching render errors.
 
 ### B1 — heading and body wrap
 

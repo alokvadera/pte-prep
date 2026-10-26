@@ -113,17 +113,20 @@ export function Tabs({
           )
         })}
       </div>
-      {hasPanels ? (
-        <div
-          key={active.id}
-          id={panelId(active.id)}
-          role="tabpanel"
-          aria-labelledby={`tab-${active.id}`}
-          className={cn('pt-5 animate-tab-enter', panelClassName)}
-        >
-          {active.content}
-        </div>
-      ) : null}
+      {hasPanels
+        ? tabs.map((tab) => (
+            <div
+              key={tab.id}
+              id={panelId(tab.id)}
+              role="tabpanel"
+              aria-labelledby={`tab-${tab.id}`}
+              hidden={tab.id !== active.id}
+              className={cn('pt-5 animate-tab-enter', panelClassName)}
+            >
+              {tab.id === active.id ? tab.content : null}
+            </div>
+          ))
+        : null}
     </div>
   )
 }

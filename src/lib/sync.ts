@@ -1,7 +1,7 @@
 import {
   attemptOwnerId,
-  clearAttempts,
-  deleteAttempt,
+  clearAttemptsResult,
+  deleteAttemptResult,
   getAttempt,
   listAllAttempts,
   readKvResult,
@@ -11,6 +11,7 @@ import {
 import type { AttemptRecord } from '../domain/types'
 import { getGuestOwnerId } from './guestOwner'
 import { useAuth } from '../store/useAuth'
+import { apiUrl } from './api'
 
 const DELETED_IDS_PREFIX = 'deleted_attempt_ids:'
 /**
@@ -22,6 +23,11 @@ const DELETED_IDS_PREFIX = 'deleted_attempt_ids:'
  * is simply not found.
  */
 const LEGACY_DELETED_IDS_KEY = 'deleted_attempt_ids'
+
+/** Do not let a delayed response from an old account sign out a newer one. */
+function logoutIfSessionMatches(token: string): void {
+  if (useAuth.getState().token === token) useAuth.getState().logout()
+}
 
 function deletedIdsKey(ownerId: string): string {
   return `${DELETED_IDS_PREFIX}${ownerId}`
@@ -48,8 +54,8 @@ async function getDeletedIds(ownerId: string): Promise<Set<string> | null> {
   const legacy = await readKvResult<string[]>(LEGACY_DELETED_IDS_KEY)
   if (!legacy.ok || !Array.isArray(legacy.value) || legacy.value.length === 0) return set
   for (const id of legacy.value) set.add(id)
+  if (!(await writeKv(deletedIdsKey(ownerId), Array.from(set)))) return null
   await writeKv(LEGACY_DELETED_IDS_KEY, [])
-  await writeKv(deletedIdsKey(ownerId), Array.from(set))
   return set
 }
 
@@ -77,14 +83,14 @@ function serializeTombstone<T>(op: () => Promise<T>): Promise<T> {
   return next
 }
 
-async function markDeleted(ownerId: string, id: string): Promise<void> {
+async function markDeleted(ownerId: string, id: string): Promise<boolean> {
   return serializeTombstone(async () => {
     const set = await getDeletedIds(ownerId)
     // The set could not be read, so writing it would drop every pending
     // delete that was already stored. The delete is retried later instead.
-    if (!set) return
+    if (!set) return false
     set.add(id)
-    await writeKv(deletedIdsKey(ownerId), Array.from(set))
+    return writeKv(deletedIdsKey(ownerId), Array.from(set))
   })
 }
 
@@ -104,14 +110,14 @@ async function unmarkDeleted(ownerId: string, id: string): Promise<void> {
  * Marking them one at a time re-read and re-wrote the whole growing array on
  * every call, which is quadratic in the length of the history being cleared.
  */
-async function markAllDeleted(ownerId: string, ids: string[]): Promise<void> {
-  if (ids.length === 0) return
+async function markAllDeleted(ownerId: string, ids: string[]): Promise<boolean> {
+  if (ids.length === 0) return true
   return serializeTombstone(async () => {
     const set = await getDeletedIds(ownerId)
     /* v8 ignore next -- the tombstone set is readable in every test */
-    if (!set) return
+    if (!set) return false
     for (const id of ids) set.add(id)
-    await writeKv(deletedIdsKey(ownerId), Array.from(set))
+    return writeKv(deletedIdsKey(ownerId), Array.from(set))
   })
 }
 
@@ -141,7 +147,7 @@ async function fetchCloudIds(
   for (let page = 0; page < 200; page++) {
     let res: Response
     try {
-      res = await fetch(`/api/attempts?ids=1&limit=1000&offset=${offset}`, {
+      res = await fetch(apiUrl(`/api/attempts?ids=1&limit=1000&offset=${offset}`), {
         headers: { Authorization: `Bearer ${token}` },
       })
     } catch {
@@ -208,7 +214,7 @@ export async function syncAttemptToCloud(attempt: AttemptRecord): Promise<PushOu
   if (!token || !currentUser || !canPushAttemptToCloud(attempt, currentUser.id)) return 'failed'
 
   try {
-    const res = await fetch('/api/attempts', {
+    const res = await fetch(apiUrl('/api/attempts'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -217,7 +223,7 @@ export async function syncAttemptToCloud(attempt: AttemptRecord): Promise<PushOu
       body: JSON.stringify(attempt),
     })
     if (res.status === 401) {
-      useAuth.getState().logout()
+      logoutIfSessionMatches(token)
       return 'failed'
     }
     if (res.ok) return 'pushed'
@@ -238,11 +244,11 @@ export async function fetchAttemptFromCloud(id: string): Promise<AttemptRecord |
   if (!token || !user) return null
 
   try {
-    const res = await fetch(`/api/attempts/${id}`, {
+    const res = await fetch(apiUrl(`/api/attempts/${id}`), {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (res.status === 401) {
-      useAuth.getState().logout()
+      logoutIfSessionMatches(token)
       return null
     }
     if (!res.ok) return null
@@ -279,8 +285,7 @@ export async function deleteAttemptEverywhere(id: string): Promise<boolean> {
     const attempt = await getAttempt(id, ownerId, guestOwnerId)
     /* v8 ignore next -- a record that is on the device is in every test */
     if (!attempt) return false
-    await deleteAttempt(id)
-    return true
+    return deleteAttemptResult(id)
   }
 
   // The local copy may belong to another identity — a guest record on a
@@ -288,21 +293,21 @@ export async function deleteAttemptEverywhere(id: string): Promise<boolean> {
   // must not remove it.
   const local = await getAttempt(id)
   if (local && attemptOwnerId(local, guestOwnerId) !== ownerId) return false
-  if (local) await deleteAttempt(id)
 
   // The attempt may only exist in the cloud — the local copy can have been
   // evicted, or pulled by another device — and the cloud delete is what
   // actually removes it. The server scopes the delete to the account, so
   // asking is safe for any id, and the local lookup is not the gate.
-  await markDeleted(ownerId, id)
+  if (!(await markDeleted(ownerId, id))) return false
+  if (local && !(await deleteAttemptResult(id))) return false
 
   try {
-    const res = await fetch(`/api/attempts/${id}`, {
+    const res = await fetch(apiUrl(`/api/attempts/${id}`), {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${token}` },
     })
     if (res.status === 401) {
-      useAuth.getState().logout()
+      logoutIfSessionMatches(token)
       return false
     }
     if (res.ok || res.status === 404) {
@@ -342,20 +347,17 @@ export async function clearAllAttemptsEverywhere(): Promise<boolean> {
   if (canSync && token) {
     const cloud = await fetchCloudIds(token)
     if (cloud.unauthorized) {
-      // The cloud could not be reached, so its rows are still there. The local
-      // rows are removed, but the tombstones stay armed: without them the
-      // next sign-in would pull the cloud rows straight back down, and the
-      // local-only ones would be gone for good.
-      useAuth.getState().logout()
-      await markAllDeleted(ownerId, localIds)
-      await clearAttempts(ownerId, guestOwnerId)
+      // Keep the local copy intact so an expired session cannot silently lose
+      // unsynced work. A stale response must not sign out a newer account.
+      logoutIfSessionMatches(token)
       return false
     }
-    if (!cloud.failed) cloudIds = cloud.ids
+    if (cloud.failed) return false
+    cloudIds = cloud.ids
   }
 
   const allIds = Array.from(new Set([...localIds, ...cloudIds]))
-  if (canSync) await markAllDeleted(ownerId, allIds)
+  if (canSync && !(await markAllDeleted(ownerId, allIds))) return false
 
   let cloudCleared = !canSync
   if (canSync && token) {
@@ -363,12 +365,12 @@ export async function clearAllAttemptsEverywhere(): Promise<boolean> {
       // One request for the entire cloud history. Deleting per id could not
       // reach past the newest 100 rows, so a longer history left older attempts
       // behind to be re-downloaded later.
-      const res = await fetch('/api/attempts', {
+      const res = await fetch(apiUrl('/api/attempts'), {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       })
       if (res.status === 401) {
-        useAuth.getState().logout()
+        logoutIfSessionMatches(token)
       } else if (res.ok) {
         cloudCleared = true
       }
@@ -380,12 +382,12 @@ export async function clearAllAttemptsEverywhere(): Promise<boolean> {
   // The local rows go before the tombstones are lifted. While they still
   // exist, unmarked and no longer in the cloud, a concurrent sync would see
   // them as rows to upload and put the history back.
-  await clearAttempts(ownerId, guestOwnerId)
+  const localCleared = await clearAttemptsResult(ownerId, guestOwnerId)
   // The cloud has nothing left, so the tombstones have nothing to replay and
   // would only accumulate. A cloud delete that failed keeps them armed, so
   // the next sync deletes those rows rather than pulling them back.
-  if (canSync && cloudCleared) await unmarkAllDeleted(ownerId, allIds)
-  return cloudCleared
+  if (canSync && cloudCleared && localCleared) await unmarkAllDeleted(ownerId, allIds)
+  return cloudCleared && localCleared
 }
 
 /** Number of local attempts owned by guest mode, for the import prompt. */
@@ -466,15 +468,18 @@ export async function syncCloudToLocal(): Promise<{
     if (!pendingDeletes) return { pushed: 0, pulled: 0, failed: 0 }
     for (const delId of pendingDeletes) {
       try {
-        const delRes = await fetch(`/api/attempts/${delId}`, {
+        const delRes = await fetch(apiUrl(`/api/attempts/${delId}`), {
           method: 'DELETE',
           headers: { Authorization: `Bearer ${token}` },
         })
         if (delRes.status === 401) {
-          useAuth.getState().logout()
+          logoutIfSessionMatches(token)
           return { pushed: 0, pulled: 0, failed: 0 }
         }
         if (delRes.ok || delRes.status === 404) {
+          // Keep the tombstone active until a stale local copy is confirmed
+          // deleted, or reconciliation could upload it again.
+          if (!(await deleteAttemptResult(delId))) continue
           await unmarkDeleted(ownerId, delId)
         }
       } catch {
@@ -487,7 +492,7 @@ export async function syncCloudToLocal(): Promise<{
     // re-uploaded on every sync. Missing rows are fetched individually below.
     const cloud = await fetchCloudIds(token)
     if (cloud.unauthorized) {
-      useAuth.getState().logout()
+      logoutIfSessionMatches(token)
       return { pushed: 0, pulled: 0, failed: 0 }
     }
     if (cloud.failed) return { pushed: 0, pulled: 0, failed: 0 }

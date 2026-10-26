@@ -101,7 +101,7 @@ export default function Dashboard() {
     if (res.ok) {
       setGroqStatus({
         ok: true,
-        message: 'Valid Groq API key! Active models: Llama 3.3 70B & Whisper Turbo.',
+        message: 'Valid Groq API key! AI practice feedback and Whisper Turbo are available.',
       })
     } else {
       setGroqStatus({ ok: false, message: res.error ?? 'Failed to validate key' })
@@ -312,8 +312,8 @@ export default function Dashboard() {
                 </h2>
                 <p className="text-ink-600 dark:text-ink-on-dark-muted mt-2 text-sm sm:text-base leading-relaxed">
                   Complete your first timed simulation or single-skill drill. As soon as you finish,
-                  your Pearson 10–90 scaled report, CEFR benchmark, and communicative skill
-                  breakdowns will populate here.
+                  your practice score estimate on the Pearson 10–90 scale, an aligned CEFR band, and
+                  communicative skill breakdowns will appear here.
                 </p>
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <ButtonLink
@@ -348,8 +348,8 @@ export default function Dashboard() {
                   Timed mock test
                 </h3>
                 <p className="text-ink-500 dark:text-ink-on-dark-muted mt-1.5 text-xs leading-relaxed">
-                  Run through all 22 question types under official test timings with machine
-                  scoring.
+                  Run through all 22 question types under the published test timings with automated
+                  practice scoring.
                 </p>
               </Link>
               <Link
@@ -1001,7 +1001,7 @@ export default function Dashboard() {
                       }
                     }}
                     label="AI Examiner scoring"
-                    description="Estimated PTE rubric evaluation via Groq at temperature 0.0; not a Pearson score"
+                    description="With a Groq key, the AI gives practice estimates for constructed responses and transcribes speaking audio when each recording stops; not Pearson scores"
                   />
 
                   {settings.aiScoringEnabled ? (
@@ -1084,16 +1084,24 @@ export default function Dashboard() {
                           <span className="text-xs font-semibold text-ink-700 dark:text-ink-200">
                             Speech-to-Text Engine
                           </span>
-                          <Badge tone={settings.groqApiKey ? 'mint' : 'neutral'}>
-                            {settings.groqApiKey
+                          <Badge
+                            tone={
+                              settings.aiScoringEnabled && settings.groqApiKey ? 'mint' : 'neutral'
+                            }
+                          >
+                            {settings.aiScoringEnabled && settings.groqApiKey
                               ? 'Whisper Turbo (Primary)'
-                              : 'Web Speech API (Free)'}
+                              : settings.groqApiKey
+                                ? 'AI Examiner disabled'
+                                : 'Web Speech API (Free)'}
                           </Badge>
                         </div>
                         <p className="text-xs text-ink-500 dark:text-ink-on-dark-muted leading-relaxed">
-                          {settings.groqApiKey
+                          {settings.aiScoringEnabled && settings.groqApiKey
                             ? 'Groq Whisper Turbo is active as your primary speech recognizer with browser Web Speech as fallback.'
-                            : 'Browser Web Speech API is active (100% free on-device). Enter a Groq key above to enable high-accuracy Whisper Turbo.'}
+                            : settings.groqApiKey
+                              ? 'AI Examiner is disabled, so recordings stay on-device and browser speech recognition is used.'
+                              : 'Browser Web Speech API is active. Enable AI Examiner and add a Groq key to use Whisper Turbo transcription.'}
                         </p>
                       </div>
 
@@ -1178,8 +1186,9 @@ export default function Dashboard() {
                     </div>
                   ) : (
                     <p className="text-xs text-ink-500 dark:text-ink-on-dark-muted pt-2 border-t border-ink-100 dark:border-white/6 leading-relaxed">
-                      Enable to score constructed answers (essays, summaries, speaking) against
-                      official Pearson rubrics using Groq's high-speed inference.
+                      Enable approximate AI practice feedback for constructed responses. With a Groq
+                      key, speaking audio is sent for transcription when recording stops. These are
+                      not Pearson scores.
                     </p>
                   )}
                 </div>

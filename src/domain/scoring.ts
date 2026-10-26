@@ -2,9 +2,9 @@ import { clamp } from '../lib/format'
 import {
   averageSentenceLength,
   connectiveCount,
-  contentWords,
   keyTermCoverage,
   nearMissCount,
+  normalizeWord,
   repetitionRatio,
   sentenceLengthVariety,
   softF1,
@@ -375,37 +375,76 @@ function developmentScore(
   return { development: d, range: r, note: notes.join(' ') }
 }
 
-/** Content for a target-text item: the published error-count basis, estimated. */
+/**
+ * Content for target-text items. Read Aloud's error-to-point conversion is
+ * unpublished; Repeat Sentence uses the published 0–3 content bands.
+ */
 function contentAgainstTarget(
   spoken: string,
   reference: string,
-): { content: number; note: string } {
-  if (!spoken) return { content: 0, note: '' }
-  const ref = contentWords(reference)
+  type: 'read-aloud' | 'repeat-sentence',
+): { content: number; note: string; score?: number; max?: number } {
+  const ref = words(reference).map(normalizeWord)
+  const got = words(spoken).map(normalizeWord)
   if (ref.length === 0) return { content: 0, note: '' }
-  const got = contentWords(spoken)
-  if (got.length === 0)
-    return { content: 0, note: 'No content words from the prompt were produced.' }
-
-  // Replacements, omissions and insertions are errors; extra leading and
-  // trailing material is explicitly ignored.
-  let matched = 0
-  let cursor = -1
-  for (const w of ref) {
-    const idx = got.indexOf(w, cursor + 1)
-    if (idx > cursor) {
-      matched += 1
-      cursor = idx
+  if (got.length === 0) {
+    return {
+      content: 0,
+      note:
+        type === 'read-aloud'
+          ? 'No prompt words were recognised.'
+          : 'No prompt words were repeated.',
+      ...(type === 'repeat-sentence' ? { score: 0, max: 3 } : {}),
     }
   }
-  const hitRate = matched / ref.length
-  // Order matters too, so blend in the in-sequence match above.
+
+  // Token edit distance counts substitutions, omissions and insertions. The
+  // Repeat Sentence guide ignores leading and trailing material, so only that
+  // type gets free candidate prefixes and suffixes.
+  const distance = Array.from({ length: ref.length + 1 }, () =>
+    new Array<number>(got.length + 1).fill(0),
+  )
+  for (let i = 0; i <= ref.length; i++) distance[i]![0] = i
+  if (type === 'read-aloud') {
+    for (let j = 0; j <= got.length; j++) distance[0]![j] = j
+  }
+  for (let i = 1; i <= ref.length; i++) {
+    for (let j = 1; j <= got.length; j++) {
+      distance[i]![j] = Math.min(
+        distance[i - 1]![j]! + 1,
+        distance[i]![j - 1]! + 1,
+        distance[i - 1]![j - 1]! + (ref[i - 1] === got[j - 1] ? 0 : 1),
+      )
+    }
+  }
+  const errors =
+    type === 'repeat-sentence'
+      ? Math.min(...distance[ref.length]!)
+      : distance[ref.length]![got.length]!
+  const accuracy = clamp(1 - errors / ref.length, 0, 1)
+
+  if (type === 'repeat-sentence') {
+    // The published bands are 3 for all words, 2 for at least half, 1 below
+    // half, and 0 for almost nothing. Since Pearson gives no numeric cutoff
+    // for "almost nothing", zero is reserved for no surviving word match.
+    const score = errors === 0 ? 3 : accuracy >= 0.5 ? 2 : accuracy > 0 ? 1 : 0
+    return {
+      content: score / 3,
+      score,
+      max: 3,
+      note:
+        score === 3
+          ? ''
+          : `Estimated Repeat Sentence Content: ${score} of 3 (${errors} word error${errors === 1 ? '' : 's'}).`,
+    }
+  }
+
   return {
-    content: clamp(hitRate, 0, 1),
+    content: accuracy,
     note:
-      hitRate >= 0.999
+      errors === 0
         ? ''
-        : `About ${Math.round(hitRate * 100)}% of the prompt's words were reproduced in the correct sequence.`,
+        : `Estimated Read Aloud content after ${errors} word error${errors === 1 ? '' : 's'}; Pearson does not publish the error-to-point conversion.`,
   }
 }
 
@@ -449,7 +488,6 @@ const DELIVERY_ONLY_MAX_RATIO = 0.45
 
 /** Published Content maximum per type. */
 export const CONTENT_MAX: Partial<Record<Item['type'], number>> = {
-  'read-aloud': 3,
   'describe-image': 6,
   'retell-lecture': 6,
   'summarize-group-discussion': 6,
@@ -467,24 +505,23 @@ function scoreSpoken(item: Item, response: ItemResponse, key: AnswerKey): Constr
   const spoken = transcript || typed
   const analysis = response.audio
   const isTargetText = item.type === 'read-aloud' || item.type === 'repeat-sentence'
-  /* v8 ignore next -- every spoken type has a content maximum */
-  const maxContent = CONTENT_MAX[item.type] ?? (isTargetText ? 3 : 5)
+  const maxContent = CONTENT_MAX[item.type] ?? (isTargetText ? undefined : 5)
 
   if (!spoken && !analysis) {
     return {
       ratio: 0,
       notes: ['No answer was recorded or typed.'],
       traits: { ...ZERO_TRAITS },
-      contentScore: 0,
-      contentMax: maxContent,
+      ...(maxContent ? { contentScore: 0, contentMax: maxContent } : {}),
       gated: true,
     }
   }
 
   const reference = key.reference ?? item.targetText ?? ''
-  const contentResult = isTargetText
-    ? contentAgainstTarget(spoken, reference)
-    : contentAgainstTerms(spoken, key.keyTerms ?? [])
+  const contentResult: { content: number; note: string; score?: number; max?: number } =
+    isTargetText
+      ? contentAgainstTarget(spoken, reference, item.type as 'read-aloud' | 'repeat-sentence')
+      : contentAgainstTerms(spoken, key.keyTerms ?? [])
   if (contentResult.note) notes.push(contentResult.note)
 
   const spokenWords = wordCount(spoken)
@@ -535,8 +572,11 @@ function scoreSpoken(item: Item, response: ItemResponse, key: AnswerKey): Constr
         ratio: deliveryRatio,
         notes,
         traits,
-        contentScore: 0,
-        contentMax: maxContent,
+        ...(contentResult.max
+          ? { contentScore: contentResult.score, contentMax: contentResult.max }
+          : maxContent
+            ? { contentScore: 0, contentMax: maxContent }
+            : {}),
         gated: false,
       }
     }
@@ -545,8 +585,11 @@ function scoreSpoken(item: Item, response: ItemResponse, key: AnswerKey): Constr
       notes: [...notes, 'Content scored 0, so the item scores zero regardless of delivery.'],
       traits,
       gated: true,
-      contentScore: 0,
-      contentMax: maxContent,
+      ...(contentResult.max
+        ? { contentScore: contentResult.score, contentMax: contentResult.max }
+        : maxContent
+          ? { contentScore: 0, contentMax: maxContent }
+          : {}),
     }
   }
 
@@ -563,8 +606,11 @@ function scoreSpoken(item: Item, response: ItemResponse, key: AnswerKey): Constr
     ratio,
     notes,
     traits,
-    contentScore: contentResult.content * maxContent,
-    contentMax: maxContent,
+    ...(contentResult.max
+      ? { contentScore: contentResult.score, contentMax: contentResult.max }
+      : maxContent
+        ? { contentScore: contentResult.content * maxContent, contentMax: maxContent }
+        : {}),
   }
 }
 

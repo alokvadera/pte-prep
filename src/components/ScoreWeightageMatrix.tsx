@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { QUESTION_META, SECTION_META } from '../domain/blueprint'
+import type { ScoringMode } from '../domain/blueprint'
 import { typeSlug } from '../content/questionTypeDetail'
-import type { QuestionType, SectionId, Skill } from '../domain/types'
+import type { QuestionType, Skill } from '../domain/types'
 import { Badge, Callout } from './ui/primitives'
 import { Reveal } from './ui/motion'
 import { cn } from '../lib/cn'
@@ -10,56 +11,33 @@ import { cn } from '../lib/cn'
 export interface ItemWeightage {
   type: QuestionType
   name: string
-  section: SectionId
-  skills: Skill[]
   tier: 1 | 2 | 3
-  impact: string
-  points: string
-  crossImpactNote?: string
   priorityStrategy: string
   suggestedTime: string
 }
 
 const WEIGHTAGE_DATA: ItemWeightage[] = [
-  // --- TIER 1: HIGH-IMPACT CORE (MAJOR DUAL-SKILL DONORS) ---
+  // Editorially suggested study priorities; these are not score weights.
   {
     type: 'write-from-dictation',
     name: 'Write From Dictation',
-    section: 'listening',
-    skills: ['listening', 'writing'],
     tier: 1,
-    impact: 'Critical impact',
-    points: '25–28 pts (Writing + Listening)',
-    crossImpactNote:
-      'Massive Writing donor! Donates ~25 points directly to Writing. Skimping on time here breaks your Writing score.',
     priorityStrategy:
-      '100% spelling accuracy. Write alternative endings if unsure (no negative penalty for extra words). Practice 20–30 daily.',
+      'Listen for the exact words and check spelling and word endings. Practise regularly, then review which words you missed.',
     suggestedTime: '1–1.5 min per audio',
   },
   {
     type: 'repeat-sentence',
     name: 'Repeat Sentence',
-    section: 'speaking-writing',
-    skills: ['speaking', 'listening'],
     tier: 1,
-    impact: 'Critical impact',
-    points: '30–33 pts (Speaking) + 18–20 pts (Listening)',
-    crossImpactNote:
-      'Biggest speaking contributor and large listening donor. Contributes over 30 points to Speaking alone.',
     priorityStrategy:
-      'Continuous fluency beats word-for-word recall. If you catch 65–70% of words, speak them smoothly without stopping or hesitating.',
+      'Repeat as much of the sentence as you can while keeping a steady pace. If you lose a word, continue with the next part you remember.',
     suggestedTime: '15 sec immediately after beep',
   },
   {
     type: 'read-aloud',
     name: 'Read Aloud',
-    section: 'speaking-writing',
-    skills: ['speaking', 'reading'],
     tier: 1,
-    impact: 'Critical impact',
-    points: '22–25 pts (Speaking) + 20–22 pts (Reading)',
-    crossImpactNote:
-      'Massive Reading donor! Secures ~22 points in Reading before Part 2 (Reading section) even starts.',
     priorityStrategy:
       'Read with natural cadence and rhythm. Stress key nouns and verbs. Never correct yourself if you mispronounce a word — keep flowing.',
     suggestedTime: '35–40 sec preparation, 30–35 sec speech',
@@ -67,13 +45,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'fill-in-blanks-dropdown',
     name: 'Reading & Writing: Fill in the Blanks',
-    section: 'reading',
-    skills: ['reading', 'writing'],
     tier: 1,
-    impact: 'Critical impact',
-    points: '22–25 pts (Reading) + 20–22 pts (Writing)',
-    crossImpactNote:
-      'The single highest-weight task in the Reading section, and provides ~22 points to Writing.',
     priorityStrategy:
       'Master the Academic Collocation List (ACL), verb agreement, and preposition pairings. Budget 2–2.5 minutes per passage.',
     suggestedTime: '2–2.5 min per passage',
@@ -81,94 +53,57 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'describe-image',
     name: 'Describe Image',
-    section: 'speaking-writing',
-    skills: ['speaking'],
     tier: 1,
-    impact: 'High impact',
-    points: '22–25 pts (Speaking)',
-    crossImpactNote:
-      'Pure speaking booster. Easiest task to automate with a fixed 25–30 second oral delivery template.',
     priorityStrategy:
-      'Rely on a proven 4-point template (Title → Highest trend → Lowest trend → Conclusion). Speak without hesitations or pauses.',
+      'Describe the main subject and the clearest supported comparisons or trends. Use a simple structure, but adapt it to the information shown.',
     suggestedTime: '25 sec preparation, 25–30 sec speech',
   },
   {
     type: 'fill-in-blanks-table',
     name: 'Reading: Fill in the Blanks',
-    section: 'reading',
-    skills: ['reading'],
     tier: 1,
-    impact: 'High impact',
-    points: '15–18 pts (Reading)',
-    crossImpactNote: 'Core Reading score foundation. Critical for meeting 65+ and 79+ cutoffs.',
     priorityStrategy:
       'Read the passage once, then complete each table cell from the text. Check that the finished row reads as a unit. This practice tool uses typed cells rather than the drag-and-drop interaction in the real test.',
     suggestedTime: '1.5–2 min per passage',
   },
 
-  // --- TIER 2: CORE ---
+  // --- Editorial priority 2 ---
   {
     type: 'summarize-spoken-text',
     name: 'Summarize Spoken Text',
-    section: 'listening',
-    skills: ['listening', 'writing'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '12–14 pts (Listening) + 12–14 pts (Writing)',
-    crossImpactNote: 'Equal dual weightage for Listening and Writing.',
     priorityStrategy:
-      'Strict 50–70 words. Note down 4–5 clear phrase groups. Embed them into grammatically clean compound sentences. Check spelling.',
+      'Keep within the 50–70 word range. Note the main ideas, connect them in a clear summary and check grammar and spelling.',
     suggestedTime: '10 min per item (independent timer)',
   },
   {
     type: 'write-essay',
     name: 'Write Essay',
-    section: 'speaking-writing',
-    skills: ['writing'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '11–13 pts (Writing)',
-    crossImpactNote:
-      'Surprisingly lower weight than Write from Dictation or R&W FIB, but essential for Form and Discourse.',
     priorityStrategy:
-      'Stick strictly to 220–260 words across 4 paragraphs. Use a template to finish writing in 15 minutes, leaving 5 minutes for proofreading.',
+      'Stay within the 200–300 word range. Plan a clear response, answer the prompt directly and leave time to review it.',
     suggestedTime: '20 min per essay (independent timer)',
   },
   {
     type: 'retell-lecture',
     name: 'Re-tell Lecture',
-    section: 'speaking-writing',
-    skills: ['speaking', 'listening'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '10–12 pts (Speaking) + 10–12 pts (Listening)',
-    crossImpactNote: 'Dual score for both Speaking and Listening.',
     priorityStrategy:
-      'Capture 5–7 keywords and key phrases on notepad. Channel them immediately into a fluent lecture template without stammering.',
+      'Note the main ideas and explain their connections in your own words. Keep speaking steadily if you forget a detail.',
     suggestedTime: '10 sec preparation, 30–35 sec speech',
   },
   {
     type: 'summarize-written-text',
     name: 'Summarize Written Text',
-    section: 'speaking-writing',
-    skills: ['reading', 'writing'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '8–10 pts (Reading) + 8–10 pts (Writing)',
-    crossImpactNote: 'Feeds both Reading and Writing skills.',
     priorityStrategy:
-      'Must be ONE single complete sentence ending in a full stop (5–75 words; sweet spot 35–45 words). Two sentences = 0 Form score!',
+      'Write one complete sentence of 5–75 words, ending with sentence punctuation. Check that it summarises the passage rather than listing details.',
     suggestedTime: '10 min per prompt (independent timer)',
   },
   {
     type: 'fill-in-blanks-listening',
     name: 'Listening: Fill in the Blanks',
-    section: 'listening',
-    skills: ['listening', 'writing'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '7–9 pts (Listening) + 7–9 pts (Writing)',
-    crossImpactNote: 'Directly influences your Writing score via spelling accuracy.',
     priorityStrategy:
       'Type rough notes or directly into blanks as audio plays. Double-check plural -s, past-tense -ed, and vowel combinations.',
     suggestedTime: '1.5–2 min per passage',
@@ -176,25 +111,15 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'highlight-incorrect-words',
     name: 'Highlight Incorrect Words',
-    section: 'listening',
-    skills: ['reading', 'listening'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '8–10 pts (Reading) + 8–10 pts (Listening)',
-    crossImpactNote: 'Dual score for Listening and Reading.',
     priorityStrategy:
-      '⚠️ Negative marking (-1 per wrong click)! Track with your cursor word by word. Only click if you are 100% sure the speaker said a different word.',
+      'Credit is deducted for incorrect selections. Compare each transcript word with the audio and avoid selections the recording does not support.',
     suggestedTime: 'Plays once (audio length)',
   },
   {
     type: 'reorder-paragraphs',
     name: 'Re-order Paragraphs',
-    section: 'reading',
-    skills: ['reading'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '6–8 pts (Reading)',
-    crossImpactNote: 'Pure Reading score. Scored per adjacent correct pair.',
     priorityStrategy:
       'Identify the independent topic sentence (no pronouns or unexplained references). Match adjacent pairs (A→B, B→C) methodically.',
     suggestedTime: '2 min per item',
@@ -202,12 +127,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'summarize-group-discussion',
     name: 'Summarize Group Discussion',
-    section: 'speaking-writing',
-    skills: ['speaking', 'listening'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '8–10 pts (Speaking) + 8–10 pts (Listening)',
-    crossImpactNote: '2025 new format item. Integrated Speaking & Listening.',
     priorityStrategy:
       'Differentiate the 2–3 speakers and note consensus vs divergence. Deliver a structured summary within 40 seconds.',
     suggestedTime: '10 sec preparation, 35–40 sec speech',
@@ -215,27 +135,17 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'respond-to-situation',
     name: 'Respond to a Situation',
-    section: 'speaking-writing',
-    skills: ['speaking'],
     tier: 2,
-    impact: 'Medium impact',
-    points: '8–10 pts (Speaking)',
-    crossImpactNote: '2025 new format item. Evaluates pragmatic oral communication.',
     priorityStrategy:
       'Identify the tone (formal vs informal). Follow 4 steps: Greeting → Reason/Empathy → Concrete Solution → Polite Sign-off.',
     suggestedTime: '20 sec preparation, 30–35 sec speech',
   },
 
-  // --- TIER 3: LOW YIELD ---
+  // --- Editorial priority 3 ---
   {
     type: 'multiple-choice-single',
     name: 'Multiple Choice, Single Answer (Reading)',
-    section: 'reading',
-    skills: ['reading'],
     tier: 3,
-    impact: 'Low impact',
-    points: '1–2 pts (Reading)',
-    crossImpactNote: 'Low yield. Never spend more than 90 seconds here.',
     priorityStrategy:
       'Read the question stem first, scan passage for keywords, eliminate two obvious distractors, choose and move on.',
     suggestedTime: '1–1.5 min max',
@@ -243,25 +153,15 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'multiple-choice-multiple',
     name: 'Multiple Choice, Multiple Answers (Reading)',
-    section: 'reading',
-    skills: ['reading'],
     tier: 3,
-    impact: 'Low impact',
-    points: '2–3 pts (Reading)',
-    crossImpactNote: '⚠️ Negative marking (-1 per wrong option).',
     priorityStrategy:
-      'Golden Rule: Pick ONLY ONE option you are 100% sure about. Never guess a second option unless completely certain.',
+      'Evaluate each option independently against the passage. Select the supported answers and account for deductions on incorrect selections.',
     suggestedTime: '1.5–2 min max',
   },
   {
     type: 'listening-multiple-choice-single',
     name: 'Multiple Choice, Single Answer (Listening)',
-    section: 'listening',
-    skills: ['listening'],
     tier: 3,
-    impact: 'Low impact',
-    points: '1–2 pts (Listening)',
-    crossImpactNote: 'Low yield.',
     priorityStrategy:
       'Skim the question during the 5-second countdown. Lock in your answer within 10 seconds after audio concludes.',
     suggestedTime: 'Audio duration + 10 sec',
@@ -269,25 +169,15 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'listening-multiple-choice-multiple',
     name: 'Multiple Choice, Multiple Answers (Listening)',
-    section: 'listening',
-    skills: ['listening'],
     tier: 3,
-    impact: 'Low impact',
-    points: '2–3 pts (Listening)',
-    crossImpactNote: '⚠️ Negative marking (-1 per wrong option).',
     priorityStrategy:
-      'Protect your points: select ONLY ONE option you are confident in. A second wrong guess wipes out your correct mark.',
+      'Assess each option on its evidence. Correct selections earn credit and incorrect selections deduct credit, so avoid options that the recording does not support.',
     suggestedTime: 'Audio duration + 15 sec',
   },
   {
     type: 'highlight-correct-summary',
     name: 'Highlight Correct Summary',
-    section: 'listening',
-    skills: ['listening', 'reading'],
     tier: 3,
-    impact: 'Low impact',
-    points: '2–3 pts (Listening + Reading)',
-    crossImpactNote: 'Low yield dual score.',
     priorityStrategy:
       'Focus on overall argument and outcome, not matching isolated buzzwords. Eliminate summaries containing extreme statements.',
     suggestedTime: 'Audio duration + 30 sec',
@@ -295,12 +185,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'select-missing-word',
     name: 'Select Missing Word',
-    section: 'listening',
-    skills: ['listening'],
     tier: 3,
-    impact: 'Low impact',
-    points: '1–2 pts (Listening)',
-    crossImpactNote: 'Low yield.',
     priorityStrategy:
       'Follow the speaker’s tone and train of thought to anticipate how the final sentence logically completes before the beep.',
     suggestedTime: 'Audio duration + 10 sec',
@@ -308,12 +193,7 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
   {
     type: 'answer-short-question',
     name: 'Answer Short Question',
-    section: 'speaking-writing',
-    skills: ['speaking', 'listening'],
     tier: 3,
-    impact: 'Low impact',
-    points: '2–3 pts (Speaking + Listening)',
-    crossImpactNote: 'Low yield.',
     priorityStrategy:
       'Answer with 1–2 words immediately after audio ends. If you do not know, say "I do not know" or any relevant noun and move on.',
     suggestedTime: '5–10 sec',
@@ -322,6 +202,15 @@ const WEIGHTAGE_DATA: ItemWeightage[] = [
 
 type TargetScore = 'all' | '50' | '65' | '79'
 
+const SCORING_LABEL: Record<ScoringMode, string> = {
+  binary: 'Correct or incorrect',
+  'per-blank': 'Credit per correct blank',
+  'per-word': 'Credit per correctly spelled word',
+  'per-unit-negated': 'Credit for correct units; deductions for incorrect units',
+  'per-adjacent-pair': 'Credit per correctly ordered adjacent pair',
+  'trait-composite': 'Trait based; practice score is an estimate',
+}
+
 const TARGET_STRATEGIES: Record<
   TargetScore,
   {
@@ -329,14 +218,14 @@ const TARGET_STRATEGIES: Record<
     subtitle: string
     recommendation: string
     keyTypes: string[]
-    timeAllocation: string
+    focusLabel: string
   }
 > = {
   all: {
-    title: 'Full PTE Score Architecture',
-    subtitle: 'Understand the Pareto distribution (80/20 rule) in PTE Academic scoring',
+    title: 'Review all four skills',
+    subtitle: 'Use your recent results to choose where to spend practice time',
     recommendation:
-      'The majority of communicative skill points are contributed by these 6 core question types. Mastering Tier 1 guarantees the greatest return on practice time.',
+      'These question types contribute across multiple communicative skills. Practising them can be useful, but their value depends on your current strengths and the skills you need to improve.',
     keyTypes: [
       'Write From Dictation',
       'Repeat Sentence',
@@ -344,47 +233,41 @@ const TARGET_STRATEGIES: Record<
       'R&W Fill in the Blanks',
       'Describe Image',
     ],
-    timeAllocation: '80% time on Tier 1 & 2, 20% on mock exams & remaining items',
+    focusLabel: 'Balanced review',
   },
   '50': {
-    title: 'Target 50 (Competent English / CEFR B1)',
-    subtitle: 'Common undergraduate admissions & standard work visa requirement',
+    title: 'Target 50 · CEFR B1',
+    subtitle: 'A score of 50 falls within the published B1 band (43–58)',
     recommendation:
-      'Focus 90% of your prep on mastering fixed templates for Describe Image and Essay, and building accuracy in Read Aloud and Write From Dictation. In Reading multiple-choice tasks, pick one answer and move on quickly so you never run out of time.',
-    keyTypes: [
-      'Describe Image (Templates)',
-      'Read Aloud (Fluency)',
-      'Write Essay (Templates)',
-      'Write From Dictation',
-    ],
-    timeAllocation: '70% Tier 1, 25% Tier 2, 5% Tier 3',
+      'Build a baseline across the skills required for your goal. Practise objective items for accuracy and use flexible outlines for speaking and writing; no template guarantees a particular score.',
+    keyTypes: ['Describe Image', 'Read Aloud (Fluency)', 'Write Essay', 'Write From Dictation'],
+    focusLabel: 'Use your report to set priorities',
   },
   '65': {
-    title: 'Target 65 (Proficient English / CEFR B2-C1)',
-    subtitle: 'Target for top postgraduate university degrees & 10 PR immigration points',
+    title: 'Target 65 · CEFR B2',
+    subtitle: 'A score of 65 falls within the published B2 band (59–75)',
     recommendation:
-      'To reach 65, you cannot rely solely on templates. You need 90%+ spelling accuracy in Write From Dictation, 65%+ word recall in Repeat Sentence with unhesitating oral fluency, and solid mastery of academic collocations in Fill in the Blanks.',
+      'Review the skills and question types where your practice results show the largest gaps. Include both integrated items and tasks that assess one skill; the report is a practice estimate, not a prediction of an official score.',
     keyTypes: [
-      'Write From Dictation (90%+)',
-      'Repeat Sentence (Fluency)',
-      'R&W Fill in the Blanks (Collocations)',
+      'Write From Dictation',
+      'Repeat Sentence',
+      'Fill in the Blanks',
       'Summarize Spoken Text',
     ],
-    timeAllocation: '60% Tier 1, 35% Tier 2, 5% Tier 3',
+    focusLabel: 'Choose priorities from recent results',
   },
   '79': {
-    title: 'Target 79+ (Superior English / CEFR C1-C2)',
-    subtitle:
-      'Competitive cutoff for 20 PR immigration points & medical/legal professional licensing',
+    title: 'Target 79 · CEFR C1',
+    subtitle: 'A score of 79 falls within the published C1 band (76–84)',
     recommendation:
-      'Zero-tolerance for spelling errors in Write From Dictation and Summarize Spoken Text. Natural, rapid phrasing with zero self-corrections in Read Aloud and Repeat Sentence. Flawless grammar and punctuation in Summarize Written Text (exact single-sentence rule).',
+      'At higher targets, review accuracy and response quality across every required skill. Check the published scoring rules for each task and use repeated practice results to track progress.',
     keyTypes: [
-      'All Tier 1 (Near 100% accuracy)',
+      'Review all practice priorities',
       'Summarize Spoken Text',
       'Summarize Written Text (Strict single sentence)',
-      'Highlight Incorrect Words (No penalty clicks)',
+      'Highlight Incorrect Words',
     ],
-    timeAllocation: '50% Tier 1 mastery, 45% Tier 2 perfection, 5% Tier 3 penalty protection',
+    focusLabel: 'Track each skill separately',
   },
 }
 
@@ -395,7 +278,8 @@ export function ScoreWeightageMatrix() {
 
   const filteredItems = useMemo(() => {
     return WEIGHTAGE_DATA.filter((item) => {
-      const matchSkill = selectedSkill === 'all' || item.skills.includes(selectedSkill)
+      const matchSkill =
+        selectedSkill === 'all' || QUESTION_META[item.type].skills.includes(selectedSkill)
       const matchTier = selectedTier === 'all' || item.tier === selectedTier
       return matchSkill && matchTier
     })
@@ -410,47 +294,46 @@ export function ScoreWeightageMatrix() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <span className="bg-ink-100 text-ink-700 dark:bg-white/5 dark:text-ink-on-dark rounded-sm px-2.5 py-0.5 text-xs font-bold">
-              Strategic Scoring Priority
+              Practice guide
             </span>
-            <h2 className="section-title mt-2">Score weightage & contributor matrix</h2>
+            <h2 className="section-title mt-2">Question type scoring & practice priorities</h2>
           </div>
           <Link to="/scoring" className="btn-secondary px-3 py-1.5 text-xs font-semibold">
             How scoring works
           </Link>
         </div>
         <p className="text-ink-600 dark:text-ink-on-dark mt-3 text-sm leading-relaxed max-w-3xl">
-          Unlike traditional exams where skills are isolated, PTE distributes marks across sections
-          through integrated tasks. Filter by your target skill to reveal which tasks provide the
-          bulk of your points.
+          Some question types contribute to more than one communicative skill. Filter by skill to
+          see which tasks the published blueprint assigns to it. The scoring rule is shown for each
+          type; the practice priorities and time suggestions are editorial guidance.
         </p>
-        <Callout tone="amber" className="mt-4 p-4" label="Estimates, not official weights">
+        <Callout tone="amber" className="mt-4 p-4" label="About scoring and priorities">
           <p className="text-ink-700 dark:text-ink-200 text-sm leading-relaxed">
-            Pearson does not publish official per-item point values or a public weighting formula.
-            The point ranges on this page are practice estimates for prioritising study, not a
-            published Pearson calculation, and they should not be read as a prediction of an
-            official score.
+            Pearson does not publish the formula that converts item and trait scores to the 10–90
+            scale. This page therefore shows published scoring rules and skill assignments, not
+            estimated point contributions. Priority groups are suggestions, not official weights.
           </p>
         </Callout>
       </div>
 
-      {/* Target Score Strategy Selector Tabs */}
+      {/* Target Score Focus Selector Tabs */}
       <div className="card-solid mt-6 p-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h3 className="text-ink-900 dark:text-white text-base font-bold">
-              Target score focus plans
+              Focus by target score
             </h3>
             <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs mt-0.5">
-              Select your benchmark to adapt your daily study allocation:
+              Choose a score to see the corresponding CEFR band and a general practice reminder:
             </p>
           </div>
           <div className="flex flex-wrap gap-1.5" role="tablist" aria-label="Target score presets">
             {(
               [
                 { id: 'all', label: 'All types' },
-                { id: '50', label: 'Target 50 (Competent)' },
-                { id: '65', label: 'Target 65 (Proficient)' },
-                { id: '79', label: 'Target 79+ (Superior)' },
+                { id: '50', label: 'Target 50 · B1' },
+                { id: '65', label: 'Target 65 · B2' },
+                { id: '79', label: 'Target 79 · C1' },
               ] as const
             ).map((tab) => {
               const active = targetScore === tab.id
@@ -483,7 +366,7 @@ export function ScoreWeightageMatrix() {
                 {currentStrategy.title}
               </h4>
               <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
-                {currentStrategy.timeAllocation}
+                {currentStrategy.focusLabel}
               </span>
             </div>
             <p className="text-ink-500 dark:text-ink-on-dark-muted text-xs mt-1">
@@ -494,7 +377,7 @@ export function ScoreWeightageMatrix() {
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-1.5">
               <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-medium mr-1">
-                High-yield priorities:
+                Suggested areas to review:
               </span>
               {currentStrategy.keyTypes.map((kt) => (
                 <span
@@ -509,28 +392,12 @@ export function ScoreWeightageMatrix() {
         </Reveal>
       </div>
 
-      {/* The Integrated Scoring Trap Callout */}
-      <Callout tone="amber" className="mt-6 p-5" label="Crucial PTE Fact">
-        <h3 className="text-ink-900 dark:text-white text-sm font-bold">
-          The &quot;Integrated Scoring Trap&quot;
-        </h3>
-        <p className="text-ink-700 dark:text-ink-200 text-sm mt-2 leading-relaxed">
-          Candidates who fail <strong>Writing</strong> often assume they wrote a poor essay. In
-          reality, a large share of your <strong>Writing marks</strong> are awarded in the Listening
-          and Reading sections:{' '}
-          <span className="font-medium text-ink-900 dark:text-white">
-            Write From Dictation (~25 pts)
-          </span>
-          ,{' '}
-          <span className="font-medium text-ink-900 dark:text-white">
-            R&W Fill in the Blanks (~22 pts)
-          </span>
-          , and{' '}
-          <span className="font-medium text-ink-900 dark:text-white">
-            Summarize Spoken Text (~12 pts)
-          </span>
-          . Similarly, <strong>Read Aloud</strong> donates ~22 points directly to{' '}
-          <strong>Reading</strong>.
+      <Callout tone="brand" className="mt-6 p-5" label="Integrated skills">
+        <p className="text-ink-700 dark:text-ink-200 text-sm leading-relaxed">
+          Some tasks contribute to multiple skill scores. For example, Write from Dictation is
+          assigned to Listening and Writing, while Repeat Sentence is assigned to Listening and
+          Speaking. These skill assignments come from the published blueprint; they do not reveal
+          how many scaled-score points any item contributes.
         </p>
       </Callout>
 
@@ -565,14 +432,14 @@ export function ScoreWeightageMatrix() {
         {/* Tier filter */}
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold mr-1">
-            Filter by tier:
+            Filter by editorial priority:
           </span>
           {(
             [
-              { id: 'all', label: 'All Tiers' },
-              { id: 1, label: 'Tier 1 (Critical)' },
-              { id: 2, label: 'Tier 2 (Core)' },
-              { id: 3, label: 'Tier 3 (Low)' },
+              { id: 'all', label: 'All priorities' },
+              { id: 1, label: 'Priority 1' },
+              { id: 2, label: 'Priority 2' },
+              { id: 3, label: 'Priority 3' },
             ] as const
           ).map((t) => {
             const active = selectedTier === t.id
@@ -603,7 +470,7 @@ export function ScoreWeightageMatrix() {
         </span>
         {selectedSkill !== 'all' && (
           <span className="text-brand-600 dark:text-brand-300 font-medium">
-            Highlighted: all tasks that provide marks toward {selectedSkill}
+            Highlighted: tasks assigned to {selectedSkill} scoring
           </span>
         )}
       </div>
@@ -614,27 +481,19 @@ export function ScoreWeightageMatrix() {
           // Every item in the matrix carries a cross-impact note, so the
           // fallback below is a guard rather than a path the matrix takes.
           /* v8 ignore next -- every item in the matrix carries a note */
-          const note = item.crossImpactNote ? (
+          const meta = QUESTION_META[item.type]
+          const slug = typeSlug(item.type)
+          const note = (
             <div className="rounded-md bg-brand-500/8 border border-brand-500/15 p-2.5 dark:bg-brand-500/10">
               <span className="text-brand-700 dark:text-brand-300 text-xs font-semibold block">
-                Cross-skill contributor
+                Skills scored
               </span>
               <p className="text-ink-800 dark:text-ink-200 text-xs mt-0.5 leading-snug">
-                {item.crossImpactNote}
-              </p>
-            </div>
-          ) : (
-            <div className="rounded-md bg-ink-100 p-2.5 dark:bg-white/5">
-              <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold block">
-                Module impact
-              </span>
-              <p className="text-ink-700 dark:text-ink-on-dark text-xs mt-0.5 leading-snug">
-                {item.impact}
+                {meta.skills.join(' + ')}
+                {meta.skills.length > 1 ? ' (integrated item)' : ''}
               </p>
             </div>
           )
-          const meta = QUESTION_META[item.type]
-          const slug = typeSlug(item.type)
 
           return (
             <Reveal key={item.type} variant="up" delay={Math.min(i, 8) * 25} duration={550}>
@@ -659,29 +518,29 @@ export function ScoreWeightageMatrix() {
                         </Link>
                       </h3>
                       <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs">
-                        ({SECTION_META[item.section].longTitle})
+                        ({SECTION_META[meta.section].longTitle})
                       </span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-1.5">
-                      {item.tier === 1 && <Badge tone="brand">Tier 1, Critical</Badge>}
-                      {item.tier === 2 && <Badge tone="neutral">Tier 2, Core</Badge>}
-                      {item.tier === 3 && <Badge tone="neutral">Tier 3, Low yield</Badge>}
-                      <Badge tone="brand">{item.skills.join(' + ')}</Badge>
+                      {item.tier === 1 && <Badge tone="brand">Priority 1</Badge>}
+                      {item.tier === 2 && <Badge tone="neutral">Priority 2</Badge>}
+                      {item.tier === 3 && <Badge tone="neutral">Priority 3</Badge>}
+                      <Badge tone="brand">{meta.skills.join(' + ')}</Badge>
                     </div>
                   </div>
 
-                  {/* Score estimates & cross-impact */}
+                  {/* Published scoring rule and skill assignments */}
                   <div className="mt-3 grid gap-2 sm:grid-cols-2">
                     <div className="rounded-md bg-ink-100 p-2.5 dark:bg-white/5">
                       <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs font-semibold block">
-                        Estimated point impact
+                        Scoring rule
                       </span>
                       <span className="text-ink-900 dark:text-white text-sm font-semibold mt-0.5 block">
-                        {item.points}
+                        {SCORING_LABEL[meta.scoring]}
                       </span>
                       <span className="text-ink-500 dark:text-ink-on-dark-muted text-xs mt-0.5 block">
-                        Target duration: {item.suggestedTime}
+                        Suggested practice time: {item.suggestedTime}
                       </span>
                     </div>
 

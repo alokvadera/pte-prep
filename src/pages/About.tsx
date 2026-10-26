@@ -34,7 +34,7 @@ export default function About() {
         <TickList
           items={[
             `Builds full-length PTE Academic mock tests covering all ${ALL_QUESTION_TYPES.length} official question types, in the order the real test uses them.`,
-            `Draws on a bank of ${capacity}+ distinct items — original academic passages, lectures, conversations, group discussions and data charts — so repeated attempts do not repeat content.`,
+            `Draws on a bank of ${capacity}+ distinct items — original academic passages, lectures, conversations, group discussions and data charts — for a broad mix of practice material across attempts.`,
             'Reproduces the real section structure: an unscored personal introduction, then Speaking and Writing, Reading and Listening, each with its own clock.',
             'Scores objective items exactly and constructed responses with a documented rubric, then shows per-item feedback explaining where each lost point came from.',
             'Stores attempt history on your own device and shows trends by skill and by question type.',
@@ -76,7 +76,7 @@ export default function About() {
               items={[
                 'Answers, settings and score history are stored in IndexedDB and localStorage on your device by default.',
                 'Optional cloud sync securely backs up your attempt history to Cloudflare D1 so you can switch devices.',
-                'Optional AI Examiner sends selected prompts directly to Groq using your personal API key (stored in local browser storage).',
+                'When enabled with a Groq key, the optional AI Examiner sends speaking recordings for transcription when you stop recording. It sends constructed responses for approximate grading only when requested. Your personal key stays in local browser storage.',
                 'Recorded microphone audio is evaluated for oral fluency and discarded — raw audio is never permanently saved to disk.',
                 'Clearing site data in your browser deletes local attempts and settings; cloud attempts can be deleted anytime from the dashboard.',
               ]}

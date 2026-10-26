@@ -92,10 +92,10 @@ export default function App() {
     // Keep the browser chrome on the same ground as the page. Without a system
     // theme to fall back on, this is the only signal the address bar gets.
     //
-    // Read the value off the rendered element rather than hardcoding it. This
-    // The theme-color meta tag paints the mobile address bar and browser chrome.
-    // Reading computed body backgroundColor ensures the theme colour is correct
-    // by construction in both light (#fff8ec) and dark (#10111e) modes.
+    // The theme-color meta tag paints the mobile address bar and browser
+    // chrome. Read the value off the rendered element rather than hardcoding
+    // it: computing body backgroundColor keeps the theme colour correct by
+    // construction in both light (#fff8ec) and dark (#10111e) modes.
     //
     // Emitted as hex rather than `rgb()`: the computed value is serialised as
     // `rgb(r, g, b)`, which is a valid theme-color, but hex is what the

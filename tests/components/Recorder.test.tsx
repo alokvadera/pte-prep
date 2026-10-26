@@ -567,9 +567,13 @@ describe('Recorder', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
-  it('sends the take to the transcription service when a key is set', async () => {
+  it('sends the take to the transcription service when AI Examiner is enabled', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     vi.stubGlobal('MediaRecorder', RecordingMediaRecorder)
     installFetchMock([
@@ -583,7 +587,7 @@ describe('Recorder', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: /Start recording/ }))
     })
-    expect(screen.getByText(/Listening for speech/)).toHaveTextContent('(Whisper Turbo active)')
+    expect(screen.getByText(/Listening for speech/)).toHaveTextContent('(Whisper Turbo on stop)')
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Stop recording' }))
     })
@@ -596,7 +600,11 @@ describe('Recorder', () => {
 
   it('shows that it is transcribing while the service works', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     vi.stubGlobal('MediaRecorder', RecordingMediaRecorder)
     let resolveWhisper: (value: Response) => void = () => {}
@@ -633,7 +641,11 @@ describe('Recorder', () => {
 
   it('falls back to the browser when the transcription service says nothing', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     vi.stubGlobal('MediaRecorder', RecordingMediaRecorder)
     installFetchMock([
@@ -658,7 +670,11 @@ describe('Recorder', () => {
 
   it('falls back to the browser transcript when the service finds nothing', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     vi.stubGlobal('MediaRecorder', RecordingMediaRecorder)
     installFetchMock([
@@ -688,9 +704,13 @@ describe('Recorder', () => {
     expect(screen.getByText('What the browser heard')).toBeInTheDocument()
   })
 
-  it('says the take will be transcribed when a key is set', async () => {
+  it('says the take will be transcribed when AI Examiner is enabled', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     renderRecorder()
 
@@ -710,7 +730,11 @@ describe('Recorder', () => {
 
   it('says the take will be transcribed when there is no speech recognition', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     Object.defineProperty(window, 'SpeechRecognition', { configurable: true, value: undefined })
     Object.defineProperty(window, 'webkitSpeechRecognition', {
@@ -893,7 +917,11 @@ describe('Recorder', () => {
 
   it('ignores a transcription that answers after the component is gone', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     vi.stubGlobal('MediaRecorder', RecordingMediaRecorder)
     installFetchMock([
@@ -917,7 +945,11 @@ describe('Recorder', () => {
 
   it('ignores an empty transcription that answers after the component is gone', async () => {
     useSettings.setState({
-      settings: { ...useSettings.getState().settings, groqApiKey: 'gsk-test' },
+      settings: {
+        ...useSettings.getState().settings,
+        groqApiKey: 'gsk-test',
+        aiScoringEnabled: true,
+      },
     })
     vi.stubGlobal('MediaRecorder', RecordingMediaRecorder)
     installFetchMock([

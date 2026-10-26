@@ -53,23 +53,23 @@ export const LECTURES: AudioScript[] = [
       },
       {
         speaker: 's1',
-        text: 'The traditional answer was capacity. A model with enough parameters could in principle store the training set exactly, so the fact that it generalises at all was attributed to the training procedure — weight decay, data augmentation, early stopping — all of which are forms of imposed limitation. That answer was intellectually tidy and, as we now know, largely wrong.',
+        text: 'One traditional explanation focused on capacity. A model with enough parameters can in principle fit the training set closely, so generalisation was often attributed to constraints such as weight decay, data augmentation or early stopping. These methods matter, but they do not by themselves explain why some highly parameterised models generalise well.',
       },
       {
         speaker: 's1',
-        text: 'The better answer is considerably more interesting, and it comes from the observation that the training data are enormously redundant. Natural images, natural language and natural audio all contain repeated structure at many scales. A particular patch of texture appears in thousands of images. A particular grammatical pattern appears in millions of sentences. When a network fits the data imperfectly, it is forced to prefer the simplest explanation consistent with what it sees, and simplicity is only possible because the redundancy is there to be exploited.',
+        text: 'One proposed explanation points to redundancy in training data. Natural images, language and audio contain repeated structure at many scales: a texture appears in many images, and a grammatical pattern appears in many sentences. This repetition can help a model learn patterns that also occur in new examples, although redundancy alone does not explain every case of generalisation.',
       },
       {
         speaker: 's1',
-        text: 'This is not a philosophical point. It predicts something measurable. If a dataset is deliberately made less redundant — for instance by replacing a class of images with deliberately novel patterns — then the same architecture, the same optimiser and the same number of epochs should show a sharp fall in the gap between training accuracy and test accuracy. And that is exactly what the experiments show.',
+        text: 'The idea suggests a measurable question. If a dataset is made less redundant, does the gap between training and test accuracy change? To answer that, researchers would need to control for the examples, model, optimiser and training schedule. The result could depend on how redundancy is changed and on the dataset being studied.',
       },
       {
         speaker: 's1',
-        text: 'There is a second mechanism worth mentioning, and it operates in the opposite direction. Modern models are so overparameterised relative to the data that they have a very large number of distinct solutions fitting the training set equally well. The training procedure does not find one of these; it finds a basin. And within a flat basin, small changes to the weights produce large changes in behaviour, which sounds like a weakness but is in fact a form of built-in regularisation.',
+        text: 'A second idea concerns the loss landscape. Overparameterised models can have many parameter settings with similarly low training loss. In a flat region, small parameter changes may leave the loss roughly unchanged. Researchers study whether such regions help explain generalisation, but flatness by itself is not a settled explanation.',
       },
       {
         speaker: 's1',
-        text: 'So, to summarise. We do not generalise in spite of having too many parameters. We generalise because the world is itself highly redundant, and because the training procedure tends to land in flat regions of a very large solution space. Next week we will look at what happens when you take that reasoning and apply it to a language model with a hundred billion parameters. Thank you.',
+        text: 'So, to summarise. Redundancy in the data and the shape of the loss landscape are two ideas researchers use to study generalisation. Neither gives a complete explanation on its own, and claims about flat regions need careful interpretation. Next week we will look at these questions in large language models. Thank you.',
       },
     ],
     keyTerms: ['redundancy', 'generalise', 'basin', 'flat', 'simplest explanation'],
@@ -119,27 +119,27 @@ export const LECTURES: AudioScript[] = [
     turns: [
       {
         speaker: 's1',
-        text: 'Antibiotics are among the most successful interventions ever developed. They are also, from an evolutionary standpoint, one of the most demanding. An antibiotic applies a selection pressure, and selection pressure is a request for resistance. Everything I am about to say follows from that single fact.',
+        text: 'Antibiotics are among the most successful interventions ever developed. They also create selection pressure: bacteria with traits that help them survive treatment may become more common. Resistance can arise through different mechanisms and can also spread between bacteria. These processes make resistance a predictable concern, although its mechanisms and rates vary.',
       },
       {
         speaker: 's1',
-        text: 'Resistance arises by three routes. First, and most commonly, a bacterium already carries a small chromosomal mutation that confers partial resistance. The antibiotic kills the susceptible cells and the partially resistant cells survive and proliferate. This is the mechanism behind the gradual, predictable increase in minimum inhibitory concentration that laboratory strains exhibit.',
+        text: 'One route is mutation: a bacterial population may contain variants with changes that reduce a drug’s effect. Under treatment, susceptible bacteria are more likely to be eliminated while resistant variants survive and reproduce. Mutation is not the only route, and the pattern of change depends on the bacterium, drug and conditions.',
       },
       {
         speaker: 's1',
-        text: 'Second, and more rapid, resistance can be acquired horizontally. A bacterium takes up DNA from its environment — from other bacteria that die and lyse, from plasmids, from bacteriophages. The gene for an enzyme that destroys the antibiotic is simply copied across. Horizontal transfer explains why resistance to an antibiotic the bacterium has never been exposed to can appear within days.',
+        text: 'Resistance can also spread through horizontal gene transfer. Depending on the species, bacteria may acquire genetic material through processes such as transformation or transfer of plasmids. Acquired genes can encode different resistance mechanisms, including enzymes that inactivate a drug. Gene transfer can spread resistance, although its speed and importance vary.',
       },
       {
         speaker: 's1',
-        text: 'Third, resistance may already exist somewhere in the environment before the antibiotic is ever used clinically. Soil, wastewater and agricultural systems contain enormous populations of antibiotic-producing organisms, and the enzymes they make to protect themselves are frequently identical, or functionally identical, to the enzymes found in human pathogens. Some of what we treat as the emergence of resistance is the arrival of a pre-existing solution.',
+        text: 'Resistance genes and resistant organisms can also be present in people, animals and the environment. Their movement between these settings can contribute to the spread of resistance. Researchers use surveillance and genetic analysis to investigate where particular resistance mechanisms originate and how they circulate; a resistance trait found in a pathogen may have a more complex history than a single transfer.',
       },
       {
         speaker: 's1',
-        text: 'The policy implications follow directly. First, the number of distinct antibiotic classes available to us is finite and is not increasing, because the economics of developing a new one are now unattractive. Second, the marginal value of prescribing an antibiotic where the infection is probably viral is negative, not zero — the cost falls on a third party. Third, agricultural use, which is largely outside human medicine, has historically supplied a large share of the resistance genes now circulating in clinics, and that channel has been regulated in some jurisdictions and not others.',
+        text: 'These mechanisms support several policy priorities. Antibiotic options are limited, and the development pipeline does not yet meet all public-health needs, so research and development remain important. Antibiotics do not treat viral infections, and unnecessary use can contribute to resistance. Use in people, animals and agriculture can all affect resistance, so stewardship, infection prevention and surveillance need a One Health approach.',
       },
       {
         speaker: 's1',
-        text: 'I want to end on a point that is often missed in public discussion. Resistance is not a failure of individual doctors and it is not a failure of individual patients. It is a predictable property of using an intervention faster than we can replace it. The question is not whether we will run out. It is how gracefully we manage the interval. Thank you.',
+        text: 'Resistance is not simply a failure of individual doctors or patients; it is an evolutionary response shaped by antibiotic use and the spread of resistant organisms. Careful prescribing, infection prevention, surveillance and continued research can help preserve treatment options. Thank you.',
       },
     ],
     keyTerms: [
@@ -267,13 +267,13 @@ export const RETELL_ITEMS: RetellItem[] = [
     id: 'rtl-deep-learning',
     audioId: 'lec-deep-learning',
     skeleton: [
-      'redundancy in the data',
-      'flat basin in parameter space',
-      'simple explanation',
-      'prediction: less redundancy → less generalisation',
+      'repeated patterns may help models reuse features',
+      'many parameter settings can fit the training data similarly',
+      'small changes in a flat region may leave loss similar',
+      'whether flatness explains generalisation remains debated',
     ],
     reference:
-      'Deep networks generalise not in spite of their size but because the data are highly redundant, so an imperfect fit must prefer the simplest explanation; and because an overparameterised model has many solutions, training lands in a flat basin where small weight changes allow large behavioural changes. The prediction is that deliberately reducing redundancy in a dataset should widen the gap between training and test accuracy.',
+      'The lecture presents data redundancy and the loss landscape as two ideas for explaining why overparameterised neural networks can generalise. Repeated patterns may help a model learn features that recur in new examples, while many parameter settings can achieve similar training loss. Small changes within a flat region may leave loss roughly unchanged, but whether flatness explains generalisation remains debated.',
     keyTerms: ['redundant', 'simplest', 'basin', 'flat', 'accuracy', 'parameters'],
     minWords: 30,
   },

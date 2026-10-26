@@ -8,7 +8,7 @@
 // Nothing else in the repo can produce these files, so the rule for how a clip
 // is built lives here as executable code rather than in a commit message.
 //
-// The clip is the turn spoken with the word at `wordIndex` replaced by a 1 kHz
+// The clip is the turn spoken with the word at `wordIndex` replaced by a 750 Hz
 // beep, which is what the item's prompt tells the candidate to listen for and
 // what the speech-synthesis fallback already does when a clip is missing. The
 // text either side of the blank is synthesized in two calls and spliced, because
@@ -298,7 +298,7 @@ function clipProfile(file) {
         sin += x * Math.sin(phase)
         cos += x * Math.cos(phase)
       }
-      // A pure 1 kHz tone puts all of its power into these two components, so the
+      // A pure 750 Hz tone puts all of its power into these two components, so the
       // ratio against the frame's total energy is ~1 for the beep and a fraction
       // of a percent for speech.
       const tonal = (2 * (sin * sin + cos * cos)) / (frame * frame)

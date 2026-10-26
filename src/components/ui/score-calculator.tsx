@@ -13,9 +13,9 @@ import { cn } from '../../lib/cn'
    overall and the single skill that is
    furthest from the target — the honest
    answer to "where do I improve". The overall
-   is a straight mean of the four skills, which
-   is an approximation of Pearson's weighting,
-   and the widget says so on its face.
+   is a straight mean of the four skills. Pearson's
+   IRT weighting is unpublished, so this is only a
+   planning estimate.
 --------------------------------------------------------------------------- */
 
 const SKILLS = ['speaking', 'writing', 'reading', 'listening'] as const
@@ -134,8 +134,8 @@ export function ScoreCalculator({
             </span>
           </p>
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-0.5 text-[11px]">
-            Your lowest skill lifts the overall fastest — gaining 4 points across skills adds 1
-            point to the overall average.
+            This simple average gives each skill equal weight: a 1-point gain in any one skill
+            changes it by 0.25 points.
           </p>
         </div>
       </div>
@@ -156,8 +156,8 @@ export function ScoreCalculator({
         </Callout>
       ) : (
         <Callout tone="amber" label="A longer climb" className="mt-4">
-          The target is {gap} points above your estimated overall. Focus on high-weight item types
-          in {SKILL_LABEL[weakest]} and plan in 5-point milestones.
+          The target is {gap} points above your estimated overall. Review the question types
+          assigned to {SKILL_LABEL[weakest]} and plan in 5-point milestones.
         </Callout>
       )}
 

@@ -3,9 +3,9 @@
 Free, unlimited PTE Academic mock tests. Core practice runs in the browser;
 an optional account adds cloud sync.
 
-Full-length timed tests across all 22 official question types, with an instant
-score report, per-item feedback, CEFR band and progress history. No payment and
-no account required to start.
+Full-length timed practice tests across all 22 PTE Academic question types, with
+a score report, per-item feedback, a CEFR band and progress history. Practice
+scores are estimates. No payment or account is required to start.
 
 ---
 
@@ -49,9 +49,11 @@ cp .env.example .env
 # edit SITE_ORIGIN
 ```
 
-That single value drives every canonical URL, the Open Graph URLs and
-`sitemap.xml`. Leave it unset and the build still works — canonicals fall back to
-relative URLs and the running site resolves them against its own origin.
+That value drives every canonical URL, Open Graph URL and `sitemap.xml`. If it
+is unset, the build uses `https://pte-prep.pages.dev`; set it to the site's
+origin when deploying elsewhere. For a sub-path deployment, keep the origin
+host-only and set `BASE_PATH` separately so generated URLs include the prefix
+once.
 
 ---
 
@@ -68,7 +70,7 @@ in `dist/` runs client-side only. Publish it to any static host (GitHub Pages, S
 Netlify) with its own build step:
 
 ```bash
-SITE_ORIGIN=https://<owner>.github.io/<repo> BASE_PATH=/<repo>/ npm run build
+SITE_ORIGIN=https://<owner>.github.io BASE_PATH=/<repo>/ npm run build
 ```
 
 `BASE_PATH` rewrites asset URLs, the router basename and the manifest for a
@@ -126,8 +128,10 @@ Add content pages by adding an entry to `PAGE_META` and listing the route in
 
 ## How scoring works
 
-Every rule Pearson publishes is implemented exactly, transcribed from the 2026
-Score Guide. The full transcription, with sources, is in
+The practice scorer implements published item rules that can be applied
+directly, based on Pearson's 2026 Score Guide. Pearson does not publish several
+steps needed to reproduce its scores, so those parts are estimates. The full
+transcription, with sources and limits, is in
 [`docs/PTE_KNOWLEDGE.md`](docs/PTE_KNOWLEDGE.md).
 
 - **All-or-nothing** items: 1 point or nothing.
@@ -168,57 +172,42 @@ are not published. Ours is the closest honest approximation, and the results pag
 says so.
 
 **Every constructed score is an estimate.** The results page marks each item as
-either auto-scored or estimated so it is always clear which part of the number
-to trust. Answers recorded with a microphone in a browser that supports speech
-recognition are scored considerably more accurately than typed ones, and the
-difference is visible in the report.
+either auto-scored or estimated. Speech recognition can provide a transcript
+for recorded answers in supported browsers; transcriptions and typed answers
+can both contain errors.
 
 If a microphone is unavailable, every speaking item can still be answered by
 typing.
 
-### Adding a model-based scorer later
+### Optional AI Examiner
 
-The current scorer is deliberately deterministic and runs entirely in the
-browser — no model, no network, no cost, and the same result every time. It is
-isolated behind one function so a model-based scorer can be added without
-touching the UI:
+The deterministic practice scorer runs locally. Candidates can separately
+enable AI Examiner with their own Groq API key for Whisper transcription when a
+recording stops and optional rubric feedback they request from a result report.
+Those calls go directly from the browser to Groq; the key stays in local browser
+storage. AI feedback is an additional practice estimate and does not replace the
+score report's deterministic item and overall scores. See the [privacy page](/privacy)
+for what is sent and when.
 
-- `scoreItem(item, key, response)` in `src/domain/scoring.ts` is the single
-  entry point. It returns `{ points, ratio, status, notes, reference }`, and
-  every surface — the results page, the review list, the per-type breakdown,
-  the progress history — reads from that shape and nothing else.
-- `buildReport(...)` in the same file aggregates those per-item results into the
-  four skill scores, the overall score and the CEFR band.
-- `ItemScoreDetail.notes` is where model feedback belongs; the review UI already
-  renders it per item.
-
-A model call would need to be made server-side, since it cannot run in the
-browser without shipping the weights. That would make `scoreItem` async and
-would introduce the only network dependency in the app, which is why it is not
-built in.
+The local scoring entry point is `scoreItem(item, key, response)` in
+`src/domain/scoring.ts`; `buildReport(...)` aggregates item results into skill
+scores, the overall estimate and CEFR band. Groq feedback is implemented in
+`src/lib/aiScorer.ts` and displayed separately by `src/pages/ResultPage.tsx`.
 
 ---
 
 ## Design
 
-The visual language is written down in
-[`docs/design/spacing-system.md`](docs/design/spacing-system.md). Its short name
-is Marked Paper: the interface is a marked exam paper, because the two real
-artefacts of this product are the answer sheet a candidate fills in and the result
-they get back.
-
-Separation is a hairline or a shift in value — there are no shadows, no resting
-blurs and no gradients, and a surface is square because a form is square. The
-palette is paper white, a graphite ink, and exactly one colour that means
-something: vermilion, for a lost point, attention and the focus ring. Type has
-three voices, all self-hosted so there is no third-party request and the app works
-offline: Nunito for interface and body text, Baloo 2 for
-display headings and measured figures set large, IBM Plex Mono only for machine values. There are no
-all-caps tracked labels, and the interface speaks plain English: the progress page
-is called Progress, not Telemetry.
+The visual language is documented in
+[`docs/design/spacing-system.md`](docs/design/spacing-system.md). The current
+direction uses a cream paper ground, indigo ink, colorful semantic accents,
+rounded cards, offset shadows, and restrained motion. Nunito, Baloo 2, and IBM
+Plex Mono are self-hosted for interface text, display headings and figures, and
+machine values respectively. The interface uses plain English: the progress
+page is called Progress, not Telemetry.
 
 Accessibility is part of the design rather than a pass over it: `scripts/contrast.mjs`
-audits 78 token pairs and is part of `npm run verify`, `scripts/contrast-render.mjs`
+audits documented token pairs and is part of `npm run verify`, `scripts/contrast-render.mjs`
 audits what actually renders, and the design research that motivated the work is in
 `docs/DESIGN_RESEARCH.md`. The earlier directions are archived in
 `docs/design/Calibrated-Silence.md` and its companion plate.
@@ -283,8 +272,8 @@ scripts/
   gen-assets.mjs     PNG icons and the Open Graph image
   render-plates.mjs  Renders the design plate from the philosophy
   contrast.mjs       WCAG 1.4.3 audit of the palette
-  smoke.ts           Engine test: 186 assertions, 46 from the Score Guide
-  bank-check.ts      Content bank structure: 4000+ checks over the material
+  smoke.ts           Engine checks, including published scoring rules
+  bank-check.ts      Content bank structure and blueprint consistency checks
   browser-check.mjs  Headless Chrome: hydration, SEO, and a full test run
   serve.mjs          Host-accurate static server for local verification
 components.json    shadcn config with the @aceternity registry
@@ -297,7 +286,7 @@ components.json    shadcn config with the @aceternity registry
 ## Verifying
 
 ```bash
-npm run verify    # typecheck, lint, engine test, bank check, unit suite, contrast, SEO
+npm run verify    # typecheck, lint, format, smoke, bank, boundary + answers, coverage, contrast, build, SEO
 npm run build     # typecheck, bundle, prerender
 npm run test:browser   # needs a Chrome binary and a running `npm run serve`
 ```
@@ -306,7 +295,9 @@ npm run test:browser   # needs a Chrome binary and a running `npm run serve`
 and 46 assertions transcribed from the Score Guide itself — the adjacent-pair rule
 for Re-order Paragraphs, the −1 deductions, the zero gates, the Form bands and the
 CEFR boundaries. `scripts/bank-check.ts` checks the content bank's structure.
-Both run as part of `npm run verify`, alongside the unit suite.
+Both run as part of `npm run verify`, alongside the unit suite, and so do
+`npm run test:boundary` (auth, session and gating edges) and
+`npm run test:answers` (the scoring evaluation harnesses).
 `scripts/contrast.mjs` audits 78 colour pairs against WCAG
 1.4.3. `scripts/browser-check.mjs` drives headless Chrome through every route,
 sits a full mock end to end, and fails on hydration mismatches, console errors
@@ -326,8 +317,8 @@ the instant it started.
 
 ## Content and independence
 
-All practice material was written for this project, at the same academic level,
-word count and style as the real test. No real exam material is reproduced.
+All practice material was written for this project to provide original academic
+reading and listening practice. No real exam material is reproduced.
 
 PTE Academic and the PTE logo are trademarks of Pearson Education Ltd. This is an
 independent practice tool, not affiliated with, endorsed by, sponsored by or

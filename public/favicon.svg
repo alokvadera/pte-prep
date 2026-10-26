@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="PTE Prep">
-  <rect width="32" height="32" rx="2" fill="#101518"/>
+  <rect width="32" height="32" rx="2" fill="#10111e"/>
   <rect x="6" y="8" width="4.5" height="16" fill="#ffffff"/>
   <rect x="6" y="8" width="13" height="4.5" fill="#ffffff"/>
   <rect x="6" y="14.5" width="13" height="4.5" fill="#ffffff"/>
-  <rect x="22" y="8" width="4" height="16" fill="#d42a1e"/>
+  <rect x="22" y="8" width="4" height="16" fill="#8b5cf6"/>
 </svg>

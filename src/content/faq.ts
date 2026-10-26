@@ -19,12 +19,12 @@ export const HOME_FAQ: FaqEntry[] = [
   {
     question: 'How accurate are the scores here?',
     answer:
-      'Choice based and text based items are scored exactly against the official keys. Speaking and writing are scored with an open rubric covering content, form, fluency and pronunciation, using the same four constructs as the real test. Those are practice estimates, not official Pearson scores, and every item on the results page is labelled as auto scored or estimated.',
+      'Objective choice and short-answer items are scored against their answer keys. Constructed speaking and writing responses use a documented practice rubric for content, form, fluency and pronunciation. Those results are practice estimates, not official Pearson scores, and every item on the results page is labelled as auto scored or estimated.',
   },
   {
     question: 'Do I need a microphone?',
     answer:
-      'No. Every speaking item can be answered by typing, so you can practice in a quiet room or a library. A microphone improves the fluency and pronunciation estimate, and browsers with speech recognition give a more accurate content score, but the test works fully without one.',
+      'No. Every speaking item can be answered by typing, so you can practice in a quiet room or a library. A microphone adds audio signals for the fluency and pronunciation estimates. Supported browsers may also provide a speech transcript; either a transcript or typed response can contain errors.',
   },
   {
     question: 'How long is a full mock test?',

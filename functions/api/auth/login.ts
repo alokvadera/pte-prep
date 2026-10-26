@@ -24,17 +24,24 @@ async function padDuration(startMs: number, targetMs = 250): Promise<void> {
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
   const start = Date.now()
-  let body: { email?: string; password?: string }
+  let parsed: unknown
   try {
-    body = (await context.request.json()) as { email?: string; password?: string }
+    parsed = await context.request.json()
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const body = parsed as { email?: unknown; password?: unknown }
 
-  const rawEmail = (body.email ?? '').trim().toLowerCase()
+  const rawEmail = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
   const password = typeof body.password === 'string' ? body.password : ''
 
   if (!rawEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(rawEmail)) {

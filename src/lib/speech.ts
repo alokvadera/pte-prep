@@ -284,7 +284,18 @@ export async function speakScript(
     utter.onerror = (event) => {
       clearSafety()
       const err = String((event as SpeechSynthesisErrorEvent).error ?? '')
-      if (err === 'interrupted' || err === 'canceled') return
+      // `cancel()` reports these errors in several engines. Even when the
+      // cancellation is intentional, the turn must release its keep-alive and
+      // timers; otherwise the controller stays marked as speaking until the
+      // safety timer fires and reports a false timeout.
+      if (err === 'interrupted' || err === 'canceled') {
+        cancelled = true
+        cleanup()
+        return
+      }
+      // Some engines dispatch `end` after an error. Keep it from advancing the
+      // script after this utterance has already failed.
+      cancelled = true
       onError?.(err || 'Speech synthesis failed.')
       cleanup()
       onEnd?.()
@@ -362,7 +373,10 @@ export async function speakWithBeep(
           options.onError?.(m)
         },
       }).then((c) => {
-        inner = c
+        // stop() can run while speakText is still waiting for voices to load.
+        // In that case there was no inner controller to cancel yet.
+        if (cancelled) c.stop()
+        else inner = c
       })
     }, 420)
   }

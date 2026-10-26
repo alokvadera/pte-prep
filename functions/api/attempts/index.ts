@@ -133,35 +133,54 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     })
   }
 
-  // The body is read as text and measured before it is parsed. The
-  // content-length header is absent under chunked transfer encoding, so it
-  // cannot be the only guard, and parsing first would build an object graph
-  // out of an arbitrarily large payload.
+  // Enforce the byte limit while streaming. Content-Length may be absent or
+  // untrusted, and `request.text()` would buffer an unbounded body before the
+  // limit could be checked.
   let raw: string
   try {
-    raw = await context.request.text()
+    const reader = context.request.body?.getReader()
+    if (!reader) raw = ''
+    else {
+      const decoder = new TextDecoder()
+      let bytes = 0
+      raw = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        bytes += value.byteLength
+        if (bytes > 1_000_000) {
+          await reader.cancel().catch(() => {})
+          return new Response(JSON.stringify({ error: 'Attempt payload too large' }), {
+            status: 413,
+            headers: { 'Content-Type': 'application/json' },
+          })
+        }
+        raw += decoder.decode(value, { stream: true })
+      }
+      raw += decoder.decode()
+    }
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid request body' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
-  if (raw.length > 1_000_000) {
-    return new Response(JSON.stringify({ error: 'Attempt payload too large' }), {
-      status: 413,
-      headers: { 'Content-Type': 'application/json' },
-    })
-  }
-
-  let attempt: Record<string, unknown>
+  let parsed: unknown
   try {
-    attempt = JSON.parse(raw) as Record<string, unknown>
+    parsed = JSON.parse(raw) as unknown
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON payload' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
   }
+  if (!isPlainObject(parsed)) {
+    return new Response(JSON.stringify({ error: 'Invalid attempt payload' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const attempt = parsed
 
   // Validate or generate attempt id
   const rawId = attempt.id

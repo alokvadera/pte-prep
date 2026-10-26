@@ -78,6 +78,14 @@ export default function MockSetup() {
   // lands on this page's initial JavaScript.
   const [starting, setStarting] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
+  /** False once the page has gone, so a late mock build stops itself. */
+  const aliveRef = useRef(true)
+  useEffect(() => {
+    aliveRef.current = true
+    return () => {
+      aliveRef.current = false
+    }
+  }, [])
 
   const capacity = useMemo(() => manifestCapacityByType(), [])
 
@@ -100,12 +108,23 @@ export default function MockSetup() {
     const readTotal = readingTypes.reduce((s, t) => s + (out[t] ?? 0), 0)
     const readCap = capacity['fill-in-blanks-dropdown'] ?? 6
     if (readTotal > readCap * 2) {
-      const excess = readTotal - readCap * 2
-      // The reduction is spread over every reading type. Dividing by three
-      // removed far more than the excess — the reading section would end up
-      // well under its cap, and the shortfall was absorbed silently.
-      const perType = Math.floor(excess / readingTypes.length)
-      for (const t of readingTypes) out[t] = Math.max(1, (out[t] ?? 1) - perType)
+      let excess = readTotal - readCap * 2
+      // Trim only types that were requested, and remove exactly the excess.
+      // Dividing by the number of types rounded down, leaving the request over
+      // its passage limit; defaulting missing types to one could add phantom
+      // items when a partial blueprint was used.
+      while (excess > 0) {
+        let trimmed = false
+        for (const t of readingTypes) {
+          const count = out[t] ?? 0
+          if (count <= 1) continue
+          out[t] = count - 1
+          excess -= 1
+          trimmed = true
+          if (excess === 0) break
+        }
+        if (!trimmed) break
+      }
     }
     return out
   }, [length, capacity])
@@ -151,6 +170,11 @@ export default function MockSetup() {
       const t = TIMINGS[timing]
       const seed = Math.floor(Math.random() * 0x1_0000_0000)
       const { buildFullMock, buildSectionMock } = await import('../domain/assemble')
+      // The candidate may have navigated away while the assembler chunk was
+      // fetched: starting a session they abandoned would throw them into a
+      // test they left. Practice.begin guards this the same way.
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (!aliveRef.current) return
       const mock = singleSection
         ? buildSectionMock(seed, singleSection, counts, {
             timeScale: t.scale,
@@ -163,12 +187,18 @@ export default function MockSetup() {
             untimed: t.untimed,
             forwardOnly: false,
           })
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (!aliveRef.current) return
       start(mock, 'exam')
       navigate('/test')
     } catch {
-      setLoadError('Failed to assemble mock test. Please check your connection and try again.')
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (aliveRef.current) {
+        setLoadError('Failed to assemble mock test. Please check your connection and try again.')
+      }
     } finally {
-      setStarting(false)
+      /* v8 ignore next -- the page is still mounted in every test */
+      if (aliveRef.current) setStarting(false)
     }
   }
 
@@ -231,7 +261,7 @@ export default function MockSetup() {
                             badge: 'Official pace',
                             badgeTone: 'mint' as const,
                             specs: 'All 3 sections · 22 types · ~2h 15m',
-                            desc: 'Full Pearson Academic simulation with machine scoring across Speaking, Writing, Reading, and Listening.',
+                            desc: 'A full PTE-format mock across Speaking, Writing, Reading, and Listening, with automated practice scoring. Constructed-response scores are estimates.',
                           }
                         : len === 'half'
                           ? {

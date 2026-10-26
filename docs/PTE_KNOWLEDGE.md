@@ -141,21 +141,24 @@ developed with 6,000+ teachers across 50+ countries. (B / efficacy report)
 Pearson documentation. Institutions set admissions thresholds on the 10–90 scale
 or reference the official PTE Academic concordance with IELTS.
 
-**2.11 — IELTS concordance (overall).** (A p.12, B)
+**2.11 — IELTS concordance (overall).** (B, July 2025)
 
 | IELTS | PTE |
 |---|---|
 | 9.0 | 90 |
 | 8.5 | 86–89 |
-| 8.0 | 84–88 |
-| 7.5 | 76–83 |
-| 7.0 | 66–75 |
-| 6.5 | 56–65 |
-| 6.0 | 46–55 |
-| 5.5 | 36–45 |
-| 5.0 | 29–35 |
-| 4.5 | 23–28 |
-| ≤4.0 | 10–22 |
+| 8.0 | 79–85 |
+| 7.5 | 71–78 |
+| 7.0 | 63–70 |
+| 6.5 | 55–62 |
+| 6.0 | 47–54 |
+| 5.5 | 39–46 |
+| 5.0 | 31–38 |
+| 4.5 | 24–30 |
+
+The July 2025 study also publishes separate IELTS concordance ranges for each
+PTE skill. It does not publish per-skill CEFR bands. The study's table begins at
+IELTS 4.5; it does not give a concordance below that band.
 
 Pearson's disclaimer (A p.12): *"Any attempt to predict a score on a particular
 test, based on the score observed on another test, will contain measurement

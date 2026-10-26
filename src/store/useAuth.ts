@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { safeStateStorage } from '../lib/storage'
+import { apiUrl } from '../lib/api'
 import { useSettings } from './useSettings'
 
 export interface User {
@@ -43,10 +44,15 @@ type PersistedAuth = Pick<
 const SESSION_FALLBACK_MS = 7 * 24 * 60 * 60 * 1000
 
 let targetScoreSeq = 0
+let targetScoreUserId: string | null = null
+/** Ignore an older login/register response after a newer auth action wins. */
+let authRequestSeq = 0
 /** The last target score known to be on the server. */
 let lastConfirmedScore: number | undefined
 /** The score on screen before the current batch of updates began. */
 let pendingScoreBaseline: number | undefined
+/** Keep target-score writes in server order so stale requests cannot win last. */
+let targetScoreQueue: Promise<void> = Promise.resolve()
 
 export const useAuth = create<AuthStore>()(
   persist(
@@ -60,9 +66,10 @@ export const useAuth = create<AuthStore>()(
       error: null,
 
       login: async (email: string, password?: string) => {
+        const requestSeq = ++authRequestSeq
         set({ loading: true, error: null })
         try {
-          const res = await fetch('/api/auth/login', {
+          const res = await fetch(apiUrl('/api/auth/login'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
@@ -73,6 +80,7 @@ export const useAuth = create<AuthStore>()(
             expiresAt?: number
             user?: User
           }
+          if (requestSeq !== authRequestSeq) return false
           if (!res.ok || !data.token || !data.user) {
             set({ loading: false, error: data.error ?? 'Invalid email or password' })
             return false
@@ -92,15 +100,17 @@ export const useAuth = create<AuthStore>()(
           })
           return true
         } catch {
+          if (requestSeq !== authRequestSeq) return false
           set({ loading: false, error: 'Could not connect to authentication service' })
           return false
         }
       },
 
       register: async (email: string, password: string, targetScore = 65) => {
+        const requestSeq = ++authRequestSeq
         set({ loading: true, error: null })
         try {
-          const res = await fetch('/api/auth/register', {
+          const res = await fetch(apiUrl('/api/auth/register'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password, targetScore }),
@@ -111,6 +121,7 @@ export const useAuth = create<AuthStore>()(
             expiresAt?: number
             user?: User
           }
+          if (requestSeq !== authRequestSeq) return false
           if (!res.ok || !data.token || !data.user) {
             set({ loading: false, error: data.error ?? 'Registration failed' })
             return false
@@ -130,15 +141,18 @@ export const useAuth = create<AuthStore>()(
           })
           return true
         } catch {
+          if (requestSeq !== authRequestSeq) return false
           set({ loading: false, error: 'Could not connect to authentication service' })
           return false
         }
       },
 
       logout: () => {
+        authRequestSeq++
         lastConfirmedScore = undefined
         pendingScoreBaseline = undefined
         targetScoreSeq = 0
+        targetScoreUserId = null
         const { token } = get()
         // Drop the local session first so a slow or failed request cannot leave
         // the user appearing signed in, then revoke it on the server.
@@ -147,6 +161,7 @@ export const useAuth = create<AuthStore>()(
           token: null,
           expiresAt: null,
           lastEmail: null,
+          loading: false,
           error: null,
         })
         // Attempts and active tests stay on the device but are scoped to the
@@ -158,7 +173,7 @@ export const useAuth = create<AuthStore>()(
         settings.set('aiScoringEnabled', false)
         settings.resetAiUsage()
         if (token && typeof window !== 'undefined') {
-          void fetch('/api/auth/logout', {
+          void fetch(apiUrl('/api/auth/logout'), {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
           })
@@ -170,6 +185,7 @@ export const useAuth = create<AuthStore>()(
       },
 
       setSession: (user: User, token: string, expiresAt?: number) => {
+        authRequestSeq++
         const exp =
           typeof expiresAt === 'number' && expiresAt > 0
             ? expiresAt
@@ -191,7 +207,7 @@ export const useAuth = create<AuthStore>()(
         if (!currentPassword) return 'Current password is required.'
         if (newPassword.length < 8) return 'Password must be at least 8 characters.'
         try {
-          const res = await fetch('/api/auth/me', {
+          const res = await fetch(apiUrl('/api/auth/me'), {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
@@ -208,6 +224,10 @@ export const useAuth = create<AuthStore>()(
           if (!res.ok || !data?.ok) {
             return data?.error ?? 'Could not change the password.'
           }
+          // A password-change response may arrive after the user has signed
+          // out or switched accounts. Never attach its replacement token to
+          // whichever session happens to be current now.
+          if (get().token !== token) return true
           if (data.token) {
             set((s) => ({
               token: data.token!,
@@ -223,6 +243,12 @@ export const useAuth = create<AuthStore>()(
       setTargetScore: async (score: number) => {
         const { token, user } = get()
         if (!token || !user) return
+        if (targetScoreUserId !== user.id) {
+          targetScoreUserId = user.id
+          lastConfirmedScore = user.targetScore
+          pendingScoreBaseline = undefined
+          targetScoreSeq = 0
+        }
         const seq = ++targetScoreSeq
         // The value to restore if the newest request fails. A score the server
         // has already confirmed wins; otherwise it is the score that was on
@@ -232,36 +258,51 @@ export const useAuth = create<AuthStore>()(
         if (pendingScoreBaseline === undefined) {
           pendingScoreBaseline = lastConfirmedScore ?? user.targetScore
         }
-        const rollbackScore = lastConfirmedScore ?? pendingScoreBaseline
         set({ user: { ...user, targetScore: score } })
-        try {
-          const res = await fetch('/api/auth/me', {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ targetScore: score }),
-          })
-          if (res.ok) {
-            // The server accepted this value, so it is the one a later
-            // failure should fall back to.
-            lastConfirmedScore = score
-            pendingScoreBaseline = undefined
-          } else if (seq === targetScoreSeq) {
-            const current = get().user
-            if (current) set({ user: { ...current, targetScore: rollbackScore } })
-            lastConfirmedScore = rollbackScore
-            pendingScoreBaseline = undefined
-          }
-        } catch {
-          if (seq === targetScoreSeq) {
-            const current = get().user
-            if (current) set({ user: { ...current, targetScore: rollbackScore } })
-            lastConfirmedScore = rollbackScore
-            pendingScoreBaseline = undefined
+        const saveScore = async () => {
+          // Coalesce changes made while an earlier write was in flight. That
+          // prevents an old request from reaching the server after the latest
+          // score and becoming the value that survives a reload.
+          if (seq !== targetScoreSeq || get().token !== token || get().user?.id !== user.id) return
+          try {
+            const res = await fetch(apiUrl('/api/auth/me'), {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ targetScore: score }),
+            })
+            // A response for a previous session must not update the current
+            // account's score or the shared rollback baseline.
+            if (get().token !== token || get().user?.id !== user.id) return
+            if (res.ok) {
+              lastConfirmedScore = score
+              if (seq === targetScoreSeq) pendingScoreBaseline = undefined
+            } else if (seq === targetScoreSeq) {
+              const rollbackScore = lastConfirmedScore ?? pendingScoreBaseline ?? user.targetScore
+              const current = get().user
+              if (current) set({ user: { ...current, targetScore: rollbackScore } })
+              lastConfirmedScore = rollbackScore
+              pendingScoreBaseline = undefined
+            }
+          } catch {
+            if (get().token !== token || get().user?.id !== user.id) return
+            if (seq === targetScoreSeq) {
+              const rollbackScore = lastConfirmedScore ?? pendingScoreBaseline ?? user.targetScore
+              const current = get().user
+              if (current) set({ user: { ...current, targetScore: rollbackScore } })
+              lastConfirmedScore = rollbackScore
+              pendingScoreBaseline = undefined
+            }
           }
         }
+        const queued = targetScoreQueue.then(saveScore, saveScore)
+        targetScoreQueue = queued.then(
+          () => {},
+          () => {},
+        )
+        await queued
       },
 
       checkSession: async () => {
@@ -274,7 +315,7 @@ export const useAuth = create<AuthStore>()(
           return
         }
         try {
-          const res = await fetch('/api/auth/me', {
+          const res = await fetch(apiUrl('/api/auth/me'), {
             headers: { Authorization: `Bearer ${token}` },
           })
           if (get().token !== token) return

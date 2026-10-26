@@ -232,9 +232,9 @@ function PracticeInner({ deepLinkType }: { deepLinkType: QuestionType | null }) 
             className="inline-flex items-center gap-2 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
           >
             <span className="size-2 rounded-full bg-emerald-500" />
-            <span>Score weightage matrix</span>
+            <span>Scoring and practice guide</span>
             <span className="rounded-md bg-ink-100 px-1.5 py-0.5 font-mono text-[10px] text-ink-600 dark:bg-white/10 dark:text-ink-on-dark-muted">
-              High-yield
+              Editorial guide
             </span>
           </Link>
           <Link

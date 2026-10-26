@@ -93,18 +93,25 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
     })
   }
 
-  let body: { targetScore?: number; newPassword?: string; currentPassword?: string }
+  let parsed: unknown
   try {
-    body = (await context.request.json()) as {
-      targetScore?: number
-      newPassword?: string
-      currentPassword?: string
-    }
+    parsed = await context.request.json()
   } catch {
     return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
     })
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    return new Response(JSON.stringify({ error: 'Invalid JSON request' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  const body = parsed as {
+    targetScore?: unknown
+    newPassword?: unknown
+    currentPassword?: unknown
   }
 
   // The target score is validated up front. It is a pure check with no side
@@ -129,6 +136,7 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
   // when the password check fails, so the two are verified and written in
   // separate steps rather than one write followed by the other's check.
   let passwordChange: { hash: string; salt: string } | null = null
+  let sessionSecret: string | null = null
   if (typeof body.newPassword === 'string') {
     if (typeof body.currentPassword !== 'string' || !body.currentPassword) {
       return new Response(JSON.stringify({ error: 'Current password is required.' }), {
@@ -175,6 +183,10 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
         headers: { 'Content-Type': 'application/json' },
       })
     }
+    // Resolve signing configuration before writing the new password or
+    // revoking the current sessions. Otherwise a missing secret would leave
+    // the account changed but the user unable to receive a replacement token.
+    sessionSecret = requireSecret(context.env)
     const { hash, salt } = await hashPassword(body.newPassword, iterations)
     passwordChange = { hash, salt }
   }
@@ -206,11 +218,10 @@ export const onRequestPatch: PagesFunction<Env> = async (context) => {
       .run()
       .catch((err) => console.warn('[Auth] Could not invalidate outstanding reset links:', err))
 
-    const secret = requireSecret(context.env)
     const expiresIn = resolveSessionExpiry(context.env)
     const newToken = await createSessionToken(
       { userId: session.userId, email: session.email },
-      secret,
+      sessionSecret!,
       expiresIn,
       db,
     )

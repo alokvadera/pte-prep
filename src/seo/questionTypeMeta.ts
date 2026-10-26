@@ -41,7 +41,7 @@ const SCORING_PHRASE: Record<string, string> = {
   'per-word': 'one point per word spelled correctly',
   'per-unit-negated': 'one point per correct option, minus one per wrong',
   'per-adjacent-pair': 'one point per correctly ordered pair',
-  'trait-composite': 'scored on content and form',
+  'trait-composite': 'scored on task-specific traits',
 }
 
 /**

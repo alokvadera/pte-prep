@@ -1,10 +1,9 @@
 /**
  * Single source of truth for every SEO-relevant constant.
  *
- * The site is fully static, so the canonical origin has to be known at build
- * time for the prerendered HTML and for `sitemap.xml`. If it is not set, the
- * runtime falls back to the origin the site is actually served from, which
- * keeps canonicals correct on any domain without a rebuild.
+ * The site is fully static, so prerendered HTML and `sitemap.xml` use the
+ * configured origin or the fixed fallback below. In a client-rendered page
+ * with no configured origin, the current serving origin is used instead.
  */
 
 function readEnv(): string {
@@ -34,16 +33,16 @@ export const SITE = {
 
 export function absoluteUrl(path: string): string {
   const clean = path.startsWith('/') ? path : `/${path}`
-  // A build-time origin is trusted whole, sub-path included.
-  if (SITE_ORIGIN) return `${SITE_ORIGIN}${clean}`
+  const base = import.meta.env?.BASE_URL ?? '/'
+  const prefix = base.endsWith('/') ? base.slice(0, -1) : base
+  const basedPath = `${prefix}${clean}`
+  if (SITE_ORIGIN) return `${SITE_ORIGIN}${basedPath}`
   if (typeof window !== 'undefined' && window.location?.origin) {
     // Runtime fallback: the served origin plus the router base, so sub-path
     // deployments (e.g. /repo/) produce correct URLs without a rebuild.
-    const base = import.meta.env?.BASE_URL ?? '/'
-    const prefix = base.endsWith('/') ? base.slice(0, -1) : base
-    return `${window.location.origin}${prefix}${clean}`
+    return `${window.location.origin}${basedPath}`
   }
-  return `${SITE.fallbackOrigin}${clean}`
+  return `${SITE.fallbackOrigin}${basedPath}`
 }
 
 export interface PageMeta {

@@ -44,7 +44,7 @@ const FAQ = [
   {
     question: 'How many questions are in the PTE Academic?',
     answer:
-      'The exact number varies slightly between versions because each version is balanced for total length. A full-length test typically contains around 70 to 90 scored items spread across 22 question types, plus an unscored personal introduction at the start.',
+      'The exact number varies between versions. Pearson states that a full PTE Academic test contains 65 to 75 scored questions across 22 question types, plus an unscored personal introduction at the start.',
   },
   {
     question: 'What are the recent changes to the PTE Academic?',
@@ -109,7 +109,7 @@ export default function TestFormat() {
               href="#weightage"
               className="text-ink-600 dark:text-ink-on-dark hover:bg-ink-100 hover:text-mark-700 dark:hover:bg-white/6 dark:hover:text-mark-300 rounded-full px-3 py-1.5 text-sm font-semibold transition-colors"
             >
-              Score weightage &amp; priority matrix
+              Scoring rules &amp; practice priorities
             </a>
           </div>
         </nav>

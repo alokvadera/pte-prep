@@ -293,7 +293,7 @@ export default function QuestionTypes() {
 
         <CtaBand
           title="Practice all 22 question types"
-          description="Every type on this page appears in the full mock and in single-skill drills, with the same timings and scoring rules as the real test."
+          description="Every type on this page appears in the full mock and in single-skill drills, with practice timings and scoring guidance based on the published test format. Mock scores are estimates, not official results."
           actions={
             <>
               <ButtonLink to="/mock" size="lg" magnetic>

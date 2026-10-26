@@ -27,7 +27,7 @@ const SECTIONS = [
     heading: 'Audio and speech',
     body: [
       'Listening items are served as static audio files from our origin, with on-device speech synthesis available as an offline fallback when disconnected.',
-      'Speaking items are recorded via your microphone. When browser speech recognition is enabled, speech recognition uses your browser\u2019s native speech engine (such as Google speech services in Chrome). Raw audio recorded for fluency analysis is processed in-memory and discarded — it is never permanently saved to disk.',
+      'Speaking items are recorded via your microphone. When browser speech recognition is enabled, speech recognition uses your browser\u2019s native speech engine (such as Google speech services in Chrome). With AI Examiner enabled and a Groq key configured, each recording is also sent to Groq for transcription when you stop recording. Otherwise, raw audio is processed in-memory for fluency analysis and discarded — it is not permanently saved by this site.',
     ],
   },
   {
@@ -35,7 +35,7 @@ const SECTIONS = [
     heading: 'Optional AI grading (Groq BYOK)',
     body: [
       'If you choose to enable the AI Examiner, you provide your own Groq API key (Bring-Your-Own-Key). Your key is stored solely in your browser\u2019s local storage and is never transmitted to our servers.',
-      'When you request AI grading, your written responses or spoken audio clips are sent directly from your browser to Groq\u2019s secure API (api.groq.com) using Llama 3.3 for rubric assessment and Whisper Turbo for speech transcription. Groq processes these requests in accordance with their developer API privacy terms.',
+      'When AI Examiner is enabled and a Groq key is configured, speaking recordings are sent directly from your browser to Groq for Whisper Turbo transcription when recording stops. When you separately request AI grading, written responses or the resulting speech transcripts are sent for approximate rubric feedback. The API key stays in your browser; Groq processes these requests under its developer API privacy terms.',
     ],
   },
   {

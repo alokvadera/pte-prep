@@ -50,7 +50,7 @@ const ACHIEVEMENTS: Achievement[] = [
   {
     id: 'score-79',
     label: 'Superior',
-    description: 'Reach a score of 79 (Proficient)',
+    description: 'Reach a score of 79 (C1)',
     icon: <Trophy className="size-5" />,
     earned: (a) => a.some((x) => x.overallScore >= 79),
   },

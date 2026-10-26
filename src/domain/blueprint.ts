@@ -77,7 +77,7 @@ export const QUESTION_META: Record<QuestionType, QuestionMeta> = {
     perTest: '10–12',
     traits: ['Content', 'Pronunciation', 'Oral Fluency'],
     count: { min: 10, max: 12 },
-    tip: 'Chunk the sentence into three-to-five-word groups and shadow the audio. Hesitations and pauses are ignored, so keep going even if you lose a word.',
+    tip: 'Chunk the sentence into short groups and shadow the audio. If you lose a word, keep going; long pauses can interrupt fluency.',
   },
   'describe-image': {
     type: 'describe-image',
@@ -89,7 +89,7 @@ export const QUESTION_META: Record<QuestionType, QuestionMeta> = {
     perTest: '5–6',
     traits: ['Content', 'Pronunciation', 'Oral Fluency'],
     count: { min: 5, max: 6 },
-    tip: 'Use a fixed frame: "The graph shows… the highest/lowest is… followed by…". Cover structure, then trend, then specifics.',
+    tip: 'Use a simple structure that fits the image. Describe its subject, then the clearest supported trend, comparison or detail.',
   },
   'retell-lecture': {
     type: 'retell-lecture',
@@ -232,7 +232,7 @@ export const QUESTION_META: Record<QuestionType, QuestionMeta> = {
     perTest: '2–3',
     traits: [],
     count: { min: 2, max: 3 },
-    tip: 'One point per correctly ordered adjacent pair, so four boxes are worth three points. There is no negative marking and a wrong order scores zero.',
+    tip: 'One point per correctly ordered adjacent pair, so four boxes are worth three points. You can earn partial credit even when the full order is wrong; there is no negative marking.',
   },
   'summarize-spoken-text': {
     type: 'summarize-spoken-text',
@@ -381,7 +381,7 @@ export const SECTION_META: Record<SectionId, SectionMeta> = {
     skill: 'reading',
     weightNote: '23–30 min',
     blurb:
-      'One academic passage, twenty scored items, five types. Re-order Paragraphs awards a point per correctly ordered adjacent pair rather than being all-or-nothing.',
+      'One academic passage, 15–20 scored items across five types. Re-order Paragraphs awards a point per correctly ordered adjacent pair rather than being all-or-nothing.',
   },
   listening: {
     id: 'listening',
@@ -399,20 +399,36 @@ export const SECTION_META: Record<SectionId, SectionMeta> = {
 /**
  * Item counts for a generated mock.
  *
- * Pearson states a test contains 65–75 questions, and that each version is
- * balanced for total length so counts vary between sittings. Taking the maximum
- * of every published range produces 85 items. The midpoints, rounded, produce
- * 84 — the closest whole-number reading of the same ranges, and still above the
- * stated band: the 22 current types each vary independently, so their midpoints
- * do not shrink together. A shorter mock has to invent a count below the range
- * the guide publishes for some type, which is why the midpoints are used.
+ * Pearson states that a test contains 65–75 scored items. The ranges published
+ * for individual types can sum higher when every type is rounded upward, so
+ * the default chooses one valid count per type whose total is 75. The counts
+ * stay inside each published range; this is the upper end of the official
+ * overall range, not a separate item-count estimate.
  */
-export const MOCK_BLUEPRINT: Record<QuestionType, number> = Object.fromEntries(
-  ALL_QUESTION_TYPES.map((t) => {
-    const { min, max } = QUESTION_META[t].count
-    return [t, Math.round((min + max) / 2)]
-  }),
-) as Record<QuestionType, number>
+export const MOCK_BLUEPRINT: Record<QuestionType, number> = {
+  'read-aloud': 6,
+  'repeat-sentence': 11,
+  'describe-image': 6,
+  'retell-lecture': 2,
+  'answer-short-question': 6,
+  'summarize-group-discussion': 2,
+  'respond-to-situation': 3,
+  'summarize-written-text': 2,
+  'write-essay': 1,
+  'fill-in-blanks-dropdown': 6,
+  'fill-in-blanks-table': 4,
+  'multiple-choice-single': 3,
+  'multiple-choice-multiple': 2,
+  'reorder-paragraphs': 3,
+  'summarize-spoken-text': 1,
+  'fill-in-blanks-listening': 3,
+  'highlight-correct-summary': 2,
+  'listening-multiple-choice-single': 3,
+  'listening-multiple-choice-multiple': 2,
+  'select-missing-word': 2,
+  'highlight-incorrect-words': 2,
+  'write-from-dictation': 3,
+}
 
 /**
  * Scored items a complete mock puts in each section.

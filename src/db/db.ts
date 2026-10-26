@@ -21,6 +21,9 @@ interface AppDb {
     orderBy(key: 'finishedAt'): {
       reverse(): {
         limit(n: number): { toArray(): Promise<AttemptRecord[]> }
+        filter(predicate: (attempt: AttemptRecord) => boolean): {
+          limit(n: number): { toArray(): Promise<AttemptRecord[]> }
+        }
         toArray(): Promise<AttemptRecord[]>
       }
     }
@@ -155,8 +158,13 @@ export function listAttempts(
   guestOwnerId = 'guest:server',
 ): Promise<AttemptRecord[]> {
   return withDb(async (db) => {
-    const attempts = await db.attempts.orderBy('finishedAt').reverse().toArray()
-    return ownedAttempts(attempts, ownerId, guestOwnerId).slice(0, limit)
+    const attempts = db.attempts.orderBy('finishedAt').reverse()
+    return ownerId
+      ? attempts
+          .filter((attempt) => attemptOwnerId(attempt, guestOwnerId) === ownerId)
+          .limit(limit)
+          .toArray()
+      : attempts.limit(limit).toArray()
   }, [])
 }
 
@@ -190,23 +198,38 @@ export function getAttempt(
 }
 
 export function deleteAttempt(id: string): Promise<void> {
+  return deleteAttemptResult(id).then(() => undefined)
+}
+
+/** Deletes one attempt and reports whether IndexedDB completed the operation. */
+export function deleteAttemptResult(id: string): Promise<boolean> {
   return withDb(async (db) => {
     await db.attempts.delete(id)
-  }, undefined)
+    return true
+  }, false)
 }
 
 /** Clears one owner's history, or the entire store when `ownerId` is omitted. */
 export function clearAttempts(ownerId?: string, guestOwnerId = 'guest:server'): Promise<void> {
+  return clearAttemptsResult(ownerId, guestOwnerId).then(() => undefined)
+}
+
+/** Clears attempts and reports whether IndexedDB completed the operation. */
+export function clearAttemptsResult(
+  ownerId?: string,
+  guestOwnerId = 'guest:server',
+): Promise<boolean> {
   return withDb(async (db) => {
     if (!ownerId) {
       await db.attempts.clear()
-      return
+      return true
     }
     const attempts = await db.attempts.orderBy('finishedAt').reverse().toArray()
     for (const attempt of ownedAttempts(attempts, ownerId, guestOwnerId)) {
       await db.attempts.delete(attempt.id)
     }
-  }, undefined)
+    return true
+  }, false)
 }
 
 export function readKv<T>(key: string, fallback: T): Promise<T> {

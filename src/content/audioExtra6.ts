@@ -11,28 +11,28 @@ export const EXTRA_LECTURES_6: AudioScript[] = [
     turns: [
       {
         speaker: 's1',
-        text: 'When we model climate change, we often default to linear assumptions: increase greenhouse gas emissions by a given increment, and global mean surface temperatures rise proportionately. The real climate system, however, is densely populated with non-linear feedback loops known as tipping elements.',
+        text: 'Climate models track gradual responses to greenhouse gas emissions, but the Earth system also contains components that may change rapidly after crossing a threshold. Researchers call these tipping elements, although the location and timing of many thresholds remain uncertain.',
       },
       {
         speaker: 's1',
-        text: 'A tipping element is a large-scale component of the Earth system that can be committed to a qualitative state change by a small, localized perturbation. Consider the West Antarctic ice sheet. Once marine ice sheet instability is triggered, warm circumpolar deep water melts the ice shelves from below, causing the grounding line to retreat down reverse-sloping bedrock. Above a critical temperature anomaly, collapse becomes self-sustaining and irreversible on human timescales.',
+        text: 'A tipping element is a large-scale part of the Earth system that may undergo substantial change once warming crosses a threshold. The West Antarctic ice sheet is one concern: warm ocean water can thin ice shelves from below, allowing the grounding line to retreat over bedrock that slopes inland. The extent and pace of future retreat are uncertain, and the process could continue for centuries even if warming stopped.',
       },
       {
         speaker: 's1',
-        text: 'The second dangerous feature is cascading interactions between tipping elements. The loss of Arctic summer sea ice reduces surface albedo, which accelerates regional warming over the Greenland ice sheet. Freshwater discharge from melting Greenland glaciers slows the Atlantic Meridional Overturning Circulation. A weakened circulation shifts the tropical rain belt southward, precipitating severe drought across the Amazon basin and turning the rainforest from a carbon sink into a net carbon source.',
+        text: 'A further concern is that changes in one component may affect others. Sea ice loss reduces the amount of sunlight reflected back to space, while freshwater from Greenland melt may influence North Atlantic circulation. Researchers are studying these links, but the size, timing and downstream effects are not settled; they do not support a simple prediction of a particular Amazon drought.',
       },
       {
         speaker: 's1',
-        text: 'These coupled dynamics imply that planetary boundaries cannot be evaluated in isolation. A risk threshold that appears safe when assessing a single component becomes untenable once trans-system cascades are accounted for. The fundamental challenge for planetary policy is not merely determining where the tipping thresholds lie, but acknowledging that we may cross the commitment point decades before the catastrophic physical transition becomes visually apparent. Thank you.',
+        text: 'These possible interactions are one reason Earth-system risks should be studied together. A threshold estimate for one component may change when other processes are included, and some consequences can unfold long after the initial warming. The policy challenge is to reduce risk while being clear about which pathways are well established and which remain uncertain. Thank you.',
       },
     ],
     keyTerms: [
-      'linear assumptions',
+      'threshold',
       'tipping elements',
-      'ice sheet instability',
-      'cascading interactions',
-      'albedo',
-      'planetary boundaries',
+      'West Antarctic ice sheet',
+      'grounding line',
+      'North Atlantic circulation',
+      'uncertain',
     ],
   },
   {
@@ -45,28 +45,29 @@ export const EXTRA_LECTURES_6: AudioScript[] = [
     turns: [
       {
         speaker: 's1',
-        text: 'Popular discussions of quantum computation typically focus on the exponential power of quantum superposition and entanglement. If a classical register of n bits can represent only one state at a time, a quantum register of n qubits can theoretically exist in a linear superposition of two to the power of n states simultaneously. What is less frequently advertised is that quantum information is extraordinarily fragile.',
+        text: 'Popular discussions of quantum computing often say that n qubits can represent amplitudes across two to the power of n basis states. That does not mean a machine can read out all those answers at once: useful algorithms rely on interference to make some outcomes more likely than others. The information is also fragile and must be protected from noise.',
       },
       {
         speaker: 's1',
-        text: 'The fundamental engineering barrier is environmental decoherence. A quantum bit is not an abstract mathematical vector; it is a physical entity, such as a superconducting Josephson junction or a trapped ytterbium ion. The moment that physical system interacts with stray electromagnetic fields, thermal phonons, or cosmic radiation, the delicate relative phases between its probability amplitudes randomize. Quantum coherence collapses into classical thermodynamic noise within microseconds.',
+        text: 'A major engineering challenge is environmental decoherence. A qubit is stored in a physical system, such as a superconducting circuit or a trapped ion. Interactions with the environment can disturb the relative phases that make a quantum state useful. How quickly this happens depends on the hardware and operating conditions, so coherence times vary across systems.',
       },
       {
         speaker: 's1',
-        text: 'To preserve quantum states long enough to execute deep algorithmic circuits, researchers must implement quantum error correction. In classical computing, a bit flip is corrected by simple majority voting with three physical bits. In quantum computing, the no-cloning theorem strictly forbids copying an unknown quantum state, and direct projective measurement destroys the very superposition you wish to protect.',
+        text: 'Researchers use quantum error correction to protect information during long computations. Unlike a classical repetition code, a quantum code cannot make independent copies of an unknown state: the no-cloning theorem rules that out. Instead, a code distributes information across several physical qubits and measures error syndromes without directly measuring the encoded logical state.',
       },
       {
         speaker: 's1',
-        text: 'The solution is topological code architecture, such as the surface code, which entangles hundreds or thousands of noisy physical qubits to encode a single, fault-tolerant logical qubit. Until the ratio of physical qubits to logical qubits drops by orders of magnitude, useful fault-tolerant quantum computation remains a formidable materials science endeavor rather than a mere scaling exercise. Thank you.',
+        text: 'The surface code is one leading approach, but it is not the only code family. Its physical-qubit overhead depends on the target error rate, the hardware and the computation being protected; other codes may trade connectivity or decoding complexity for lower overhead. Experiments have demonstrated small logical qubits, while large-scale fault-tolerant computation remains an engineering challenge. Thank you.',
       },
     ],
     keyTerms: [
-      'superposition',
+      'interference',
       'qubits',
       'environmental decoherence',
       'quantum error correction',
       'no-cloning theorem',
-      'logical qubit',
+      'surface code',
+      'logical qubits',
     ],
   },
   {
@@ -79,28 +80,28 @@ export const EXTRA_LECTURES_6: AudioScript[] = [
     turns: [
       {
         speaker: 's1',
-        text: 'Of the approximately seven thousand languages currently spoken on Earth, historical linguists estimate that over half will fall silent before the close of this century. This linguistic attrition is not a natural evolutionary pruning; it is the consequence of aggressive state assimilation policies, demographic displacement, and digital hegemony that privileges a tiny handful of dominant global tongues.',
+        text: 'Roughly seven thousand languages are spoken today, though counts depend on how languages and dialects are distinguished. Projections differ: some warn that many languages may disappear or become endangered this century. Language shift can follow from schooling and public services being offered in dominant languages, displacement, economic pressure and reduced opportunities to use a language across generations; digital access is one factor among many.',
       },
       {
         speaker: 's1',
-        text: 'When an indigenous language disappears, the loss extends far beyond vocabulary and phonetics. Languages encapsulate millennia of accumulated empirical ethnobotanical and ecological knowledge that exists nowhere else. In the Amazonian basin and the northern Australian territories, traditional languages contain nuanced classifications for pharmaceutical plants, microclimate shifts, and animal migration patterns that modern taxonomies fail to capture.',
+        text: 'When a language is no longer passed on, communities can lose access to knowledge expressed through it, including local names for plants, animals and places. Such knowledge is not automatically unique to one language, and it can also be recorded or shared in other ways. Documentation and community-led revitalisation can support its continued use alongside the language itself.',
       },
       {
         speaker: 's1',
-        text: 'Furthermore, grammatical diversity reveals the cognitive versatility of the human mind. Languages with evidential morphology require speakers to conjugate verbs with affixes indicating how they acquired their knowledge—whether through direct sensory perception, inference, hearsay, or dream. In speakers of these languages, cognitive habits of epistemic verification and source attribution are embedded into the grammar itself.',
+        text: 'Some languages mark the source of information grammatically, for example whether a speaker witnessed an event or learned of it indirectly. These evidential systems are useful for studying how languages express knowledge, but they do not force speakers to verify claims or determine how those speakers think.',
       },
       {
         speaker: 's1',
-        text: 'Linguistic revitalization is therefore not an exercise in sentimental antiquarianism; it is an urgent defense of human cognitive and environmental heritage. When communities record oral corpora, revitalize intergenerational transmission, and digitize ancestral grammars, they preserve alternative ways of conceptualizing human existence within a fragile biosphere. Thank you.',
+        text: 'Language revitalisation can help communities maintain intergenerational ties, cultural practices and knowledge expressed through their language. Recording, teaching and creating digital resources can all contribute, when communities choose those approaches. The work is most effective when speakers guide it and have opportunities to use the language in everyday life. Thank you.',
       },
     ],
     keyTerms: [
-      'linguistic attrition',
-      'ethnobotanical knowledge',
-      'evidential morphology',
-      'epistemic verification',
-      'revitalization',
-      'cognitive heritage',
+      'language shift',
+      'intergenerational',
+      'local names',
+      'evidential systems',
+      'information source',
+      'community-led revitalisation',
     ],
   },
 ]
@@ -125,11 +126,11 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
       },
       {
         speaker: 'b',
-        text: 'Thank you. The common framing of space exploration versus Earth stewardship is fundamentally mistaken. The very tools we use to diagnose terrestrial climate change—satellite remote sensing, atmospheric spectroscopic sensors, solar radiation monitoring—were developed directly through space mission investments. Furthermore, deep space research drives fundamental breakthroughs in materials science, closed-loop water purification, and autonomous robotics that directly benefit terrestrial sustainability.',
+        text: 'Thank you. Space exploration and Earth stewardship are not necessarily opposites. Satellite programmes provide remote-sensing data used to study climate, and space research can also produce technologies with uses on Earth. Those benefits do not prove that every mission is worthwhile, but they should be included when comparing the costs and public value of different programmes.',
       },
       {
         speaker: 'c',
-        text: 'I must challenge the economic efficiency of that argument. Serendipitous technological spin-offs certainly occur, but in public economics, funding mission A in hopes of generating accidental benefits for mission B is an extraordinarily inefficient allocation of scarce public capital. If your goal is solar efficiency or water purification, investing directly in terrestrial environmental R&D delivers five to ten times the return on investment compared to subsidizing lunar landers.',
+        text: 'I must challenge the economic efficiency of that argument. Useful spin-offs can occur, but they are difficult to predict and should not be assumed to justify a mission. If the goal is better solar efficiency or water purification, direct investment in those areas may be a more reliable way to pursue it. Public budgets have opportunity costs, so each programme needs to be assessed on its expected benefits.',
       },
       {
         speaker: 'd',
@@ -146,11 +147,11 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
     ],
     keyTerms: [
       'space exploration',
-      'satellite monitoring',
-      'terrestrial sustainability',
+      'satellite programmes',
+      'remote-sensing data',
       'opportunity costs',
       'narrative escapism',
-      'allocation of capital',
+      'crewed exploration',
     ],
   },
   {
@@ -172,7 +173,7 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
       },
       {
         speaker: 'b',
-        text: 'From an engineering standpoint, fixed feed-in tariffs have become counterproductive. They incentivize developers to inject electricity during hours of maximum solar irradiance regardless of actual grid demand, resulting in negative wholesale prices and severe curtailment waste. We need market pricing to force developers to co-locate battery storage and dispatch power when the grid actually needs it.',
+        text: 'From an engineering standpoint, fixed feed-in tariffs can create challenges when payments do not reflect where and when electricity is most valuable. High renewable output can coincide with low demand, contributing to low or negative wholesale prices and curtailment in some markets. Better locational and time-based signals, alongside storage and transmission, can help align generation with grid needs.',
       },
       {
         speaker: 'c',
@@ -180,7 +181,7 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
       },
       {
         speaker: 'd',
-        text: 'As consumer representatives, we cannot ignore who pays for those guaranteed tariffs. Surcharges on domestic electricity bills have risen by forty percent over the past decade to fund legacy subsidies for commercial developers who are now generating record returns. When wind and solar are the cheapest forms of generation on the planet, continuing public subsidies transfers wealth from low-income households to renewable infrastructure funds.',
+        text: 'As consumer representatives, we cannot ignore who pays for those guaranteed tariffs. The effect on household bills varies by market and by programme design, and support can benefit consumers as well as developers. I still worry that poorly targeted subsidies may place a disproportionate burden on lower-income households, especially when payments continue after a technology has become more competitive.',
       },
       {
         speaker: 'c',
@@ -227,11 +228,11 @@ export const EXTRA_GROUP_DISCUSSIONS_5: AudioScript[] = [
       },
       {
         speaker: 'd',
-        text: 'We must examine student retention and cognitive outcomes. Across national studies, completion rates for fully online undergraduate degrees are nearly thirty percentage points lower than in-person programs. Higher education is deeply relational; the informal peer collaboration, spontaneous mentorship, and socio-emotional accountability of a campus environment cannot be replicated by pre-recorded videos and automated quizzes.',
+        text: 'We must examine student retention and learning outcomes. Some comparisons find lower completion rates in online programmes, but the size of the gap varies with student population, course design and support. Higher education is also relational: peer collaboration and mentorship can be harder to sustain in a fully asynchronous course, so recorded lectures and automated quizzes need to be paired with meaningful interaction.',
       },
       {
         speaker: 'b',
-        text: 'Dr Gallagher highlights the exact tension. Remote delivery democratizes access for highly disciplined adult learners like Mr Evans, but it often fails younger undergraduates who require structured interpersonal support.',
+        text: 'Dr Gallagher highlights the tension. Remote delivery can widen access for some adult learners, while students may differ in how much structure and interaction they need. Course design and support can affect those experiences.',
       },
       {
         speaker: 'c',
@@ -254,21 +255,20 @@ export const EXTRA_RETELL_ITEMS_6: RetellItem[] = [
     id: 'rtl-climate-tipping',
     audioId: 'lec-climate-tipping',
     skeleton: [
-      'linear assumptions vs tipping elements',
+      'threshold changes alongside gradual climate responses',
       'West Antarctic ice sheet instability',
-      'cascading interactions between arctic and amazon',
-      'planetary boundaries cannot be isolated',
+      'possible links among sea ice, Greenland and ocean circulation',
+      'pathways and timing remain uncertain',
     ],
     reference:
-      'Climate change operates through non-linear feedback loops known as tipping elements rather than simple linear trends. A qualitative shift in one component, such as West Antarctic ice sheet instability, can become self-sustaining. Furthermore, tipping elements cascade: Arctic sea ice loss accelerates Greenland melting, slowing the Atlantic circulation and triggering Amazon drought. Planetary boundaries cannot be evaluated in isolation.',
+      'The lecture explains that climate change includes gradual responses as well as possible threshold changes in Earth-system components. It uses the West Antarctic ice sheet as an example and describes possible links among sea ice, Greenland melt and ocean circulation, while stressing that the scale and timing of these effects remain uncertain. The speaker argues that connected risks should be studied together.',
     keyTerms: [
-      'linear',
+      'threshold',
       'tipping elements',
-      'feedback loops',
-      'ice sheet',
-      'cascade',
-      'cascading',
-      'boundaries',
+      'West Antarctic ice sheet',
+      'grounding line',
+      'North Atlantic circulation',
+      'uncertain',
     ],
     minWords: 30,
   },
@@ -276,21 +276,22 @@ export const EXTRA_RETELL_ITEMS_6: RetellItem[] = [
     id: 'rtl-quantum-computing',
     audioId: 'lec-quantum-computing',
     skeleton: [
-      'superposition and qubit power',
-      'environmental decoherence destroys coherence',
-      'quantum error correction cannot copy states',
-      'topological surface code architecture',
+      'amplitudes across basis states, with algorithmic limits',
+      'environmental noise disturbs quantum states',
+      'error syndromes protect encoded information',
+      'surface code is one approach; overhead varies',
     ],
     reference:
-      'While quantum superposition enables exponential representation across qubits, quantum states are exceptionally fragile and collapse under environmental decoherence into thermodynamic noise. Because the no-cloning theorem prevents copying quantum states, simple classical redundancy fails. Quantum error correction must implement topological codes that entangle thousands of physical qubits to form a single fault-tolerant logical qubit.',
+      'The lecture explains that qubits can represent amplitudes across many basis states, but measurement does not reveal every answer and useful algorithms rely on interference. Environmental noise can disturb quantum states. Because unknown quantum states cannot simply be copied, error-correction codes distribute information across physical qubits and detect error syndromes. The surface code is one approach, and its overhead varies with hardware and the task.',
     keyTerms: [
-      'superposition',
+      'interference',
       'qubits',
       'decoherence',
       'noise',
       'no-cloning',
       'error correction',
-      'logical qubit',
+      'surface code',
+      'logical qubits',
     ],
     minWords: 30,
   },
@@ -298,22 +299,21 @@ export const EXTRA_RETELL_ITEMS_6: RetellItem[] = [
     id: 'rtl-linguistic-diversity',
     audioId: 'lec-linguistic-diversity',
     skeleton: [
-      'half of world languages dying this century',
-      'loss of empirical ethnobotanical knowledge',
-      'evidential morphology and epistemic verification',
-      'revitalization preserves cognitive diversity',
+      'language-loss projections vary; causes include social and policy pressures',
+      'language can carry local ecological knowledge',
+      'evidential grammar marks information sources',
+      'community-led revitalization and everyday use',
     ],
     reference:
-      'Over half of all human languages are projected to disappear by the end of the century due to state assimilation and digital hegemony. Language death extinguishes unique empirical ethnobotanical and ecological knowledge, as well as distinct cognitive habits like evidential morphology that embed epistemic verification into grammar. Language revitalization preserves irreplaceable human cognitive and environmental heritage.',
+      'The lecture describes concern that many of the world’s languages may disappear or become endangered, while noting that projections vary. Language shift can reflect policy, displacement and reduced opportunities for intergenerational use. Languages may carry local ecological knowledge, and some mark information sources grammatically. The speaker supports community-led documentation and revitalisation that creates opportunities for everyday use.',
     keyTerms: [
       'languages',
-      'disappear',
-      'ethnobotanical',
-      'knowledge',
-      'evidential',
-      'morphology',
-      'revitalization',
-      'heritage',
+      'language shift',
+      'intergenerational',
+      'local ecological knowledge',
+      'information source',
+      'community-led revitalisation',
+      'everyday use',
     ],
     minWords: 30,
   },
@@ -326,14 +326,14 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_5: GroupDiscussionItem[] = [
     question:
       "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
-      'The panel debates public spending on deep space missions versus climate needs. The astrophysicist argues space research invented vital terrestrial climate sensors and robotics, the economist asserts that indirect spin-offs are an inefficient allocation of capital compared to direct green investment, and the activist warns that space exploration promotes dangerous narrative escapism while wasting billions on prestige vanity projects.',
+      'The panel debates public spending on space exploration alongside climate priorities. The astrophysicist points to climate data from satellite programmes and possible technology spin-offs, while the economist argues that expected benefits should be compared with direct investment in terrestrial research. The activist questions crewed exploration budgets and warns that talk of colonising other planets can distract from protecting Earth. They disagree on how to weigh scientific value, opportunity cost and public priorities.',
     keyTerms: [
-      'space missions',
-      'climate sensors',
+      'space exploration',
+      'satellite programmes',
+      'remote-sensing data',
       'spin-offs',
-      'allocation of capital',
-      'escapism',
-      'prestige',
+      'opportunity costs',
+      'crew exploration',
     ],
     minWords: 40,
   },
@@ -343,12 +343,12 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_5: GroupDiscussionItem[] = [
     question:
       "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
-      'The panel evaluates whether to phase out feed-in tariffs for mature renewables. The grid engineer argues fixed tariffs encourage overgeneration and grid curtailment, the solar developer contends revenue certainty is essential for project financing, and the consumer economist notes consumer surcharges on bills unfairly transfer wealth to profitable funds. They consider two-sided contracts for difference with storage incentives as a compromise.',
+      'The panel discusses whether to change support for mature renewable projects. The engineer says payment design should reflect when and where electricity is valuable; the developer argues predictable contracts help secure financing; and the consumer economist worries that poorly targeted support can burden households. They discuss two-sided contracts for difference, storage and better grid signals as possible parts of a transition.',
     keyTerms: [
       'feed-in tariffs',
       'curtailment',
       'revenue certainty',
-      'consumer surcharges',
+      'household bills',
       'contracts for difference',
       'storage',
     ],
@@ -360,13 +360,14 @@ export const EXTRA_GROUP_DISCUSSION_ITEMS_5: GroupDiscussionItem[] = [
     question:
       "Listen to the discussion and summarise it in between 40 and 90 seconds. Report the group's overall stance, the main points each speaker made, and where they disagreed.",
     reference:
-      'The panel examines the pedagogical soundness of fully remote asynchronous degree programs. The dean notes institutional scalability, the distance learner defends remote study for educational accessibility, and the psychologist highlights low retention rates and the loss of interpersonal accountability on campus. They propose hybrid flexibility and structured mentorship rather than total abandonment.',
+      'The panel examines fully asynchronous degree programmes. The dean notes their potential to widen access and scale provision; the distance learner describes remote study as necessary alongside full-time work; and the psychologist says online completion comparisons vary but that asynchronous courses need meaningful interaction and support. They favour flexibility and structured mentorship over abandoning remote study.',
     keyTerms: [
       'remote degrees',
       'asynchronous',
       'accessibility',
-      'retention rates',
-      'interpersonal accountability',
+      'completion rates',
+      'course design',
+      'interaction',
       'mentorship',
     ],
     minWords: 40,
@@ -380,13 +381,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
-      'The lecture explains that antibiotic resistance is an inevitable biological consequence of selection pressure. Bacteria develop resistance through genetic mutations, plasmid horizontal gene transfer, and environmental reservoirs. Because antibiotic discovery has stalled and finite classes of treatment remain, overprescribing imposes severe external costs, requiring strict global stewardship until novel antimicrobial treatments are developed.',
+      'The lecture explains that antibiotic exposure can select for resistant bacteria, while resistance can also spread through mutation, horizontal gene transfer and movement among people, animals and the environment. The mechanisms and rates vary. Because the antibacterial development pipeline does not meet all public-health needs, the speaker argues for continued research, careful prescribing, infection prevention, surveillance and stewardship across human and animal health.',
     keyTerms: [
       'antibiotic resistance',
       'selection pressure',
       'mutations',
       'horizontal transfer',
-      'finite classes',
+      'development pipeline',
+      'infection prevention',
       'stewardship',
     ],
     minWords: 30,
@@ -458,14 +460,15 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
-      'The lecture examines why overland Silk Road routes faded during the late medieval era. The network of caravan routes was outcompeted by maritime shipping, which lowered the cost of moving cargo. When ocean transit emerged as a cheaper substitute, overland trade collapsed under high fixed costs.',
+      'The lecture explains that the Silk Roads were connected land and sea routes, with merchants often travelling in stages. Costly overland freight favoured compact, high-value goods. The Cape route gave European merchants a more direct link to Indian Ocean trade and shifted some commercial patterns, but did not end the wider networks. Political conditions, demand and transport costs all affected route use.',
     keyTerms: [
       'Silk Road',
-      'caravan',
-      'overland trade',
-      'maritime shipping',
-      'substitute',
-      'fixed costs',
+      'intermediaries',
+      'compact goods',
+      'maritime networks',
+      'Cape route',
+      'Indian Ocean trade',
+      'route use',
     ],
     minWords: 30,
   },
@@ -492,14 +495,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
-      'The lecture explains that climate change involves non-linear tipping elements rather than gradual trends. Critical thresholds, such as West Antarctic ice sheet instability, trigger irreversible state changes. Furthermore, cascading feedback loops connect polar ice melt, Atlantic circulation, and Amazon rainforest dieback, demonstrating that planetary boundaries cannot be managed in isolation.',
+      'The lecture explains that climate change includes gradual responses as well as possible threshold changes in Earth-system components. It uses the West Antarctic ice sheet as an example and describes possible links among sea ice, Greenland melt and ocean circulation, while stressing that the scale and timing of these effects remain uncertain. The speaker argues that connected risks should be studied together.',
     keyTerms: [
-      'climate change',
+      'threshold',
       'tipping elements',
-      'ice sheet instability',
-      'cascading feedback',
-      'Atlantic circulation',
-      'planetary boundaries',
+      'West Antarctic ice sheet',
+      'sea ice',
+      'North Atlantic circulation',
+      'uncertain',
     ],
     minWords: 30,
   },
@@ -509,14 +512,15 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
-      'The speaker explains that quantum computation is severely constrained by environmental decoherence, which collapses fragile superposition into thermodynamic noise within microseconds. Because the no-cloning theorem prevents copying quantum states, simple classical redundancy fails. Fault-tolerant computation requires topological error correction codes that entangle thousands of physical qubits per logical qubit.',
+      'The speaker explains that qubits can represent amplitudes across many basis states, but measurement does not reveal every answer and useful algorithms rely on interference. Environmental noise can disturb quantum states. Because unknown quantum states cannot simply be copied, error-correction codes distribute information across physical qubits and detect error syndromes. The surface code is one approach, and its overhead varies with hardware and the task.',
     keyTerms: [
-      'quantum computing',
+      'qubits',
       'decoherence',
-      'superposition',
+      'interference',
       'no-cloning theorem',
-      'error correction',
-      'logical qubit',
+      'error syndromes',
+      'surface code',
+      'logical qubits',
     ],
     minWords: 30,
   },
@@ -526,14 +530,14 @@ export const EXTRA_SPOKEN_SUMMARY_ITEMS_5: SpokenSummaryItem[] = [
     question:
       'Listen to the recording and write a summary of 50 to 70 words. Include the main idea and the most important supporting details.',
     reference:
-      'The lecture warns that language extinction threatens over half of world languages this century due to state assimilation and digital dominance. Language loss obliterates irreplaceable ethnobotanical knowledge and diverse cognitive structures, such as evidential morphology that embeds source verification into speech. Revitalizing indigenous languages is vital for preserving human intellectual and ecological heritage.',
+      'The lecture describes concern that many languages may disappear or become endangered, while noting that projections vary. Language shift can reflect policy, displacement and reduced opportunities for intergenerational use. Languages may carry local ecological knowledge, and some mark information sources grammatically. The speaker supports community-led documentation and revitalisation that creates opportunities for everyday use.',
     keyTerms: [
-      'language extinction',
-      'ethnobotanical knowledge',
-      'evidential morphology',
-      'source verification',
-      'revitalization',
-      'heritage',
+      'languages',
+      'language shift',
+      'intergenerational',
+      'local ecological knowledge',
+      'information source',
+      'community-led revitalisation',
     ],
     minWords: 30,
   },

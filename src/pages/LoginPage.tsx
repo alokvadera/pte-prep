@@ -7,6 +7,7 @@ import { Dialog } from '../components/ui/dialog'
 import { Reveal } from '../components/ui/motion'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { Seo } from '../seo/Seo'
+import { apiUrl } from '../lib/api'
 
 const TARGET_PRESETS = [50, 65, 79, 85]
 
@@ -67,7 +68,7 @@ export default function LoginPage() {
     setForgotLoading(true)
     setForgotStatus(null)
     try {
-      const res = await fetch('/api/auth/forgot-password', {
+      const res = await fetch(apiUrl('/api/auth/forgot-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: targetEmail }),

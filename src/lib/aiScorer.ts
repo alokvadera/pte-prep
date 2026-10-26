@@ -4,8 +4,8 @@ import { useSettings } from '../store/useSettings'
 // ============================================================================
 // AI Scoring & Feedback Engine (Groq BYOK - Bring Your Own Key)
 //
-// Low-temperature (0.0) approximation of the Pearson PTE Academic rubric.
-// Model output is still an estimate, not a deterministic Pearson score.
+// Low-temperature (0.0) practice estimate using a simplified PTE rubric.
+// This is neither Pearson's scoring model nor an official Pearson score.
 // Direct in-browser fetch to api.groq.com. Keys stored strictly in localStorage.
 // ============================================================================
 
@@ -108,7 +108,7 @@ export async function evaluateWithAi(
   referenceOrKey: AnswerKey | string | undefined,
   userText: string,
   apiKey: string,
-  model = 'llama-3.3-70b-versatile',
+  model = 'openai/gpt-oss-120b',
 ): Promise<AiEvaluationResult | null> {
   const text = (userText ?? '').trim()
   if (!text || !apiKey) return null
@@ -143,8 +143,8 @@ export async function evaluateWithAi(
   let systemPrompt: string
 
   if (isEssay) {
-    systemPrompt = `You are an official Pearson PTE Academic Examiner evaluating a Write Essay response.
-Grade the essay strictly against the official Pearson PTE scoring rubrics:
+    systemPrompt = `You are an independent PTE Academic practice evaluator assessing a Write Essay response. You are not a Pearson examiner. Return an approximate practice assessment, not an official score.
+Use this simplified practice rubric; do not claim it reproduces Pearson's scoring model:
 - Content (0 to 3): 3 = deals fully with the topic; 2 = deals with most aspects; 1 = deals with minor aspects; 0 = completely irrelevant or off-topic.
 - Grammar (0 to 2): 2 = correct grammatical control, complex structures; 1 = some minor errors not hindering meaning; 0 = persistent errors.
 - Vocabulary (0 to 2): 2 = broad academic lexical range, idiomatic, precise; 1 = adequate; 0 = basic or inaccurate.
@@ -163,12 +163,12 @@ Output ONLY a JSON object with this exact format:
     "range": <number 0-2>
   },
   "feedback": ["<critique point 1>", "<critique point 2>", "<critique point 3>"],
-  "modelRewrite": "<A short 220-word band 90 model essay based on the candidate's arguments>"
+  "modelRewrite": "<A sample rewrite based on the candidate's arguments; do not promise a score band>"
 }`
   } else if (isSpeaking) {
-    systemPrompt = `You are an official Pearson PTE Academic Examiner evaluating a candidate's transcribed speech response for ${item.type}.
+    systemPrompt = `You are an independent PTE Academic practice evaluator assessing a candidate's transcribed speech response for ${item.type}. You are not a Pearson examiner. Return an approximate practice assessment, not an official score.
 Reference/Target: "${promptText}"
-Grade strictly against Pearson PTE speech rubrics:
+Use this simplified practice rubric, not Pearson's scoring model:
 - Content (0 to 3): 3 = accurate coverage of all target words or main ideas; 2 = majority covered; 1 = partial; 0 = irrelevant or missed.
 - Pronunciation (0 to 5): 5 = native-like clarity and phonemic accuracy; 3-4 = intelligible with minor slips; 1-2 = frequent distortion; 0 = unintelligible.
 - Oral Fluency (0 to 5): 5 = smooth rhythm with natural phrasing; 3-4 = minor hesitations; 1-2 = halting/choppy; 0 = broken.
@@ -183,9 +183,9 @@ Output ONLY a JSON object with this exact format:
   "feedback": ["<critique point 1>", "<critique point 2>"]
 }`
   } else {
-    systemPrompt = `You are an official Pearson PTE Academic Examiner evaluating a summary response for ${item.type}.
+    systemPrompt = `You are an independent PTE Academic practice evaluator assessing a summary response for ${item.type}. You are not a Pearson examiner. Return an approximate practice assessment, not an official score.
 Prompt Reference: "${promptText}"
-Grade strictly against the Pearson PTE summary rubrics:
+Use this simplified practice rubric, not Pearson's scoring model:
 - Content (0 to 2): 2 = provides a good summary of all main ideas; 1 = provides summary of some main ideas; 0 = misrepresents or misses main ideas.
 - Grammar (0 to 2): 2 = correct grammatical control; 1 = basic with errors; 0 = severe errors.
 - Vocabulary (0 to 2): 2 = appropriate word choice and lexical control; 1 = basic; 0 = defective.

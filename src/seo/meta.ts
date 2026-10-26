@@ -31,7 +31,7 @@ const FORMAT_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'How many questions are in the PTE Academic?',
     answer:
-      'The exact number varies slightly between versions because each version is balanced for total length. A full-length test typically contains around 70 to 90 scored items spread across 22 question types, plus an unscored personal introduction at the start.',
+      'The exact number varies between versions. Pearson states that a full PTE Academic test contains 65 to 75 scored questions across 22 question types, plus an unscored personal introduction at the start.',
   },
   {
     question: 'What are the recent changes to the PTE Academic?',
@@ -69,7 +69,7 @@ const SCORING_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'How is the overall PTE score calculated?',
     answer:
-      'Every item is scored and the result is combined across the four communicative skills — Speaking, Writing, Reading and Listening — into a scaled score from 10 to 90 in 1-point increments. Reading and Listening are scored exactly. Speaking and Writing are scored on content, form, oral fluency, pronunciation and range.',
+      'Pearson combines item results across Speaking, Writing, Reading and Listening into a 10–90 scaled score. Some objective item rules are published; constructed responses use task-specific traits, and the scaling model is proprietary.',
   },
   {
     question: 'How long is a PTE score valid?',
@@ -87,32 +87,32 @@ const GUIDE_FAQ: Array<{ question: string; answer: string }> = [
   {
     question: 'How do I get a higher PTE score in the shortest time?',
     answer:
-      'Work on the objective items first. Fill in the Blanks and Re-order Paragraphs together account for a large share of the Reading points, they have deterministic answers, and Re-order Paragraphs awards 1 point per correctly ordered adjacent pair. Speaking and writing take longer to move and are easier to leave alone while you build the objective base.',
+      'Start with your own results: choose question types where you are losing points, then use focused drills to practise them. Objective items have answer-key scoring; constructed speaking and writing responses use practice estimates. Re-order Paragraphs awards one point per correctly ordered adjacent pair.',
   },
   {
     question: 'Is it better to guess on multiple choice?',
     answer:
-      'On single-answer multiple choice, always answer — an unanswered question is worth nothing. On multiple-answer questions, points are deducted for wrong selections, so guess only after you have eliminated. In practice, a candidate who has narrowed to two options should choose both only when they are genuinely confident in both.',
+      'On single-answer multiple choice, an unanswered question earns no points. Multiple-answer questions deduct a point for each incorrect selection, so select options supported by the passage or recording and avoid unsupported guesses.',
   },
   {
     question: 'How should I prepare for Repeat Sentence?',
     answer:
-      'Chunk each sentence into groups of three to five words and shadow the audio as you listen. The recordings contain the sentence once at natural speed, so the preparation has to happen during playback, not after it. Practising ten items a day for two weeks moves this type more than any other single activity.',
+      'Listen for meaningful groups of words, then reproduce the sentence after the recording ends. Review which words you missed and use that pattern to guide your next practice session.',
   },
   {
     question: 'What is the most common mistake on the PTE essay?',
     answer:
-      'Spending the whole twenty minutes planning, or writing fewer than 200 words. The essay is scored on content, development and structure, coherence, and general linguistic range. A clear four-paragraph structure with linked sentences protects two of those four traits even when the argument is not especially original.',
+      'Writing fewer than 120 words gives Form zero; 120–199 words falls in the partial-credit band. The essay is scored on task-specific traits, including content, development and structure, coherence, and general linguistic range. A clear structure can help organise your argument, but it cannot guarantee trait scores.',
   },
   {
     question: 'Do I need to practise the two newest question types?',
     answer:
-      'Yes. Summarize Group Discussion and Respond to a Situation are part of the current format and appear in the Speaking and Writing section. Summarize Group Discussion is scored on oral fluency, pronunciation and content, so the technique is the same as Re-tell Lecture at a larger scale: capture the skeleton, not the details.',
+      'Yes. Summarize Group Discussion and Respond to a Situation are part of the current format. Summarize Group Discussion contributes to Listening and Speaking and is rated on task-specific traits; practise identifying the main ideas and expressing them clearly.',
   },
   {
     question: 'Should I use the full two hours or is practice mode fine?',
     answer:
-      'Use practice mode while you are learning question types, because it shows transcripts, tips and replays. Use exam conditions for at least every third attempt, because the thing being tested includes the clock and the fact that you cannot rewind the audio.',
+      'Practice mode is useful while learning a question type because it can show transcripts, tips and replays. Full mocks let you practise pacing across sections and listening without replay; choose either format based on what you want to work on.',
   },
 ]
 
@@ -122,7 +122,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/': {
     title: 'Free PTE Academic Mock Test — Full-Length Practice',
     description:
-      'A free full-length PTE Academic mock: all 22 question types, real section timings, an instant score report with CEFR band, and per-question review.',
+      'A free full-length PTE Academic mock with all 22 question types, real section timings, an estimated practice score with CEFR band, and per-question review.',
     path: '/',
     keywords: ['PTE mock test free', 'PTE practice test with score', 'full PTE mock test online'],
     structuredData: [
@@ -155,7 +155,7 @@ export const PAGE_META: Record<string, PageMeta> = {
           },
           {
             name: 'Read the report',
-            text: 'Review the overall score, the four skill scores, the CEFR band and a note explaining where every lost point came from.',
+            text: 'Review the estimated practice scores, CEFR band and item-level feedback explaining where points were lost.',
           },
         ],
       }),
@@ -174,7 +174,7 @@ export const PAGE_META: Record<string, PageMeta> = {
       webApplicationLd({
         name: 'PTE Prep — Free PTE Academic Mock Test',
         description:
-          'A full-length PTE Academic practice test with real section timings, all 22 question types and an instant score report.',
+          'A full-length PTE Academic practice test with real section timings, all 22 question types and an estimated practice score report.',
         path: '/mock/',
       }),
       howToLd({
@@ -324,7 +324,7 @@ export const PAGE_META: Record<string, PageMeta> = {
   '/guide': {
     title: 'PTE Academic Tips — All 22 Question Types',
     description:
-      'Practical strategies for every PTE question type, plus the habits that raise a score fastest: read aloud, repeat sentence, re-order, the essay.',
+      'Practical strategies for all 22 PTE question types, flexible response outlines, and ways to plan focused practice using your results.',
     path: '/guide/',
     keywords: [
       'PTE tips',
@@ -336,29 +336,29 @@ export const PAGE_META: Record<string, PageMeta> = {
     ],
     structuredData: [
       howToLd({
-        name: 'How to raise a PTE Academic score',
+        name: 'How to plan PTE Academic practice',
         description:
-          'A practical sequence of improvements that move a PTE score the most for the least study time.',
+          'Use practice results to choose task types, review scoring rules, and plan focused drills or full mocks.',
         steps: [
           {
-            name: 'Fix the objective items',
-            text: 'Fill in the Blanks and Re-order Paragraphs have deterministic answers with partial credit, so improvement here is immediate and measurable.',
+            name: 'Review your results by question type',
+            text: 'Choose a task type where your practice results show room to improve, then use a focused drill to work on it.',
           },
           {
-            name: 'Practice Repeat Sentence daily',
-            text: 'Ten items a day trains listening accuracy, speaking fluency and pronunciation at the same time.',
+            name: 'Practise Re-order Paragraphs',
+            text: 'Check references, sequence markers and links between adjacent paragraphs. Correct adjacent pairs earn partial credit.',
           },
           {
-            name: 'Learn a fixed structure for the essay',
-            text: 'Four paragraphs with explicit linking words protect the development and coherence traits under time pressure.',
+            name: 'Practise Repeat Sentence',
+            text: 'Listen for meaningful groups of words and repeat the sentence after the recording ends. Review missed words.',
           },
           {
-            name: 'Use a skeleton for Re-tell Lecture and Summarize Group Discussion',
-            text: 'Note three or four keywords during playback and re-tell from the skeleton rather than trying to remember sentences.',
+            name: 'Organise essay ideas around the prompt',
+            text: 'A flexible outline can help organise an argument, but it cannot guarantee trait scores. Use relevant examples in your own words.',
           },
           {
-            name: 'Sit full mocks under real time pressure',
-            text: 'At least every third attempt should be in exam mode, because timing is part of what the test measures.',
+            name: 'Choose a full mock or a focused drill',
+            text: 'Full mocks provide practice pacing across sections; focused drills let you work on a particular task type.',
           },
         ],
       }),

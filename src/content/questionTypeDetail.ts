@@ -8,7 +8,7 @@ import type { QuestionType } from '../domain/types'
  * test, its scoring mode — is already owned by the blueprint and is read from
  * there rather than repeated here. This module only holds the prose that the
  * blueprint cannot express: what the item actually asks you to do, how the
- * marks are actually allocated, and where candidates most often lose them.
+ * published scoring rules where available, and where candidates can focus.
  *
  * Every scoring claim below traces to `docs/PTE_KNOWLEDGE.md`, which records the
  * official guide references. Nothing here is inferred where Pearson publishes a
@@ -29,14 +29,14 @@ export interface QuestionTypeDetail {
 
 export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
   'read-aloud': {
-    what: 'A short text appears on screen with an audio recording of it. You read the text aloud into the microphone while the recording plays.',
-    how: 'The recording gives you the pace, the stress and the phrasing, so you are reading along rather than interpreting. There is roughly forty seconds to prepare before the audio begins, and a countdown runs once it starts. You can read any part of the text, in any order, at any speed — the marks come from what you say, not from where you start.',
+    what: 'A short text appears on screen. After a preparation countdown, you read it aloud into the microphone.',
+    how: 'You have about 30–40 seconds to prepare before your response recording starts. Use that time to notice the phrasing and any difficult words; there is no sample recording to follow.',
     scoring:
       'Content is scored by counting errors: each replacement, omission or insertion of a word counts as one. Pearson publishes no error-to-point table, and the widely repeated approximation that the maximum equals the word count is a community rule rather than an official one. Alongside content, the item is rated for pronunciation and oral fluency.',
     mistakes: [
       'Stopping and restarting after a stumble. The error is already counted; silence only adds fluency damage.',
-      'Reading at your own speed instead of matching the recording, which throws the stress pattern off.',
-      'Silent reading on the preparation countdown, so the first word is already late when the audio starts.',
+      'Rushing the preparation countdown without spotting difficult words, which leads to hesitations during the response.',
+      'Starting the response before you have a clear first phrase in mind, then losing time to a false start.',
     ],
   },
   'repeat-sentence': {
@@ -52,7 +52,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
   },
   'describe-image': {
     what: 'An image appears — a graph, chart, table, photograph or map — and you have to describe what it shows aloud.',
-    how: 'The image is shown before the recording plays and stays on screen while you speak, so you can prepare a structure in advance. You are describing data, not telling a story about it.',
+    how: 'The image is shown during preparation and stays on screen while you speak, so you can plan a structure in advance. You are describing data, not telling a story about it.',
     scoring:
       'Content runs 0 to 6 and covers what the image contains and what it shows. Pronunciation and oral fluency are scored alongside it, but content is where the points are.',
     mistakes: [
@@ -73,14 +73,14 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
     ],
   },
   'answer-short-question': {
-    what: 'A short question accompanies a short audio clip, with one- to four-word options. You choose the one that answers it.',
-    how: 'These appear in pairs sharing a single recording, and the questions are about gist, inference, purpose or attitude rather than detail. There is no partial credit and no speaking at all — this is the one scored-response item in Part 1 that does not use your voice.',
+    what: 'You hear a short general-knowledge question and answer aloud in up to four words. In this practice tool, you can type the answer instead.',
+    how: 'There is no preparation time. The question is spoken once, and the answer is scored for appropriate word choice toward Listening only; pronunciation and oral fluency are not scored for this type.',
     scoring:
       'Correct or incorrect, one point each, against a Vocabulary trait of 0 or 1: 1 for appropriate word choice, 0 for inappropriate. There is no partial band, which makes it the least forgiving item in Part 1.',
     mistakes: [
       'Answering the question you expect rather than the one asked.',
-      'Choosing on a single keyword match when the option paraphrases the idea.',
-      'Leaning towards the longest option, which is often the most qualified-sounding distractor.',
+      'Giving a related fact instead of the specific answer the question asks for.',
+      'Adding a long explanation when one precise word or short phrase is enough.',
     ],
   },
   'summarize-group-discussion': {
@@ -107,7 +107,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
   },
   'summarize-written-text': {
     what: 'A short paragraph appears with a one-sentence summary prompt. You write exactly one complete sentence summarising it.',
-    how: 'You have thirty seconds to read and thirty-five minutes of total section time for two items, so the reading is a genuine sprint. The instruction to write one sentence is a hard constraint, not a guideline.',
+    how: 'You have a shared Reading section clock for both items, so plan time for reading and writing each summary. The instruction to write one sentence is a hard constraint, not a guideline.',
     scoring:
       'Form is 0 or 1 — 1 for a single complete sentence, 0 for anything else — and a form of 0 scores the whole item at zero regardless of what you wrote. Content runs 0 to 4, with grammar and vocabulary scored alongside.',
     mistakes: [
@@ -118,9 +118,9 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
   },
   'write-essay': {
     what: 'A prompt gives you a situation to discuss and an opinion to defend. You write a discursive essay of 200 to 300 words in twenty minutes.',
-    how: 'This is the only constructed-response item in the whole test and the only one that scores Writing without a companion skill. You get twenty minutes, which is generous for the length, but there is no second chance to restructure.',
+    how: 'This is the only essay task in the test and the only one that scores Writing without a companion skill. You get twenty minutes to plan, draft and review your response.',
     scoring:
-      'The widest trait set on the test: content, form, development/structure/coherence, general linguistic range, vocabulary range, spelling and grammar. Form is the 0/1/2 band Pearson publishes — 2 at 200 to 300 words, 1 at 120 to 199 or 301 to 380, and 0 outside that — and this app applies it as a weight of 1.0, 0.5 or 0 on the item, which is why your report shows the essay out of one point. Form 0 zeroes the entire essay, and all caps, no punctuation or a list of bullets are form 0 however long the essay is.',
+      'The widest trait set on the test: content, form, development/structure/coherence, general linguistic range, vocabulary range, spelling and grammar. Form is the 0/1/2 band Pearson publishes: 2 at 200–300 words, 1 at 120–199 or 301–380, and 0 outside that. Pearson does not publish how Form combines with the other traits; the essay score in this app is a practice estimate. Form 0 zeroes the item, and all caps, no punctuation or a list of bullets are Form 0 at any length.',
     mistakes: [
       'Running under 120 words, which zeroes everything else you earned.',
       'Listing arguments without developing any of them, which costs coherence as well as content.',
@@ -186,7 +186,7 @@ export const QUESTION_TYPE_DETAIL: Record<QuestionType, QuestionTypeDetail> = {
     what: 'You hear a short academic passage — often a lecture introduction — and write a 50 to 70 word summary.',
     how: 'You have a short preparation window before the audio, and you may take notes. This is the only written response in the Listening section, and it is the only item there that scores Writing.',
     scoring:
-      'Form is the 0/1/2 band Pearson publishes — 2 at 50 to 70 words, 1 at 40 to 49 or 71 to 100, and 0 outside that — applied here as a weight of 1.0, 0.5 or 0 on the item. Form 0 zeroes the whole item, and all caps, no punctuation or a list of bullets are form 0 at any length. Content runs 0 to 4, with grammar, vocabulary and spelling scored alongside.',
+      'Form is the 0/1/2 band Pearson publishes: 2 at 50–70 words, 1 at 40–49 or 71–100, and 0 outside that. Pearson does not publish how Form combines with the other traits; the item score in this app is a practice estimate. Form 0 zeroes the item, and all caps, no punctuation or a list of bullets are Form 0 at any length. Content runs 0–4, with grammar, vocabulary and spelling scored alongside.',
     mistakes: [
       'Dropping to 39 words while trying to be precise, losing all form points.',
       'Writing the summary as a list, which the form band treats as zero.',

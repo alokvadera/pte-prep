@@ -25,27 +25,27 @@ const FAQ = [
   {
     question: 'Is it better to guess on multiple choice?',
     answer:
-      'On single-answer multiple choice, always answer — an unanswered question is worth nothing. On multiple-answer questions, points are deducted for wrong selections, so guess only after you have eliminated. In practice, a candidate who has narrowed to two options should choose both only when they are genuinely confident in both.',
+      'On single-answer multiple choice, an unanswered question earns no points. Multiple-answer questions deduct a point for each incorrect selection, so select options supported by the passage or recording and avoid unsupported guesses.',
   },
   {
     question: 'How should I prepare for Repeat Sentence?',
     answer:
-      'Chunk each sentence into groups of three to five words and shadow the audio as you listen. The recordings contain the sentence once at natural speed, so the preparation has to happen during playback, not after it. Practising ten items a day for two weeks moves this type more than any other single activity.',
+      'Listen for short groups of words and repeat the sentence as accurately as you can. The recording plays once, so practise holding the sentence in memory while you listen. Review which words you missed and use that pattern to guide your next practice session.',
   },
   {
     question: 'What is the most common mistake on the PTE essay?',
     answer:
-      'Spending the whole twenty minutes planning, or writing fewer than 200 words. The essay is scored on content, development and structure, coherence, and general linguistic range. A clear four-paragraph structure with linked sentences protects two of those four traits even when the argument is not especially original.',
+      'Writing fewer than 120 words gives Form zero; 120–199 words falls in the partial-credit band. The essay is scored on task-specific traits, including content, development and structure, coherence, and general linguistic range. A clear structure can help organise your argument, but it cannot guarantee trait scores; answer the prompt directly and use relevant examples in your own words.',
   },
   {
     question: 'Do I need to practise the two newest question types?',
     answer:
-      'Yes. Summarize Group Discussion and Respond to a Situation are part of the current format and appear in the Speaking and Writing section. Summarize Group Discussion is scored on oral fluency, pronunciation and content, so the technique is the same as Re-tell Lecture at a larger scale: capture the skeleton, not the details.',
+      'Yes. Summarize Group Discussion and Respond to a Situation are part of the current format. Summarize Group Discussion contributes to Listening and Speaking and is rated on task-specific traits; practise identifying the main ideas and expressing them clearly.',
   },
   {
     question: 'Should I use the full two hours or is practice mode fine?',
     answer:
-      'Use practice mode while you are learning question types, because it shows transcripts, tips and replays. Use exam conditions for at least every third attempt, because the thing being tested includes the clock and the fact that you cannot rewind the audio.',
+      'Practice mode is useful while learning a question type because it can show transcripts, tips and replays. Full mocks let you practise pacing across sections and listening without replay; choose either format based on what you want to work on.',
   },
 ]
 
@@ -67,7 +67,7 @@ const TEMPLATES: StrategyTemplate[] = [
     drillPath: '/practice?type=describe-image',
     timeLimit: 'Speak for 25–30 seconds',
     rationale:
-      'Pearson algorithms evaluate continuous oral fluency without hesitations and content keywords. This balanced structure guarantees intro, high/low points, and conclusion without risking human penalty.',
+      'A simple sequence can help you cover the image’s main features. No template guarantees a score: describe only details the image supports, and adapt the wording to the prompt rather than reciting memorised text.',
     templateText: `The given [image / bar chart / line graph] provides significant information regarding [Topic / Title of Image].
 Looking at the key details, the highest figure can be observed in [Category A], which reaches approximately [Value / Number].
 In contrast, the lowest figure is seen in [Category B], accounting for around [Value / Number].
@@ -81,7 +81,7 @@ In conclusion, it is evident that [main overall observation or takeaway].`,
     drillPath: '/practice?type=retell-lecture',
     timeLimit: 'Speak for 30–35 seconds',
     rationale:
-      'Focus on oral fluency and capturing 4-6 distinct academic nouns/phrases from the recording. Never pause to search for memory; maintain steady cadence.',
+      'Use a short outline to organise the key points you remember. Adapt it to the recording and keep speaking naturally; no fixed number of key phrases guarantees a score.',
     templateText: `The speaker in the audio was delivering an academic presentation about [Main Topic / Theme].
 Firstly, the speaker emphasized that [First Key Keyword Phrase or Observation].
 Furthermore, the speaker discussed the importance of [Second Key Keyword Phrase], noting that it has significant implications.
@@ -95,7 +95,7 @@ Overall, the lecture provides crucial insights into [Main Topic / Final Summary 
     drillPath: '/practice?type=write-essay',
     timeLimit: '20 minutes, Aim for 220–260 words',
     rationale:
-      'Guarantees maximum Form (2/2), Structure & Coherence (6/6), and Grammar (2/2). Four clear paragraphs with formal discourse markers satisfy human and automated grading.',
+      'A four-paragraph outline can help organise an argument under time pressure, but it cannot guarantee Form, Structure and Coherence, or Grammar scores. Meet the word limit, answer the prompt directly, and use specific examples you can support rather than memorised claims.',
     templateText: `[Paragraph 1 - Introduction]
 In contemporary society, the debate surrounding whether [Topic / Question Statement] has garnered considerable attention. While some argue that [Perspective A], others maintain that [Perspective B]. In this essay, I will analyze both viewpoints before presenting my own reasoned perspective.
 
@@ -115,7 +115,7 @@ In conclusion, although valid arguments can be made for both sides, I firmly bel
     drillPath: '/practice?type=summarize-spoken-text',
     timeLimit: '10 minutes, 50–70 words',
     rationale:
-      'Form score requires strictly 50 to 70 words. Exceeding 70 words or falling below 50 zeroes Form. This compact compound structure ensures exact length and high content keyword density.',
+      'Aim for 50–70 words, the top Form band. Responses of 40–49 or 71–100 words receive the partial Form band, while responses outside those ranges receive zero Form. Count your finished response; this outline does not guarantee a particular length or score.',
     templateText: `The lecture provided insightful information regarding [Main Topic]. The speaker initially highlighted that [Key Point 1]. Subsequently, the discussion focused on the role of [Key Point 2] and demonstrated the significance of [Key Point 3]. Ultimately, the speaker concluded by emphasizing that [Key Point 4].`,
   },
   {
@@ -262,7 +262,7 @@ function TemplateCard({ item }: { item: StrategyTemplate }) {
       </div>
 
       <p className="mt-3 text-xs text-ink-500 dark:text-ink-on-dark-muted leading-relaxed">
-        <span className="font-semibold text-mint-700 dark:text-mint-300">Why it works:</span>{' '}
+        <span className="font-semibold text-mint-700 dark:text-mint-300">How to adapt it:</span>{' '}
         {item.rationale}
       </p>
     </div>
@@ -277,11 +277,11 @@ export default function Guide() {
       <PageWrapper
         breadcrumbs={<Breadcrumbs trail={[{ name: 'Home', path: '/' }, { name: 'PTE tips' }]} />}
         eyebrow="Study guide"
-        title="PTE strategies that move the score."
+        title="PTE strategies for focused practice."
         description={
           <>
-            Most advice is generic. Start with the changes that return the most marks, then explore
-            techniques for all 22 types in the{' '}
+            Use your practice results to decide what to work on next, then explore techniques for
+            all 22 types in the{' '}
             <Link to="/question-types/" className="link-inline">
               question type guide
             </Link>
@@ -295,14 +295,14 @@ export default function Guide() {
             className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
           >
             <span className="size-2 rounded-full bg-emerald-500" />
-            <span>5 Highest-impact changes</span>
+            <span>5 practice habits</span>
           </a>
           <a
             href="#templates"
             className="inline-flex items-center gap-1.5 rounded-xl border border-ink-200/80 bg-white/70 px-3.5 py-2 text-xs font-bold text-ink-800 shadow-xs hover:border-mark-400 hover:text-mark-600 dark:border-white/10 dark:bg-white/[0.03] dark:text-ink-on-dark dark:hover:border-mark-400 dark:hover:text-mark-300 transition-all"
           >
             <span className="size-2 rounded-full bg-amber-500" />
-            <span>Proven 2025/2026 templates</span>
+            <span>Flexible response outlines</span>
           </a>
           <a
             href="#collocations"
@@ -329,29 +329,29 @@ export default function Guide() {
           id="high-impact"
           className="mt-8"
           eyebrow="Priority order"
-          title="The five highest-impact changes"
+          title="Five practice habits to try"
         />
         <ol className="mt-6 space-y-4">
           {[
             {
               title: 'Re-order Paragraphs first',
-              body: 'It awards 1 mark per adjacent correct pair, making it one of the most reliable places to gain Reading points. Read the first sentence of every block and build a chain: who refers to whom, what follows what, and which paragraph closes by restating the topic. Training pairwise cohesion here recovers marks quickly.',
+              body: 'It awards one point per correctly ordered adjacent pair. Read the opening of each block and look for links such as references, sequence markers, and ideas that are introduced or concluded. Checking adjacent pairs can help you earn partial credit even when the full order is not correct.',
             },
             {
               title: 'Ten Repeat Sentences a day',
-              body: 'This is the largest single block of items in Part 1 and it trains three things at once — listening accuracy, speaking fluency and pronunciation. Chunk the sentence into groups of three to five words as you listen, and start speaking before the sentence ends.',
+              body: 'Repeat Sentence contributes to both Listening and Speaking, and its response is also rated for oral fluency and pronunciation. Listen for meaningful groups of words, then reproduce the sentence after the recording ends. Review which words you missed.',
             },
             {
-              title: 'Stop guessing on multiple-answer questions',
-              body: 'Wrong selections cost points. A single-answer question should always be answered; a multiple-answer question should only be answered once two options are eliminated. Candidates routinely lose more here than on the reading passages.',
+              title: 'Select only supported options',
+              body: 'Multiple-answer items deduct a point for each incorrect selection, with the item score floored at zero. Select options supported by the passage or recording, and avoid adding choices just to reach a target count.',
             },
             {
-              title: 'Learn one structure for the essay and never improvise it',
-              body: 'Introduction, two body paragraphs, conclusion, with explicit linking words in every body paragraph. The coherence and organisation traits are protected by structure alone, and structure is the one thing you can guarantee under time pressure.',
+              title: 'Organise the essay around the prompt',
+              body: 'An introduction, two body paragraphs and a conclusion can make your argument easier to follow. Linking words help show how ideas connect, but structure alone does not guarantee a score; make sure each paragraph answers the specific prompt.',
             },
             {
-              title: 'Sit full mocks in exam mode every third attempt',
-              body: 'The clock is part of what the test measures. If every attempt has unlimited time and visible transcripts, you are training the language but not the test. Alternate deliberately.',
+              title: 'Use full mocks to practise pacing',
+              body: 'Full mocks let you practise pacing across all three sections. Use them when that is useful for your preparation, and use focused drills when you want to work on a particular task type.',
             },
           ].map((item, i) => (
             <Reveal as="li" key={item.title} delay={Math.min(i, 4) * 70} className="flex">
@@ -376,17 +376,17 @@ export default function Guide() {
           <div className="flex flex-wrap items-baseline justify-between gap-4">
             <div>
               <span className="pill bg-mint-500/10 text-mint-700 dark:text-mint-300 text-xs font-bold">
-                Exam-proven frameworks
+                Practice frameworks
               </span>
               <SectionHeading
                 className="mt-2 mb-0"
                 eyebrow="Frameworks"
-                title="Proven 2025/2026 Strategy Templates"
+                title="Flexible response outlines"
               />
             </div>
             <p className="text-ink-500 dark:text-ink-on-dark-muted max-w-md text-xs leading-relaxed">
-              Safe structures that hit Pearson content keywords and maintain oral fluency without
-              triggering template penalties.
+              Flexible outlines for organising a response. Adapt them to the prompt and use your own
+              relevant content; memorised or irrelevant material can lose credit.
             </p>
           </div>
 
@@ -421,8 +421,9 @@ export default function Guide() {
             </Link>
           </div>
           <p className="text-ink-500 dark:text-ink-on-dark-muted mt-2 text-sm leading-relaxed">
-            Over 70% of blanks in Reading & Writing FIB test collocations from the Pearson Academic
-            Collocation List (ACL). Memorize these common word partnerships:
+            Some Reading & Writing Fill in the Blanks items test familiar word partnerships. The
+            Pearson Academic Collocation List is one useful resource; learn these examples in
+            context and use the surrounding sentence to check each choice:
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -528,7 +529,7 @@ export default function Guide() {
             'In Fill in the Blanks, decide the word class first, then the word. Options change between noun, verb, adjective and adverb, and the class is usually given away by the article or ending.',
             'On the table completion, work down a column rather than across a row so you stay in one part of the passage.',
             'Do the listening items in order. The recordings are short and the momentum matters more than doubling back.',
-            'Write the essay in the last 20 minutes of Part 1 whatever happens. An unwritten essay is a guaranteed zero on a whole trait group.',
+            'Reserve the allotted time for the essay task and check the word count before submitting. An unanswered essay earns no credit, so leave enough time to write a complete response.',
             'If you run out of time in a section, the clock does not stop. Submit rather than leaving blanks, because the next section still counts.',
           ]}
         />

@@ -5,6 +5,7 @@ import { Button, Card, PageWrapper } from '../components/ui/primitives'
 import { Reveal } from '../components/ui/motion'
 import { Seo } from '../seo/Seo'
 import { validateResetPasswordForm } from '../lib/format'
+import { apiUrl } from '../lib/api'
 
 export default function ResetPasswordPage() {
   const [params] = useSearchParams()
@@ -40,7 +41,7 @@ export default function ResetPasswordPage() {
     setLoading(true)
 
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch(apiUrl('/api/auth/reset-password'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, password }),
