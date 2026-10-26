@@ -1,7 +1,11 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import './webcrypto'
-import { checkRateLimit, getClientIp, rateLimitExceededResponse } from '../../functions/lib/rateLimit'
+import {
+  checkRateLimit,
+  getClientIp,
+  rateLimitExceededResponse,
+} from '../../functions/lib/rateLimit'
 import { createD1Mock, createFailingD1 } from './d1'
 import { nowSeconds, withOverrides } from './support'
 
@@ -125,13 +129,11 @@ describe('checkRateLimit', () => {
     vi.resetModules()
     const fresh = await import('../../functions/lib/rateLimit')
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined)
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
 
     const result = await fresh.checkRateLimit(createFailingD1(), 'login:ip:203.0.113.5', 3, 60)
 
     expect(result).toEqual({ allowed: false, retryAfter: 60 })
     expect(error).toHaveBeenCalled()
-    expect(warn).toHaveBeenCalled()
   })
 
   it('fails closed when the upsert returns no row', async () => {

@@ -20,7 +20,7 @@ import {
   verifyPassword,
   verifySessionToken,
 } from '../../functions/lib/auth'
-import { createD1Mock, createFailingD1 } from './d1'
+import { createD1Mock } from './d1'
 import { SECRET, makeEnv, nowSeconds, withOverrides } from './support'
 
 /* ---------------------------------------------------------------------------
@@ -190,13 +190,13 @@ describe('createSessionToken', () => {
     expect(typeof payload.iat).toBe('number')
     expect(typeof payload.exp).toBe('number')
     expect(typeof payload.jti).toBe('string')
-    expect(payload.exp! as number - (payload.iat! as number)).toBe(DEFAULT_SESSION_EXPIRY_SECONDS)
+    expect((payload.exp! as number) - (payload.iat! as number)).toBe(DEFAULT_SESSION_EXPIRY_SECONDS)
   })
 
   it('honours the requested lifetime', async () => {
     const token = await createSessionToken({ userId: 'usr_1', email: 'user@pte.test' }, SECRET, 120)
     const payload = decodePayload(token.split('.')[0]!)
-    expect(payload.exp! as number - (payload.iat! as number)).toBe(120)
+    expect((payload.exp! as number) - (payload.iat! as number)).toBe(120)
   })
 
   it('records the session when a database is given', async () => {
@@ -288,12 +288,18 @@ describe('verifySessionToken', () => {
   })
 
   it('rejects a token with no user id', async () => {
-    expect(await verifySessionToken(await signToken(validPayload({ userId: '' })), SECRET)).toBeNull()
-    expect(await verifySessionToken(await signToken(validPayload({ userId: 42 })), SECRET)).toBeNull()
+    expect(
+      await verifySessionToken(await signToken(validPayload({ userId: '' })), SECRET),
+    ).toBeNull()
+    expect(
+      await verifySessionToken(await signToken(validPayload({ userId: 42 })), SECRET),
+    ).toBeNull()
   })
 
   it('rejects a token whose expiry is not a number', async () => {
-    expect(await verifySessionToken(await signToken(validPayload({ exp: 'soon' })), SECRET)).toBeNull()
+    expect(
+      await verifySessionToken(await signToken(validPayload({ exp: 'soon' })), SECRET),
+    ).toBeNull()
   })
 
   it('rejects a token whose payload is null', async () => {
@@ -360,9 +366,21 @@ describe('hashPassword and verifyPassword', () => {
     const legacySalt = '6yV17wuGQ4mpYEsFDXukPg'
     // Derive a hash with 1000 iterations against the raw legacy salt
     const enc = new TextEncoder()
-    const saltBytes = new Uint8Array([235, 37, 117, 239, 11, 134, 67, 137, 169, 96, 75, 5, 13, 123, 164, 62])
-    const keyMaterial = await crypto.subtle.importKey('raw', enc.encode('mypassword'), { name: 'PBKDF2' }, false, ['deriveBits'])
-    const derived = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: saltBytes, iterations: 1000, hash: 'SHA-256' }, keyMaterial, 256)
+    const saltBytes = new Uint8Array([
+      235, 37, 117, 239, 11, 134, 67, 137, 169, 96, 75, 5, 13, 123, 164, 62,
+    ])
+    const keyMaterial = await crypto.subtle.importKey(
+      'raw',
+      enc.encode('mypassword'),
+      { name: 'PBKDF2' },
+      false,
+      ['deriveBits'],
+    )
+    const derived = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt: saltBytes, iterations: 1000, hash: 'SHA-256' },
+      keyMaterial,
+      256,
+    )
     let binary = ''
     for (const b of new Uint8Array(derived)) binary += String.fromCharCode(b)
     const legacyHash = btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
@@ -495,30 +513,5 @@ describe('session bookkeeping', () => {
     expect(mock.sessions.has('a')).toBe(false)
     expect(mock.sessions.has('b')).toBe(false)
     expect(mock.sessions.has('c')).toBe(true)
-  })
-})
-
-describe('ensureSessionsTable', () => {
-  it('logs and carries on when the table cannot be created', async () => {
-    vi.resetModules()
-    const fresh = await import('../../functions/lib/auth')
-    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
-
-    await fresh.ensureSessionsTable(createFailingD1())
-
-    expect(warn).toHaveBeenCalled()
-    expect(String(warn.mock.calls[0]?.[0])).toContain('ensureSessionsTable')
-  })
-
-  it('creates the table once and then reuses it', async () => {
-    vi.resetModules()
-    const fresh = await import('../../functions/lib/auth')
-    const exec = vi.fn(async () => undefined)
-    const db = { exec, batch: async () => [], prepare: () => ({ bind: () => ({}) }) } as unknown as D1Database
-
-    await fresh.ensureSessionsTable(db)
-    await fresh.ensureSessionsTable(db)
-
-    expect(exec).toHaveBeenCalledTimes(1)
   })
 })

@@ -8,7 +8,9 @@ export const DEFAULT_PBKDF2_ITERATIONS = 100_000
 export const MIN_PBKDF2_ITERATIONS = 10_000
 
 export function resolveSessionExpiry(env?: Env): number {
-  const configured = env?.SESSION_EXPIRY_SECONDS ? Number.parseInt(env.SESSION_EXPIRY_SECONDS, 10) : NaN
+  const configured = env?.SESSION_EXPIRY_SECONDS
+    ? Number.parseInt(env.SESSION_EXPIRY_SECONDS, 10)
+    : NaN
   if (Number.isFinite(configured) && configured > 0) {
     return Math.min(MAX_SESSION_EXPIRY_SECONDS, Math.max(MIN_SESSION_EXPIRY_SECONDS, configured))
   }
@@ -17,7 +19,9 @@ export function resolveSessionExpiry(env?: Env): number {
 
 export function resolvePbkdf2Iterations(env?: Env): number {
   const configured = env?.PBKDF2_ITERATIONS ? Number.parseInt(env.PBKDF2_ITERATIONS, 10) : NaN
-  return Number.isFinite(configured) && configured >= MIN_PBKDF2_ITERATIONS ? configured : DEFAULT_PBKDF2_ITERATIONS
+  return Number.isFinite(configured) && configured >= MIN_PBKDF2_ITERATIONS
+    ? configured
+    : DEFAULT_PBKDF2_ITERATIONS
 }
 
 export function requireSecret(env: Env): string {
@@ -66,29 +70,12 @@ async function getHmacKey(secret: string): Promise<CryptoKey> {
   )
 }
 
-let sessionsTableReady = false
-
-export async function ensureSessionsTable(db: D1Database): Promise<void> {
-  if (sessionsTableReady) return
-  try {
-    await db.exec(
-      'CREATE TABLE IF NOT EXISTS user_sessions (jti TEXT PRIMARY KEY, user_id TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at TEXT NOT NULL DEFAULT (datetime(\'now\')));' +
-      'CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id);' +
-      'CREATE INDEX IF NOT EXISTS idx_user_sessions_expires_at ON user_sessions(expires_at);'
-    )
-    sessionsTableReady = true
-  } catch (err) {
-    console.warn('[Auth] ensureSessionsTable notice:', err)
-  }
-}
-
 export async function recordSession(
   db: D1Database,
   jti: string,
   userId: string,
   expiresAt: number,
 ): Promise<void> {
-  await ensureSessionsTable(db)
   if (Math.random() < 0.05) {
     const now = Math.floor(Date.now() / 1000)
     await db
@@ -104,11 +91,7 @@ export async function recordSession(
 }
 
 export async function revokeAllUserSessions(db: D1Database, userId: string): Promise<void> {
-  await ensureSessionsTable(db)
-  await db
-    .prepare('DELETE FROM user_sessions WHERE user_id = ?')
-    .bind(userId)
-    .run()
+  await db.prepare('DELETE FROM user_sessions WHERE user_id = ?').bind(userId).run()
 }
 
 /**
@@ -118,7 +101,6 @@ export async function revokeAllUserSessions(db: D1Database, userId: string): Pro
  * bearer token being replayed, so the server-side row has to go too.
  */
 export async function revokeSession(db: D1Database, jti: string): Promise<void> {
-  await ensureSessionsTable(db)
   await db.prepare('DELETE FROM user_sessions WHERE jti = ?').bind(jti).run()
 }
 
@@ -187,7 +169,6 @@ export async function verifySessionToken(
 
     if (db) {
       if (!session.jti) return null
-      await ensureSessionsTable(db)
       const row = await db
         .prepare('SELECT jti FROM user_sessions WHERE jti = ? AND user_id = ? AND expires_at > ?')
         .bind(session.jti, session.userId, now)
