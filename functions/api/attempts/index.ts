@@ -266,6 +266,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
           skill_scores, breakdown, responses, synced_at
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
         ON CONFLICT(id) DO UPDATE SET
+          mock_id = excluded.mock_id,
+          mock_title = excluded.mock_title,
+          mode = excluded.mode,
+          started_at = excluded.started_at,
+          finished_at = excluded.finished_at,
+          duration_ms = excluded.duration_ms,
+          overall_score = excluded.overall_score,
+          cefr = excluded.cefr,
+          earned_points = excluded.earned_points,
+          available_points = excluded.available_points,
           skill_scores = excluded.skill_scores,
           breakdown = excluded.breakdown,
           responses = excluded.responses,

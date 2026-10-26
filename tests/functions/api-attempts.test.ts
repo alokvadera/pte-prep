@@ -792,6 +792,55 @@ describe('POST /api/attempts', () => {
     expect(mock.attempts.get('attempt_existing_user')?.overall_score).toBe(74)
   })
 
+  it('re-pushes every score column together so the headline cannot desync', async () => {
+    const { mock, token, userId } = await signedIn()
+    seedAttempt(
+      mock,
+      makeAttemptRow({
+        id: 'attempt_resync',
+        user_id: userId,
+        overall_score: 40,
+        cefr: 'A2',
+        earned_points: 12,
+        available_points: 60,
+        skill_scores: '{"reading": 10}',
+        breakdown: '{"reading": 10}',
+      }),
+    )
+    const ctx = makeContext({
+      request: jsonRequest(
+        ATTEMPTS_URL,
+        {
+          id: 'attempt_resync',
+          overallScore: 74,
+          cefr: 'B2',
+          earnedPoints: 47,
+          availablePoints: 60,
+          skillScores: { reading: 55 },
+          breakdown: { reading: 55 },
+        },
+        'POST',
+        bearer(token),
+      ),
+      env: makeEnv({ DB: mock.db }),
+    })
+
+    const res = await listPost(ctx)
+
+    expect(res.status).toBe(200)
+    // A re-pushed attempt is a full mirror of the local record. The upsert
+    // used to refresh only skill_scores, breakdown and responses, so a second
+    // push could leave the stored overall score describing a different test
+    // than the skill scores beside it.
+    const row = mock.attempts.get('attempt_resync')
+    expect(row?.overall_score).toBe(74)
+    expect(row?.cefr).toBe('B2')
+    expect(row?.earned_points).toBe(47)
+    expect(row?.available_points).toBe(60)
+    expect(JSON.parse(row?.skill_scores ?? '{}')).toEqual({ reading: 55 })
+    expect(JSON.parse(row?.breakdown ?? '{}')).toEqual({ reading: 55 })
+  })
+
   it('fills in the defaults for an empty attempt', async () => {
     const { mock, token } = await signedIn()
     const ctx = makeContext({
