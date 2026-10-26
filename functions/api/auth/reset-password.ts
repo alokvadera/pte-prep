@@ -91,7 +91,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     .prepare("UPDATE password_resets SET used_at = datetime('now') WHERE user_id = ? AND used_at IS NULL")
     .bind(resetRecord.user_id)
     .run()
-    .catch(() => {})
+    .catch((err) => console.warn('[Auth] Could not invalidate outstanding reset links:', err))
 
   // Hash new password
   const iterations = resolvePbkdf2Iterations(context.env)
