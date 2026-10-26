@@ -53,8 +53,11 @@ try {
   const res = await fetch(BASE, { method: 'HEAD' })
   if (!res.ok) throw new Error(`status ${res.status}`)
 } catch {
+  // Exit 2, like browser-check and seo-audit-browser: a check that could not
+  // reach the server has not passed, and exiting 0 here made `npm run
+  // test:audio` report green against an empty port.
   console.error(`\n  No server at ${BASE}. Start one with: npm run serve\n`)
-  process.exit(0)
+  process.exit(2)
 }
 
 function sleep(ms) {
