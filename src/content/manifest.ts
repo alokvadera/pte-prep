@@ -29,7 +29,7 @@ export interface ManifestEntry {
 /** Capacity per question type — verified against the content bank
  *  (see scripts/bank-check.ts). These mirror `capacityByType()`. */
 export const MANIFEST_CAPACITY: Record<QuestionType, number> = {
-  'read-aloud': 230,
+  'read-aloud': 206,
   'repeat-sentence': 397,
   'describe-image': 60,
   'retell-lecture': 24,

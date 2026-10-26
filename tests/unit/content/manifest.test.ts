@@ -36,7 +36,7 @@ describe('MANIFEST_CAPACITY', () => {
   it('adds up to the published total', () => {
     const sum = Object.values(MANIFEST_CAPACITY).reduce((a, b) => a + b, 0)
     expect(TOTAL_CAPACITY).toBe(sum)
-    expect(TOTAL_CAPACITY).toBe(1480)
+    expect(TOTAL_CAPACITY).toBe(1456)
   })
 })
 
@@ -49,7 +49,7 @@ describe('manifestCapacityByType', () => {
     const copy = manifestCapacityByType()
     expect(copy).not.toBe(MANIFEST_CAPACITY)
     copy['read-aloud'] = 0
-    expect(MANIFEST_CAPACITY['read-aloud']).toBe(230)
+    expect(MANIFEST_CAPACITY['read-aloud']).toBe(206)
   })
 })
 

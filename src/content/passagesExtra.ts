@@ -21,13 +21,20 @@ export const EXTRA_PASSAGES: Passage[] = [
     topic: 'Cognitive neuroscience',
     level: 'C1',
     paragraphs: [
-      'Sleep is usually described as a period of rest, and the metaphor is so familiar that it has obscured what the data show. Across a century of electroencephalography, the sleeping brain has been found to be busy in ways that are quite unlike the waking brain. The clearest example is slow-wave sleep, in which the cortical electrical activity slows and synchronises into large, slow oscillations. The synchronisation is not rest. It is a coordinated transfer of information between the hippocampus, which is known to hold recent experience in a fragile form, and the neocortex, which holds longer-term knowledge.',
-      'The experimental evidence for this transfer is unusually clean for a cognitive science claim. In a standard procedure, participants learn a set of arbitrary spatial layouts and are tested after an interval. When the interval contains sleep, retention improves; when it contains an equal length of wakefulness, it does not. What appears to be consolidated is not the memory itself but the relationship between the new material and what was already known, which is why well-rested recall is often described as more organised rather than simply more accurate.',
-      'It would be convenient to conclude that sleep directly strengthens memory, and this is broadly defensible, but the harder finding is about what sleep declines to do. Slow-wave sleep is associated with a reduced responsiveness to external sound, and the brain appears to select what it will keep: experiences that were flagged as important, or that fit an existing schema, are preferentially stabilised, and others are left to fade. This solves a problem the waking brain faces constantly and cannot solve, because during learning there is no opportunity to discard anything without discarding everything.',
-      'The clinical consequences follow from the selection account rather than the rest account. An hour of lost sleep does not subtract a fixed quantity of memory; it removes the opportunity to sort, so that the material which survives is more likely to be the material that was already familiar. This predicts, correctly, that sleep deprivation hurts unfamiliar material most. It also predicts that the common advice to review material before sleep is sound for the wrong stated reason: not because sleep replays whatever it finds, but because sleep preferentially protects what was flagged for attention beforehand.',
-      'The limits of the picture are worth stating plainly. Almost all of this evidence comes from laboratory sleep in young adults, from tasks with immediate feedback, and from intervals measured in hours rather than across a lifespan. Sleep clearly does many things, and memory consolidation is one of them and not the largest. Anyone who has ever slept eight hours after a long day of difficult work knows what the other functions feel like, even when no experiment has isolated them.',
+      'Sleep is usually described as a period of rest, and the metaphor is so familiar that it has obscured what the data show. The clearest example is slow-wave sleep, in which the cortical electrical activity slows and synchronises into large, slow oscillations. It is a coordinated transfer of information between the hippocampus, which is known to hold recent experience in a fragile form, and the neocortex, which holds longer-term knowledge.',
+      'In a standard procedure, participants learn a set of arbitrary spatial layouts and are tested after an interval. When the interval contains sleep, retention improves; when it contains an equal length of wakefulness, it does not.',
+      'It would be convenient to conclude that sleep directly strengthens memory, and this is broadly defensible, but the harder finding is about what sleep declines to do. Slow-wave sleep is associated with a reduced responsiveness to external sound, and the brain appears to select what it will keep: experiences that were flagged as important, or that fit an existing schema, are preferentially stabilised, and others are left to fade.',
+      'An hour of lost sleep does not subtract a fixed quantity of memory; it removes the opportunity to sort, so that the material which survives is more likely to be the material that was already familiar. This predicts, correctly, that sleep deprivation hurts unfamiliar material most. It also predicts that the common advice to review material before sleep is sound for the wrong stated reason: not because sleep replays whatever it finds, but because sleep preferentially protects what was flagged for attention beforehand.',
+      'The limits of the picture are worth stating plainly. Almost all of this evidence comes from laboratory sleep in young adults, from tasks with immediate feedback, and from intervals measured in hours rather than across a lifespan. Sleep clearly does many things, and memory consolidation is one of them and not the largest.',
     ],
-    keyTerms: ['slow-wave sleep', 'hippocampus', 'neocortex', 'consolidation', 'schema', 'selective stabilisation'],
+    keyTerms: [
+      'slow-wave sleep',
+      'hippocampus',
+      'neocortex',
+      'consolidation',
+      'schema',
+      'selective stabilisation',
+    ],
     readAloud:
       'Sleep is usually described as a period of rest, and the metaphor is so familiar that it has obscured what the data show. Across a century of electroencephalography, the sleeping brain has been found to be busy in ways that are quite unlike the waking brain, and the clearest example is slow-wave sleep.',
     repeatSentences: [
@@ -51,9 +58,18 @@ export const EXTRA_PASSAGES: Passage[] = [
     },
     dropdown: {
       id: 'fibd-sleep-memory',
-      text:
-        'Sleep is usually described as a period of rest, and the metaphor has obscured what the data ______ . In slow-wave sleep the cortex synchronises, which is a ______ transfer of information rather than a pause. The brain appears to select what it will keep, and experiences that fit an existing ______ are preferentially stabilised. An hour of lost sleep therefore removes the ______ to sort rather than subtracting a fixed quantity of memory.',
-      bank: ['show', 'coordinated', 'schema', 'opportunity', 'conceal', 'gradual', 'narrative', 'excuse', 'partial'],
+      text: 'Sleep is usually described as a period of rest, and the metaphor has obscured what the data ______ . In slow-wave sleep the cortex synchronises, which is a ______ transfer of information rather than a pause. The brain appears to select what it will keep, and experiences that fit an existing ______ are preferentially stabilised. An hour of lost sleep therefore removes the ______ to sort rather than subtracting a fixed quantity of memory.',
+      bank: [
+        'show',
+        'coordinated',
+        'schema',
+        'opportunity',
+        'conceal',
+        'gradual',
+        'narrative',
+        'excuse',
+        'partial',
+      ],
       answers: ['show', 'coordinated', 'schema', 'opportunity'],
     },
     tableFib: {
@@ -83,7 +99,8 @@ export const EXTRA_PASSAGES: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-sleep-memory',
-      question: 'Which two observations does the passage present as support for the selection account?',
+      question:
+        'Which two observations does the passage present as support for the selection account?',
       options: [
         'Sleep-deprived participants lose unfamiliar material but not familiar material',
         'Slow-wave sleep is shorter in older adults than in younger adults',
@@ -99,18 +116,19 @@ export const EXTRA_PASSAGES: Passage[] = [
     asq: [
       {
         id: 'asq-sleep-1',
-        question: 'According to the passage, what does synchronisation between the hippocampus and the neocortex represent?',
-        options: [
-          'A transfer of information',
-          'A period of rest',
-          'A drop in electrical activity',
-        ],
+        question:
+          'According to the passage, what does synchronisation between the hippocampus and the neocortex represent?',
+        options: ['A transfer of information', 'A period of rest', 'A drop in electrical activity'],
         correct: 'A transfer of information',
       },
       {
         id: 'asq-sleep-2',
         question: 'What does the passage say an hour of lost sleep removes?',
-        options: ['The opportunity to sort', 'A fixed quantity of memory', 'The body temperature minimum'],
+        options: [
+          'The opportunity to sort',
+          'A fixed quantity of memory',
+          'The body temperature minimum',
+        ],
         correct: 'The opportunity to sort',
       },
       {
@@ -128,11 +146,11 @@ export const EXTRA_PASSAGES: Passage[] = [
     topic: 'Clinical research methodology',
     level: 'C1',
     paragraphs: [
-      'A clinical trial that enrols enough participants will produce a statistically significant result almost regardless of whether the treatment works. This is not a flaw in the statistics but a property of them: statistical significance asks whether an observed difference could plausibly have arisen by chance, and as the sample grows the range of differences that count as plausible shrinks in proportion. A difference of one milligram of blood pressure becomes reliable with a hundred thousand participants, and a difference of no clinical consequence is exactly as capable of clearing that bar as a large one.',
-      'The alternative framing is clinical significance, sometimes called practical or meaningful significance. It asks a different question: whether the effect is large enough to matter to a patient. The threshold is not a matter of arithmetic and there is no formula for setting it, because the answer depends on what the outcome is. Halving the risk of a fatal side effect might be worth an inconvenience. Halving the time to detect a disease that was already fatal in most cases might not be worth anything at all, because the patients notice nothing.',
-      'The two measures can diverge in either direction, and the pattern of divergence is itself informative. A large clinical effect found in a small trial is often a warning that the trial was conducted badly, because a poor design inflates apparent effects. The more common pattern is the reverse: a carefully conducted, adequately powered trial returns a confident null. Standardised mortality ratios in anaesthesia registries, and later reanalyses of trial registries, both found that a substantial share of published randomised studies had never been registered, and that the unregistered ones reported far larger effects.',
+      'A clinical trial that enrols enough participants will produce a statistically significant result almost regardless of whether the treatment works. This is not a flaw in the statistics but a property of them: statistical significance asks whether an observed difference could plausibly have arisen by chance, and as the sample grows the range of differences that count as plausible shrinks in proportion.',
+      'The alternative framing is clinical significance, sometimes called practical or meaningful significance. It asks a different question: whether the effect is large enough to matter to a patient. The threshold is not a matter of arithmetic and there is no formula for setting it, because the answer depends on what the outcome is.',
+      'The two measures can diverge in either direction, and the pattern of divergence is itself informative. The more common pattern is the reverse: a carefully conducted, adequately powered trial returns a confident null.',
       'The corrective measures that have gained ground are mostly procedural rather than statistical. Trial registration before enrolment removes the option of quietly dropping an inconvenient result. Reporting guidelines require that outcomes be named in advance, so that a study cannot report whichever measurement happened to improve. Individual patient data meta-analyses go further, reconstructing the analysis from the underlying observations rather than the summary statistics as published, and they have repeatedly found the pooled effect smaller than the published literature implied.',
-      'None of this makes the significance test wrong. It is an answer to a narrow question, and it is the narrow question that happens to be well defined. The difficulty is that a well defined question can be the wrong one, and that a result reported as "highly significant" reads to almost any reader as an important effect. The most useful habit in reading a trial is to find the effect size with its interval before reading the word "significant" at all, and to ask who the interval would have to exclude before the result changed anyone\'s behaviour.',
+      'None of this makes the significance test wrong. The difficulty is that a well defined question can be the wrong one, and that a result reported as "highly significant" reads to almost any reader as an important effect. The most useful habit in reading a trial is to find the effect size with its interval before reading the word "significant" at all, and to ask who the interval would have to exclude before the result changed anyone\'s behaviour.',
     ],
     keyTerms: [
       'statistical significance',
@@ -159,14 +177,30 @@ export const EXTRA_PASSAGES: Passage[] = [
       excerpt: [
         'The corrective measures that have gained ground are mostly procedural rather than statistical. Trial registration before enrolment removes the option of quietly dropping an inconvenient result. Reporting guidelines require that outcomes be named in advance, so that a study cannot report whichever measurement happened to improve. Individual patient data meta-analyses go further, reconstructing the analysis from the underlying observations rather than the summary statistics as published, and they have repeatedly found the pooled effect smaller than the published literature implied.',
       ],
-      keyTerms: ['registration', 'outcomes', 'meta-analyses', 'individual patient data', 'pooled', 'smaller'],
+      keyTerms: [
+        'registration',
+        'outcomes',
+        'meta-analyses',
+        'individual patient data',
+        'pooled',
+        'smaller',
+      ],
       minWords: 20,
     },
     dropdown: {
       id: 'fibd-significance',
-      text:
-        'A trial with a large sample will produce a statistically ______ result almost regardless of whether the treatment works, because the range of differences considered plausible ______ in proportion as the sample grows. The separate question of whether an effect is ______ enough to matter to a patient has no arithmetic answer and depends on the outcome. A large effect found in a small trial is often a ______ that the study was poorly conducted.',
-      bank: ['significant', 'shrinks', 'large', 'warning', 'expands', 'certain', 'artefact', 'minor', 'recent'],
+      text: 'A trial with a large sample will produce a statistically ______ result almost regardless of whether the treatment works, because the range of differences considered plausible ______ in proportion as the sample grows. The separate question of whether an effect is ______ enough to matter to a patient has no arithmetic answer and depends on the outcome. A large effect found in a small trial is often a ______ that the study was poorly conducted.',
+      bank: [
+        'significant',
+        'shrinks',
+        'large',
+        'warning',
+        'expands',
+        'certain',
+        'artefact',
+        'minor',
+        'recent',
+      ],
       answers: ['significant', 'shrinks', 'large', 'warning'],
     },
     tableFib: {
@@ -184,7 +218,8 @@ export const EXTRA_PASSAGES: Passage[] = [
     },
     mcqSingle: {
       id: 'mcqs-significance',
-      question: 'According to the passage, why does a large sample increase the rate of statistically significant findings?',
+      question:
+        'According to the passage, why does a large sample increase the rate of statistically significant findings?',
       options: [
         'The range of differences considered plausible shrinks in proportion',
         'Larger samples remove the effect of random variation entirely',
@@ -195,7 +230,8 @@ export const EXTRA_PASSAGES: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-significance',
-      question: 'Which two measures does the passage describe as procedural corrections rather than statistical ones?',
+      question:
+        'Which two measures does the passage describe as procedural corrections rather than statistical ones?',
       options: [
         'Registering a trial before enrolment',
         'Increasing the sample size to two thousand participants',
@@ -203,10 +239,7 @@ export const EXTRA_PASSAGES: Passage[] = [
         'Calculating a confidence interval around the effect size',
         'Rebuilding an analysis from individual patient data',
       ],
-      correct: [
-        'Registering a trial before enrolment',
-        'Naming outcomes in advance of the study',
-      ],
+      correct: ['Registering a trial before enrolment', 'Naming outcomes in advance of the study'],
     },
     asq: [
       {
@@ -248,15 +281,22 @@ export const EXTRA_PASSAGES: Passage[] = [
     topic: 'Civil engineering',
     level: 'B2',
     paragraphs: [
-      'A building is not held up by its columns alone. Every load that passes through the structure arrives ultimately at the ground, and the route it takes is called the load path. The engineer\'s first question is never whether a structure is strong enough, but whether the loads are being carried by the parts designed to carry them. A foundation that is stiff in one direction and soft in another will not announce this in a calculation; it will announce it under load, as a building that leans, a floor that ripples, or a facade that cracks along a line rather than across it.',
-      'The forces that matter are more numerous than weight. Wind acts on the height of a building and produces an overturning moment at its base, which grows with the square of the height and the square of the width. Earthquake forces act on mass and are short, sharp and unpredictable in direction. Temperature change moves a structure every day, because the members expand and contract and have to be free to do it. Each of these is smaller than the weight of the building, and each can be more difficult to accommodate, because weight is carried symmetrically down through the frame while wind and earthquake are not.',
-      'That asymmetry is what makes height a design problem rather than a matter of scaling up. As a building gets taller, its slenderness increases, and a slender structure amplifies its own movement: the sideways force applied at the top produces a deflection at the base, which shifts the load distribution, which can concentrate force where the design assumed it would be spread. The engineer\'s response is to stiffen the structure, and the two common strategies are a braced frame, where diagonal members carry lateral load as a truss, or a shear wall, a deep panel that behaves as a cantilever fixed at its base.',
-      'Foundations resolve all of this, and they are chosen for what the ground will tolerate rather than for what the structure needs. A shallow foundation spreads load across a large area near the surface and suits firm ground. A pile foundation transfers the load to a stronger layer far below, bypassing weak soil, and suits soft ground or high loads. Between them sits the caisson, excavated and filled in place, used where the required depth is great and the ground will not hold an open excavation unaided.',
-      'The failures that reach the public are usually not exotic. Most are the consequence of a decision taken early and then constrained: a column grid set out to suit rentable floor plates and left inadequate for the lateral loads, a basement that cut through the layer the building depended on, or a foundation depth chosen from a survey that predated the excavation next door. Historical records matter here for a reason that has nothing to do with sentiment. What a building was designed against, and what the ground beneath it has since done, are the two questions that determine whether it is still standing.',
+      "A building is not held up by its columns alone. Every load that passes through the structure arrives ultimately at the ground, and the route it takes is called the load path. The engineer's first question is never whether a structure is strong enough, but whether the loads are being carried by the parts designed to carry them.",
+      'The forces that matter are more numerous than weight. Wind acts on the height of a building and produces an overturning moment at its base, which grows with the square of the height and the square of the width. Earthquake forces act on mass and are short, sharp and unpredictable in direction. Each of these is smaller than the weight of the building, and each can be more difficult to accommodate, because weight is carried symmetrically down through the frame while wind and earthquake are not.',
+      "That asymmetry is what makes height a design problem rather than a matter of scaling up. The engineer's response is to stiffen the structure, and the two common strategies are a braced frame, where diagonal members carry lateral load as a truss, or a shear wall, a deep panel that behaves as a cantilever fixed at its base.",
+      'Foundations resolve all of this, and they are chosen for what the ground will tolerate rather than for what the structure needs. A pile foundation transfers the load to a stronger layer far below, bypassing weak soil, and suits soft ground or high loads.',
+      'The failures that reach the public are usually not exotic. Most are the consequence of a decision taken early and then constrained: a column grid set out to suit rentable floor plates and left inadequate for the lateral loads, a basement that cut through the layer the building depended on, or a foundation depth chosen from a survey that predated the excavation next door.',
     ],
-    keyTerms: ['load path', 'overturning moment', 'slenderness', 'braced frame', 'shear wall', 'pile foundation'],
+    keyTerms: [
+      'load path',
+      'overturning moment',
+      'slenderness',
+      'braced frame',
+      'shear wall',
+      'pile foundation',
+    ],
     readAloud:
-      'A building is not held up by its columns alone. Every load that passes through the structure arrives ultimately at the ground, and the route it takes is called the load path. The engineer\'s first question is never whether a structure is strong enough, but whether the loads are being carried by the parts designed to carry them.',
+      "A building is not held up by its columns alone. Every load that passes through the structure arrives ultimately at the ground, and the route it takes is called the load path. The engineer's first question is never whether a structure is strong enough, but whether the loads are being carried by the parts designed to carry them.",
     repeatSentences: [
       'Every load passing through a structure arrives ultimately at the ground.',
       'Wind produces an overturning moment that grows with the square of the height.',
@@ -270,17 +310,33 @@ export const EXTRA_PASSAGES: Passage[] = [
         'The passage explains that buildings fail more often from a wrongly carried load path than from insufficient strength, that lateral forces are harder to carry than weight because they act asymmetrically, and that foundations suit the ground they sit on rather than the structure above.',
       excerptLabel: 'Why height changes the problem',
       excerpt: [
-        'That asymmetry is what makes height a design problem rather than a matter of scaling up. As a building gets taller, its slenderness increases, and a slender structure amplifies its own movement: the sideways force applied at the top produces a deflection at the base, which shifts the load distribution, which can concentrate force where the design assumed it would be spread. The engineer\'s response is to stiffen the structure, and the two common strategies are a braced frame, where diagonal members carry lateral load as a truss, or a shear wall, a deep panel that behaves as a cantilever fixed at its base.',
+        "That asymmetry is what makes height a design problem rather than a matter of scaling up. As a building gets taller, its slenderness increases, and a slender structure amplifies its own movement: the sideways force applied at the top produces a deflection at the base, which shifts the load distribution, which can concentrate force where the design assumed it would be spread. The engineer's response is to stiffen the structure, and the two common strategies are a braced frame, where diagonal members carry lateral load as a truss, or a shear wall, a deep panel that behaves as a cantilever fixed at its base.",
         'The failures that reach the public are usually not exotic. Most are the consequence of a decision taken early and then constrained: a column grid set out to suit rentable floor plates and left inadequate for the lateral loads, a basement that cut through the layer the building depended on, or a foundation depth chosen from a survey that predated the excavation next door.',
       ],
-      keyTerms: ['slenderness', 'deflection', 'load distribution', 'braced frame', 'shear wall', 'foundation depth'],
+      keyTerms: [
+        'slenderness',
+        'deflection',
+        'load distribution',
+        'braced frame',
+        'shear wall',
+        'foundation depth',
+      ],
       minWords: 20,
     },
     dropdown: {
       id: 'fibd-foundations',
-      text:
-        'The engineer\'s first question is not whether the structure is strong enough, but whether the loads are being carried by the parts designed to carry them. This route is called the load ______ . Wind produces an ______ moment at the base, which grows with the square of the height. As a building grows ______ , it amplifies its own movement, so lateral load is resisted by a braced frame or a shear ______ . Foundations are chosen according to what the ground will ______ .',
-      bank: ['path', 'overturning', 'taller', 'wall', 'gradient', 'tolerate', 'diaphragm', 'require', 'lighter'],
+      text: "The engineer's first question is not whether the structure is strong enough, but whether the loads are being carried by the parts designed to carry them. This route is called the load ______ . Wind produces an ______ moment at the base, which grows with the square of the height. As a building grows ______ , it amplifies its own movement, so lateral load is resisted by a braced frame or a shear ______ . Foundations are chosen according to what the ground will ______ .",
+      bank: [
+        'path',
+        'overturning',
+        'taller',
+        'wall',
+        'gradient',
+        'tolerate',
+        'diaphragm',
+        'require',
+        'lighter',
+      ],
       answers: ['path', 'overturning', 'taller', 'wall', 'tolerate'],
     },
     tableFib: {
@@ -299,7 +355,8 @@ export const EXTRA_PASSAGES: Passage[] = [
     },
     mcqSingle: {
       id: 'mcqs-foundations',
-      question: 'According to the passage, why are lateral forces harder to accommodate than weight?',
+      question:
+        'According to the passage, why are lateral forces harder to accommodate than weight?',
       options: [
         'They act asymmetrically on the structure',
         'They are always larger than the total weight',
@@ -310,7 +367,8 @@ export const EXTRA_PASSAGES: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-foundations',
-      question: 'Which two does the passage give as examples of ordinary causes of structural failure?',
+      question:
+        'Which two does the passage give as examples of ordinary causes of structural failure?',
       options: [
         'A basement that cut through the layer the building depended on',
         'A foundation depth chosen from an outdated site survey',
@@ -343,7 +401,11 @@ export const EXTRA_PASSAGES: Passage[] = [
       {
         id: 'asq-foundations-3',
         question: 'What does the passage say a shear wall behaves like?',
-        options: ['A cantilever fixed at its base', 'A truss carrying tension only', 'A membrane stretched over the frame'],
+        options: [
+          'A cantilever fixed at its base',
+          'A truss carrying tension only',
+          'A membrane stretched over the frame',
+        ],
         correct: 'A cantilever fixed at its base',
       },
     ],

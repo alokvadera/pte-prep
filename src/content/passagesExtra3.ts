@@ -15,12 +15,12 @@ export const EXTRA_PASSAGES_3: Passage[] = [
     topic: 'Aviation policy',
     level: 'C1',
     paragraphs: [
-      'Aviation is usually discussed as a technical problem with a technical fix: aircraft are inefficient, fuels are carbon intensive, and both can be improved by better engineering. The framing is convenient because it implies that the alternatives are worse. The arithmetic is less clear, because a large share of a flight\'s climate impact does not come from the airframe at all.',
-      'At a typical altitude the atmosphere is far colder and drier than at sea level, and a combustion engine must work harder to produce useful thrust in those conditions. That inefficiency shows up directly in the fuel bill. The second contribution is less visible: water vapour, contrails and nitrogen oxides emitted at altitude alter the radiative balance of the upper atmosphere, and the scientific uncertainty over the magnitude of that effect is larger than the uncertainty over any aircraft efficiency improvement now in development.',
-      'This is why efficiency gains have repeatedly disappointed expectations. A given percentage improvement in fuel burn addresses the smaller and better understood part of the problem, while the larger part remains governed by physics that an engine designer cannot change. It also explains why removing a flight, rather than improving it, produces a reliably larger reduction than any technical roadmap can promise for the aircraft that would otherwise have flown.',
-      'That conclusion is politically awkward, because the alternatives to flying are uneven. A domestic flight within one country may have a viable rail substitute; a short-haul island route may have none at all, and for those passengers the realistic choice is not flying or not flying but flying or losing a connection with family. Any policy that treats the mode as uniformly substitutable misreads the map, and the routes that depend on it most are usually the ones with the fewest alternatives.',
-      'Offsetting is a third response and the weakest of the three. A tonne of carbon avoided elsewhere does not remove the contrail, and an offset programme is typically easier to run than to verify, with the risk that a projected reduction treated as achieved becomes a reason not to reduce at source. The measure with the clearest evidence behind it remains the least comfortable one: flying less.',
-      'The most promising near-term work is not aerodynamic. Improving the accuracy of forecasts, allowing airspace to be used more efficiently, and reducing the weight of what is carried on board deliver more reliably than any new airframe. None of these is exciting, and together they amount to a few per cent rather than the severalfold improvement the sector has occasionally implied is available.',
+      "Aviation is usually discussed as a technical problem with a technical fix: aircraft are inefficient, fuels are carbon intensive, and both can be improved by better engineering. The arithmetic is less clear, because a large share of a flight's climate impact does not come from the airframe at all.",
+      'At a typical altitude the atmosphere is far colder and drier than at sea level, and a combustion engine must work harder to produce useful thrust in those conditions. The second contribution is less visible: water vapour, contrails and nitrogen oxides emitted at altitude alter the radiative balance of the upper atmosphere, and the scientific uncertainty over the magnitude of that effect is larger than the uncertainty over any aircraft efficiency improvement now in development.',
+      'This is why efficiency gains have repeatedly disappointed expectations. A given percentage improvement in fuel burn addresses the smaller and better understood part of the problem, while the larger part remains governed by physics that an engine designer cannot change.',
+      'That conclusion is politically awkward, because the alternatives to flying are uneven. A domestic flight may have a viable rail substitute; a short-haul island route may have none, and for those passengers the realistic choice is flying or losing a connection with family. Any policy that treats the mode as uniformly substitutable misreads the map.',
+      'Offsetting is a third response and the weakest of the three. A tonne of carbon avoided elsewhere does not remove the contrail, and an offset programme is easier to run than to verify. The measure with the clearest evidence behind it remains the least comfortable one: flying less.',
+      'The most promising near-term work is not aerodynamic. Improving the accuracy of forecasts, allowing airspace to be used more efficiently, and reducing the weight of what is carried on board deliver more reliably than any new airframe.',
     ],
     keyTerms: ['contrails', 'altitude', 'fuel burn', 'offsets', 'substitutable', 'efficiency'],
     readAloud:
@@ -35,7 +35,7 @@ export const EXTRA_PASSAGES_3: Passage[] = [
     swt: {
       id: 'swt-cost-of-aviation',
       summary:
-        'The passage argues that aviation\'s climate impact is dominated by effects at altitude whose magnitude is scientifically uncertain, which is why fuel efficiency gains disappoint, and that the only measures with clear evidence behind them are reducing flying and improving operational accuracy.',
+        "The passage argues that aviation's climate impact is dominated by effects at altitude whose magnitude is scientifically uncertain, which is why fuel efficiency gains disappoint, and that the only measures with clear evidence behind them are reducing flying and improving operational accuracy.",
       excerptLabel: 'Why efficiency disappoints',
       excerpt: [
         'This is why efficiency gains have repeatedly disappointed expectations. A given percentage improvement in fuel burn addresses the smaller and better understood part of the problem, while the larger part remains governed by physics that an engine designer cannot change. It also explains why removing a flight, rather than improving it, produces a reliably larger reduction than any technical roadmap can promise for the aircraft that would otherwise have flown.',
@@ -46,9 +46,18 @@ export const EXTRA_PASSAGES_3: Passage[] = [
     },
     dropdown: {
       id: 'fibd-cost-of-aviation',
-      text:
-        'A large share of a flight\'s impact does not come from the ______ at all. A combustion engine must work harder at ______ , which raises the fuel bill, and the uncertainty over the effect of ______ is larger than the uncertainty over efficiency. Treating the mode as uniformly ______ misreads the map, because some routes have no substitute.',
-      bank: ['airframe', 'altitude', 'contrails', 'substitutable', 'fuselage', 'interchangeable', 'cabin', 'cruise', 'universal'],
+      text: "A large share of a flight's impact does not come from the ______ at all. A combustion engine must work harder at ______ , which raises the fuel bill, and the uncertainty over the effect of ______ is larger than the uncertainty over efficiency. Treating the mode as uniformly ______ misreads the map, because some routes have no substitute.",
+      bank: [
+        'airframe',
+        'altitude',
+        'contrails',
+        'substitutable',
+        'fuselage',
+        'interchangeable',
+        'cabin',
+        'cruise',
+        'universal',
+      ],
       answers: ['airframe', 'altitude', 'contrails', 'substitutable'],
     },
     tableFib: {
@@ -67,7 +76,8 @@ export const EXTRA_PASSAGES_3: Passage[] = [
     },
     mcqSingle: {
       id: 'mcqs-cost-of-aviation',
-      question: 'According to the second paragraph, why does a combustion engine burn more fuel at altitude?',
+      question:
+        'According to the second paragraph, why does a combustion engine burn more fuel at altitude?',
       options: [
         'The air at altitude is colder and drier',
         'The air is denser and requires more lift',
@@ -95,7 +105,11 @@ export const EXTRA_PASSAGES_3: Passage[] = [
       {
         id: 'asq-aviation-1',
         question: 'What does the passage say contrail effects do?',
-        options: ['Alter the radiative balance', 'Reduce aerodynamic drag', 'Increase fuel efficiency'],
+        options: [
+          'Alter the radiative balance',
+          'Reduce aerodynamic drag',
+          'Increase fuel efficiency',
+        ],
         correct: 'Alter the radiative balance',
       },
       {
@@ -123,14 +137,21 @@ export const EXTRA_PASSAGES_3: Passage[] = [
     topic: 'Conservation policy',
     level: 'C1',
     paragraphs: [
-      'A species is declared recovered when its population passes a threshold, and the threshold is usually a number: a few thousand breeding adults, sustained over a period of years. The rule has the merit of being administrable. A population is counted, the count is compared with the threshold, and a category follows. Almost everything difficult about conservation policy is hidden inside the apparent simplicity of that sentence.',
-      'The first difficulty is that a population count is a snapshot of a distribution, and distributions are unevenly distributed. A species may exceed the threshold across its whole range and still be functionally absent from ninety per cent of it, having concentrated into a single favourable habitat. Such a population is numerically recovered and practically fragile, because a single event at that site undoes decades of work. Most monitoring frameworks record the total and miss this entirely, since recording it requires knowing the distribution rather than the sum.',
-      'The second is that the same total can arise from very different histories. A population that never declined and a population that fell to a hundred animals and rebuilt have identical counts now and nothing in common in genetic terms. The second has passed through a bottleneck, and the diversity lost at the bottleneck is not recoverable by population growth, because the alleles are gone rather than out of proportion. Whether this matters is contested, and the contest is itself the point: the number is capable of meaning recovery or merely abundance, and policy has been choosing the convenient reading.',
-      'The third difficulty concerns what the count is measuring. A breeding adult count tracks animals that reproduce successfully, which is not the same as animals that contribute to population viability. Where one male sires most of the offspring, the count can rise while effective population size falls, and where individuals are counted at a stage before breeding, it can rise while the outcome that mattered deteriorates. Every one of these is measurable, and none of them is measured by a single number in a single season.',
-      'The reform that follows is not simply to record more. It is to record the shape of the population rather than its size: the number of distinct breeding sites, the spread of genetic diversity through those sites, and the ratio of the count to the number of sites, which falls continuously as a population concentrates. A recovered population should have a rising count, a stable or rising number of sites, and a stable ratio between them. Populations that satisfy the first and fail the others are, on any reasonable reading, still declining.',
-      'It is worth being clear that this makes the criterion harder, and that harder criteria are easier to argue with. A species declared recovered against a bare threshold can be relisted when the count falls again, at the cost of an announcement. A species declared recovered against a distribution criterion can only be relisted by showing the distribution itself changed, which requires the monitoring to have been in place beforehand. The reform does not make the judgement easier. It moves the work earlier, where it can still influence the outcome, which is the only place the work has ever been useful.',
+      'A species is declared recovered when its population passes a threshold, and the threshold is usually a number: a few thousand breeding adults, sustained over a period of years. The rule has the merit of being administrable.',
+      'The first difficulty is that a population count is a snapshot of a distribution, and distributions are unevenly distributed. A species may exceed the threshold across its whole range and still be functionally absent from ninety per cent of it, having concentrated into a single favourable habitat.',
+      'The second is that the same total can arise from very different histories. A population that never declined and one that fell to a hundred animals and rebuilt have identical counts now. The second has passed through a bottleneck, and the diversity lost at the bottleneck is not recoverable by population growth, because the alleles are gone rather than rare.',
+      'The third difficulty concerns what the count is measuring. A breeding adult count tracks animals that reproduce successfully, which is not the same as animals that contribute to population viability.',
+      'The reform that follows is not simply to record more. It is to record the shape of the population rather than its size: the number of distinct breeding sites, the spread of genetic diversity through those sites, and the ratio of the count to the number of sites, which falls continuously as a population concentrates. A recovered population should have a rising count, a stable or rising number of sites, and a stable ratio between them.',
+      'It is worth being clear that this makes the criterion harder. A species declared recovered against a distribution criterion can only be relisted by showing the distribution itself changed, which requires the monitoring to have been in place beforehand. It moves the work earlier, where it can still influence the outcome.',
     ],
-    keyTerms: ['threshold', 'distribution', 'bottleneck', 'effective population size', 'monitoring', 'relisted'],
+    keyTerms: [
+      'threshold',
+      'distribution',
+      'bottleneck',
+      'effective population size',
+      'monitoring',
+      'relisted',
+    ],
     readAloud:
       'A species is declared recovered when its population passes a threshold, and the threshold is usually a number: a few thousand breeding adults, sustained over a period of years. The rule has the merit of being administrable.',
     repeatSentences: [
@@ -154,9 +175,18 @@ export const EXTRA_PASSAGES_3: Passage[] = [
     },
     dropdown: {
       id: 'fibd-endangered-list',
-      text:
-        'A population count is a snapshot of a ______ , and distributions are uneven. A species may exceed the threshold across its range and still be absent from most of it, having ______ into one habitat. The diversity lost at a ______ is not recoverable by growth, because the alleles are gone. The reform is to record the ______ of the population rather than its size alone.',
-      bank: ['distribution', 'concentrated', 'bottleneck', 'shape', 'spread', 'density', 'expansion', 'recovery', 'weighting'],
+      text: 'A population count is a snapshot of a ______ , and distributions are uneven. A species may exceed the threshold across its range and still be absent from most of it, having ______ into one habitat. The diversity lost at a ______ is not recoverable by growth, because the alleles are gone. The reform is to record the ______ of the population rather than its size alone.',
+      bank: [
+        'distribution',
+        'concentrated',
+        'bottleneck',
+        'shape',
+        'spread',
+        'density',
+        'expansion',
+        'recovery',
+        'weighting',
+      ],
       answers: ['distribution', 'concentrated', 'bottleneck', 'shape'],
     },
     tableFib: {
@@ -175,7 +205,8 @@ export const EXTRA_PASSAGES_3: Passage[] = [
     },
     mcqSingle: {
       id: 'mcqs-endangered-list',
-      question: 'According to the third paragraph, why is a bottleneck not repaired by population growth?',
+      question:
+        'According to the third paragraph, why is a bottleneck not repaired by population growth?',
       options: [
         'The alleles are gone rather than rare',
         'The population is too small to recover',
@@ -203,7 +234,11 @@ export const EXTRA_PASSAGES_3: Passage[] = [
       {
         id: 'asq-list-1',
         question: 'What does the passage say a concentrated population is?',
-        options: ['Numerically recovered and fragile', 'Recovered and secure', 'Declining and unmanaged'],
+        options: [
+          'Numerically recovered and fragile',
+          'Recovered and secure',
+          'Declining and unmanaged',
+        ],
         correct: 'Numerically recovered and fragile',
       },
       {
@@ -215,7 +250,11 @@ export const EXTRA_PASSAGES_3: Passage[] = [
       {
         id: 'asq-list-3',
         question: 'What does the passage say the reform does?',
-        options: ['Moves the work earlier', 'Removes the need for monitoring', 'Makes the criterion easier'],
+        options: [
+          'Moves the work earlier',
+          'Removes the need for monitoring',
+          'Makes the criterion easier',
+        ],
         correct: 'Moves the work earlier',
       },
     ],

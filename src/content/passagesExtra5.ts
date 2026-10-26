@@ -15,14 +15,21 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     topic: 'Coral reef ecology',
     level: 'C1',
     paragraphs: [
-      'A coral reef is often described as an underwater garden, but the resemblance ends at the appearance. The structure is built by colonies of tiny animals, each of which secretes a cup of calcium carbonate around itself, and the reef is the accumulated skeleton of millions of generations that lived and died in the same place. The coral animal cannot photosynthesise. It hosts algae in its tissue, and the algae, which convert sunlight into sugar, transfer a large share of what they produce to their host. That arrangement explains both the productivity of the reef and its fragility, because the animal depends on a partner it cannot live without.',
-      'The mechanism behind bleaching is a breakdown of that partnership rather than a death of the animal. When water warms beyond a narrow band, the algae produce reactive oxygen species faster than the coral can neutralise them, and the coral responds by expelling the algae. What follows is visible as white stone, but the animal is usually still alive and may recover if the water cools within weeks. The bleaching event is therefore a stress response with a time limit, and whether it becomes a mortality event depends on duration, not only on temperature.',
-      'It would be reasonable to object that reefs have survived warm periods before, and the geological record supports the objection in part. Corals have persisted through climate shifts over hundreds of thousands of years, adapting and migrating as conditions changed. The strongest counter is a matter of rate: the warming now under way is faster than the pace at which coral populations have historically shifted their range, and a reef that adapts in a century cannot keep pace with a change measured in decades. Whether that is true is a claim that can be tested, because it predicts that reefs in rapidly warming seas should lose more species than reefs in stable ones, and long-term survey data show exactly that.',
-      'The consequences are structural rather than cosmetic. A reef that loses its branching corals loses the architecture that shelters fish, and the fish that remain are smaller and fewer. Fisheries decline, and the coast loses the wave-breaking barrier that the reef provided, so erosion rises. The falsifiable claim at the centre of the science is straightforward: if bleaching is driven by the duration of heat, then reefs exposed to short, sharp warm events should recover, and reefs exposed to prolonged warmth should not. Satellite records of sea temperature, matched against reef surveys, allow exactly that prediction to be checked.',
+      'The structure is built by colonies of tiny animals, each of which secretes a cup of calcium carbonate around itself, and the reef is the accumulated skeleton of millions of generations that lived and died in the same place. It hosts algae in its tissue, and the algae, which convert sunlight into sugar, transfer a large share of what they produce to their host. That arrangement explains both the productivity of the reef and its fragility, because the animal depends on a partner it cannot live without.',
+      'The mechanism behind bleaching is a breakdown of that partnership rather than a death of the animal. When water warms beyond a narrow band, the algae produce reactive oxygen species faster than the coral can neutralise them, and the coral responds by expelling the algae. The bleaching event is a stress response with a time limit, and whether it becomes a mortality event depends on duration, not only on temperature.',
+      'It would be reasonable to object that reefs have survived warm periods before, and the geological record supports the objection in part. Corals have persisted through climate shifts over hundreds of thousands of years, adapting and migrating as conditions changed. The strongest counter is a matter of rate: the warming now under way is faster than the pace at which coral populations have historically shifted their range.',
+      'The consequences are structural rather than cosmetic. A reef that loses its branching corals loses the architecture that shelters fish, and the fish that remain are smaller and fewer. Fisheries decline, and the coast loses the wave-breaking barrier that the reef provided, so erosion rises. The falsifiable claim at the centre of the science is straightforward: if bleaching is driven by the duration of heat, then reefs exposed to short, sharp warm events should recover, and reefs exposed to prolonged warmth should not.',
     ],
-    keyTerms: ['calcium carbonate', 'algae', 'bleaching', 'reactive oxygen species', 'fisheries', 'erosion'],
+    keyTerms: [
+      'calcium carbonate',
+      'algae',
+      'bleaching',
+      'reactive oxygen species',
+      'fisheries',
+      'erosion',
+    ],
     readAloud:
-      'A coral reef is often described as an underwater garden, but the resemblance ends at the appearance. The structure is built by colonies of tiny animals, each of which secretes a cup of calcium carbonate around itself, and the reef is the accumulated skeleton of millions of generations that lived and died in the same place.',
+      'The structure is built by colonies of tiny animals, each of which secretes a cup of calcium carbonate around itself, and the reef is the accumulated skeleton of millions of generations that lived and died in the same place. It hosts algae in its tissue, and the algae, which convert sunlight into sugar, transfer a large share of what they produce to their host.',
     repeatSentences: [
       'The reef is the accumulated skeleton of millions of generations that lived and died in the same place.',
       'The coral animal hosts algae in its tissue, and the algae transfer sugar to their host.',
@@ -44,9 +51,18 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     dropdown: {
       id: 'fibd-coral-reefs',
-      text:
-        'A reef is built by colonies of tiny animals, each of which secretes a cup of calcium ______ around itself. The coral animal hosts ______ in its tissue, and these convert sunlight into sugar. When water warms, the algae produce reactive oxygen species faster than the coral can neutralise them, and the coral responds by ______ the algae. Whether bleaching becomes a mortality event depends on the ______ of the warming, not only on its peak.',
-      bank: ['carbonate', 'algae', 'expelling', 'duration', 'skeleton', 'recovery', 'warming', 'acid', 'coral'],
+      text: 'A reef is built by colonies of tiny animals, each of which secretes a cup of calcium ______ around itself. The coral animal hosts ______ in its tissue, and these convert sunlight into sugar. When water warms, the algae produce reactive oxygen species faster than the coral can neutralise them, and the coral responds by ______ the algae. Whether bleaching becomes a mortality event depends on the ______ of the warming, not only on its peak.',
+      bank: [
+        'carbonate',
+        'algae',
+        'expelling',
+        'duration',
+        'skeleton',
+        'recovery',
+        'warming',
+        'acid',
+        'coral',
+      ],
       answers: ['carbonate', 'algae', 'expelling', 'duration'],
     },
     tableFib: {
@@ -54,7 +70,13 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       context: [
         'Marine biologists surveyed four reef sites after a marine heatwave, recording the length of the temperature anomaly, the severity of bleaching observed, and the condition of each reef two years later. The table reports their findings.',
       ],
-      headers: ['Site', 'Heat anomaly', 'Days above threshold', 'Bleaching severity', 'Two-year outcome'],
+      headers: [
+        'Site',
+        'Heat anomaly',
+        'Days above threshold',
+        'Bleaching severity',
+        'Two-year outcome',
+      ],
       rows: [
         ['North Lagoon', '0.4 °C', '11', 'Mild', 'Recovered'],
         ['South Atoll', '1.1 °C', null, 'Severe', 'Partial'],
@@ -66,7 +88,8 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     mcqSingle: {
       id: 'mcqs-coral-reefs',
-      question: 'According to the passage, what determines whether bleaching becomes a mortality event?',
+      question:
+        'According to the passage, what determines whether bleaching becomes a mortality event?',
       options: [
         'How long the warming lasts',
         'The species of algae present',
@@ -77,7 +100,8 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-coral-reefs',
-      question: 'Which two statements about the geological history of reefs does the passage accept?',
+      question:
+        'Which two statements about the geological history of reefs does the passage accept?',
       options: [
         'Corals have survived past warm periods',
         'Past adaptation was faster than modern warming',
@@ -85,7 +109,10 @@ export const EXTRA_PASSAGES_5: Passage[] = [
         'Historical reefs were larger than modern ones',
         'Corals have persisted through climate shifts',
       ],
-      correct: ['Corals have survived past warm periods', 'Corals have persisted through climate shifts'],
+      correct: [
+        'Corals have survived past warm periods',
+        'Corals have persisted through climate shifts',
+      ],
     },
     asq: [
       {
@@ -103,7 +130,11 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       {
         id: 'asq-coral-3',
         question: 'What does a reef lose when its branching corals die?',
-        options: ['The architecture that shelters fish', 'The ability to photosynthesise', 'Its calcium carbonate entirely'],
+        options: [
+          'The architecture that shelters fish',
+          'The ability to photosynthesise',
+          'Its calcium carbonate entirely',
+        ],
         correct: 'The architecture that shelters fish',
       },
     ],
@@ -115,14 +146,21 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     topic: 'Economics of remote work',
     level: 'C1',
     paragraphs: [
-      'The economics of remote work are usually discussed as a question of preference, but the underlying mechanism is a change in what a firm must pay for. Office work bundles together the labour and the location: the employee is paid to be in a place, and the price of that place is carried by the employer as rent, services and commuting time. Remote work unbundles the two, and the immediate effect is that the cost of the location is transferred, in part, to the worker, who absorbs it as rent nearer to home, electricity and the cost of a desk.',
-      'The strongest objection is that this transfer is simply a wage cut in disguise, and the data give it some support. Surveys of workers who moved to remote arrangements report that a minority accept a formal pay reduction, and the reduction is concentrated among those who moved to a cheaper city. The counter-argument is that the wage is only one side of the ledger: the worker who gives up a salary may also recover the value of commuting time, which in large cities is substantial and was never paid for in the first place.',
-      'The second-order effect concerns the market for talent. When location no longer ties a worker to an office, the firm can hire from a wider pool, and the worker can sell to a wider market. Standard trade theory predicts that a wider market raises the value of the best match and lowers the value of the average one, because the middle of the distribution faces more competition from both directions. This is testable, and the early evidence is consistent with it: pay in fully remote roles has spread, with a premium for rare skills and pressure on common ones.',
-      'Whether the arrangement survives depends on a variable that is easy to overlook: the cost of coordination. Work that can be specified in advance and checked after the fact suits remote arrangements. Work that depends on quick, tacit exchange does not, and the firms that have reversed remote policies cite exactly this. The falsifiable claim is that remote work will persist where output is measurable and disperse where it is not, and the pattern of reversals by industry so far matches that prediction rather than the preference story.',
+      'The economics of remote work are usually discussed as a question of preference, but the underlying mechanism is a change in what a firm must pay for. Remote work unbundles labour and location, and the immediate effect is that the cost of the location is transferred, in part, to the worker, who absorbs it as rent nearer to home, electricity and the cost of a desk.',
+      'The strongest objection is that this transfer is simply a wage cut in disguise, and the data give it some support. Surveys of workers who moved to remote arrangements report that a minority accept a formal pay reduction, and the reduction is concentrated among those who moved to a cheaper city.',
+      'The second-order effect concerns the market for talent. When location no longer ties a worker to an office, the firm can hire from a wider pool, and the worker can sell to a wider market. Standard trade theory predicts that a wider market raises the value of the best match and lowers the value of the average one. This is testable, and the early evidence is consistent with it: pay in fully remote roles has spread, with a premium for rare skills and pressure on common ones.',
+      'Work that can be specified in advance and checked after the fact suits remote arrangements. Work that depends on quick, tacit exchange does not, and the firms that have reversed remote policies cite exactly this. The falsifiable claim is that remote work will persist where output is measurable and disperse where it is not, and the pattern of reversals by industry so far matches that prediction rather than the preference story.',
     ],
-    keyTerms: ['unbundles', 'commuting time', 'wage', 'coordination', 'tacit exchange', 'measurable output'],
+    keyTerms: [
+      'unbundles',
+      'commuting time',
+      'wage',
+      'coordination',
+      'tacit exchange',
+      'measurable output',
+    ],
     readAloud:
-      'The economics of remote work are usually discussed as a question of preference, but the underlying mechanism is a change in what a firm must pay for. Office work bundles together the labour and the location: the employee is paid to be in a place, and the price of that place is carried by the employer as rent, services and commuting time.',
+      'The economics of remote work are usually discussed as a question of preference, but the underlying mechanism is a change in what a firm must pay for. Remote work unbundles labour and location, and the immediate effect is that the cost of the location is transferred, in part, to the worker.',
     repeatSentences: [
       'Remote work unbundles labour from location, transferring part of the cost of the workplace to the worker.',
       'The strongest objection is that the transfer of costs to workers is simply a wage cut in disguise.',
@@ -144,9 +182,18 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     dropdown: {
       id: 'fibd-remote-work',
-      text:
-        'Office work bundles together the labour and the ______ : the employee is paid to be in a place. Remote work ______ the two, transferring part of the cost to the worker, who absorbs it as rent and electricity. The strongest objection is that this transfer is simply a wage cut in ______ , and the data give it some support. Remote work will persist where output is ______ and disperse where it is not.',
-      bank: ['location', 'unbundles', 'disguise', 'measurable', 'bundles', 'office', 'recovery', 'invisible', 'portable'],
+      text: 'Office work bundles together the labour and the ______ : the employee is paid to be in a place. Remote work ______ the two, transferring part of the cost to the worker, who absorbs it as rent and electricity. The strongest objection is that this transfer is simply a wage cut in ______ , and the data give it some support. Remote work will persist where output is ______ and disperse where it is not.',
+      bank: [
+        'location',
+        'unbundles',
+        'disguise',
+        'measurable',
+        'bundles',
+        'office',
+        'recovery',
+        'invisible',
+        'portable',
+      ],
       answers: ['location', 'unbundles', 'disguise', 'measurable'],
     },
     tableFib: {
@@ -154,7 +201,13 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       context: [
         'A consultancy classified four job types by how far the output can be specified in advance and checked afterwards, then recorded the share of each role done remotely and the change in pay since 2020.',
       ],
-      headers: ['Job type', 'Output measurability', 'Remote share', 'Pay change since 2020', 'Coordination cost'],
+      headers: [
+        'Job type',
+        'Output measurability',
+        'Remote share',
+        'Pay change since 2020',
+        'Coordination cost',
+      ],
       rows: [
         ['Software testing', 'High', '61%', '+7%', 'Low'],
         ['Management consulting', null, '28%', '+3%', 'High'],
@@ -181,7 +234,7 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       options: [
         'Rent for a home nearer to the workplace',
         'Electricity and the cost of a desk',
-        'The employer\'s office lease',
+        "The employer's office lease",
         'Commuting time that was never paid for by anyone',
         'The cost of office cleaning services',
       ],
@@ -203,7 +256,11 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       {
         id: 'asq-remote-3',
         question: 'Which kind of work does the passage say suits remote arrangements?',
-        options: ['Work that can be specified and checked', 'Work that depends on tacit exchange', 'Work that needs a laboratory'],
+        options: [
+          'Work that can be specified and checked',
+          'Work that depends on tacit exchange',
+          'Work that needs a laboratory',
+        ],
         correct: 'Work that can be specified and checked',
       },
     ],
@@ -215,10 +272,10 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     topic: 'Immunology',
     level: 'B2',
     paragraphs: [
-      'A vaccine works by exposing the immune system to a harmless version of a pathogen, so that the body learns the shape of the enemy before it ever meets the real one. The immune system does not store memories in the way the brain does. It stores cells. After an infection, or after a vaccine, a small population of long-lived memory cells remains, each carrying a receptor that fits one specific marker on the surface of the pathogen.',
-      'The mechanism has two stages. On first exposure, the immune response is slow, because the matching cells are rare and must multiply before they can act; this is why a first infection can make a person ill for weeks. On second exposure, the memory cells recognise the marker immediately, and the response is fast enough to clear the pathogen before symptoms develop. The vaccine is, in effect, a rehearsal that does not stage the disease.',
-      'The strongest objection to vaccination is that natural infection teaches the same lesson more thoroughly, and in one respect the objection is correct: natural infection often produces broader and longer-lasting immunity. The counter is about risk, not about mechanism. The pathogen teaches the immune system while also damaging the body, sometimes permanently, and the vaccine teaches the same lesson using a marker, a weakened form, or a fragment that cannot cause the illness. A rehearsal that cannot cause the disease is safer than the performance.',
-      'The population-level effect follows from the same mechanism. When enough people carry memory cells, a pathogen cannot find enough new hosts to sustain its chain of transmission, and the outbreak dies out even among those who are not immune. Whether a vaccine achieves this depends on how contagious the pathogen is and on how many people are immune, both of which can be measured. The falsifiable claim is that outbreaks of a vaccinated-against disease should be smaller and rarer than outbreaks in unvaccinated populations, and surveillance data confirm this for measles, polio and other diseases where coverage has been high.',
+      'A vaccine works by exposing the immune system to a harmless version of a pathogen, so that the body learns the shape of the enemy before it ever meets the real one. After an infection, or after a vaccine, a small population of long-lived memory cells remains, each carrying a receptor that fits one specific marker on the surface of the pathogen.',
+      'The mechanism has two stages. On first exposure, the immune response is slow, because the matching cells are rare and must multiply before they can act; this is why a first infection can make a person ill for weeks. On second exposure, the memory cells recognise the marker immediately, and the response is fast enough to clear the pathogen before symptoms develop.',
+      'The strongest objection to vaccination is that natural infection teaches the same lesson more thoroughly, and in one respect the objection is correct: natural infection often produces broader and longer-lasting immunity. The counter is about risk, not about mechanism. The pathogen teaches the immune system while also damaging the body, sometimes permanently, and the vaccine teaches the same lesson using a marker, a weakened form, or a fragment that cannot cause the illness.',
+      'The population-level effect follows from the same mechanism. When enough people carry memory cells, a pathogen cannot find enough new hosts to sustain its chain of transmission, and the outbreak dies out even among those who are not immune. Whether a vaccine achieves this depends on how contagious the pathogen is and on how many people are immune, both of which can be measured.',
     ],
     keyTerms: ['memory cells', 'receptor', 'marker', 'immunity', 'transmission', 'surveillance'],
     readAloud:
@@ -244,9 +301,18 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     dropdown: {
       id: 'fibd-vaccines',
-      text:
-        'A vaccine works by exposing the immune system to a ______ version of a pathogen. After vaccination, a small population of long-lived ______ cells remains, each carrying a receptor that fits one specific marker. On second exposure, the response is fast enough to clear the pathogen before ______ develop. When enough people are immune, the pathogen cannot sustain its chain of ______ , and the outbreak dies out.',
-      bank: ['harmless', 'memory', 'symptoms', 'transmission', 'dangerous', 'forgotten', 'recovery', 'infection', 'carrier'],
+      text: 'A vaccine works by exposing the immune system to a ______ version of a pathogen. After vaccination, a small population of long-lived ______ cells remains, each carrying a receptor that fits one specific marker. On second exposure, the response is fast enough to clear the pathogen before ______ develop. When enough people are immune, the pathogen cannot sustain its chain of ______ , and the outbreak dies out.',
+      bank: [
+        'harmless',
+        'memory',
+        'symptoms',
+        'transmission',
+        'dangerous',
+        'forgotten',
+        'recovery',
+        'infection',
+        'carrier',
+      ],
       answers: ['harmless', 'memory', 'symptoms', 'transmission'],
     },
     tableFib: {
@@ -254,7 +320,13 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       context: [
         'A national immunisation programme recorded vaccine coverage and reported cases for four pathogens, comparing the years before the vaccine was introduced with the most recent decade.',
       ],
-      headers: ['Pathogen', 'Coverage', 'Cases before vaccine', 'Cases in recent decade', 'Immunity type'],
+      headers: [
+        'Pathogen',
+        'Coverage',
+        'Cases before vaccine',
+        'Cases in recent decade',
+        'Immunity type',
+      ],
       rows: [
         ['Measles', '93%', '500,000', 'Few hundred', 'Vaccine-derived'],
         ['Polio', null, '350,000', 'Zero in most regions', 'Vaccine-derived'],
@@ -277,7 +349,8 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-vaccines',
-      question: 'Which two reasons does the passage give for a vaccine being safer than natural infection?',
+      question:
+        'Which two reasons does the passage give for a vaccine being safer than natural infection?',
       options: [
         'The vaccine cannot cause the illness',
         'The vaccine uses a marker or a fragment',
@@ -291,19 +364,31 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       {
         id: 'asq-vax-1',
         question: 'What does the immune system store after an infection?',
-        options: ['Long-lived memory cells', 'Short-lived antibodies only', 'Permanent tissue changes'],
+        options: [
+          'Long-lived memory cells',
+          'Short-lived antibodies only',
+          'Permanent tissue changes',
+        ],
         correct: 'Long-lived memory cells',
       },
       {
         id: 'asq-vax-2',
         question: 'Why can a first infection make a person ill for weeks?',
-        options: ['The matching cells are rare', 'The pathogen mutates rapidly', 'The vaccine wears off'],
+        options: [
+          'The matching cells are rare',
+          'The pathogen mutates rapidly',
+          'The vaccine wears off',
+        ],
         correct: 'The matching cells are rare',
       },
       {
         id: 'asq-vax-3',
         question: 'What happens when enough people carry memory cells?',
-        options: ['The outbreak dies out', 'The pathogen mutates faster', 'Symptoms become more severe'],
+        options: [
+          'The outbreak dies out',
+          'The pathogen mutates faster',
+          'Symptoms become more severe',
+        ],
         correct: 'The outbreak dies out',
       },
     ],
@@ -317,8 +402,8 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     paragraphs: [
       'Decision fatigue is the claim that the quality of a choice declines after a long sequence of earlier choices. The proposed mechanism is not boredom but depletion: each act of choosing is said to draw on a limited resource, so that the later options are evaluated with less care than the earlier ones. The evidence most often cited comes from studies in which participants who made many decisions beforehand chose the default option, or gave up entirely, more often than participants who had not.',
       'The strongest objection is that depletion is the wrong metaphor. Under closer inspection, the original experiments have proven difficult to replicate, and a large-scale replication attempt found effects close to zero. The alternative account is motivation rather than depletion: choosing is effortful, and a person who has chosen a great deal simply wants the choosing to stop, which produces the same behaviour without any drained resource. The two accounts make different predictions, because a depleted resource should be restored by glucose, whereas a shift in motivation should be restored by a change in incentives.',
-      'The consequences attributed to decision fatigue are real even if the mechanism is disputed. Judges have been found to grant parole more often early in the session than late, and shoppers buy more impulse items at the end of a supermarket visit. Both findings could also reflect the structure of the day rather than a draining resource: late sessions follow long ones, and the end of a supermarket trip follows many small choices. Correlation with order is not evidence of depletion, but it is evidence that order matters.',
-      'The practical advice survives the dispute, because the remedies recommended for decision fatigue work under either account. Moving important decisions to the morning, reducing the number of trivial choices in a day, and pre-committing to defaults all reduce the number of decisions that must be made at the moment they matter. The falsifiable claim is that if the effect is motivational, then changing the incentive to decide should restore performance without rest or glucose, and experiments of that kind are the ones that will settle the question.',
+      'The consequences attributed to decision fatigue are real even if the mechanism is disputed. Both findings could also reflect the structure of the day rather than a draining resource: late sessions follow long ones, and the end of a supermarket trip follows many small choices.',
+      'The practical advice survives the dispute, because the remedies recommended for decision fatigue work under either account. Moving important decisions to the morning, reducing the number of trivial choices in a day, and pre-committing to defaults all reduce the number of decisions that must be made at the moment they matter. The falsifiable claim is that if the effect is motivational, then changing the incentive to decide should restore performance without rest or glucose.',
     ],
     keyTerms: ['depletion', 'replicate', 'default option', 'parole', 'motivation', 'incentives'],
     readAloud:
@@ -344,9 +429,18 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     dropdown: {
       id: 'fibd-decision-fatigue',
-      text:
-        'Decision fatigue is the claim that the quality of a choice declines after a long sequence of earlier ______ . The proposed mechanism is depletion: each act of choosing draws on a limited ______ . The strongest objection is that the original experiments have proven difficult to ______ . The alternative account is ______ rather than depletion, because a person who has chosen a great deal simply wants the choosing to stop.',
-      bank: ['choices', 'resource', 'replicate', 'motivation', 'chances', 'reservoir', 'repeat', 'emotion', 'fatigue'],
+      text: 'Decision fatigue is the claim that the quality of a choice declines after a long sequence of earlier ______ . The proposed mechanism is depletion: each act of choosing draws on a limited ______ . The strongest objection is that the original experiments have proven difficult to ______ . The alternative account is ______ rather than depletion, because a person who has chosen a great deal simply wants the choosing to stop.',
+      bank: [
+        'choices',
+        'resource',
+        'replicate',
+        'motivation',
+        'chances',
+        'reservoir',
+        'repeat',
+        'emotion',
+        'fatigue',
+      ],
       answers: ['choices', 'resource', 'replicate', 'motivation'],
     },
     tableFib: {
@@ -354,7 +448,13 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       context: [
         'Researchers observed four parole boards over a year, recording how many decisions each board had heard by the session in question, the share of requests granted, and how often the default refusal was chosen.',
       ],
-      headers: ['Session', 'Decisions heard', 'Parole grant rate', 'Default chosen', 'Interpretation'],
+      headers: [
+        'Session',
+        'Decisions heard',
+        'Parole grant rate',
+        'Default chosen',
+        'Interpretation',
+      ],
       rows: [
         ['Morning', '12', '65%', 'Rare', 'Fresh resources'],
         ['Midday', null, '48%', 'Occasional', 'Depletion'],
@@ -366,7 +466,8 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     mcqSingle: {
       id: 'mcqs-decision-fatigue',
-      question: 'According to the passage, what is the strongest objection to the depletion account?',
+      question:
+        'According to the passage, what is the strongest objection to the depletion account?',
       options: [
         'The original experiments have proven difficult to replicate',
         'Participants were not paid enough to take part',
@@ -377,7 +478,8 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-decision-fatigue',
-      question: 'Which two remedies does the passage say work under either account of decision fatigue?',
+      question:
+        'Which two remedies does the passage say work under either account of decision fatigue?',
       options: [
         'Moving important decisions to the morning',
         'Taking glucose between consecutive decisions',
@@ -385,7 +487,10 @@ export const EXTRA_PASSAGES_5: Passage[] = [
         'Increasing the number of options available',
         'Extending the working day deliberately',
       ],
-      correct: ['Moving important decisions to the morning', 'Reducing the number of trivial daily choices'],
+      correct: [
+        'Moving important decisions to the morning',
+        'Reducing the number of trivial daily choices',
+      ],
     },
     asq: [
       {
@@ -397,7 +502,11 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       {
         id: 'asq-fatigue-2',
         question: 'What do participants who have chosen a great deal often do?',
-        options: ['Choose the default or give up', 'Choose more carefully than before', 'Ask for more time to decide'],
+        options: [
+          'Choose the default or give up',
+          'Choose more carefully than before',
+          'Ask for more time to decide',
+        ],
         correct: 'Choose the default or give up',
       },
       {
@@ -415,9 +524,9 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     topic: 'History of the printing press',
     level: 'B2',
     paragraphs: [
-      'The printing press is often described as the invention that made the modern world, and the claim is closer to the truth than most such claims. Before movable type, a book was a hand-copied object, and the cost of copying set a hard limit on how many books existed and who could read them. A press that used reusable metal type changed the economics of the book rather than the physics of it: the same text could be printed hundreds of times, and the cost of each copy fell towards the cost of the paper it was printed on.',
-      'The mechanism was simple, and it was the simplicity that mattered. Movable type allowed a page to be composed from individual letters, inked, and pressed onto paper, after which the letters could be rearranged for the next page. A skilled compositor could produce several pages an hour, and a press could run for days on a single setting. The consequence was a fall in price so large that books moved from the possession of institutions to the possession of individuals within two generations.',
-      'The strongest objection to the grand narrative is that the press did not change Europe as quickly or as uniformly as the story suggests. Manuscript copies continued for decades after the first printed books, and literacy rose slowly and unevenly, with most of the early benefit going to cities and to the wealthy. The counter is that the press changed the ceiling rather than the floor: it made the spread of ideas cheap enough that the eventual rise in literacy could occur at all, and the delay between the two is what historians now study rather than deny.',
+      'The printing press is often described as the invention that made the modern world, and the claim is closer to the truth than most such claims. Before movable type, a book was a hand-copied object, and the cost of copying set a hard limit on how many books existed and who could read them. A press that used reusable metal type changed the economics of the book rather than the physics of it, and the cost of each copy fell towards the cost of the paper it was printed on.',
+      'Movable type allowed a page to be composed from individual letters, inked, and pressed onto paper, after which the letters could be rearranged for the next page. A skilled compositor could produce several pages an hour, and a press could run for days on a single setting.',
+      'The strongest objection to the grand narrative is that the press did not change Europe as quickly or as uniformly as the story suggests. Manuscript copies continued for decades after the first printed books, and literacy rose slowly and unevenly, with most of the early benefit going to cities and to the wealthy. The counter is that the press changed the ceiling rather than the floor: it made the spread of ideas cheap enough that the eventual rise in literacy could occur at all.',
       'The falsifiable part of the claim concerns what happened to the content itself. If the press lowered the cost of copying, then the number of distinct titles in circulation should rise sharply, and so should the survival rate of works that would otherwise have been lost. Both predictions are checkable against library catalogues, and they hold: the centuries after the press contain more surviving titles than the centuries before it, and the increase is far larger than population growth alone can explain.',
     ],
     keyTerms: ['movable type', 'compositor', 'literacy', 'manuscript', 'titles', 'catalogues'],
@@ -444,9 +553,18 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     dropdown: {
       id: 'fibd-printing-press',
-      text:
-        'Before movable type, a book was a hand-copied object, and the cost of copying set a hard limit on how many books existed. A press with reusable metal ______ changed the economics of the book: the same text could be printed hundreds of times, and the cost of each copy fell towards the cost of the ______ . The strongest objection is that literacy rose slowly and unevenly, with most of the early benefit going to ______ and to the wealthy. The falsifiable claim is that the number of distinct ______ in circulation should rise sharply after the press.',
-      bank: ['type', 'paper', 'cities', 'titles', 'stone', 'cloth', 'villages', 'authors', 'presses'],
+      text: 'Before movable type, a book was a hand-copied object, and the cost of copying set a hard limit on how many books existed. A press with reusable metal ______ changed the economics of the book: the same text could be printed hundreds of times, and the cost of each copy fell towards the cost of the ______ . The strongest objection is that literacy rose slowly and unevenly, with most of the early benefit going to ______ and to the wealthy. The falsifiable claim is that the number of distinct ______ in circulation should rise sharply after the press.',
+      bank: [
+        'type',
+        'paper',
+        'cities',
+        'titles',
+        'stone',
+        'cloth',
+        'villages',
+        'authors',
+        'presses',
+      ],
       answers: ['type', 'paper', 'cities', 'titles'],
     },
     tableFib: {
@@ -485,7 +603,10 @@ export const EXTRA_PASSAGES_5: Passage[] = [
         'Literacy became uniform across Europe',
         'Manuscript copying disappeared within a decade',
       ],
-      correct: ['The number of distinct titles rose sharply', 'More works survived than would otherwise have been lost'],
+      correct: [
+        'The number of distinct titles rose sharply',
+        'More works survived than would otherwise have been lost',
+      ],
     },
     asq: [
       {
@@ -515,14 +636,14 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     topic: 'Physics of batteries',
     level: 'C1',
     paragraphs: [
-      'A battery is not a store of electricity in the way a tank is a store of water. It is a device that converts chemical energy into electrical energy through reactions at two electrodes separated by an electrolyte. At the anode, a material gives up electrons; at the cathode, another material accepts them; and the electrolyte carries ions between the two so that the reactions can continue. The voltage is set by the chemistry of the electrode pair, and it is fixed: no arrangement of materials will make a lithium cell produce the voltage of a lead-acid cell.',
-      'The quantity that a battery stores is energy, and it is measured in watt-hours, while the rate at which it can deliver that energy is power, measured in watts. The two are not the same, and the confusion between them is the most common error in popular discussion of batteries. A battery with a large capacity may still deliver power slowly, because the reactions that release the energy have a maximum speed, and that speed is set by the surface area of the electrodes and the conductivity of the electrolyte.',
-      'The strongest objection to the optimistic forecast is that the limits are chemical rather than engineering. Lithium-ion cells have improved by roughly three per cent a year for three decades, and the improvement is real, but it compounds slowly against a physical ceiling: the energy stored per kilogram is bounded by the energy of the chemical bonds themselves. The counter is that the ceiling is not uniform across chemistries, and that a different chemistry with a different pair of materials can sit at a different point on the trade-off between energy, power and safety. That claim is falsifiable, because it predicts that a chemistry with higher energy density will show up first in applications where weight matters most, and that is what the record shows.',
-      'The practical consequences follow from the trade-off rather than from the headline figure. A car that needs range needs energy density; a grid that needs to absorb a surge needs power; a phone that must not catch fire needs stability, and the electrolyte that gives the most energy is often the least stable. The falsifiable claim at the centre of the field is that batteries will keep improving by small percentages rather than by multiples, and the test is simple: compare the published capacity of new cells against the same measure a decade apart.',
+      'It is a device that converts chemical energy into electrical energy through reactions at two electrodes separated by an electrolyte. At the anode, a material gives up electrons; at the cathode, another material accepts them; and the electrolyte carries ions between the two so that the reactions can continue. The voltage is set by the chemistry of the electrode pair, and it is fixed: no arrangement of materials will make a lithium cell produce the voltage of a lead-acid cell.',
+      'The quantity that a battery stores is energy, and it is measured in watt-hours, while the rate at which it can deliver that energy is power, measured in watts. The two are not the same, and the confusion between them is the most common error in popular discussion of batteries. A battery with a large capacity may still deliver power slowly, because the reactions that release the energy have a maximum speed, set by the surface area of the electrodes.',
+      'The strongest objection to the optimistic forecast is that the limits are chemical rather than engineering. Lithium-ion cells have improved by roughly three per cent a year for three decades, but the improvement compounds slowly against a physical ceiling: the energy stored per kilogram is bounded by the energy of the chemical bonds themselves. The counter is that the ceiling is not uniform across chemistries, and that a different chemistry with a different pair of materials can sit at a different point on the trade-off between energy, power and safety.',
+      'The practical consequences follow from the trade-off rather than from the headline figure. A car that needs range needs energy density; a grid that needs to absorb a surge needs power; a phone that must not catch fire needs stability, and the electrolyte that gives the most energy is often the least stable.',
     ],
     keyTerms: ['electrolyte', 'anode', 'cathode', 'watt-hours', 'energy density', 'electrodes'],
     readAloud:
-      'A battery is not a store of electricity in the way a tank is a store of water. It is a device that converts chemical energy into electrical energy through reactions at two electrodes separated by an electrolyte.',
+      'The quantity that a battery stores is energy, and it is measured in watt-hours, while the rate at which it can deliver that energy is power, measured in watts. The two are not the same, and the confusion between them is the most common error in popular discussion of batteries.',
     repeatSentences: [
       'A battery converts chemical energy into electrical energy through reactions at two electrodes separated by an electrolyte.',
       'The voltage is set by the chemistry of the electrode pair, and it is fixed.',
@@ -539,14 +660,30 @@ export const EXTRA_PASSAGES_5: Passage[] = [
         'The quantity that a battery stores is energy, and it is measured in watt-hours, while the rate at which it can deliver that energy is power, measured in watts. The two are not the same, and the confusion between them is the most common error in popular discussion of batteries.',
         'A car that needs range needs energy density; a grid that needs to absorb a surge needs power; a phone that must not catch fire needs stability, and the electrolyte that gives the most energy is often the least stable.',
       ],
-      keyTerms: ['electrolyte', 'watt-hours', 'electrical energy', 'power', 'energy density', 'chemical bonds'],
+      keyTerms: [
+        'electrolyte',
+        'watt-hours',
+        'electrical energy',
+        'power',
+        'energy density',
+        'chemical bonds',
+      ],
       minWords: 20,
     },
     dropdown: {
       id: 'fibd-batteries',
-      text:
-        'A battery is a device that converts chemical energy into ______ energy through reactions at two electrodes. At the anode, a material gives up electrons; at the ______ , another material accepts them. The quantity a battery stores is energy, measured in watt-hours, while the rate of delivery is ______ , measured in watts. The energy stored per kilogram is bounded by the energy of the chemical ______ themselves.',
-      bank: ['electrical', 'cathode', 'power', 'bonds', 'thermal', 'anode', 'force', 'atoms', 'current'],
+      text: 'A battery is a device that converts chemical energy into ______ energy through reactions at two electrodes. At the anode, a material gives up electrons; at the ______ , another material accepts them. The quantity a battery stores is energy, measured in watt-hours, while the rate of delivery is ______ , measured in watts. The energy stored per kilogram is bounded by the energy of the chemical ______ themselves.',
+      bank: [
+        'electrical',
+        'cathode',
+        'power',
+        'bonds',
+        'thermal',
+        'anode',
+        'force',
+        'atoms',
+        'current',
+      ],
       answers: ['electrical', 'cathode', 'power', 'bonds'],
     },
     tableFib: {
@@ -554,7 +691,13 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       context: [
         'Engineers compared four battery chemistries by the energy each stores per kilogram, the rate at which it can deliver that energy, and its stability, and matched each to the application that suits it best.',
       ],
-      headers: ['Chemistry', 'Energy density (Wh/kg)', 'Power delivery', 'Stability', 'Best suited to'],
+      headers: [
+        'Chemistry',
+        'Energy density (Wh/kg)',
+        'Power delivery',
+        'Stability',
+        'Best suited to',
+      ],
       rows: [
         ['Lead-acid', '35', 'Moderate', 'High', 'Backup power'],
         ['Lithium-ion', '250', null, 'Moderate', 'Cars and phones'],
@@ -577,7 +720,8 @@ export const EXTRA_PASSAGES_5: Passage[] = [
     },
     mcqMultiple: {
       id: 'mcqm-batteries',
-      question: 'According to the fourth paragraph, which two applications does the passage match with energy density and power respectively?',
+      question:
+        'According to the fourth paragraph, which two applications does the passage match with energy density and power respectively?',
       options: [
         'A car that needs range',
         'A grid that needs to absorb a surge',
@@ -603,7 +747,11 @@ export const EXTRA_PASSAGES_5: Passage[] = [
       {
         id: 'asq-batt-3',
         question: 'What bounds the energy stored per kilogram?',
-        options: ['The energy of the chemical bonds', 'The size of the electrodes', 'The price of the materials'],
+        options: [
+          'The energy of the chemical bonds',
+          'The size of the electrodes',
+          'The price of the materials',
+        ],
         correct: 'The energy of the chemical bonds',
       },
     ],
