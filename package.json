@@ -25,7 +25,7 @@
     "test:browser": "node scripts/browser-check.mjs",
     "test:audio": "node scripts/audio-playback-check.mjs",
     "motion:review": "node scripts/motion-review.mjs",
-    "verify": "npm run typecheck && npm run lint && npm run test:smoke && npm run test:bank && npm run test:coverage && npm run contrast && npm run build && npm run seo:audit",
+    "verify": "npm run typecheck && npm run lint && npm run format:check && npm run test:smoke && npm run test:bank && npm run test:coverage && npm run contrast && npm run build && npm run seo:audit",
     "verify:full": "npm run verify && (node scripts/serve.mjs 5200 dist & SERVER_PID=$!; sleep 3; node scripts/browser-check.mjs http://localhost:5200; node scripts/audio-playback-check.mjs http://localhost:5200; node scripts/seo-audit-browser.mjs http://localhost:5200; node scripts/motion-review.mjs http://localhost:5200; node scripts/contrast-render.mjs http://localhost:5200; node scripts/dark-audit.mjs http://localhost:5200; kill $SERVER_PID 2>/dev/null || true)",
     "contrast": "node scripts/contrast.mjs",
     "contrast:dark": "node scripts/dark-audit.mjs",
